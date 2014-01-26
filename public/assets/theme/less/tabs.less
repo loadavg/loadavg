@@ -1,0 +1,493 @@
+//
+// Tabs
+// --------------------------------------------------
+
+.widget {
+	&.widget-tabs {
+		.tab-content { padding: 0; }
+		> .widget-head {
+			background: #e1e1e3;
+			ul {
+				list-style: none;
+				height: 36px;
+				margin: 0;
+				border-right: 1px solid #f5f5f5;
+				display: inline-block;
+				li {
+					height: 36px;
+					line-height: 36px;
+					float: left;
+					display: block;
+					border-right: 1px solid #d1d2d3;
+					a {
+						width: auto; 
+						height: auto;
+						display: block;
+						padding: 0 15px;
+						color: #939393;
+						border-left: 1px solid #f5f5f5;
+						i:before { left: 5px; top: 3px; color: #9d9d9d; text-shadow: 0 1px 0 #fff; }
+						&.glyphicons { padding: 0 15px 0 35px; }
+					}
+					&.active {
+						background: #f5f5f5;
+						height: 37px;
+						color: #555555;
+						i:before { color: #7a7a7a; }
+					}
+					&:first-child {
+						.rounded();
+						a { .rounded(); }
+					}
+				}
+			}
+		}
+		.widget-body {
+			&.large { padding: 25px; }
+		}	
+	}
+	&.widget-tabs-2 {
+		border-bottom: 1px solid #dddddd;
+		&.border-bottom-none { border-bottom: none; }
+		> .widget-head {
+			background: #fff;
+			border: none;
+			border-bottom: 1px solid #dddddd;
+			padding: 0 10px;
+			ul {
+				border-color: #ddd;
+				li {
+					border: none;
+					&.active { #gradient .vertical(#f7f7f7, #ffffff); }
+					a {
+						border: 1px solid #dddddd;
+						border-bottom: none;
+						border-right: none;
+						color: #222;
+						text-transform: uppercase;
+						font-weight: 600;
+					}
+					&:first-child a { .rounded(); }
+				}
+			}
+		}
+		> .widget-body { background: #fff; border: none; padding: 15px 0; }
+	}
+	&.widget-tabs-double {
+		> .widget-head {
+			height: 40px;
+			border-color: #d1d2d3;
+			ul {
+				height: 40px;
+				li {
+					height: 40px;
+					line-height: 20px;
+					border-bottom: none;
+					a {
+						height: 35px;
+						padding: 5px 0 0;
+						span {
+							display: block;
+							line-height: 15px;
+						}
+						&.glyphicons {
+							padding: 5px 15px 0 38px;
+							i:before { left: 4px; top: 5px; font-size: 16px; }
+						}
+					}
+					&.active {
+						height: 40px;
+					}
+				}
+			}
+		}
+	}
+	&.widget-tabs-double-2 {
+		border: none;
+		> .widget-head {
+			border: 1px solid #e5e5e5;
+			border-bottom: none;
+			height: 70px;
+			&.border-bottom { border-bottom: 1px solid #e5e5e5; }
+			ul {
+				height: 70px;
+				li {
+					height: 70px;
+					line-height: 20px;
+					.transition(background 1s ease);
+					a {
+						height: 70px;
+						padding: 5px 0 0;
+						text-decoration: none;
+						text-align: center;
+						span { display: block; line-height: 30px; }
+						&.glyphicons {
+							padding: 0 15px;
+							i {
+								display: block;
+								height: 24px;
+								padding: 13px 0 0;
+								line-height: 24px;
+								text-align: center;
+							}
+							i:before { left: auto; top: auto; font-size: 24px; position: relative; }
+						}
+					}
+					&.active { 
+						height: 70px;
+						background: #f5f5f5;
+						a { 
+							color: #7a7a7a;
+							i:before { color: #7a7a7a; } 
+						}
+					}
+					&:hover {
+						background: #f5f5f5;
+						a {
+							color: #7a7a7a;
+							i:before { color: #7a7a7a; } 
+						}
+					}
+				}
+			}
+		}
+		> .widget-body {
+			padding: 0;
+			border: none;
+		}
+		.widget-body-regular {
+			padding: 10px;
+			border: 1px solid #e5e5e5;
+			p:last-child { margin: 0; }
+		}
+	}
+	&.widget-tabs-vertical {
+		border: 1px solid #e5e5e5;
+		> .widget-head {
+			border: none;
+			border-right: 1px solid #e5e5e5;
+			height: auto;
+			padding: 0;
+			ul {
+				display: block;
+				height: auto;
+				li {
+					float: none;
+					display: block;
+					border-right: none;
+					border-bottom: 1px solid #d1d2d3;
+					border-top: 1px solid #f5f5f5;
+					&:last-child { border-bottom: none; }
+				}
+			}
+		}
+		> .widget-body {
+			padding: 0;
+			.tab-content { padding: 10px 10px 10px 0; }
+		}
+	}
+	&.widget-wizard-pills {
+		> .widget-head {
+			height: 60px;
+			padding: 10px 0;
+			ul {
+				height: 60px;
+				border: none;
+				li {
+					height: 60px;
+					line-height: 60px;
+					color: #444;
+					padding: 0 0 0 10px;
+					border: none;
+					text-shadow: 0 1px 0 #fff;
+					&.status {
+						height: 45px;
+						padding: 15px 15px 0;
+						font-weight: 600;
+						span.r {
+							display: block;
+							line-height: 15px;
+						}
+					}
+					a {
+						height: 58px;
+						line-height: 60px;
+						padding: 0;
+						width: 58px;
+						text-align: center;
+						background: #939393;
+						border: 1px solid #e5e5e5;
+						color: #c8c8c8;
+						font-weight: 600;
+						font-size: 16pt;
+						.rounded(5px,5px,5px,5px);
+						position: relative;
+						z-index: 2;
+					}
+					&.active {
+						height: 60px;
+						background: none;
+						a {
+							width: 60px;
+							height: 60px;
+							border: none;
+							background: #f5f5f5;
+							color: #555555; 
+						} 
+					}
+					&.primary {
+						a { 
+							width: 60px;
+							height: 60px;
+							background: @primaryColor;
+							border: none;
+							color: #fff; 
+						}
+					}
+					position: relative;
+					&:not(:first-child):before {
+						position: absolute;
+						background: #939393;
+						height: 1px;
+						left: 0;
+						right: 0;
+						top: 29px;
+						display: block;
+						content: "";
+						z-index: 1;
+					}
+					&.no-padding { padding: 0; }
+				}
+			}
+		}
+	}
+	&.widget-tabs-2 {
+		border-bottom: 1px solid #e5e5e5;
+		&.border-bottom-none { border-bottom: none; }
+		> .widget-head {
+			background: #fff;
+			border: none;
+			border-bottom: 1px solid #e5e5e5;
+			padding: 0 10px;
+			ul {
+				border-color: #e5e5e5;
+				li {
+					border: none;
+					&.active {
+						background-color: #f7f7f7;
+						background-image: -moz-linear-gradient(top,#f7f7f7,#ffffff);
+						background-image: -webkit-gradient(linear,0 0,0 100%,from(#f7f7f7),to(#ffffff));
+						background-image: -webkit-linear-gradient(top,#f7f7f7,#ffffff);
+						background-image: -o-linear-gradient(top,#f7f7f7,#ffffff);
+						background-image: linear-gradient(to bottom,#f7f7f7,#ffffff);
+						background-repeat: repeat-x;
+					}
+					a {
+						border: 1px solid #dddddd;
+						border-bottom: none;
+						border-right: none;
+						color: #222;
+						text-transform: uppercase;
+						font-weight: 600;
+					}
+					&:first-child a { .rounded(); }
+				}
+			}
+		}
+		> .widget-body { background: #fff; border: none; padding: 15px; }
+	}
+	&.tabs-right {
+		.widget-head {
+			ul { float: right; }
+		}
+	}
+	&.widget-tabs-icons-only {
+		> .widget-body { 
+			padding: 0;
+			p:last-child { margin: 0; } 
+		}
+		> .widget-head {
+			padding: 0 0 10px;
+			background: none;
+			border: none;
+			#reset .boxShadow();
+			text-shadow: none;
+			.heading { padding: 0; color: #444; }
+			ul {
+				display: block;
+				overflow: hidden;
+				position: relative;
+				list-style: none;
+				margin: 0;
+				height: 30px;
+				line-height: 30px;
+				padding: 0;
+				li {
+					color: #dadada;
+					float: left;
+					display: block;
+					padding: 0 10px 0 0;
+					font-size: 8pt;
+					line-height: 30px;
+					&.glyphicons {
+						width: 30px;
+						height: 30px;
+						padding: 0 3px;
+						text-align: center;
+						cursor: pointer;
+						i {
+							background: #e5e5e5; 
+							.transition(background .5s ease);
+							display: block; 
+							.rounded(2px,2px,2px,2px); 
+							height: 30px; 
+							position: relative;
+							&:before { position: relative; top: 0; left: 0; color: #64625f; font-size: 17px; line-height: 30px; }
+						}
+						&:hover {
+							i { background: #dedede; }
+						}
+						&.active {
+							i {
+								background: #64625f;
+								&:before { color: #fff; } 
+							}
+						}
+						&:last-child { padding: 0; }
+					}
+				}
+			}
+		}
+	}
+	&.tabs-right {
+		.widget-head {
+			ul { float: right; }
+		}
+	}
+}
+
+// Tabsbar
+// -------------------------
+
+.tabsbar {
+	height: 60px;
+	border: 1px solid #e5e5e5;
+	position: relative;
+	overflow: hidden;
+	margin: 0 0 10px;
+	background: #e1e1e3;
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		height: 60px;
+		border-right: 1px solid #f5f5f5;
+		display: inline-block;
+		li {
+			float: left;
+			display: block;
+			height: 60px;
+			border-right: 1px solid #d1d2d3;
+			padding: 0;
+			a {
+				display: block;
+				height: 60px;
+				line-height: 60px;
+				padding: 0 15px;
+				color: #9d9d9d;
+				text-decoration: none;
+				border-left: 1px solid #f5f5f5;
+				text-shadow: 0 1px 0 #fff;
+				.transition(background 1s ease);
+				i {
+					display: inline-block;
+					float: left;
+					width: 39px;
+					height: 60px;
+					&:before {
+						color: #9d9d9d;
+						position: relative;
+						top: auto;
+						left: auto;
+						line-height: 60px;
+						text-align: center;
+					}
+				}
+			}
+			&.active, &:hover {
+				a {
+					background: #f5f5f5;
+					color: #7a7a7a;
+					i:before { color: #7a7a7a; }
+				}
+			}
+		}
+	}
+	&.tabsbar-2 {
+		height: 39px;
+		ul {
+			height: 39px;
+			li {
+				height: 39px;
+				padding: 0;
+				a {
+					height: 39px;
+					line-height: 39px;
+					i {
+						height: 39px;
+						width: 33px;
+						&:before { line-height: 39px; font-size: 20px; }
+					}
+				}
+			}
+		}
+	}
+}
+
+.nav-tabs > li > a:hover,
+.nav-pills > li > a,
+.nav-pills > li > a:hover {
+	background: @primaryColor;
+	border-bottom-color: @primaryColor;
+	color: #fff;
+}
+.nav-tabs { border-bottom-color: @primaryColor; }
+.nav-tabs > li > a {
+	padding: 6px 8px;
+}
+.nav-tabs > .active > a, .nav-tabs > .active > a:hover { 
+	background: @primaryColor;
+	border-top-color: @primaryColor; 
+	border-left-color: @primaryColor;
+	border-right-color: @primaryColor;
+	color: #fff;
+	font-weight: bold;
+	text-shadow: 0 1px 0 rgba(0,0,0,.5);
+	.bevelEmboss();
+}
+.nav-pills a { cursor: pointer; color: #BAAC98; border-bottom: 1px solid #E1D6C7; }
+.nav-pills > .active > a, .nav-pills > .active > a:hover { 
+	background: #F7F0E8 url("../images/pattern-granite.png") repeat;
+	border-top-color: #e0d5c6; 
+	border-left-color: #e0d5c6;
+	border-right-color: #e0d5c6;
+	background: #D67170;
+	color: #F7F0E8;
+}
+.nav-pills {
+	.glyphicons { 
+		padding-left: 25px;
+		i:before { position: relative; font-size: 14px; left: -10px; top: 2px; color: #F5EADB; font-weight: normal; text-shadow: none; }
+	}
+}
+.tab-content { overflow: visible; padding: 0; }
+
+.well {
+ .widget.widget-tabs-2 {
+  .widget-head,
+  .widget-body {
+     background: #252525;
+	border-color: #616161;
+  }
+ }
+}
