@@ -1,0 +1,53 @@
+#!/bin/sh
+
+###
+# LoadAvg - Server Monitoring & Analytics
+# http://www.loadavg.com
+#
+# Configure Script
+#
+# @link https://github.com/loadavg/loadavg
+# @author Karsten Becker
+# @copyright 2014 Karsten Becker k.becker@sputnik7.com
+#
+# This file is licensed under the Affero General Public License version 3 or
+# later.
+##
+
+
+if [ "$(id -u)" != "0" ]; then
+        echo "ALERT:"
+        echo "You need to be root to run the configure script."
+        echo "Sorry, you are not root you can try the following:"
+        echo ""
+        echo "> sudo ./configure"
+        echo ""
+        exit 1
+else
+        echo -e "\n\n\n\n[*] Welcome to the LoadAvg Configuration Tool"
+        echo "====================================================================="
+        echo "Copyright (C) 2014 Karsten Becker"
+        echo "This program comes with ABSOLUTELY NO WARRANTY"
+        echo "This is free software, and you are welcome to redistribute it"
+        echo "under certain conditions. See COPYRIGHT for more information."
+        echo ""
+        echo "Configuring LoadAvg for installation..."
+        echo ""
+        chmod 0777 app/
+        chmod 0777 app/config/
+        chmod 0777 app/config/settings.ini
+        chmod 0777 lib/modules/*/*.ini
+        echo -n "[+] Checking for /logs folder ... "
+        if [ ! -d "logs" ]; then
+                echo "NOT FOUND"
+                echo -n "[*] Folder /logs does not exists! Creating it ... "
+                mkdir logs
+                echo "DONE"
+        else
+                echo "OK"
+        fi
+        echo "[+] All done. (You can now go to: http://host/ to set up LoadAvg...)"
+        chmod 0777 logs
+        echo -e "=====================================================================\n\n\n"
+fi
+
