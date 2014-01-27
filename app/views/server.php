@@ -104,18 +104,15 @@
 							<ul class="unstyled row-fluid">
 	                            <li><strong class="span4">Processor type:</strong><span class="span8"><?php echo $server->getData('proc_type'); ?></span></li>
 	                            <li><strong class="span4">Total processor(s):</strong><span class="span8"><?php echo $server->getData('proc_count'); ?></span></li>
-                                    <li><strong class="span4">Processor model:</strong><span class="span8"><?php echo $server->getData('proc_model'); ?></span></li>
+	                            <li><strong class="span4">Processor details:</strong><span class="span8"><?php echo $server->getData('proc_model'); ?></span></li>
+
 	                        </ul>
 						</div>
 					</div>
-
 				</div>
 			</div>
 
 			<div class="separator bottom"></div>
-
-				</div>
-			</div>
 
 			<div class="widget widget-4">
 				<div class="widget-head">
