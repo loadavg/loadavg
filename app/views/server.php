@@ -114,6 +114,9 @@
 
 			<div class="separator bottom"></div>
 
+				</div>
+			</div>
+
 			<div class="widget widget-4">
 				<div class="widget-head">
 					<h4 class="heading">Disk usage</h4>
