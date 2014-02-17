@@ -16,12 +16,22 @@
 			<?php if ($loadavg->isLoggedIn()) { ?>
 			<div class="well lh70-style-top margin-none center footer">
 				<a href="http://www.loadavg.com/">LoadAVG v <?php echo $settings['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
-				Comments &amp; suggestions are welcome <a href="http://www.loadavg.com/forums">in our forums</a><br />
+				For comments, suggestions &amp; to report bugs please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
 				HTML graphs generated in <?php echo $page_load; ?> sec.					
-			
+
+				<?php if (!isset($_SESSION['support_loadavg'])) { ?>
+				<div class="left pull-left">
+					Like LoadAvg ? <a href="http://www.loadavg.com/donate/" title="Make a donation, support LoadAvg">Please donate</a>
+				</div>
+
+				<?php } ?>
+
 				<?php if (isset($_SESSION['download_url'])) { ?>
 				<div class="right pull-right">
-					Update available click to <a href="<?php echo $_SESSION['download_url']; ?>" title="Download the new version of LoadAvg">download</a>.
+					<!--
+					Update available <a href="<?php echo $_SESSION['download_url']; ?>" title="Download the new version of LoadAvg">click to download</a>
+					-->
+					Update available <a href="http://www.loadavg.com/download/" title="Download the new version of LoadAvg">click to download</a>
 				</div>
 				<?php } ?>
 			</div>

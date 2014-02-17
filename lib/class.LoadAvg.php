@@ -506,15 +506,24 @@ class LoadAvg
 
 	public function checkForUpdate()
 	{
+		
+
 		if ( !isset($_SESSION['download_url'])) {
 			if ( ini_get("allow_url_fopen") == 1) {
+
 				#$response = file_get_contents("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
 				// $response = json_decode($response);
-				$response = file_get_contents("http://54.229.242.17/loadavg-update/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
+				
+				$response = file_get_contents("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
+				
 				$this->logUpdateCheck( $response );
-				//var_dump("http://54.229.242.17/loadavg-update/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
+				
+				//var_dump("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
+
+				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
+				
 				if ( $response > self::$_settings->general['version'] ) {
-				 	$_SESSION['download_url'] = "http://updates.loadavg.com";
+				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
 				}
 			}
 		}
