@@ -138,20 +138,19 @@ class Network extends LoadAvg
 		} else {
 			$contents = @file_get_contents($this->logfile);
 		}
+		
 
 		if ( strlen($contents) > 1 ) {
 
 			$contents = explode("\n", $contents);
-		
 			$return = $usage = $args = array();
 
-			$dataArray = "[";
-
-			//$net_latest = exec("cat /sys/class/net/".LoadAvg::$_settings->general['network_interface'][0]."/statistics/rx_bytes");
+			//$dataArray = "[";
+			$dataArray = $dataArrayOver = array();
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
-			$dataArrayOver = "[";
+			//$dataArrayOver = "[";
 			for ( $i = 0; $i < count( $contents )-1; $i++) {
 				$data = explode("|", $contents[$i]);
 			
@@ -163,23 +162,23 @@ class Network extends LoadAvg
 				$rate[] = $net_rate;
 
 				if ( $net_rate > $settings['settings']['threshold_transfer'] )
-					$dataArrayOver .= "[". ($data[0]*1000) .", '". $net_rate ."'],";
+					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
 			
-				$dataArray .= "[". ($data[0]*1000) .", '". $net_rate ."'],";
+				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
 			}
 
-			$dataArray = substr($dataArray, 0, strlen($dataArray)-1);
-			$dataArrayOver = substr($dataArrayOver, 0, strlen($dataArrayOver)-1);
-			$dataArray .= "]";
-			$dataArrayOver .= "]";
+			//$dataArray = substr($dataArray, 0, strlen($dataArray)-1);
+			//$dataArrayOver = substr($dataArrayOver, 0, strlen($dataArrayOver)-1);
+			//$dataArray .= "]";
+			//$dataArrayOver .= "]";
 		
 			$net_high= max($rate);
 			$net_high_time = $time[$net_high];
 
 			$net_low = min($rate);
 			$net_low_time = $time[$net_low];
+
 			$net_latest = $rate[count($rate)-1];
-		
 			$net_mean = number_format(array_sum($rate) / count($rate), 2);
 
 			$net_estimate = round($net_mean*60*60*24/1024);
@@ -193,6 +192,30 @@ class Network extends LoadAvg
 			$ymin = $net_low;
 			$ymax = $net_high;
 		
+		
+			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
+				//$dataArray = substr($dataArray, 0, strlen($dataArray)-1);
+				end($timestamps);
+				$key = key($timestamps);
+				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
+				$lastTimeString = $timestamps[$key];
+				$difference = ( $endTime - $lastTimeString );
+				$loops = ( $difference / 300 );
+
+				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++) {
+					$lastTimeString = $lastTimeString + 300;
+					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
+
+					//$dataArray .= "[". ($lastTimeString*1000) .", 0],";
+					//var_dump($lastTimeString . " #------# " . date("d-m-Y H:i", $lastTimeString));
+				}
+				//$dataArray = substr($dataArray, 0, strlen($dataArray)-1);
+				//$dataArray .= "]";
+			}
+
+
+
+
 			$variables = array(
 				'net_high' => $net_high,
 				'net_high_time' => $net_high_time,
@@ -204,44 +227,31 @@ class Network extends LoadAvg
 				'net_estimate_units' => $net_estimate_units
 			);
 		
-			if (strlen($dataArrayOver) == 1) { $dataArrayOver = null; }
-
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				$dataArray = substr($dataArray, 0, strlen($dataArray)-1);
-				end($timestamps);
-				$key = key($timestamps);
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-				$lastTimeString = $timestamps[$key];
-				$difference = ( $endTime - $lastTimeString );
-				$loops = ( $difference / 300 );
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray .= "[". ($lastTimeString*1000) .", 0],";
-					//var_dump($lastTimeString . " #------# " . date("d-m-Y H:i", $lastTimeString));
-				}
-				$dataArray = substr($dataArray, 0, strlen($dataArray)-1);
-				$dataArray .= "]";
-			}
-
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if ( strlen($dataArrayOver) < 3 )
-				$dataArrayOver .= "[". (time()*1000) .", 0]";
+			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
+
+			ksort($dataArray);
+
+			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
+
+			$dataString = "[" . implode(",", $dataArray) . "]";
+			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'mean' => $net_mean,
-				'chart_data' => $dataArray,
-				'chart_data_over' => $dataArrayOver
+				'chart_data' => $dataString,
+				'chart_data_over' => $dataOverString
 			);
 
 			return $return;
 		} else {
 			return false;
 		}
+
 	}
 
 	/**
@@ -274,6 +284,7 @@ class Network extends LoadAvg
 		} else {
 			$contents = @file_get_contents($this->logfile);
 		}
+
 
 		if ( strlen( $contents ) > 1 ) {
 		
@@ -318,7 +329,7 @@ class Network extends LoadAvg
 
 			$ymin = $net_low;
 			$ymax = $net_high;
-
+/*
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
 				$key = key($timestamps);
@@ -332,7 +343,7 @@ class Network extends LoadAvg
 					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
 				}
 			}
-		
+*/		
 			$variables = array(
 				'net_high' => $net_high,
 				'net_high_time' => $net_high_time,
