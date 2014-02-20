@@ -131,8 +131,9 @@ class Network extends LoadAvg
 				if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
 					$this->logfile = str_replace($replaceDate, $date, $this->logfile);
 					$replaceDate = $date;
-					if ( file_exists( $this->logfile ) )
+					if ( file_exists( $this->logfile ) ) {
 						$contents .= file_get_contents($this->logfile);
+					}
 				}
 			}
 		} else {
@@ -277,8 +278,9 @@ class Network extends LoadAvg
 				if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
 					$this->logfile = str_replace($replaceDate, $date, $this->logfile);
 					$replaceDate = $date;
-					if ( file_exists( $this->logfile ) )
+					if ( file_exists( $this->logfile ) ) {
 						$contents .= file_get_contents($this->logfile);
+					}
 				}
 			}
 		} else {
@@ -391,7 +393,12 @@ class Network extends LoadAvg
 	 */
 	public function genChart($moduleSettings, $logdir)
 	{
+
+	//used for debugging
+    //echo '<pre>';var_dump(self::$current_date);echo'</pre>';
+
 		$charts = $moduleSettings['chart'];
+
 		$module = __CLASS__;
 		$i = 0;
 

@@ -15,13 +15,20 @@
 */
 ?>
 
+<!-- not sure why we do this dynamically as this is only for network module -->
+
 <script type="text/javascript" src="assets/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+
+<!-- loop through each interface -->
 
 <?php
 $i = 0; 
 foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) { 
 	$i++;
 ?>
+
+<!-- draw charts for each interface -->
+
 <div class="widget" data-toggle="collapse-widget" data-collapse-closed="false">
 	<div class="widget-head">
 		<h4 class="heading"><strong>Network</strong> Interface: <?php echo $interface; ?></h4>
@@ -33,9 +40,15 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 			$j++;
 			$chart = json_decode($chart);
 		
+
+			// note that this will probably need to be fixed for PERIODS
+			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date, $interface);
+
+			//this was old code here
+			//$this->logfile = $logdir . sprintf($chart->logfile, date('Y-m-d'), $interface);
+
 			$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
-			//$chart->id = $chart->id . '_' . $interface;
-			$this->logfile = $logdir . sprintf($chart->logfile, date('Y-m-d'), $interface);
+
 			?>
 		<!-- <div class="row-fluid"> -->
 		<table border="0" width="100%" cellspacing="0" cellpadding="0">
@@ -92,6 +105,7 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 					chart_data.push(d1);
 					chart_data.push(d2);
 					<?php } ?>
+
 					$(function () {
 						// $('[data-target="#network_<?php echo $interface; ?>_<?php echo $chart->type; ?>"]').on('shown', function (e) {
 							charts.<?php echo $chart->id; ?>.setData(chart_data);

@@ -213,6 +213,8 @@ class Memory extends LoadAvg
 		$i = 0;
 		foreach ( $charts['args'] as $chart ) {
 			$chart = json_decode($chart);
+
+			//grab the log file and date
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
 			
 			if ( file_exists( $this->logfile )) {

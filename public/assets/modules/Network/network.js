@@ -67,18 +67,28 @@ charts.network =
 		}
 	},
 
+	// initialize data and set min and max here
 	setData: function($data)
 	{
 		if ($.isArray($data))
 		{
 			this.options.yaxis.min = $data[0].ymin;
 			this.options.yaxis.max = $data[0].ymax;
+
+			//this.options.yaxis.min = 0;
+			//this.options.yaxis.max = 16;
+
 			this.$data = $data;
 		}
 		else {
 			this.data.d1 = $data.data;
+
 			this.options.yaxis.min = $data.ymin;
 			this.options.yaxis.max = $data.ymax;
+			
+			//this.options.yaxis.min = 0;
+			//this.options.yaxis.max = 16;
+
 			this.label = $data.label;
 		}
 	},

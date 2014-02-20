@@ -20,11 +20,14 @@
 	<div class="widget-body collapse in" style="height: auto;">
 		<table border="0" width="100%" cellspacing="0" cellpadding="0">
 			<tr>	
+
+			<!-- check to see if therre is log data for the chart first -->
 			<?php
 			if ( isset( $no_logfile ) && $no_logfile ) {
 				?>
 				<td><div class="alert alert-danger">No logfile to display data from</div></td>
 			<?php } else { ?>
+
 			<td width="26%" align="right" style="padding-right: 15px;">
 				<ul class="unstyled">
 					<?php
