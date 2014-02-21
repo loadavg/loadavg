@@ -318,9 +318,14 @@ class LoadAvg
 	 */
 
 	public function sendApiData( $data ) {
-		// $http = new Zend_Http_Client( self::$_settings->general['api']['url'] );
-		//var_dump(self::$_settings->general['api']['key']); exit;
+
+		// for debugging
+		//var_dump(self::$_settings->general['api']['key']); 
+		//var_dump(self::$_settings->general['api']['url']);
+		//var_dump($data); exit;
+		
 		$url = self::$_settings->general['api']['url'];
+
 		$json = array(
 			'api_key'  => self::$_settings->general['api']['key'],
 			'username' => self::$_settings->general['api']['username'],
@@ -329,15 +334,21 @@ class LoadAvg
 		);
 		$json = json_encode( $json );
 
+		var_dump($json); exit;
+
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true, // return web page
 			CURLOPT_FOLLOWLOCATION => true, // follow redirects
-			CURLOPT_USERAGENT => "BlueType API", // who am i
+			CURLOPT_USERAGENT => "LoadAvg API", // who am i
 			CURLOPT_AUTOREFERER => true, // set referer on redirect
 			CURLOPT_CONNECTTIMEOUT => 120, // timeout on connect
 			CURLOPT_TIMEOUT => 120, // timeout on response
 			CURLOPT_MAXREDIRS => 10, // stop after 10 redirects
 		);
+
+		// troubleshooting cURL here 
+		// http://devzone.zend.com/160/using-curl-and-libcurl-with-php/
+
 		$ch = curl_init();
 
 		curl_setopt($ch,CURLOPT_URL,$url);
@@ -349,6 +360,7 @@ class LoadAvg
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $json );
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt_array( $ch, $options );
+
 		//execute post
 		$result = curl_exec($ch); 
 		$header = curl_getinfo( $ch );
