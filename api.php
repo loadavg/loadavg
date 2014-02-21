@@ -13,18 +13,36 @@
 * later.
 */
 
+/*
+The API so far:
+
+- the client collects data for the enabled modules / plugins
+- and then sends this data to the server which logs it into a simple mysql DB
+
+- this file grabs the data for the current period
+- sends it to the sendApiData method in lib/class.LoadAvg.php
+- which then pushes it via cURL to the server
+- 
+*/
+
+// initialize LoadAvg and grab data
+
 require_once dirname(__FILE__) . '/globals.php'; // including required globals
 include 'class.LoadAvg.php'; // including Main Controller
 
 $loadavg = new LoadAvg(); // Initializing Main Controller
 $loaded = LoadAvg::$_settings->general['modules']; // Loaded modules
 $logdir = APP_PATH . '/../logs/'; // path to logfiles folder
+
 $response = array();
 
 // Check for each module we have loaded
 foreach ( $loaded as $module => $value ) {
 	if ( $value == "false" ) continue;
-	$moduleSettings = LoadAvg::$_settings->$module; // Settings for each loaded modules
+	
+	// Settings for each loaded modules
+	$moduleSettings = LoadAvg::$_settings->$module; 
+
 	// Check if loaded module needs loggable capabilities
 	if ( $moduleSettings['module']['logable'] == "true" ) {
 		foreach ( $moduleSettings['logging']['args'] as $args) { // loop trought module logging arguments
@@ -39,6 +57,9 @@ foreach ( $loaded as $module => $value ) {
 		}
 	}
 }
+
+// want to see what we are sending over ?
+//var_dump($response); exit;
 
 // Sending data to API server
 $response = $loadavg->sendApiData($response);
