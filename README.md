@@ -14,14 +14,21 @@ This application requires a web server to be installed (currently tested on Apac
 
 ### Installation:
 
- - Upload the loadavg.tar.gz file to your server, in the loaction you wish to access it
-   `$ wget http://www.loadavg.com/files/loadavg.tar/gz`
- - Uncompress the archive `$ tar -zxvf loadavg.tar.gz`
+ - Clone loadavg on your server, in the loaction you wish to access it
+   `# git clone https://github.com/loadavg/loadavg.git`
+ 
  - Enter the loadavg  source folder
+   `# cd loadavg`
+ 
  - Run the configure script
+   `# sudo ./configure`
+
  - Navigate to the location of the installation in your web browser
+
  - Complete the online installation
+ 
  - Delete the install script for security
+ 
  - Add the logger entry to your crontab
 
 ### Usage:
