@@ -322,7 +322,9 @@ class LoadAvg
 		// for debugging
 		//var_dump(self::$_settings->general['api']['key']); 
 		//var_dump(self::$_settings->general['api']['url']);
-		//var_dump($data); exit;
+		//var_dump(self::$_settings->general['api']['username']);
+		//var_dump(self::$_settings->general['api']['server']);
+		//var_dump($data); //exit;
 		
 		$url = self::$_settings->general['api']['url'];
 
@@ -332,9 +334,10 @@ class LoadAvg
 			'server_id' => self::$_settings->general['api']['server'],
 			'data'   => json_encode( $data )
 		);
+		
 		$json = json_encode( $json );
 
-		var_dump($json); exit;
+		//var_dump($json); //exit;
 
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true, // return web page
@@ -356,7 +359,7 @@ class LoadAvg
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-		curl_setopt($ch, CURLOPT_VERBOSE, TRUE);
+		curl_setopt($ch, CURLOPT_VERBOSE, FALSE);  //Set to true for debuging!
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $json );
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt_array( $ch, $options );
