@@ -37,7 +37,7 @@ foreach ( $dates as $date ) {
 
 
 //for api server data transfer
-$api = flase;
+$api = false;
 $response = array();
 
 
