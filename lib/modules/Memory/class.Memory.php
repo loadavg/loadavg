@@ -45,9 +45,13 @@ class Memory extends LoadAvg
 		$settings = LoadAvg::$_settings->$class;
 
 		exec("free -o | grep Mem | awk -F' ' '{print $3}'", $memory);
+		//exec("free -o | grep Mem | awk -F' ' '{print $3 - $6 - $7}'", $memory);
+
 		$memory = implode(chr(26), $memory);
 
-		exec("free -o | grep Mem | awk -F' ' '{print $3}'", $swap);
+		//exec("free -o | grep Mem | awk -F' ' '{print $3}'", $swap);
+		exec("free -o | grep Swap | awk -F' ' '{print $3}'", $swap);
+
 		$swap = implode(chr(26), $swap);
 	    $string = time() . '|' . $memory . '|' . $swap . "\n";
 
