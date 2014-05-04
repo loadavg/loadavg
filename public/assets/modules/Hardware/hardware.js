@@ -56,12 +56,31 @@ charts.cpu_load =
         colors: [],
         shadowSize:1,
         tooltip: true,
+        
 		tooltipOpts: {
-			content: "%s : %y.2",
+
+			//content: "%s : re %y.2",
+			content: function(label, xval, yval, flotItem){
+
+				return "Load:" + yval;
+
+			   	//return "%s : %y ";
+				/*
+			        var yAxis = plot.getYAxes();
+			        var range = (yAxis.max - yAxis.min);
+
+			        if (range > 0.01) {
+			          // range is larger than a year, just show year
+			          return $.plot.formatDate(new Date(yval), '%Y');
+			        }
+			    */
+	    	},
+
 			shifts: {
 				x: 10,
 				y: 20
 			},
+			precision: 2,
 			dateFormat: "%y-%0m-%0d",
 			defaultTheme: false
 		}
