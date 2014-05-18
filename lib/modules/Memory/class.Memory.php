@@ -53,6 +53,7 @@ class Memory extends LoadAvg
 		exec("free -o | grep Swap | awk -F' ' '{print $3}'", $swap);
 
 		$swap = implode(chr(26), $swap);
+
 	    $string = time() . '|' . $memory . '|' . $swap . "\n";
 
 		if ( $type == "api" ) {
@@ -130,7 +131,7 @@ class Memory extends LoadAvg
 			end($swap);
 			$swapKey = key($swap);
 			$swap = $swap[$swapKey];
-		
+
 			$mem_high= max($usage);
 			$mem_high_time = $time[$mem_high];
 
@@ -166,6 +167,8 @@ class Memory extends LoadAvg
 				'mem_latest' => number_format($mem_latest,1),
 				'mem_swap' => number_format($swap,1),
 			);
+
+			//print_r ($variables);
 		
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
@@ -175,9 +178,14 @@ class Memory extends LoadAvg
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
 			if (!is_null($dataArraySwap)) ksort($dataArraySwap);
 
+
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
 			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
+
+			//print_r ($swap);
+			//print_r ($dataSwapString);
+			//print_r ($usageCount);
 
 			$return['chart'] = array(
 				'chart_format' => 'line',

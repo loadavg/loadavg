@@ -67,13 +67,16 @@
 					<?php } elseif (strlen($stuff['chart']['chart_data_over']) > 1) { ?>
 						
 					var chart_data = new Array();
+
 					var d2 = {
 						label: 'Overload',
 						data: <?php echo $stuff['chart']['chart_data_over']; ?>
 					};
+					
 					chart_data.push(d1);
 					chart_data.push(d2);
-						<?php if ( isset($stuff['chart']['swap']) ) { ?>
+
+						<?php if ( isset($stuff['chart']['swap']) ) {  ?>
 							var d3 = {
 								label: 'Swap',
 								data: [
@@ -88,6 +91,7 @@
 								]
 							};
 							chart_data.push(d3);
+
 						<?php } ?>
 						<?php if ( isset($stuff['chart']['chart_data_over_2']) ) { ?>
 							var d3 = {
@@ -107,8 +111,10 @@
 						charts.<?php echo $chart->id; ?>.init('<?php echo $chart->id; ?>');
 						<?php } ?>
 
-						<?php if ( isset($stuff['chart']['mean']) ) { ?>
 	                    // Separate chart for mean value display stacked bar chart
+
+						<?php if ( isset($stuff['chart']['mean']) ) { ?>
+
 	                    var options =  {
 	                        grid: {
                                 show: true,
@@ -132,7 +138,24 @@
                              width: 0.5,
                             xaxis: {show: false, min: 1},
                             yaxis:{show:false, max: <?php echo $stuff['chart']['ymax']; ?>, min: <?php echo $stuff['chart']['ymin']; ?>, reserveSpace: false, labelWidth: 15},
-                            legend: { show: false }
+                            legend: { show: false },
+
+                                    tooltip: true,
+
+									tooltipOpts: {
+										content: "Avg <?php echo $stuff['chart']['mean']; ?>",
+/*
+										shifts: {
+											x: 10,
+											y: 20
+										},
+										precision: 1,
+										dateFormat: "%y-%0m-%0d",
+										defaultTheme: false
+										*/
+
+									}
+
 	                     };
 	                     $("#minmax_<?php echo $chart->id; ?>").width(35).height(140);
 	                     $.plot($("#minmax_<?php echo $chart->id; ?>"),[[[1, <?php echo $stuff['chart']['mean']; ?>]]],options);

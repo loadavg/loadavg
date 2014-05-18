@@ -56,7 +56,7 @@ charts.cpu_load =
         colors: [],
         shadowSize:1,
         tooltip: true,
-        
+
 		tooltipOpts: {
 
 			//content: "%s : re %y.2",
@@ -116,7 +116,7 @@ charts.cpu_load =
 		// make chart
 		if ($.isArray(this.$data))
 		{
-			if (this.$data[2]) {
+			if (this.$data[2]) { 
 				this.plot = $.plot(
 					'#' + $divId, 
 					[{
@@ -188,7 +188,7 @@ charts.cpu_load =
 		     		color:"#8ec657"
 	     		}], 
 	     		this.options);
-		}
+		} 
 	},
 
 	utility:
