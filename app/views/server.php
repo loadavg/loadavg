@@ -123,8 +123,8 @@
 						<div class="widget-body">
 							<ul class="unstyled row-fluid">
 	                            <li><strong class="span4">Type:</strong><span class="span8"><?php echo $server->getData('proc_type'); ?></span></li>
-	                            <li><strong class="span4">Total processor(s):</strong><span class="span8"><?php echo $server->getData('proc_count'); ?></span></li>
-	                            <li><strong class="span4">Processor details:</strong><span class="span8"><?php echo $server->getData('proc_model'); ?></span></li>
+	                            <li><strong class="span4">Number:</strong><span class="span8"><?php echo $server->getData('proc_count'); ?></span></li>
+	                            <li><strong class="span4">Details:</strong><span class="span8"><?php echo $server->getData('proc_model'); ?></span></li>
 
 	                        </ul>
 						</div>
