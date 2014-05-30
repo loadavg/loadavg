@@ -16,7 +16,7 @@
 			<?php if ($loadavg->isLoggedIn()) { ?>
 			<div class="well lh70-style-top margin-none center footer">
 				<a href="http://www.loadavg.com/">LoadAVG v <?php echo $settings['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
-				For comments, suggestions &amp; to report bugs please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
+				For comments and suggestions please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
 				HTML graphs generated in <?php echo $page_load; ?> sec.					
 
 				<?php if (!isset($_SESSION['support_loadavg'])) { ?>
