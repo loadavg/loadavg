@@ -159,10 +159,60 @@
 				<div class="widget-head">
 					<h4 class="heading">Disk usage</h4>
 				</div>
+
+				<?php
+				$drive="/";
+				if (is_dir($drive)) {
+				?>
+
+					<div class="widget-body">
+
+						<?php
+						$Bytes = disk_total_space($drive);
+						$totalBytes = dataSize($Bytes);
+
+						$Bytes = disk_free_space($drive);
+						$freeBytes = dataSize($Bytes);
+
+						$percentBytes = $freeBytes ? round($freeBytes / $totalBytes, 2) * 100 : 0;
+						?>
+							
+						<ul class="unstyled row-fluid">
+	                        <li><strong class="span4">Total Space:</strong><span class="span8"><?php echo $totalBytes ?></span></li>
+	                        <li><strong class="span4">Free Space:</strong><span class="span8"><?php echo $freeBytes ?></span></li>
+	                        <li><strong class="span4">Free %:</strong><span class="span8"><?php echo $percentBytes ?> %</span></li>
+	                   </ul>
+					</div>
+
+				<?php
+				}
+				?>
 				<div class="widget-body">
 					<pre><?php echo $server->getData('hdd_usage'); ?></pre>
 				</div>
+
 			</div>
 		</div>
 	</div>
 </div>
+
+
+
+
+
+<?php
+
+//This is  a more readable way of viewing the returned float
+
+function dataSize($Bytes)
+{
+$Type=array("", "kilo", "mega", "giga", "tera");
+$counter=0;
+while($Bytes>=1024)
+{
+$Bytes/=1024;
+$counter++;
+}
+return("".$Bytes." ".$Type[$counter]."bytes");
+}
+?>
