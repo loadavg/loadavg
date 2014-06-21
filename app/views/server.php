@@ -160,32 +160,35 @@
 					<h4 class="heading">Disk usage</h4>
 				</div>
 
-				<?php
-				$drive="/";
-				if (is_dir($drive)) {
-				?>
-
 					<div class="widget-body">
 
 						<?php
-						$Bytes = disk_total_space($drive);
-						$totalBytes = dataSize($Bytes);
+						
+						$drive="/";
 
-						$Bytes = disk_free_space($drive);
-						$freeBytes = dataSize($Bytes);
+						$totalBytes =  $server->getTotalStorage( $drive );
 
-						$percentBytes = $freeBytes ? round($freeBytes / $totalBytes, 2) * 100 : 0;
+
+						$freeData = $server->getFreeStorage( $drive );
+						$usedData = $server->getUsedStorage( $drive );
+
+						//list ( $freeBytes , $percentFreeBytes  ) = $server->getFreeStorage( $drive );
+						//list ( $usedBytes , $percentUsedBytes  ) = $server->getUsedStorage( $drive );
+
+
 						?>
 							
 						<ul class="unstyled row-fluid">
-	                        <li><strong class="span4">Total Space:</strong><span class="span8"><?php echo $totalBytes ?></span></li>
-	                        <li><strong class="span4">Free Space:</strong><span class="span8"><?php echo $freeBytes ?></span></li>
-	                        <li><strong class="span4">Free %:</strong><span class="span8"><?php echo $percentBytes ?> %</span></li>
+	                        <li><strong class="span4">Total Space:</strong><span class="span8"><?php echo $totalBytes; ?></span></li>
+	                        <li><strong class="span4">Used Space:</strong><span class="span8"><?php echo $usedData[0]; ?></span></li>
+	                        <li><strong class="span4">Free Space:</strong><span class="span8"><?php echo $freeData[0]; ?></span></li>
+	                        <li><strong class="span4">Free %:</strong><span class="span8"><?php echo $freeData[1]; ?> %</span></li>
+	                        <li><strong class="span4">Used %:</strong><span class="span8"><?php echo $usedData[1]; ?> %</span></li>
 	                   </ul>
 					</div>
 
 				<?php
-				}
+				
 				?>
 				<div class="widget-body">
 					<pre><?php echo $server->getData('hdd_usage'); ?></pre>

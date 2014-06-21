@@ -45,7 +45,11 @@
 			</td>
 			<td class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT">
 				<?php if ( $i == 1) { ?>
-				<script type="text/javascript" src="assets/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+
+
+				<!-- parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true) -->
+
+				<script type="text/javascript" src= "<?php echo $APP_PATH; ?>/lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
 				<?php }	?>
 				<script type="text/javascript">
 				(function () {
@@ -101,6 +105,11 @@
 							chart_data.push(d3);
 						<?php } ?>
 					<?php } ?>
+
+
+
+
+
 
 					$(function () {
 						<?php if ( $i == 1) { ?>

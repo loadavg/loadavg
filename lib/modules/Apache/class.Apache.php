@@ -3,7 +3,7 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Hardware/CPU Module for LoadAvg
+* Apache Module for LoadAvg
 * 
 * @version SVN: $Id$
 * @link https://github.com/loadavg/loadavg
@@ -14,7 +14,7 @@
 * later.
 */
 
-class Hardware extends LoadAvg
+class Apache extends LoadAvg
 {
 	public $logfile; // Stores the logfile name & path
 
@@ -30,7 +30,7 @@ class Hardware extends LoadAvg
 	}
 
 	/**
-	 * logData
+	 * logApacheUsageData
 	 *
 	 * Retrives data and logs it to file
 	 *
@@ -39,40 +39,82 @@ class Hardware extends LoadAvg
 	 *
 	 */
 
-	public function logData( $type = false )
+	public function logApacheUsageData( $type = false )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-		$load = exec("cat /proc/loadavg | awk -F' ' '{print $1\"|\"$2\"|\"$3}'");
-		$string = time() . '|' . $load . "\n";
 
-		if ( $type == "api") {
+		$url = "http://localhost/server-status";
+		$parseUrl = $url . "/?auto";
+
+		$locate = "CPULoad";
+
+		$dataValue = $this->getApacheDataValue($parseUrl, $locate);
+
+	    $string = time() . '|' . $dataValue . "\n";
+
+		if ( $type == "api" ) {
 			return $string;
 		} else {
-		        $fh = fopen(sprintf($this->logfile, date('Y-m-d')), "a");
-			fwrite($fh, $string);
+        	$fh = fopen(sprintf($this->logfile, date('Y-m-d')), "a");
+	        fwrite($fh, $string);
 			fclose($fh); 
 		}
 	}
 
+
 	/**
-	 * getData
+	 * getApacheDataValue
 	 *
 	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
 	 *
-	 * @param string $witch with witch data to populate return array
-	 * @return array $return data retrived from logfile
+	 * @return array $dataValue data retrived from mod_status
 	 *
 	 */
 
-	public function getData( $witch )
+	public function getApacheDataValue($parseurl, $locate) 
+	{
+
+
+		$f = implode(file($parseUrl."?dat=".time()),"");
+
+		$active = explode("\n", $f );
+
+		$dataValue = false;
+
+		foreach ($active as $i => $value) {
+
+			$pieces = explode(": ", $active[$i]);
+
+			if ($pieces[0]==$locate) {
+				$dataValue = $pieces[1];
+			}
+
+		}
+
+		return($dataValue);
+    }
+    
+
+
+
+	/**
+	 * getApacheUsageData
+	 *
+	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
+	 *
+	 * @return array $return data retrived from logfile
+	 *
+	 */
+	
+	public function getApacheUsageData()
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
 		$contents = null;
-	
+
 		$replaceDate = self::$current_date;
 		
 		if ( LoadAvg::$period ) {
@@ -94,38 +136,48 @@ class Hardware extends LoadAvg
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
-			$dataArray = $dataArrayOver = $dataArrayOver_2 = array();
+			$swap = array();
+			$usageCount = array();
+			$dataArray = $dataArrayOver = $dataArraySwap = array();
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
 			for ( $i = 0; $i < count( $contents )-1; $i++) {
-				
+			
 				$data = explode("|", $contents[$i]);
-				$time[$witch][$data[$witch]] = date("H:ia", $data[0]);
-				$usage[$witch][] = $data[$witch];
+				$time[( $data[1]  )] = date("H:ia", $data[0]);
+				$usage[] = ( $data[1]  );
+			
+				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] ) ."]";
+			
+				if ( isset($data[2]) )
+					$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
 
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$witch] ."']";
+				$usageCount[] = ($data[0]*1000);
 
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
-		
-				if ( $data[$witch] > $settings['settings']['overload_1'] )
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $data[$witch] ."']";
-		
-				if ( $data[$witch] > $settings['settings']['overload_2'] )
-					$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", '". $data[$witch] ."']";
+			
+				if ( isset($data[2]) ) $swap[] = ( $data[2]  );
+			
+				if ( number_format(( $data[1]  ), 2) > $settings['settings']['overload'])
+					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
 			}
-		
-			$cpu_high = max($usage[$witch]);
-			$cpu_high_time = $time[$witch][$cpu_high];
 
-			$cpu_low = min($usage[$witch]);
-			$cpu_low_time = $time[$witch][$cpu_low];
-		
-			$cpu_mean = number_format(array_sum($usage[$witch]) / count($usage[$witch]), 2);
-			$cpu_latest = $usage[$witch][count($usage[$witch])-1];
+			end($swap);
+			$swapKey = key($swap);
+			$swap = $swap[$swapKey];
 
-			$ymin = $cpu_low;
-			$ymax = $cpu_high;
+			$mem_high= max($usage);
+			$mem_high_time = $time[$mem_high];
+
+			$mem_low = min($usage);
+			$mem_low_time = $time[$mem_low];
+		
+			$mem_mean = array_sum($usage) / count($usage);
+			$mem_latest = $usage[count($usage)-1];
+
+			$ymin = $mem_low;
+			$ymax = $mem_high;
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
@@ -135,48 +187,72 @@ class Hardware extends LoadAvg
 				$difference = ( $endTime - $lastTimeString );
 				$loops = ( $difference / 300 );
 
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++) {
+				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++ ) {
 					$lastTimeString = $lastTimeString + 300;
 					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
 				}
 			}
 
+			/*
 			$variables = array(
-    	        'cpu_high' => $cpu_high,
-                'cpu_high_time' => $cpu_high_time,
-                'cpu_low' => $cpu_low,
-            	'cpu_low_time' => $cpu_low_time,
-    	        'cpu_mean' => $cpu_mean,
-                'cpu_latest' => $cpu_latest
-            );
+				'mem_high' => number_format($mem_high,1),
+				'mem_high_time' => $mem_high_time,
+				'mem_low' => number_format($mem_low,1),
+				'mem_low_time' => $mem_low_time,
+				'mem_mean' => number_format($mem_mean,1),
+				'mem_latest' => number_format($mem_latest,1),
+				'mem_swap' => number_format($swap,1),
+			);
+			*/
+			
+			$variables = array(
+				'mem_high' => $mem_high,
+				'mem_high_time' => $mem_high_time,
+				'mem_low' => $mem_low,
+				'mem_low_time' => $mem_low_time,
+				'mem_mean' => $mem_mean,
+				'mem_latest' => $mem_latest,
+				'mem_swap' => $swap,
+			);
 
+			//print_r ($variables);
+		
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if ( count($dataArrayOver) == 0 ) $dataArrayOver = null;
-			if ( count($dataArrayOver_2) == 0 ) $dataArrayOver_2 = null;
+			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
 
 			ksort($dataArray);
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			if (!is_null($dataArrayOver_2)) ksort($dataArrayOver_2);
+			if (!is_null($dataArraySwap)) ksort($dataArraySwap);
+
 
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataOverString_2 = is_null($dataArrayOver_2) ? null : "[" . implode(",", $dataArrayOver_2) . "]";
+			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
+
+			//print_r ($swap);
+			//print_r ($dataSwapString);
+			//print_r ($usageCount);
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'ymin' => $ymin,
 				'ymax' => $ymax,
-				'mean' => $cpu_mean,
+				'xmin' => date("Y/m/d 00:00:01"),
+				'xmax' => date("Y/m/d 23:59:59"),
+				'mean' => $mem_mean,
 				'chart_data' => $dataString,
 				'chart_data_over' => $dataOverString,
-				'chart_data_over_2' => $dataOverString_2
+				'chart_data_swap' => $dataSwapString,
+				'swap' => $swap,
+				'swap_count' => $usageCount,
+				'overload' => $settings['settings']['overload']
 			);
-			return $return;
+
+			return $return;	
 		} else {
 			return false;
 		}
-
 	}
 
 	/**
@@ -195,18 +271,19 @@ class Hardware extends LoadAvg
 		$module = __CLASS__;
 		$i = 0;
 		foreach ( $charts['args'] as $chart ) {
-			$chart = json_decode($chart);			
+			$chart = json_decode($chart);
+
+			//grab the log file and date
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
 			
 			if ( file_exists( $this->logfile )) {
-				$i++;
+				$i++;				
+				// $this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
 				$caller = $chart->function;
 				$stuff = $this->$caller( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
-				$no_logfile = false;
-			} else {
-				$no_logfile = true;
+				
+				include APP_PATH . '/views/chart.php';
 			}
-			include APP_PATH . '/views/chart.php';
 		}
 	}
 }

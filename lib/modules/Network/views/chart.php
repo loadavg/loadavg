@@ -17,7 +17,11 @@
 
 <!-- not sure why we do this dynamically as this is only for network module -->
 
-<script type="text/javascript" src="assets/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+<!--
+<script type="text/javascript" src="lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+-->
+
+<script type="text/javascript" src= "<?php echo $APP_PATH; ?>/lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
 
 <!-- loop through each interface -->
 
