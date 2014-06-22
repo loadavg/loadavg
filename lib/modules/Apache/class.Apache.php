@@ -77,7 +77,7 @@ class Apache extends LoadAvg
 	{
 
 
-		$f = implode(file($parseUrl."?dat=".time()),"");
+		$f = implode(file($parseurl."?dat=".time()),"");
 
 		$active = explode("\n", $f );
 
