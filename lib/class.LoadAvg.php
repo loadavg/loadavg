@@ -342,7 +342,7 @@ class LoadAvg
 		$options = array(
 			CURLOPT_RETURNTRANSFER => true, // return web page
 			CURLOPT_FOLLOWLOCATION => true, // follow redirects
-			CURLOPT_USERAGENT => "LoadAvg API", // who am i
+			CURLOPT_USERAGENT => "LoadAvg Client", // who am i
 			CURLOPT_AUTOREFERER => true, // set referer on redirect
 			CURLOPT_CONNECTTIMEOUT => 120, // timeout on connect
 			CURLOPT_TIMEOUT => 120, // timeout on response

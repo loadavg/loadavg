@@ -263,6 +263,17 @@ print '</select>';
 	<div class="well">
                 <h4>API settings</h4>
                 <div class="row-fluid">
+					<div class="span4">
+						<strong>Connect to server?</strong>
+					</div>
+					<div class="span8 right">
+						<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
+							<input name="settings[general][apiserver]" type="checkbox" value="true" <?php if ( $settings['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
+						</div>
+					</div>
+                </div>
+
+                <div class="row-fluid">
                         <div class="span3">
                                 <strong>API URL</strong>
                         </div>

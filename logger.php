@@ -37,7 +37,7 @@ foreach ( $dates as $date ) {
 
 
 //for api server data transfer
-$api = false;
+$api = true;
 $response = array();
 
 
@@ -51,6 +51,7 @@ foreach ( $loaded as $module => $value ) {
 	// Check if loaded module needs loggable capabilities
 	if ( $moduleSettings['module']['logable'] == "true" ) {
 		foreach ( $moduleSettings['logging']['args'] as $args) { // loop trought module logging arguments
+
 			$args = json_decode($args); // decode arguments
 			$class = LoadAvg::$_classes[$module]; // load module information
 			$caller = $args->function;
@@ -60,16 +61,17 @@ foreach ( $loaded as $module => $value ) {
 			$class->$caller(); // call data gethering function of module
 
 
-			// send data to API server
+			// collect data for API server
 			// if api is enabled capture log data to send to server
 			if ( $api ) {
 
-			$responseData = $class->$caller('api'); // call data gethering function of module
-			$data = explode("|", $responseData); // parsing response data
-			$timestamp = $data[0];
-			$response[$module] = array("data" => $responseData, "timestamp" => $timestamp); // Populating response array
+				$responseData = $class->$caller('api'); // call data gethering function of module
+				$data = explode("|", $responseData); // parsing response data
+				$timestamp = $data[0];
+
+				$response[$module] = array("data" => $responseData, "timestamp" => $timestamp); // Populating response array
 			}
-			// end send data to loadavg server	
+			// end collect data to loadavg server	
 
 
 		}
@@ -79,14 +81,9 @@ foreach ( $loaded as $module => $value ) {
 
 // Sending data to API server
 if ( $api ) {
-
 	$response = $loadavg->sendApiData($response);
-
-	// Displaying API server response - OK for success
-	//echo $response . PHP_EOL;
-
  }
 
-
+?>
 
 
