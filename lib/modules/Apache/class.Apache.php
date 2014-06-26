@@ -54,6 +54,9 @@ class Apache extends LoadAvg
 
 		$dataValue = $this->getApacheDataValue($parseUrl, $locate);
 
+		if ($dataValue == null)
+			$dataValue = 0;
+
 	    $string = time() . '|' . $dataValue . "\n";
 
 		if ( $type == "api" ) {
@@ -166,6 +169,7 @@ class Apache extends LoadAvg
 			}
 
 			end($swap);
+
 			$swapKey = key($swap);
 			$swap = $swap[$swapKey];
 
