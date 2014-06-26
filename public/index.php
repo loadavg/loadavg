@@ -26,9 +26,10 @@ $loadavg = new LoadAvg();
 
 $settings = LoadAvg::$_settings->general;
 
+$settings_file = APP_PATH . '/config/settings.ini';
+
 require_once APP_PATH . '/layout/header.php';
 
-$settings_file = APP_PATH . '/config/settings.ini';
 
 if ( isset( $_GET['check'] ) ) {
 	if ( $loadavg->checkWritePermissions( $settings_file ) ) {

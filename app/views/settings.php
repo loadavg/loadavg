@@ -16,12 +16,18 @@
 
 
 <?php
-if (!$loadavg->isLoggedIn() && !LoadAvg::checkInstall()) { include('login.php'); }
+if (!$loadavg->isLoggedIn() && !LoadAvg::checkInstall()) { 
+	include('login.php'); 
+}
 else {
 ?>
 
 <?php
+
+//run this code if the settings have been changed or updated
+
 if (isset($_POST['update_settings'])) {
+
 	if ( !empty($_POST['settings']['general']['password']) && strlen($_POST['settings']['general']['password']) > 0 ) {
 		$_POST['settings']['general']['password'] = md5($_POST['settings']['general']['password']);
 	} else {
@@ -33,6 +39,7 @@ if (isset($_POST['update_settings'])) {
 	$_POST['settings']['general']['https'] = ( !isset($_POST['settings']['general']['https']) ) ? "false" : "true";
 	$_POST['settings']['general']['checkforupdates'] = ( !isset($_POST['settings']['general']['checkforupdates']) ) ? "false" : "true";
 	$_POST['settings']['general']['allow_anyone'] = ( !isset($_POST['settings']['general']['allow_anyone']) ) ? "false" : "true";
+	$_POST['settings']['general']['apiserver'] = ( !isset($_POST['settings']['general']['apiserver']) ) ? "false" : "true";
 	
 	// Loop throught settings
 	$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
@@ -93,6 +100,8 @@ if (isset($_POST['update_settings'])) {
 	fwrite($settings_file_handler, "\n");
 	fclose($settings_file_handler);
 
+	///////////////////////////////////////////////////
+	//updates all the modules settings here
 	$modules = LoadAvg::$_modules;
     foreach ($modules as $module => $moduleName) {
 		if (isset($_POST[$module . '_settings'])) {
@@ -105,9 +114,18 @@ if (isset($_POST['update_settings'])) {
 		}
 	}
 
-}
+//need to reload settings here after posting
+//as for some reason after a post the data isnt updated
+
+$settings = LoadAvg::$_settings->general;
+
+header('Location: '.$_SERVER['REQUEST_URI']);
+
+} 
 
 ?>
+
+
 <form action="" method="post">
 	<input type="hidden" name="update_settings" value="1" />
 	<input type="hidden" name="settings[general][version]" value="<?php echo $settings['version']; ?>" />
@@ -130,58 +148,29 @@ if (isset($_POST['update_settings'])) {
 			<div class="span9 right">
 
 
-<?php
-$regions = array(
-    'Africa' => DateTimeZone::AFRICA,
-    'America' => DateTimeZone::AMERICA,
-    'Antarctica' => DateTimeZone::ANTARCTICA,
-    'Aisa' => DateTimeZone::ASIA,
-    'Atlantic' => DateTimeZone::ATLANTIC,
-    'Europe' => DateTimeZone::EUROPE,
-    'Indian' => DateTimeZone::INDIAN,
-    'Pacific' => DateTimeZone::PACIFIC
-);
- 
-$timezones = array();
+			<?php
 
-foreach ($regions as $name => $mask)
-{
-    $zones = DateTimeZone::listIdentifiers($mask);
-    foreach($zones as $timezone)
-    {
-		// Lets sample the time there right now
-		$time = new DateTime(NULL, new DateTimeZone($timezone));
- 
-		// Us dumb Americans can't handle millitary time
-		$ampm = $time->format('H') > 12 ? ' ('. $time->format('g:i a'). ')' : '';
- 
-		// Remove region name and add a sample time
-		$timezones[$name][$timezone] = substr($timezone, strlen($name) + 1) . ' - ' . $time->format('H:i') . $ampm;
-	}
-}
+			$timezones = LoadAvg::getTimezones();
 
-// View
-print '<select name="settings[general][timezone]" id="timezone">';
+			print '<select name="settings[general][timezone]" id="timezone">';
 
-foreach($timezones as $region => $list)
-{
-	print '<optgroup label="' . $region . '">' . "\n";
-	foreach($list as $timezone => $name)
-	{
+			foreach($timezones as $region => $list)
+			{
+				print '<optgroup label="' . $region . '">' . "\n";
+				foreach($list as $thetimezone => $name)
+				{
+					print '<option name="' . $thetimezone . '"';  	
 
-		print '<option name="' . $timezone . '"';  
-			
-		if ($settings['timezone'] == $timezone) { print ' selected="selected"'; }   
-
-		print '>' . $timezone . '</option>' . "\n";
-
-	}
-	print '<optgroup>' . "\n";
-}
-
-print '</select>';
+					$check = $settings['timezone'];
+					if (  $check == $thetimezone )  { print ' selected="selected"'; }   
 					
-?>
+					print '>' . $thetimezone . '</option>' . "\n";
+				}
+				print '<optgroup>' . "\n";
+			}
+			print '</select>';
+								
+			?>
 
 
 			</div>
@@ -262,23 +251,24 @@ print '</select>';
 
 	<div class="well">
                 <h4>API settings</h4>
-                <div class="row-fluid">
-					<div class="span4">
-						<strong>Connect to server?</strong>
-					</div>
-					<div class="span8 right">
-						<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-							<input name="settings[general][apiserver]" type="checkbox" value="true" <?php if ( $settings['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
-						</div>
-					</div>
-                </div>
+
+		<div class="row-fluid">
+			<div class="span3">
+				<strong>Connect to API</strong>
+			</div>
+			<div class="span9 right">
+				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
+					<input name="settings[general][apiserver]" type="checkbox" value="true" <?php if ( $settings['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
+				</div>
+			</div>
+		</div>
 
                 <div class="row-fluid">
                         <div class="span3">
                                 <strong>API URL</strong>
                         </div>
                         <div class="span9 right">
-                                <input type="text" name="settings[api][url]" value="<?php echo $settings['api']['url']; ?>" size="4" class="span4 center">
+                                <input type="text" name="settings[api][url]" value="<?php echo $settings['api']['url']; ?>" size="4" class="span6 left">
                         </div>
                 </div>
 
@@ -287,7 +277,7 @@ print '</select>';
                                 <strong>API Key</strong>
                         </div>
                         <div class="span9 right">
-				<input type="text" name="settings[api][key]" value="<?php echo $settings['api']['key']; ?>" size="4" class="span3 center">
+				<input type="text" name="settings[api][key]" value="<?php echo $settings['api']['key']; ?>" size="4" class="span6 left">
                         </div>
                 </div>
 
@@ -296,7 +286,7 @@ print '</select>';
                                 <strong>API Username</strong>
                         </div>
                         <div class="span9 right">
-				<input type="text" name="settings[api][username]" value="<?php echo $settings['api']['username']; ?>" size="4" class="span2 center">
+				<input type="text" name="settings[api][username]" value="<?php echo $settings['api']['username']; ?>" size="4" class="span6 left">
                         </div>
                 </div>
 
@@ -305,7 +295,7 @@ print '</select>';
                                 <strong>API Server ID</strong>
                         </div>
                         <div class="span9 right">
-                                <input type="text" name="settings[api][server]" value="<?php echo $settings['api']['server']; ?>" size="4" class="span2 center">
+                                <input type="text" name="settings[api][server]" value="<?php echo $settings['api']['server']; ?>" size="4" class="span6 left">
                         </div>
                 </div>
 	</div>
