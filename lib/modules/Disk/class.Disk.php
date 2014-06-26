@@ -37,6 +37,8 @@ class Disk extends LoadAvg
 	 * @param string $type type of logging default set to normal but it can be API too.
 	 * @return string $string if type is API returns data as string
 	 *
+	 * NEED TO START LOGGING SWAP AS WELL
+	 *
 	 */
 
 	public function logDiskUsageData( $type = false )
@@ -44,7 +46,8 @@ class Disk extends LoadAvg
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 				
-		$drive="/";
+		$drive = $settings['settings']['drive'];
+		//$drive="/";
 		
 		if (is_dir($drive)) {
 				
@@ -105,6 +108,7 @@ class Disk extends LoadAvg
 			$return = $usage = $args = array();
 
 			$swap = array();
+
 			$usageCount = array();
 			$dataArray = $dataArrayOver = $dataArraySwap = array();
 
@@ -132,6 +136,7 @@ class Disk extends LoadAvg
 			}
 
 			end($swap);
+			
 			$swapKey = key($swap);
 			$swap = $swap[$swapKey];
 

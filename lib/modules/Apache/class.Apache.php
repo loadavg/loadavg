@@ -45,7 +45,9 @@ class Apache extends LoadAvg
 		$settings = LoadAvg::$_settings->$class;
 
 
-		$url = "http://localhost/server-status";
+		$url = $settings['settings']['serverstatus'];
+		//$url = "http://localhost/server-status";
+
 		$parseUrl = $url . "/?auto";
 
 		$locate = "CPULoad";

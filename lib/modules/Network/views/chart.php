@@ -21,7 +21,7 @@
 <script type="text/javascript" src="lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
 -->
 
-<script type="text/javascript" src= "<?php echo $APP_PATH; ?>/lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+<script type="text/javascript" src= "<?php if (isset($APP_PATH)) echo $APP_PATH; ?>/lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
 
 <!-- loop through each interface -->
 

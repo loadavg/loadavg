@@ -37,7 +37,9 @@
                         <b class="innerL">Log file:</b>
                         <select name="logdate" onchange="this.submit()" style="width: 110px;height: 28px;">
                         <?php
+
                         $dates = LoadAvg::getDates();
+                        
                         foreach ( $dates as $date ) {
                             ?><option<?php echo ((isset($_GET['logdate']) && !empty($_GET['logdate']) && $_GET['logdate'] == $date) || (!isset($_GET['logdate']) && $date == date('Y-m-d'))) ? ' selected="selected"' : ''; ?> value="<?php echo $date; ?>"><?php echo $date; ?></option><?php
                         }

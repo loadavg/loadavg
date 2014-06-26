@@ -408,7 +408,7 @@ class LoadAvg
 	 * @return array $interfaces array of interfaces found on server
 	 */
 
-	public function getNetworkInterfaces()
+	public static function getNetworkInterfaces()
 	{
 		// $interfaces = exec("/sbin/ifconfig | grep -oP '^[a-zA-Z0-9]*' | paste -d'|' -s");
 		//$interfaces = exec('/sbin/ifconfig | expand | cut -c1-8 | sort | uniq -u | awk -F: \'{print $1;}\' | tr "\\n" "|" | tr -d \' \' | sed \'s/|*$//g\'');
@@ -479,11 +479,12 @@ class LoadAvg
 	 * getDates
 	 *
 	 * Gets date range from logfiles to populate the select box from topbar
+	 * NOTE: Was changed to static
 	 *
 	 * @return array $return array with list of dates
 	 */
 
-	public function getDates()
+	public static function getDates()
 	{
 		$dates = array();
 		foreach ( glob(dirname(__FILE__) . "/../logs/*.log") as $file ) {
