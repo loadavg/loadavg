@@ -154,6 +154,10 @@ class Network extends LoadAvg
 			//$dataArrayOver = "[";
 			for ( $i = 0; $i < count( $contents )-1; $i++) {
 				$data = explode("|", $contents[$i]);
+
+				// clean data for missing values
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
+					$data[1]=0;
 			
 				$net_rate = $data[1];
 				$time[$net_rate] = date("H:ia", $data[0]);

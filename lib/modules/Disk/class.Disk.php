@@ -60,7 +60,12 @@ class Disk extends LoadAvg
 			//$percentBytes = $freeBytes ? round($freeBytes / $totalBytes, 2) * 100 : 0;
 		}
 
-	    $string = time() . '|' . $usedBytes  . "\n";
+		//get disk space used for swap here
+		exec("free -o | grep Swap | awk -F' ' '{print $3}'", $swapBytes);
+
+		$swapBytes = implode(chr(26), $swapBytes);
+
+	    $string = time() . '|' . $usedBytes  . '|' . $spaceBytes . '|' . $swapBytes . "\n";
 
 		if ( $type == "api" ) {
 			return $string;
@@ -117,21 +122,31 @@ class Disk extends LoadAvg
 			for ( $i = 0; $i < count( $contents )-1; $i++) {
 			
 				$data = explode("|", $contents[$i]);
+
+				// clean data for missing values
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
+					$data[1]=0;
+				
 				$time[( $data[1] / 1048576 )] = date("H:ia", $data[0]);
 				$usage[] = ( $data[1] / 1048576 );
 			
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
 			
-				if ( isset($data[2]) )
-					$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1048576 ) ."]";
+				if ( isset($data[3]) )
+					$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3] / 1048576 ) ."]";
 
 				$usageCount[] = ($data[0]*1000);
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
+				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+					$timestamps[] = $data[0];
 			
-				if ( isset($data[2]) ) $swap[] = ( $data[2] / 1048576 );
+				//if there is a swap value we use it here
+				if ( isset($data[3]) ) $swap[] = ( $data[3] / 1048576 );
 			
-				if ( number_format(( $data[1] / 1048576 ), 2) > $settings['settings']['overload'])
+				//check for overload value here 
+				$percentage_used =  ( $data[1] / $data[2] ) * 100;
+
+				if ( $percentage_used > $settings['settings']['overload'])
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
 			}
 

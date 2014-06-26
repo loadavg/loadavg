@@ -110,6 +110,11 @@ class Memory extends LoadAvg
 			for ( $i = 0; $i < count( $contents )-1; $i++) {
 			
 				$data = explode("|", $contents[$i]);
+
+				// clean data for missing values
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
+					$data[1]=0;
+				
 				$time[( $data[1] / 1024 )] = date("H:ia", $data[0]);
 				$usage[] = ( $data[1] / 1024 );
 			

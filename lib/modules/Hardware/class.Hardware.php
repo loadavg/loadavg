@@ -101,6 +101,11 @@ class Hardware extends LoadAvg
 			for ( $i = 0; $i < count( $contents )-1; $i++) {
 				
 				$data = explode("|", $contents[$i]);
+
+				// clean data for missing values
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
+					$data[1]=0;
+				
 				$time[$witch][$data[$witch]] = date("H:ia", $data[0]);
 				$usage[$witch][] = $data[$witch];
 

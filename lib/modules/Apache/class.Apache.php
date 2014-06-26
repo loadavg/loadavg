@@ -150,6 +150,11 @@ class Apache extends LoadAvg
 			for ( $i = 0; $i < count( $contents )-1; $i++) {
 			
 				$data = explode("|", $contents[$i]);
+
+				// clean data for missing values
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
+					$data[1]=0;
+
 				$time[( $data[1]  )] = date("H:ia", $data[0]);
 				$usage[] = ( $data[1]  );
 			
@@ -163,9 +168,13 @@ class Apache extends LoadAvg
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
 			
 				if ( isset($data[2]) ) $swap[] = ( $data[2]  );
-			
+
+				//echo "Data 0:";  echo $data[0]; echo "<br>";
+				//echo "Data 1:";  echo $data[1]; echo "<br>";
+
 				if ( number_format(( $data[1]  ), 2) > $settings['settings']['overload'])
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
+				
 			}
 
 			end($swap);
