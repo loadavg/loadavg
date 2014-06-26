@@ -161,7 +161,7 @@ switch ( $step )
 					$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
 					?>
 					<b>Thank you for useing LoadAvg <?php echo $settings['version']; ?></b>
-					<p>Before start using LoadAvg <?php echo $settings['version']; ?>, execute these <span class="label label-info">crontab -e</span> and insert this line <span class="label label-info">*/6 * * * * /usr/bin/php -q <?php echo dirname(APP_PATH); ?>/logger.php /dev/null 2>1</span></p>
+					<p>Before start using LoadAvg <?php echo $settings['version']; ?>, execute these <span class="label label-info">crontab -e</span> and insert this line <span class="label label-info">*/5 * * * * /usr/bin/php -q <?php echo dirname(APP_PATH); ?>/logger.php /dev/null 2>1</span></p>
 					<p>For security reasons, you should delete the <span class="label label-info">install.php</span> file from your <span class="label label-info">/public</span> folder.</p>
 					<?php
 				}
