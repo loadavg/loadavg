@@ -37,7 +37,10 @@ foreach ( $dates as $date ) {
 
 
 //for api server data transfer
-$api = true;
+$api = false;
+if (LoadAvg::$_settings->general['apiserver'] == "true")
+	$api = true; 
+
 $response = array();
 
 
