@@ -1,7 +1,7 @@
 
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,800,700,600&subset=latin,latin-ext);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,800,700,600&subset=latin,latin-ext);
 
-@import url(http://fonts.googleapis.com/css?family=Raleway:400,600,700);
+@import url(https://fonts.googleapis.com/css?family=Raleway:400,600,700);
 
 
 body {
@@ -778,7 +778,7 @@ pre {
   height: 48px;
   padding: 4px 0 0 10px;
   line-height: normal;
-  width: 216px;
+  width: 250px;
 }
 .navbar.main .appbrand > span {
   display: block;
@@ -959,7 +959,7 @@ pre {
 .navbar.main .topnav > li .notif li.open .dropdown-menu li > a i,
 .navbar.main .topnav > li.open .dropdown-menu li > span i,
 .navbar.main .topnav > li .notif li.open .dropdown-menu li > span i {
-  position: relative;
+  position: absolute;
   left: auto;
   right: 10px;
   top: 8px;
