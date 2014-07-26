@@ -19,6 +19,7 @@ class LoadAvg
 	public static $_classes; // storing loaded modules classes
 	public static $_modules; // storing loaded modules
 	public static $current_date; // current date
+	private static $_timezones; // Cache of timezones
 	
 	// Periodas
 	public static $period;
@@ -550,14 +551,17 @@ class LoadAvg
 	/**
 	 * getTimezones
 	 *
-	 * Checks for new versions of LoadAvg
+	 * Get the (cached) list of all possible timezones
 	 *
 	 */
 
-	public function getTimezones()
+	public static function getTimezones()
 	{
-
-		$timezones = array();
+		if (is_array(LoadAvg::$_timezones)) {
+			return LoadAvg::$_timezones;
+		}
+		
+		LoadAvg::$_timezones = array();
 		
 		$regions = array(
 		    'Africa' => DateTimeZone::AFRICA,
@@ -582,11 +586,11 @@ class LoadAvg
 				$ampm = $time->format('H') > 12 ? ' ('. $time->format('g:i a'). ')' : '';
 		 
 				// Remove region name and add a sample time
-				$timezones[$name][$timezone] = substr($timezone, strlen($name) + 1) . ' - ' . $time->format('H:i') . $ampm;
+				LoadAvg::$_timezones[$name][$timezone] = substr($timezone, strlen($name) + 1) . ' - ' . $time->format('H:i') . $ampm;
 			}
 		}
 		
-		return $timezones;
+		return LoadAvg::$_timezones;
 
 	}
 
