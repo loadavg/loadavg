@@ -172,7 +172,7 @@ class Apache extends LoadAvg
 				//echo "Data 0:";  echo $data[0]; echo "<br>";
 				//echo "Data 1:";  echo $data[1]; echo "<br>";
 
-				if ( number_format(( $data[1]  ), 2) > $settings['settings']['overload'])
+				if ( (float) $data[1] > $settings['settings']['overload'])
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
 				
 			}
