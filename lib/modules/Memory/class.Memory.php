@@ -129,7 +129,7 @@ class Memory extends LoadAvg
 			
 				if ( isset($data[2]) ) $swap[] = ( $data[2] / 1024 );
 			
-				if ( number_format(( $data[1] / 1024 ), 2) > $settings['settings']['overload'])
+				if ( ( $data[1] / 1024 ) > $settings['settings']['overload'])
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 			}
 
