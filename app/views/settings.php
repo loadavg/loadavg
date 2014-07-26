@@ -314,7 +314,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
                     <input name="settings[network_interface][<?php echo trim($interface['name']); ?>]" value="true" type="checkbox" 
                     	<?php 
-                    		if ( $settings['network_interface'][trim($interface['name'])] == "true" ) 
+                    		if ( isset($settings['network_interface'][trim($interface['name'])]) && $settings['network_interface'][trim($interface['name'])] == "true" ) 
                     		{ ?>checked="checked"<?php } 
                     	?>
                     >
@@ -338,7 +338,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
                     <div class="span9 right">
                         <div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
                             <input name="settings[modules][<?php echo $module; ?>]" value="true" type="checkbox" 
-                            	<?php if ( $settings['modules'][$module] == "true" ) 
+                            	<?php if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" ) 
                             		{ ?>checked="checked"<?php } 
                             	?>
                             >
