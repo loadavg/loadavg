@@ -39,7 +39,7 @@ This application requires a web server to be installed (currently tested on Apac
 
 This application is distributed WITHOUT ANY WARRANTY; without even the implied
 warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU AFFERO GENERAL PUBLIC LICENSE for more details.
+[GNU AFFERO GENERAL PUBLIC LICENSE](LICENSE) for more details.
 
 Your feedback is appreciated, for help and assistance or to get involved please visit our forums.
 
