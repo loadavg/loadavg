@@ -4,7 +4,7 @@
 * http://www.loadavg.com
 *
 * Main controller class for LoadAvg 2.0
-* 
+*
 * @link https://github.com/loadavg/loadavg
 * @author Karsten Becker
 * @copyright 2014 Sputnik7
@@ -20,7 +20,7 @@ class LoadAvg
 	public static $_modules; // storing loaded modules
 	public static $current_date; // current date
 	private static $_timezones; // Cache of timezones
-	
+
 	// Periodas
 	public static $period;
 	public static $period_minDate;
@@ -51,11 +51,11 @@ class LoadAvg
 
 	public function __construct()
 	{
-		
+
 		date_default_timezone_set("UTC");
 		self::$settings_ini = "settings.ini";
-		
-		$this->setSettings('general', 
+
+		$this->setSettings('general',
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
@@ -91,7 +91,7 @@ class LoadAvg
 	 */
 
 	private function is_dir_empty($dir) {
-		if (!is_readable($dir)) return NULL; 
+		if (!is_readable($dir)) return NULL;
 		return (count(scandir($dir)) == 2);
 	}
 
@@ -121,7 +121,7 @@ class LoadAvg
 						$caller = $args->function;
 						//$class->logfile = $logdir . sprintf($args->logfile, date('Y-m-d'));
 						$class->logfile = $logdir . $args->logfile;
-						$class->$caller(); 
+						$class->$caller();
 					}
 				}
 			}
@@ -187,7 +187,7 @@ class LoadAvg
 		$return = array();
 		foreach ( $info as $line ) {
 			$line = json_decode($line);
-			
+
 			if (isset($line->type) && isset($line->filename)) {
 				$return['info']['line'][] = array("type" => "file", "file" => 'modules' . DIRECTORY_SEPARATOR . $class . DIRECTORY_SEPARATOR . $line->filename);
 				continue;
@@ -254,7 +254,7 @@ class LoadAvg
 	    }
 	    //LoadAvg::safefilerewrite($file, implode("\r\n", $res));
 	}
-	
+
 	/**
 	 * safefilewrite
 	 *
@@ -300,7 +300,7 @@ class LoadAvg
 		if ( isset($username) && isset($password) ) {
 			if ($username == LoadAvg::$_settings->general['username'] && md5($password) == LoadAvg::$_settings->general['password']) {
 				$_SESSION['logged_in'] = true;
-				
+
 				if (isset(self::$_settings->general['checkforupdates'])) {
 					$this->checkForUpdate();
 				}
@@ -321,12 +321,13 @@ class LoadAvg
 	public function sendApiData( $data ) {
 
 		// for debugging
-		//var_dump(self::$_settings->general['api']['key']); 
+		//var_dump(self::$_settings->general['api']['key']);
 		//var_dump(self::$_settings->general['api']['url']);
 		//var_dump(self::$_settings->general['api']['username']);
 		//var_dump(self::$_settings->general['api']['server']);
 		//var_dump($data); //exit;
-		
+
+
 		$url = self::$_settings->general['api']['url'];
 
 		$json = array(
@@ -335,44 +336,36 @@ class LoadAvg
 			'server_id' => self::$_settings->general['api']['server'],
 			'data'   => json_encode( $data )
 		);
-		
+
 		$json = json_encode( $json );
+		$user_url = $url . '/users/';
+		$server_url = $url . '/servers/';
+		$user_exists = file_get_contents($user_url . self::$_settings->general['api']['key'] . '/data');
+		$server_exists = file_get_contents($server_url . self::$_settings->general['api']['server_token'] . '/t');
 
-		//var_dump($json); //exit;
+		if($user_exists != 'false' && $server_exists != 'false') {
+			//file_put_contents("file.txt", json_encode($data)); test data
+			$curl = curl_init();
+			// Set some options - we are passing in a useragent too here
+			curl_setopt_array($curl, array(
+		    CURLOPT_RETURNTRANSFER => 1,
+		    CURLOPT_URL => $server_url.json_decode($server_exists)->id.'/data',
+		    CURLOPT_USERAGENT => 'LoadAvg Client',
+		    CURLOPT_POST => 1,
+		    CURLOPT_POSTFIELDS => array(
+		      data => json_encode($data),
+		    )
+			));
 
-		$options = array(
-			CURLOPT_RETURNTRANSFER => true, // return web page
-			CURLOPT_FOLLOWLOCATION => true, // follow redirects
-			CURLOPT_USERAGENT => "LoadAvg Client", // who am i
-			CURLOPT_AUTOREFERER => true, // set referer on redirect
-			CURLOPT_CONNECTTIMEOUT => 120, // timeout on connect
-			CURLOPT_TIMEOUT => 120, // timeout on response
-			CURLOPT_MAXREDIRS => 10, // stop after 10 redirects
-		);
+			// Send the request & save response to $resp
+			$resp = curl_exec($curl);
+			// Close request to clear up some resources
+			curl_close($curl);
+			file_put_contents("file.txt",$resp);
+			return $resp;
+		}
 
-		// troubleshooting cURL here 
-		// http://devzone.zend.com/160/using-curl-and-libcurl-with-php/
-
-		$ch = curl_init();
-
-		curl_setopt($ch,CURLOPT_URL,$url);
-
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-		curl_setopt($ch, CURLOPT_VERBOSE, FALSE);  //Set to true for debuging!
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $json );
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt_array( $ch, $options );
-
-		//execute post
-		$result = curl_exec($ch); 
-		$header = curl_getinfo( $ch );
-
-		//close connection
-		curl_close($ch);
-
-		return $result;		
+		return null;
 	}
 
 	/**
@@ -523,22 +516,22 @@ class LoadAvg
 
 	public function checkForUpdate()
 	{
-		
+
 
 		if ( !isset($_SESSION['download_url'])) {
 			if ( ini_get("allow_url_fopen") == 1) {
 
 				#$response = file_get_contents("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
 				// $response = json_decode($response);
-				
+
 				$response = file_get_contents("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
-				
+
 				$this->logUpdateCheck( $response );
-				
+
 				//var_dump("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
 
 				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
-				
+
 				if ( $response > self::$_settings->general['version'] ) {
 				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
 				}
@@ -560,9 +553,9 @@ class LoadAvg
 		if (is_array(LoadAvg::$_timezones)) {
 			return LoadAvg::$_timezones;
 		}
-		
+
 		LoadAvg::$_timezones = array();
-		
+
 		$regions = array(
 		    'Africa' => DateTimeZone::AFRICA,
 		    'America' => DateTimeZone::AMERICA,
@@ -573,7 +566,7 @@ class LoadAvg
 		    'Indian' => DateTimeZone::INDIAN,
 		    'Pacific' => DateTimeZone::PACIFIC
 		);
- 
+
 		foreach ($regions as $name => $mask)
 		{
 		    $zones = DateTimeZone::listIdentifiers($mask);
@@ -581,15 +574,15 @@ class LoadAvg
 		    {
 				// Lets sample the time there right now
 				$time = new DateTime(NULL, new DateTimeZone($timezone));
-		 
+
 				// Us dumb Americans can't handle millitary time
 				$ampm = $time->format('H') > 12 ? ' ('. $time->format('g:i a'). ')' : '';
-		 
+
 				// Remove region name and add a sample time
 				LoadAvg::$_timezones[$name][$timezone] = substr($timezone, strlen($name) + 1) . ' - ' . $time->format('H:i') . $ampm;
 			}
 		}
-		
+
 		return LoadAvg::$_timezones;
 
 	}

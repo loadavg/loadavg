@@ -3,8 +3,8 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Settings module interface 
-* 
+* Settings module interface
+*
 * @link https://github.com/loadavg/loadavg
 * @author Karsten Becker
 * @copyright 2014 Sputnik7
@@ -16,8 +16,8 @@
 
 
 <?php
-if (!$loadavg->isLoggedIn() && !LoadAvg::checkInstall()) { 
-	include('login.php'); 
+if (!$loadavg->isLoggedIn() && !LoadAvg::checkInstall()) {
+	include('login.php');
 }
 else {
 ?>
@@ -33,19 +33,19 @@ if (isset($_POST['update_settings'])) {
 	} else {
 		$_POST['settings']['general']['password'] = $_POST['settings']['general']['password2'];
 	}
-	
+
 	unset($_POST['settings']['general']['password2']);
 
 	$_POST['settings']['general']['https'] = ( !isset($_POST['settings']['general']['https']) ) ? "false" : "true";
 	$_POST['settings']['general']['checkforupdates'] = ( !isset($_POST['settings']['general']['checkforupdates']) ) ? "false" : "true";
 	$_POST['settings']['general']['allow_anyone'] = ( !isset($_POST['settings']['general']['allow_anyone']) ) ? "false" : "true";
 	$_POST['settings']['general']['apiserver'] = ( !isset($_POST['settings']['general']['apiserver']) ) ? "false" : "true";
-	
+
 	// Loop throught settings
 	$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
 	$settings = $_POST['settings'];
 	$setting_to_save = null;
-	
+
 
 	$generalSettings = $_POST['settings']['general'];
 
@@ -121,7 +121,7 @@ $settings = LoadAvg::$_settings->general;
 
 header('Location: '.$_SERVER['REQUEST_URI']);
 
-} 
+}
 
 ?>
 
@@ -159,17 +159,17 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 				print '<optgroup label="' . $region . '">' . "\n";
 				foreach($list as $thetimezone => $name)
 				{
-					print '<option name="' . $thetimezone . '"';  	
+					print '<option name="' . $thetimezone . '"';
 
 					$check = $settings['timezone'];
-					if (  $check == $thetimezone )  { print ' selected="selected"'; }   
-					
+					if (  $check == $thetimezone )  { print ' selected="selected"'; }
+
 					print '>' . $thetimezone . '</option>' . "\n";
 				}
 				print '<optgroup>' . "\n";
 			}
 			print '</select>';
-								
+
 			?>
 
 
@@ -250,7 +250,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 	<div class="separator bottom"></div>
 
 	<div class="well">
-                <h4>API settings</h4>
+    <h4>API settings</h4>
 
 		<div class="row-fluid">
 			<div class="span3">
@@ -263,41 +263,50 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 			</div>
 		</div>
 
-                <div class="row-fluid">
-                        <div class="span3">
-                                <strong>API URL</strong>
-                        </div>
-                        <div class="span9 right">
-                                <input type="text" name="settings[api][url]" value="<?php echo $settings['api']['url']; ?>" size="4" class="span6 left">
-                        </div>
-                </div>
+    <div class="row-fluid">
+      <div class="span3">
+        <strong>API URL</strong>
+      </div>
+      <div class="span9 right">
+        <input type="text" name="settings[api][url]" value="<?php echo $settings['api']['url']; ?>" size="4" class="span6 left">
+      </div>
+    </div>
 
-                <div class="row-fluid">
-                        <div class="span3">
-                                <strong>API Key</strong>
-                        </div>
-                        <div class="span9 right">
+    <div class="row-fluid">
+      <div class="span3">
+        <strong>API Key</strong>
+      </div>
+      <div class="span9 right">
 				<input type="text" name="settings[api][key]" value="<?php echo $settings['api']['key']; ?>" size="4" class="span6 left">
-                        </div>
-                </div>
+      </div>
+    </div>
 
-                <div class="row-fluid">
-                        <div class="span3">
-                                <strong>API Username</strong>
-                        </div>
-                        <div class="span9 right">
-				<input type="text" name="settings[api][username]" value="<?php echo $settings['api']['username']; ?>" size="4" class="span6 left">
-                        </div>
-                </div>
+    <!-- <div class="row-fluid">
+      <div class="span3">
+        <strong>API Username</strong>
+      </div>
+      <div class="span9 right">
+				<input type="text" name="settings[api][username]" value="<?php //echo $settings['api']['username']; ?>" size="4" class="span6 left">
+      </div>
+    </div> -->
 
-                <div class="row-fluid">
-                        <div class="span3">
-                                <strong>API Server ID</strong>
-                        </div>
-                        <div class="span9 right">
-                                <input type="text" name="settings[api][server]" value="<?php echo $settings['api']['server']; ?>" size="4" class="span6 left">
-                        </div>
-                </div>
+    <div class="row-fluid">
+      <div class="span3">
+        <strong>Server Token</strong>
+      </div>
+      <div class="span9 right">
+        <input type="text" name="settings[api][server_token]" value="<?php echo $settings['api']['server_token']; ?>" size="4" class="span6 left">
+      </div>
+    </div>
+
+    <!-- <div class="row-fluid">
+      <div class="span3">
+        <strong>API Server ID</strong>
+      </div>
+      <div class="span9 right">
+        <input type="text" name="settings[api][server]" value="<?php //echo $settings['api']['server']; ?>" size="4" class="span6 left">
+      </div>
+    </div> -->
 	</div>
 
 	<div class="separator bottom"></div>
@@ -312,10 +321,10 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 			</div>
 			<div class="span9 right">
 				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-                    <input name="settings[network_interface][<?php echo trim($interface['name']); ?>]" value="true" type="checkbox" 
-                    	<?php 
-                    		if ( isset($settings['network_interface'][trim($interface['name'])]) && $settings['network_interface'][trim($interface['name'])] == "true" ) 
-                    		{ ?>checked="checked"<?php } 
+                    <input name="settings[network_interface][<?php echo trim($interface['name']); ?>]" value="true" type="checkbox"
+                    	<?php
+                    		if ( isset($settings['network_interface'][trim($interface['name'])]) && $settings['network_interface'][trim($interface['name'])] == "true" )
+                    		{ ?>checked="checked"<?php }
                     	?>
                     >
                 </div>
@@ -337,9 +346,9 @@ header('Location: '.$_SERVER['REQUEST_URI']);
                     </div>
                     <div class="span9 right">
                         <div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-                            <input name="settings[modules][<?php echo $module; ?>]" value="true" type="checkbox" 
-                            	<?php if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" ) 
-                            		{ ?>checked="checked"<?php } 
+                            <input name="settings[modules][<?php echo $module; ?>]" value="true" type="checkbox"
+                            	<?php if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" )
+                            		{ ?>checked="checked"<?php }
                             	?>
                             >
                         </div>
@@ -352,7 +361,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
                 	if ( isset($moduleSettings['module']['has_settings']) && $moduleSettings['module']['has_settings'] == "true") {
                 		?>
                 		<div class="well">
-                			
+
             				<strong><?php echo $module; ?> module settings:</strong>
 
 	                        <?php
