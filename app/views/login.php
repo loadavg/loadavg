@@ -33,8 +33,10 @@
 		<button class="btn btn-large btn-primary" type="submit">Sign in</button>
 	</form>
 
+<!-- moved to footer
 	<center>
 				<a href="http://www.loadavg.com/">LoadAVG v <?php echo $settings['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
 				For comments and suggestions please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
 	</center>
+-->
 </div>

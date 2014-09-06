@@ -12,7 +12,8 @@
 * This file is licensed under the Affero General Public License version 3 or
 * later.
 */
-?>		
+?>	
+
 			<?php if ($loadavg->isLoggedIn()) { ?>
 			<div class="well lh70-style-top margin-none center footer">
 				<a href="http://www.loadavg.com/">LoadAVG v <?php echo $settings['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
@@ -35,6 +36,17 @@
 				</div>
 				<?php } ?>
 			</div>
+			<?php } 
+
+			else { ?>
+
+			<div class="well lh70-style-top margin-none center footer">
+			<center>
+				<a href="http://www.loadavg.com/">LoadAVG v <?php echo $settings['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
+				For comments and suggestions please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
+			</center>
+			</div>
+
 			<?php } ?>
 
 		<!-- End Content -->
@@ -50,14 +62,14 @@
 	
 	
 	<!-- JQueryUI v1.9.2 -->
-	<script src="assets/theme/scripts/plugins/system/jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
 
 	<!-- Javascript for Period -->
-	<script src="assets/theme/scripts/demo/period.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/demo/period.js"></script>
 	
 	<!-- JQueryUI Touch Punch -->
 	<!-- small hack that enables the use of touch events on sites using the jQuery UI user interface library -->
-	<script src="assets/theme/scripts/plugins/system/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
 	
 	<!-- Colors -->
 	<script>
@@ -65,20 +77,20 @@
 	</script>
 	
 	<!--  Flot (Charts) JS -->
-	<script src="assets/theme/scripts/plugins/charts/flot/jquery.flot.js" type="text/javascript"></script>
-	<script src="assets/theme/scripts/plugins/charts/flot/jquery.flot.time.js" type="text/javascript"></script>
-	<script src="assets/theme/scripts/plugins/charts/flot/plugins/tooltip/jquery.flot.tooltip.min.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/jquery.flot.js" type="text/javascript"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/jquery.flot.time.js" type="text/javascript"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/plugins/tooltip/jquery.flot.tooltip.min.js"></script>
 
 	<!-- Bootstrap Script -->
-	<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/js/bootstrap.min.js"></script>
 
 	<!-- Bootstrap Toggle Buttons Script -->
-	<script src="assets/bootstrap/extend/bootstrap-toggle-buttons/static/js/jquery.toggle.buttons.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-toggle-buttons/static/js/jquery.toggle.buttons.js"></script>
 
 	<script>$(function () { $('.toggle-button').toggleButtons(); })</script>
 
 	<!-- Common script -->
-	<script src="assets/theme/scripts/demo/common.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/demo/common.js"></script>
 	
 </body>
 </html>

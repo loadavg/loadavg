@@ -39,7 +39,7 @@
 						<div class="widget-head"><h4 class="heading">Server Data</h4></div>
 						<div class="widget-body">
 							<ul class="unstyled row-fluid">
-								<li><strong  class="span4">Client:</strong><span class="span8"><?php echo $settings['title']; ?></span></li>
+								<li><strong  class="span4">Server:</strong><span class="span8"><?php echo $settings['title']; ?></span></li>
 								<li><strong  class="span4">Hostname:</strong><span class="span8"><?php echo $server->getData('hostname'); ?></span></li>
 								<li><strong  class="span4">Nodename:</strong><span class="span8"><?php echo $server->getData('nodename'); ?></span></li>
 							</ul>

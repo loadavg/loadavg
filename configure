@@ -37,6 +37,9 @@ else
         chmod 0777 app/config/
         chmod 0777 app/config/settings.ini
         chmod 0777 lib/modules/*/*.ini
+        chmod 0777 install
+        chmod 0777 install/install.php
+	chmod 0777 public/install.php
         echo -n "[+] Checking for /logs folder ... "
         if [ ! -d "logs" ]; then
                 echo "NOT FOUND"

@@ -143,6 +143,16 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 
 		<div class="row-fluid">
 			<div class="span3">
+				<strong>Server name</strong>
+			</div>
+			<div class="span9 right">
+				<input type="text" name="settings[general][title]" value="<?php echo $settings['title']; ?>" >
+			</div>
+		</div>
+
+
+		<div class="row-fluid">
+			<div class="span3">
 				<strong>Select time-zone</strong>
 			</div>
 			<div class="span9 right">
@@ -229,14 +239,27 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 			</div>
 		</div>
 
+
+	</div>
+
+
+
+
+
+	<div class="separator bottom"></div>
+
+	<div class="well">
+    <h4>Username and Password</h4>
+
 		<div class="row-fluid">
 			<div class="span3">
 				<strong>Username</strong>
 			</div>
 			<div class="span9 right">
-				<input type="text" name="settings[general][username]" value="<?php echo $settings['username']; ?>" size="4" class="span2 center">
+				<input type="text" name="settings[general][username]" value="<?php echo $settings['username']; ?>" >
 			</div>
 		</div>
+
 		<div class="row-fluid">
 			<div class="span3">
 				<strong>Password</strong>
@@ -245,7 +268,19 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 				<input type="text" name="settings[general][password]" />
 			</div>
 		</div>
+
 	</div>
+
+	<div class="separator bottom"></div>
+
+
+
+
+
+
+
+
+
 
 	<div class="separator bottom"></div>
 

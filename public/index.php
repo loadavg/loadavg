@@ -30,24 +30,64 @@ $settings_file = APP_PATH . '/config/settings.ini';
 
 require_once APP_PATH . '/layout/header.php';
 
-
 if ( isset( $_GET['check'] ) ) {
 	if ( $loadavg->checkWritePermissions( $settings_file ) ) {
+
+		//try to delete installer...
+
 		if ( $loadavg->checkInstaller() ) {
 			header("Location: index.php");
-		} else {
+		} 
+		else 
+		{
+
+			$installer_file = HOME_PATH . "/install/index.php";
+			$installer_loc = HOME_PATH . "/install";
+
+			echo $installer_file . '<br>';
+			echo $installer_loc . '<br>';
+
+			//try to delete it first if we have permissions
+			
+			unlink($installer_file);
+			rmdir($installer_loc);
+
+			if ( $loadavg->checkInstaller() ) {
+				header("Location: index.php");
+			}
+			else
+			{ 
 			?>
+
 			<div class="well">
-				<h3>Warning!</h3>
-				<p>After removal of <span class="label label-info">install.php</span> hit <span class="label label-info">Check again</span> to <span class="label label-info">Login</span></p>
+				<h3>Secure your installation!</h3>
+
+					<p>For security reasons, you need to delete the <span class="label label-info">/install</span> folder 
+					before you can run LoadAvg<br> 
+					<br>
+					To do this go to the location you installed LoadAvg and type:<br>
+					<br>
+					<span class="label label-info">rm -rf install</span>
+					<br><br>
+					LoadAvg will not run until this has been done.
+					<br><br>
+					After you have removed the install folder hit <span class="label label-info">Check again</span> 
+				to login<br><br>
+				</p>
 				<button class="btn btn-primary" onclick="location.reload();">Check again!</button>
 			</div>
-			<script>alert("YOU HAVE TO REMOVE install.php FROM YOUR /public FOLDER!");</script>
+			
+			<!--
+			<script>alert("PLEASE REMOVE install.php FROM YOUR /public FOLDER!");</script>
+			-->
+
 			<?php
+			require_once APP_PATH . '/layout/footer.php'; 
 			exit;
+			}
 		}
 	} else {
-		header("Location: install.php?step=1");
+		header("Location: " . SCRIPT_ROOT . "/install/index.php?step=1");
 	}
 } else {
 	$loadavg->checkInstall();

@@ -55,7 +55,7 @@ switch ( $step )
 			</div>
 			<?php
 		} else {
-			header("Location: install.php?step=2"); // redirecting to step 2
+			header("Location: index.php?step=2"); // redirecting to step 2
 		}
 		break;
 	case 2: // Configuration: Username, password, Site name, Check for updates
@@ -67,15 +67,20 @@ switch ( $step )
 				<input type="hidden" name="step" value="3">
 
 				<div class="control-group">
-					<label class="control-label" for="inputSiteName">Site name</label>
+					<label class="control-label" for="inputSiteName">Server name</label>
 					<div class="controls">
+					<?php  
+						// Get hostname for default site name
+						$settings['title']=gethostname(); 
+					?>
+
 						<input type="text" id="inputSiteName" name="title" value="<?php echo $settings['title']; ?>" placeholder="Site name">
-						<span class="help-block">Change default site title</span>
+						<span class="help-block">Set the server name</span>
 					</div>
 				</div>
 
 				<div class="control-group">
-					<label class="control-label" for="inputUsername">Username</label>
+					<label class="control-label" for="inputUsername">Username or email address</label>
 					<div class="controls">
 						<input type="text" id="inputUsername" name="username" placeholder="Username">
 						<span class="help-block">Please type in your desired username</span>
@@ -122,6 +127,7 @@ switch ( $step )
 				</div>
 			</form>
 		</div>
+
 		<?php
 		} else {
 			// If user comes directly to second step without write permissions or running the configuration tool
@@ -144,25 +150,86 @@ switch ( $step )
 			
 			$match = ( $settings['password'] == $password2 ) ? true : $errorMsg .= '<li>Passwords do not match!</li>';
 			$settings['password'] = md5($settings['password']);
+
+			if (ini_get('date.timezone')) {
+    			//echo 'date.timezone: ' . ini_get('date.timezone');
+		    	$settings['timezone']=ini_get('date.timezone'); 
+			}
 			?>
+
+			<!--
 			<h4>Installation: Complete</h4>
 			<div class="well">
+			-->
 				<?php
 				if ( strlen( $errorMsg ) > 0) {
 					?>
+
+			<h4>Installation Errors</h4>
+			<div class="well">
+
 					<h3>Error(s).</h3>
 					<ul>
 						<?php echo $errorMsg; ?>
 					</ul>
 					<?php
-				} else {
-					//var_dump($settings);
-					$loadavg->write_php_ini( $settings, $settings_file);
-					$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
-					?>
-					<b>Thank you for useing LoadAvg <?php echo $settings['version']; ?></b>
-					<p>Before start using LoadAvg <?php echo $settings['version']; ?>, execute these <span class="label label-info">crontab -e</span> and insert this line <span class="label label-info">*/5 * * * * /usr/bin/php -q <?php echo dirname(APP_PATH); ?>/logger.php /dev/null 2>1</span></p>
-					<p>For security reasons, you should delete the <span class="label label-info">install.php</span> file from your <span class="label label-info">/public</span> folder.</p>
+				} else { ?>
+
+			<h4>Installation Complete</h4>
+			<div class="well">
+
+			<?php
+			// write settings file out
+			//var_dump($settings);
+			$loadavg->write_php_ini( $settings, $settings_file);
+			$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
+			?>
+
+
+
+					<b>Thank you for installing LoadAvg <?php echo $settings['version']; ?></b>
+					<br><br>
+					<p>
+					LoadAvg records log data at the system level. For it to function correctly 
+					you need to you need to set up the logger.
+					</p>
+
+					<b>To set up logging</b>
+					<br><br>					
+					<p>Edit your crontab by executing the following command at the command line as root or superuser:<br>
+					<br>
+					<span class="label label-info">crontab -e</span>
+					<br>
+					<br>
+					It should have opened up your crontab in your editor, insert this line and save your changes<br>
+					<br>
+					<span class="label label-info">*/5 * * * * /usr/bin/php -q <?php echo dirname(APP_PATH); ?>/logger.php /dev/null 2>1</span>
+					</p>
+
+					<b>Need help ?</b>
+					<br><br>					
+					<p>To get help setting up your logger you can refer to the LoadAvg knowledgebase at<br>
+					<br>
+					<a href="http://www.loadavg.com/kb/logging/" target="new">http://www.loadavg.com/kb/logging/</a><br>
+					<br>
+					</p>
+
+					<!--				
+					<b>2. Secure your installation</b>
+					<br><br>
+					<p>For security reasons, you need to delete the <span class="label label-info">install.php</span> file from your <span class="label label-info">/public</span> folder.
+					To do this type:<br>
+					<br>
+					<span class="label label-info">rm public/install.php</span>
+					<br><br>
+					LoadAvg will not run until this has been done.
+					</p>
+					<br>
+
+					<b>Once you have completed steps 1 and 2 above you can log in.</b>
+					<br><br>
+					-->
+
 					<?php
 				}
 				?>
@@ -170,7 +237,7 @@ switch ( $step )
 				if ( strlen( $errorMsg ) > 0) {
 					?><a class="btn btn-primary" href="?step=2">Go back!</a><?php	
 				} else {
-					?><a class="btn btn-primary" href="index.php?check=1">Login</a><?php
+					?><a class="btn btn-primary" href="<?php echo SCRIPT_ROOT ?>public/index.php?check=1">Continue</a><?php
 				}
 				?>
 			</div>
@@ -182,6 +249,8 @@ switch ( $step )
 }
 ?>
 </div>
+
 <?php
 // Including the footer view
-require_once APP_PATH . '/layout/footer.php'; ?>
+require_once APP_PATH . '/layout/footer.php'; 
+?>

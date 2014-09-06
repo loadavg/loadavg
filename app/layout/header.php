@@ -23,6 +23,7 @@ if (isset($_POST['login'])) {
 		if (!isset($_POST['password'])) { $error .= "<li>Password is mandatory!</li>"; }
 	}
 }
+
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -30,7 +31,10 @@ if (isset($_POST['login'])) {
 <!--[if IE 8]>    <html class="lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html> <!--<![endif]-->
 <head>
-	<title><?php echo sprintf($settings['title'], $settings['version'], ''); ?></title>
+	<!--
+	<title><?php echo 'LoadAvg ' . sprintf($settings['title'], $settings['version'], ''); ?></title>
+	-->
+	<title><?php echo 'Server ' . $settings['title'] . ' | LoadAvg ' . $settings['version']; ?></title>
 	
 	<!-- Meta -->
 	<meta charset="UTF-8" />
@@ -39,31 +43,31 @@ if (isset($_POST['login'])) {
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
 	
 	<!-- Bootstrap -->
-	<link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-	<link href="assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
+	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
 
 	<!-- Bootstrap Toggle Buttons Script -->
-	<link href="assets/bootstrap/extend/bootstrap-toggle-buttons/static/stylesheets/bootstrap-toggle-buttons.css" rel="stylesheet">
+	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-toggle-buttons/static/stylesheets/bootstrap-toggle-buttons.css" rel="stylesheet">
 	
 	<!-- JQueryUI v1.9.2 -->
-	<link rel="stylesheet" href="assets/theme/scripts/plugins/system/jquery-ui-1.9.2.custom/css/smoothness/jquery-ui-1.9.2.custom.min.css" />
+	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.9.2.custom/css/smoothness/jquery-ui-1.9.2.custom.min.css" />
 	
 	<!-- Glyphicons -->
-	<link rel="stylesheet" href="assets/theme/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/css/font-awesome.min.css" />
 	
 	<!-- JQuery v1.8.2 -->
-	<script src="assets/theme/scripts/plugins/system/jquery-1.8.2.min.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-1.8.2.min.js"></script>
 	
 	<!-- Modernizr -->
-	<script src="assets/theme/scripts/plugins/system/modernizr.custom.76094.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/modernizr.custom.76094.js"></script>
 	
 	<!-- Theme -->
-	<link rel="stylesheet" href="assets/theme/css/style.css?<?php echo time(0); ?>" />
+	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/css/style.css?<?php echo time(0); ?>" />
 	
 	<!-- LESS 2 CSS -->
-	<script src="assets/theme/scripts/plugins/system/less-1.3.3.min.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/less-1.3.3.min.js"></script>
 	
-	<!--[if IE]><script type="text/javascript" src="assets/theme/scripts/plugins/other/excanvas/excanvas.js"></script><![endif]-->
+	<!--[if IE]><script type="text/javascript" src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/other/excanvas/excanvas.js"></script><![endif]-->
 
 	<script type="text/javascript">
 	<?php 
@@ -93,7 +97,7 @@ if (isset($_POST['login'])) {
 		
 		<div class="navbar main hidden-print">
 			
-			<a href="index.php" class="appbrand"><img src="assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;"><span>LoadAvg<span>Advanced Server Analytics</span></span></a>
+			<a href="index.php" class="appbrand"><img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;"><span>LoadAvg<span>Advanced Server Analytics</span></span></a>
 			
 			<?php if ($loadavg->isLoggedIn() || (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "true")) { ?>
 			<ul class="topnav pull-right">
