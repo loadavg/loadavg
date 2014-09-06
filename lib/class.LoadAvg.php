@@ -154,7 +154,7 @@ class LoadAvg
 
 	public function checkInstaller() {
 
-		$install_loc = SCRIPT_PATH . "install/index.php";
+		$install_loc = "../install/index.php";
 
 		if ( file_exists($install_loc) )
 			return false;
@@ -170,8 +170,8 @@ class LoadAvg
 	 */
 
 	public function checkInstall() {
-
-		$install_loc = SCRIPT_PATH . "install/index.php";
+		
+		$install_loc = "../install/index.php";
 
 		if ( file_exists($install_loc) )
 			header("Location: ../install/index.php");
