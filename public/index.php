@@ -34,7 +34,6 @@ if ( isset( $_GET['check'] ) ) {
 	if ( $loadavg->checkWritePermissions( $settings_file ) ) {
 
 		//try to delete installer...
-
 		if ( $loadavg->checkInstaller() ) {
 			header("Location: index.php");
 		} 
@@ -42,13 +41,9 @@ if ( isset( $_GET['check'] ) ) {
 		{
 
 			$installer_file = HOME_PATH . "/install/index.php";
-			$installer_loc = HOME_PATH . "/install";
-
-			echo $installer_file . '<br>';
-			echo $installer_loc . '<br>';
+			$installer_loc = HOME_PATH . "/install/";
 
 			//try to delete it first if we have permissions
-			
 			unlink($installer_file);
 			rmdir($installer_loc);
 
