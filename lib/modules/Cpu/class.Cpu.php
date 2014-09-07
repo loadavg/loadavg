@@ -14,7 +14,7 @@
 * later.
 */
 
-class Hardware extends LoadAvg
+class Cpu extends LoadAvg
 {
 	public $logfile; // Stores the logfile name & path
 

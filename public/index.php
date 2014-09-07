@@ -88,6 +88,8 @@ if ( isset( $_GET['check'] ) ) {
 	$loadavg->checkInstall();
 }
 
+
+/* Create first log files for all active modules */
 $loadavg->createFirstLogs();
 
 if ( 

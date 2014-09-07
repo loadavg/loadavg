@@ -1,0 +1,20 @@
+TODO
+
+Fix empty network charts when no log data
+
+username not to show in menu at top roght - main settings, drop down - server
+
+
+
+crontab 
+
+*/5 * * * * /usr/bin/php -q /var/www/vhosts/load.loadavg.com/httpdocs/logger.php /dev/null 2>1
+
+
+fix apache and give people instructions as not working!!!
+
+why is disk at top ? cpu should be
+
+fix bug when you tuen apache on oif server-data is no accessabel it breaks display
+
+activeate ewth0 or default inet device by default please

@@ -79,24 +79,6 @@ if (isset($_POST['update_settings'])) {
 	endforeach;
 
 
-
-	// foreach ($settings as $key => $value) {
-	// 	// Check if value is array | if YES then its a section
-	// 	if (!is_array($value)) {
-	// 		$value = (is_string($value)) ? "\"$value\"" : $value;
-	// 		$setting_to_save = $key . " = " . $value . PHP_EOL;
-	// 		fwrite($settings_file_handler, $setting_to_save);
-	// 	} else if ( is_array($value) ) {
-	// 		$setting_to_save = "[" . $key . "]" . PHP_EOL;
-	// 		fwrite($settings_file_handler, $setting_to_save);
-	// 		foreach ($settings[$key] as $key => $value) {
-	// 			$value = (is_string($value)) ? "\"$value\"" : $value;
-	// 			$setting_to_save = $key . " = " . $value . PHP_EOL;
-	// 			fwrite($settings_file_handler, $setting_to_save);
-	// 		}
-	// 	}
-	// }
-
 	fwrite($settings_file_handler, "\n");
 	fclose($settings_file_handler);
 
@@ -104,21 +86,37 @@ if (isset($_POST['update_settings'])) {
 	//updates all the modules settings here
 	$modules = LoadAvg::$_modules;
     foreach ($modules as $module => $moduleName) {
+
+//    	echo $moduleName;
+
 		if (isset($_POST[$module . '_settings'])) {
+
+			    	echo $moduleName;
+
 			$module_config_file = APP_PATH . '/../lib/modules/' . $module . '/' . strtolower( $module ) . '.ini';
 			$module_config_ini = parse_ini_file( $module_config_file , true );
 
 			$replaced_settings = array_replace($module_config_ini, $_POST[$module . '_settings']);
+
 			LoadAvg::write_php_ini($replaced_settings, $module_config_file);
 			$fh = fopen($module_config_file, "a"); fwrite($fh, "\n"); fclose($fh);
 		}
 	}
 
-//need to reload settings here after posting
-//as for some reason after a post the data isnt updated
+/* need to reload settings here after posting
+   as for some reason after a post the data isnt updated */
 
 $settings = LoadAvg::$_settings->general;
 
+/* rebuild logs
+   needed for when you turn a module on that has no logs
+   this needs to only rebuild logs for modules that have been turned on */
+
+$loadavg->rebuildLogs();
+
+//die;
+
+/* reload settings now */
 header('Location: '.$_SERVER['REQUEST_URI']);
 
 }

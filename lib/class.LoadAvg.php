@@ -104,6 +104,8 @@ class LoadAvg
 
 	public function createFirstLogs()
 	{
+		//die;
+
 		if ( $this->is_dir_empty(APP_PATH . '/../' . self::$_settings->general['logs_dir']) ) {
 			$loaded = self::$_settings->general['modules'];
 			$logdir = APP_PATH . '/../' . self::$_settings->general['logs_dir'];
@@ -111,7 +113,9 @@ class LoadAvg
 			// Check for each module we have loaded
 			foreach ( $loaded as $module => $value ) {
 				if ( $value == "false" ) continue;
+
 				$moduleSettings = self::$_settings->$module;
+
 				// Check if loaded module needs loggable capabilities
 				if ( $moduleSettings['module']['logable'] == "true" ) {
 					foreach ( $moduleSettings['logging']['args'] as $args) {
@@ -128,6 +132,42 @@ class LoadAvg
 
 		}
 	}
+
+/*
+ * this needs to only build the log file for modules
+ * that have no log file in /logs
+ * also be great to pass the module over if we know 
+ * what module has changed or been enabled
+ */
+
+	public function rebuildLogs()
+	{
+
+			$loaded = self::$_settings->general['modules'];
+			$logdir = APP_PATH . '/../' . self::$_settings->general['logs_dir'];
+
+			// Check for each module we have loaded
+			foreach ( $loaded as $module => $value ) {
+				if ( $value == "false" ) continue;
+
+				$moduleSettings = self::$_settings->$module;
+
+				// Check if loaded module needs loggable capabilities
+				if ( $moduleSettings['module']['logable'] == "true" ) {
+					foreach ( $moduleSettings['logging']['args'] as $args) {
+						$args = json_decode($args);
+						$class = self::$_classes[$module];
+
+						$caller = $args->function;
+
+						$class->logfile = $logdir . $args->logfile;
+						$class->$caller();
+					}
+				}
+			}
+
+	}
+
 
 	/**
 	 * checkWritePermissions
@@ -170,7 +210,7 @@ class LoadAvg
 	 */
 
 	public function checkInstall() {
-		
+
 		$install_loc = "../install/index.php";
 
 		if ( file_exists($install_loc) )
@@ -178,7 +218,7 @@ class LoadAvg
 	}
 
 	/**
-	 * checkWritePermissions
+	 * parseInfo
 	 *
 	 * Checks if specified file has write permissions.
 	 *
@@ -530,7 +570,8 @@ class LoadAvg
 				#$response = file_get_contents("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
 				// $response = json_decode($response);
 
-				$response = file_get_contents("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
+				$response = file_get_contents("http://updates.loadavg.com/version.php?site_url=" 
+					. $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
 
 				$this->logUpdateCheck( $response );
 
