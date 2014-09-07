@@ -89,8 +89,12 @@ if ( isset( $_GET['check'] ) ) {
 }
 
 
-/* Create first log files for all active modules */
+/* 
+ * Create first log files for all active modules 
+ * only executes if there are no log files
+ */
 $loadavg->createFirstLogs();
+
 
 if ( 
 	( isset($_GET['minDate']) && !empty($_GET['minDate']) ) &&
@@ -102,7 +106,13 @@ if (
 	LoadAvg::$period_maxDate = date("Y-m-d", strtotime($_GET['maxDate']));
 }
 
+
+/*
+ * used to poll time to generate charts
+ */
 $loadavg->setStartTime(); // Setting page load start time
+
+
 
 $loaded = LoadAvg::$_settings->general['modules']; 
 $logdir = APP_PATH . '/../logs/';
