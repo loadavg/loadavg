@@ -6,15 +6,35 @@ username not to show in menu at top roght - main settings, drop down - server
 
 
 
-crontab 
+crontab ??
 
 */5 * * * * /usr/bin/php -q /var/www/vhosts/load.loadavg.com/httpdocs/logger.php /dev/null 2>1
 
 
 fix apache and give people instructions as not working!!!
 
-why is disk at top ? cpu should be
+fix bug when you turn apache on if server-data is no accessabel it breaks display ? shouldnt do this
 
-fix bug when you tuen apache on oif server-data is no accessabel it breaks display
+
 
 activeate ewth0 or default inet device by default please
+
+
+when  not logged in no access to settings - show 'login' instead and redirect to login page
+ >> edit index.php to make this happen
+
+
+
+ clean up all errors in error log -espoecially for suddomain install
+
+
+ >> loadavg errors in installer - looking for interfaces ? when is this triggered
+
+
+
+ when i actiavet network adapter - logs arent created umless i save setting twice - due to function call 
+
+ $loadavg->rebuildLogs();
+
+
+fix 'remember me' on login screen 

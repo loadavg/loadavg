@@ -105,10 +105,15 @@ if (isset($_POST['login'])) {
 
 				<li <?php if (isset($_GET['page']) && $_GET['page'] == 'server') : ?> class="active"<?php endif; ?>><a href="?page=server"><i class="fa fa-question-circle"></i> Server</a></li>
 				
+
+				<?php if ( $loadavg->isLoggedIn() ) { ?>
+
+
+
 				<li class="account <?php if (isset($_GET['page']) && $_GET['page'] == 'settings') : ?> active<?php endif; ?>">
 					<a data-toggle="dropdown" href="" class="logout"><span class="hidden-phone text">
 
-					<?php echo (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "true" ) ? 'Preferences' : 'Settings' /* $settings['username']; */ ?></span> 
+					<?php echo (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "true" ) ? 'Settings' : 'Settings' /* $settings['username']; */ ?></span> 
 						<i class="fa fa-unlock-alt"></i></a>
 					
 					<ul class="dropdown-menu pull-right">
@@ -122,6 +127,23 @@ if (isset($_POST['login'])) {
 						<?php endif; ?>
 					</ul>
 				</li>
+
+				
+
+				<?php }
+
+				else
+
+				{ ?>
+
+				<li><a href="?page=login"><i class="fa fa-question-circle"></i> Login</a></li>
+
+
+				<?php } ?>
+
+	
+
+
 			</ul>
 			<?php } ?>
 		</div>

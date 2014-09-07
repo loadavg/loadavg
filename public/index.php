@@ -40,10 +40,11 @@ if ( isset( $_GET['check'] ) ) {
 		else 
 		{
 
+			//try to delete installer first if we have permissions
+
 			$installer_file = HOME_PATH . "/install/index.php";
 			$installer_loc = HOME_PATH . "/install/";
 
-			//try to delete it first if we have permissions
 			unlink($installer_file);
 			rmdir($installer_loc);
 
@@ -93,8 +94,12 @@ if ( isset( $_GET['check'] ) ) {
  * Create first log files for all active modules 
  * only executes if there are no log files
  */
+
 $loadavg->createFirstLogs();
 
+/* 
+ * Set the current period
+ */
 
 if ( 
 	( isset($_GET['minDate']) && !empty($_GET['minDate']) ) &&
@@ -108,11 +113,14 @@ if (
 
 
 /*
- * used to poll time to generate charts
+ * start polling time to generate charts
  */
+
 $loadavg->setStartTime(); // Setting page load start time
 
-
+/*
+ * draw the current page view
+ */
 
 $loaded = LoadAvg::$_settings->general['modules']; 
 $logdir = APP_PATH . '/../logs/';
@@ -130,6 +138,10 @@ if ($settings['allow_anyone'] == "false" && !$loadavg->isLoggedIn()) {
 		require_once APP_PATH . '/views/index.php';
 	}
 }
+
+/*
+ * finish polling time to generate charts
+ */
 
 $loadavg->setFinishTime(); // Setting page load finish time
 
