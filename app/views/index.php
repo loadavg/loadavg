@@ -29,6 +29,7 @@
                     <div class="controls">
                         <input type="hidden" id="minDateValue" value="<?php echo date("Y-m-d", strtotime("-". LoadAvg::$_settings->general['daystokeep'] ." days 00:00:00")); ?>">
                         <input type="hidden" id="maxDateValue" value="<?php echo date("Y-m-d"); ?>">
+                        
                         <input type="text" id="minDate" name="minDate" value="<?php echo (isset($_GET['minDate']) && !empty($_GET['minDate'])) ? $_GET['minDate'] : ''; ?>" placeholder="Period from" style="width: 70px;height: 18px;">
                         -
                         <input type="text" id="maxDate" name="maxDate" value="<?php echo (isset($_GET['minDate']) && !empty($_GET['maxDate'])) ? $_GET['maxDate'] : ''; ?>" placeholder="Period to" style="width: 70px;height: 18px;">
@@ -38,11 +39,27 @@
                         <select name="logdate" onchange="this.submit()" style="width: 110px;height: 28px;">
                         <?php
 
+
                         $dates = LoadAvg::getDates();
                         
+                        $date_counter = 1;
+
                         foreach ( $dates as $date ) {
-                            ?><option<?php echo ((isset($_GET['logdate']) && !empty($_GET['logdate']) && $_GET['logdate'] == $date) || (!isset($_GET['logdate']) && $date == date('Y-m-d'))) ? ' selected="selected"' : ''; ?> value="<?php echo $date; ?>"><?php echo $date; ?></option><?php
+
+                            if (  !($date_counter ==  count($dates)) )
+
+                            {
+                                ?><option<?php echo ((isset($_GET['logdate']) && !empty($_GET['logdate']) && $_GET['logdate'] == $date) || (!isset($_GET['logdate']) && $date == date('Y-m-d'))) ? ' selected="selected"' : ''; ?> value="<?php echo $date; ?>"><?php echo $date; ?></option><?php
+                            }
+                            else
+                            {
+                                //last date is todays date add for easy access
+                                ?><option<?php echo ((isset($_GET['logdate']) && !empty($_GET['logdate']) && $_GET['logdate'] == $date) || (!isset($_GET['logdate']) && $date == date('Y-m-d'))) ? ' selected="selected"' : ''; ?> value="<?php echo $date; ?>"><?php echo 'Today'; ?></option><?php                                
+                            }
+
+                            $date_counter++;
                         }
+
                         ?>
                         </select>
                         <input type="submit" value="View" class="btn btn-primary" />
@@ -53,7 +70,10 @@
         </td>
     </tr>
 </table>
-<?php } ?>
+<?php } 
+
+
+?>
 
 <div class="innerAll">
     <?php
