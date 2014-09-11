@@ -28,6 +28,8 @@
 				<td><div class="alert alert-danger">No logfile to display data from</div></td>
 			<?php } else { ?>
 
+	        <!-- Now we render the chart -->
+
 			<td width="26%" align="right" style="padding-right: 15px;">
 				<ul class="unstyled">
 					<?php
@@ -44,12 +46,19 @@
 				</ul>
 			</td>
 			<td class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT">
-				<?php if ( $i == 1) { ?>
+				<?php if ( $i == 1) { 
 
+					//print_r ($stuff);
+					//echo 'mean:'; print_r ($stuff['chart']['mean']); echo '<br>';
+					//echo 'min :'; print_r ($stuff['chart']['ymin']); echo '<br>';
+					//echo 'max :'; print_r ($stuff['chart']['ymax']); echo '<br>';
+
+					?>
 
 				<!-- parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true) -->
 
-				<script type="text/javascript" src= "<?php if (isset($APP_PATH)) { echo $APP_PATH; } else { echo '..'; } ?>/lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+
+				<script type="text/javascript" src= "<?php if (isset($HOME_PATH)) { echo $HOME_PATH; } ?>/lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
 				<?php }	?>
 				<script type="text/javascript">
 				(function () {
@@ -81,6 +90,7 @@
 					chart_data.push(d2);
 
 						<?php if ( isset($stuff['chart']['swap']) ) {  ?>
+
 							var d3 = {
 								label: 'Swap',
 								data: [
@@ -97,6 +107,7 @@
 							chart_data.push(d3);
 
 						<?php } ?>
+
 						<?php if ( isset($stuff['chart']['chart_data_over_2']) ) { ?>
 							var d3 = {
 								label: 'Secondary Overload',
@@ -106,10 +117,7 @@
 						<?php } ?>
 					<?php } ?>
 
-
-
-
-
+	                // draw chart
 
 					$(function () {
 						<?php if ( $i == 1) { ?>
@@ -120,9 +128,15 @@
 						charts.<?php echo $chart->id; ?>.init('<?php echo $chart->id; ?>');
 						<?php } ?>
 
-	                    // Separate chart for mean value display stacked bar chart
+	                    // Now draw separate chart for mean value display stacked bar chart
+	                    // Dirty hack as mean = 0 is breaking charts 
+	                    // when apache has no log data in log file or log valueas are all set to zero
 
-						<?php if ( isset($stuff['chart']['mean']) ) { ?>
+						<?php 
+							//if ( isset($stuff['chart']['mean']) ) {  
+							if (   (  isset($stuff['chart']['mean']) )  &&  ( $stuff['chart']['mean'] != 0   )       ) {  
+
+						?>
 
 	                    var options =  {
 	                        grid: {
@@ -144,28 +158,36 @@
                                 color: "#8ec657",
                                 stack: 0
                             },
-                             width: 0.5,
-                            xaxis: {show: false, min: 1},
-                            yaxis:{show:false, max: <?php echo $stuff['chart']['ymax']; ?>, min: <?php echo $stuff['chart']['ymin']; ?>, reserveSpace: false, labelWidth: 15},
-                            legend: { show: false },
-
-                                    tooltip: true,
-
-									tooltipOpts: {
-										content: "Avg <?php echo $stuff['chart']['mean']; ?>",
-/*
-										shifts: {
-											x: 10,
-											y: 20
-										},
-										precision: 1,
-										dateFormat: "%y-%0m-%0d",
-										defaultTheme: false
-										*/
-
-									}
+                            width: 0.5,
+                            xaxis: {
+                            	show: false, 
+                            	min: 1
+                            },
+                            yaxis: {
+                            	show: false, 
+                            	max: <?php echo $stuff['chart']['ymax']; ?>, 
+                            	min: <?php echo $stuff['chart']['ymin'];?>, 
+                            	reserveSpace: false, 
+                            	labelWidth: 15
+                            },
+                            legend: { 
+                            	show: false 
+                            },
+							tooltip: true,
+							tooltipOpts: {
+								content: "Avg <?php echo $stuff['chart']['mean']; ?>"
+										
+								//shifts: {
+								//	x: 10,
+								//	y: 20
+								//},
+								//precision: 1,
+								//dateFormat: "%y-%0m-%0d",
+								//defaultTheme: false
+							}
 
 	                     };
+	                     
 	                     $("#minmax_<?php echo $chart->id; ?>").width(35).height(140);
 	                     $.plot($("#minmax_<?php echo $chart->id; ?>"),[[[1, <?php echo $stuff['chart']['mean']; ?>]]],options);
 

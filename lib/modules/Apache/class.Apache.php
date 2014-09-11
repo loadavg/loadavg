@@ -141,9 +141,9 @@ class Apache extends LoadAvg
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
-			$swap = array();
+			//$swap = array();
 			$usageCount = array();
-			$dataArray = $dataArrayOver = $dataArraySwap = array();
+			$dataArray = $dataArrayOver = array();
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
@@ -160,27 +160,18 @@ class Apache extends LoadAvg
 			
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] ) ."]";
 			
-				if ( isset($data[2]) )
-					$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
+				//if ( isset($data[2]) )
+				//	$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
 
 				$usageCount[] = ($data[0]*1000);
 
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
 			
-				if ( isset($data[2]) ) $swap[] = ( $data[2]  );
-
-				//echo "Data 0:";  echo $data[0]; echo "<br>";
-				//echo "Data 1:";  echo $data[1]; echo "<br>";
 
 				if ( (float) $data[1] > $settings['settings']['overload'])
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
 				
 			}
-
-			end($swap);
-
-			$swapKey = key($swap);
-			$swap = $swap[$swapKey];
 
 			$mem_high= max($usage);
 			$mem_high_time = $time[$mem_high];
@@ -208,17 +199,6 @@ class Apache extends LoadAvg
 				}
 			}
 
-			/*
-			$variables = array(
-				'mem_high' => number_format($mem_high,1),
-				'mem_high_time' => $mem_high_time,
-				'mem_low' => number_format($mem_low,1),
-				'mem_low_time' => $mem_low_time,
-				'mem_mean' => number_format($mem_mean,1),
-				'mem_latest' => number_format($mem_latest,1),
-				'mem_swap' => number_format($swap,1),
-			);
-			*/
 			
 			$variables = array(
 				'mem_high' => $mem_high,
@@ -227,9 +207,9 @@ class Apache extends LoadAvg
 				'mem_low_time' => $mem_low_time,
 				'mem_mean' => $mem_mean,
 				'mem_latest' => $mem_latest,
-				'mem_swap' => $swap,
 			);
 
+			//DEBUG HERE
 			//print_r ($variables);
 		
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
@@ -243,10 +223,6 @@ class Apache extends LoadAvg
 
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
-
-			//print_r ($swap);
-			//print_r ($dataSwapString);
 			//print_r ($usageCount);
 
 			$return['chart'] = array(
@@ -258,9 +234,7 @@ class Apache extends LoadAvg
 				'mean' => $mem_mean,
 				'chart_data' => $dataString,
 				'chart_data_over' => $dataOverString,
-				'chart_data_swap' => $dataSwapString,
-				'swap' => $swap,
-				'swap_count' => $usageCount,
+				//'swap_count' => $usageCount,
 				'overload' => $settings['settings']['overload']
 			);
 
@@ -293,7 +267,7 @@ class Apache extends LoadAvg
 			
 			if ( file_exists( $this->logfile )) {
 				$i++;				
-				// $this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
+
 				$caller = $chart->function;
 				$stuff = $this->$caller( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 				

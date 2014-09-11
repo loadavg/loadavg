@@ -2,39 +2,30 @@ TODO
 
 Fix empty network charts when no log data
 
-username not to show in menu at top roght - main settings, drop down - server
+>> activeate eth0 or default primary inet device by default please
 
+	not lo0
 
+>> clean up all errors in error log -espoecially for suddomain install
 
-crontab ??
+	loadavg errors in installer - looking for interfaces ? when is this triggered
 
-*/5 * * * * /usr/bin/php -q /var/www/vhosts/load.loadavg.com/httpdocs/logger.php /dev/null 2>1
+>> when i activate network adapter for the first time - new logs arent created unless i save settings twice - due to function call 
 
+	$loadavg->rebuildLogs();
 
-fix apache and give people instructions as not working!!!
+>> fix 'remember me' on login screen 
 
-fix bug when you turn apache on if server-data is no accessabel it breaks display ? shouldnt do this
+>> add a page that shows the logger to debug and help with logger !!! 
+	copy from installation... into app... and put in settings menu 'logger'
 
+>> fix bug when you turn apache on if server-data is no accessabel it breaks display ? shouldnt do this
+   see chart.php line 131
 
+	// Now draw separate chart for mean value display stacked bar chart
+	// Dirty hack as mean = 0 is breaking charts 
+	// when apache has no log data in log file or log valueas are all set to zero
 
-activeate ewth0 or default inet device by default please
+>> crontab testing
 
-
-when  not logged in no access to settings - show 'login' instead and redirect to login page
- >> edit index.php to make this happen
-
-
-
- clean up all errors in error log -espoecially for suddomain install
-
-
- >> loadavg errors in installer - looking for interfaces ? when is this triggered
-
-
-
- when i actiavet network adapter - logs arent created umless i save setting twice - due to function call 
-
- $loadavg->rebuildLogs();
-
-
-fix 'remember me' on login screen 
+	*/5 * * * * /usr/bin/php -q /var/www/vhosts/load.loadavg.com/httpdocs/logger.php /dev/null 2>1
