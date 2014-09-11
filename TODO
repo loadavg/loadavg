@@ -14,8 +14,11 @@ Fix empty network charts when no log data
 
 	$loadavg->rebuildLogs();
 
->> fix 'remember me' on login screen 
-
+>> login issues
+	fix 'remember me' on login screen 
+	change email addess to email address or username
+	get rid of server name in title tag for login screen
+	
 >> add a page that shows the logger to debug and help with logger !!! 
 	copy from installation... into app... and put in settings menu 'logger'
 
