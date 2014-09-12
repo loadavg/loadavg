@@ -56,9 +56,10 @@
 					?>
 
 				<!-- parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true) -->
+				
+				<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+				
 
-
-				<script type="text/javascript" src= "<?php if (isset($HOME_PATH)) { echo $HOME_PATH; } ?>/lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
 				<?php }	?>
 				<script type="text/javascript">
 				(function () {
