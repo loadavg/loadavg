@@ -117,7 +117,8 @@ if (isset($_POST['login'])) {
 						<i class="fa fa-unlock-alt"></i></a>
 					
 					<ul class="dropdown-menu pull-right">
-						<li><a href="?page=settings">Configure <i class="fa fa-cog pull-right"></i></a></li>
+						<li><a href="?page=settings">System <i class="fa fa-cog pull-right"></i></a></li>
+						<li><a href="?page=logger">Logger <i class="fa fa-cog pull-right"></i></a></li>
 						<?php if ( $loadavg->isLoggedIn() ): ?>
 						<li>
 							<span>
