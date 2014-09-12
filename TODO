@@ -18,12 +18,16 @@ Fix empty network charts when no log data
 	fix 'remember me' on login screen 
 	change email addess to email address or username
 	get rid of server name in title tag for login screen
-	
+
 >> add a page that shows the logger to debug and help with logger !!! 
 	copy from installation... into app... and put in settings menu 'logger'
 
->> fix bug when you turn apache on if server-data is no accessabel it breaks display ? shouldnt do this
-   see chart.php line 131
+>> apache issues
+	
+	fix legend needs truncating of data
+
+	fix bug when you turn apache on if server-data is no accessabel it breaks display ? shouldnt do this
+   	see chart.php line 131
 
 	// Now draw separate chart for mean value display stacked bar chart
 	// Dirty hack as mean = 0 is breaking charts 
@@ -32,3 +36,12 @@ Fix empty network charts when no log data
 >> crontab testing
 
 	*/5 * * * * /usr/bin/php -q /var/www/vhosts/load.loadavg.com/httpdocs/logger.php /dev/null 2>1
+
+>> module ui dividers
+
+	need to remember status ie collapsed or open
+	when collapsed, need to show latest log data summary in tab bar
+
+>> test apache 
+
+	lynx http://localhost/server-status?refresh=5

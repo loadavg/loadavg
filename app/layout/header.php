@@ -49,17 +49,17 @@ if (isset($_POST['login'])) {
 	<!-- Bootstrap Toggle Buttons Script -->
 	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-toggle-buttons/static/stylesheets/bootstrap-toggle-buttons.css" rel="stylesheet">
 	
-	<!-- JQueryUI v1.9.2 -->
-	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.9.2.custom/css/smoothness/jquery-ui-1.9.2.custom.min.css" />
-	
+	<!-- JQueryUI v1.11.1 -->
+	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.css" />
+
 	<!-- Glyphicons -->
 	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/css/font-awesome.min.css" />
 	
-	<!-- JQuery v1.8.2 -->
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-1.8.2.min.js"></script>
+	<!-- JQuery v1.11.1 -->
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-1.11.1.min.js"></script>
 	
 	<!-- Modernizr -->
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/modernizr.custom.76094.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/modernizr.custom.09032.js"></script>
 	
 	<!-- Theme -->
 	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/css/style.css?<?php echo time(0); ?>" />
@@ -103,7 +103,7 @@ if (isset($_POST['login'])) {
 			<ul class="topnav pull-right">
 				<li<?php if (isset($_GET['page']) && $_GET['page'] == '') : ?> class="active"<?php endif; ?>><a href="index.php"><i class="fa fa-bar-chart-o"></i> Charts</a></li>
 
-				<li <?php if (isset($_GET['page']) && $_GET['page'] == 'server') : ?> class="active"<?php endif; ?>><a href="?page=server"><i class="fa fa-question-circle"></i> Server</a></li>
+				<li <?php if (isset($_GET['page']) && $_GET['page'] == 'server') : ?> class="active"<?php endif; ?>><a href="?page=server"><i class="fa fa-gears"></i> Server</a></li>
 				
 
 				<?php if ( $loadavg->isLoggedIn() ) { ?>

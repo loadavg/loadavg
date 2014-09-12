@@ -64,6 +64,8 @@
 	<!-- JQueryUI v1.9.2 -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.9.2.custom/js/jquery-ui-1.9.2.custom.min.js"></script>
 
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.js"></script>
+
 	<!-- Javascript for Period -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/demo/period.js"></script>
 	
