@@ -120,6 +120,7 @@ class Memory extends LoadAvg
 			
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 			
+				// sort out swap data here
 				if ( isset($data[2]) )
 					$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
 
