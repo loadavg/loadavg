@@ -132,8 +132,8 @@ class Disk extends LoadAvg
 			
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
 			
-				if ( isset($data[3]) )
-					$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3] / 1048576 ) ."]";
+				//if ( isset($data[3]) )
+				//	$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3] / 1048576 ) ."]";
 
 				$usageCount[] = ($data[0]*1000);
 
@@ -141,7 +141,7 @@ class Disk extends LoadAvg
 					$timestamps[] = $data[0];
 			
 				//if there is a swap value we use it here
-				if ( isset($data[3]) ) $swap[] = ( $data[3] / 1048576 );
+				//if ( isset($data[3]) ) $swap[] = ( $data[3] / 1048576 );
 			
 				//check for overload value here 
 				$percentage_used =  ( $data[1] / $data[2] ) * 100;
@@ -152,8 +152,8 @@ class Disk extends LoadAvg
 
 			end($swap);
 			
-			$swapKey = key($swap);
-			$swap = $swap[$swapKey];
+			//$swapKey = key($swap);
+			//$swap = $swap[$swapKey];
 
 			$mem_high= max($usage);
 			$mem_high_time = $time[$mem_high];
@@ -188,7 +188,7 @@ class Disk extends LoadAvg
 				'mem_low_time' => $mem_low_time,
 				'mem_mean' => number_format($mem_mean,1),
 				'mem_latest' => number_format($mem_latest,1),
-				'mem_swap' => number_format($swap,1),
+				//'mem_swap' => number_format($swap,1),
 			);
 
 			//print_r ($variables);
@@ -199,12 +199,12 @@ class Disk extends LoadAvg
 
 			ksort($dataArray);
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			if (!is_null($dataArraySwap)) ksort($dataArraySwap);
+			//if (!is_null($dataArraySwap)) ksort($dataArraySwap);
 
 
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
+			//$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
 
 			//print_r ($swap);
 			//print_r ($dataSwapString);
@@ -219,9 +219,9 @@ class Disk extends LoadAvg
 				'mean' => $mem_mean,
 				'chart_data' => $dataString,
 				'chart_data_over' => $dataOverString,
-				'chart_data_swap' => $dataSwapString,
-				'swap' => $swap,
-				'swap_count' => $usageCount,
+				//'chart_data_swap' => $dataSwapString,
+				//'swap' => $swap,
+				//'swap_count' => $usageCount,
 				'overload' => $settings['settings']['overload']
 			);
 

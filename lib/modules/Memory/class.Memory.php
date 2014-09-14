@@ -54,7 +54,12 @@ class Memory extends LoadAvg
 
 		$swap = implode(chr(26), $swap);
 
-	    $string = time() . '|' . $memory . '|' . $swap . "\n";
+		exec("free -o | grep Mem | awk -F' ' '{print $2}'", $totalmemory);
+		//exec("free -o | grep Mem | awk -F' ' '{print $3 - $6 - $7}'", $memory);
+
+		$totalmemory = implode(chr(26), $totalmemory);
+
+	    $string = time() . '|' . $memory . '|' . $swap . '|' . $totalmemory . "\n";
 
 		if ( $type == "api" ) {
 			return $string;
@@ -130,13 +135,24 @@ class Memory extends LoadAvg
 			
 				if ( isset($data[2]) ) $swap[] = ( $data[2] / 1024 );
 			
-				if ( ( $data[1] / 1024 ) > $settings['settings']['overload'])
+				// check overload in percentage 
+				$percentage_used =  ( $data[1] / $data[3] ) * 100;
+
+				if ( $percentage_used > $settings['settings']['overload'])  {
+					//echo $percentage_used; die;
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+				}
+
 			}
 
+			//echo $percentage_used; die;
+
 			end($swap);
+
+
 			$swapKey = key($swap);
 			$swap = $swap[$swapKey];
+
 
 			$mem_high= max($usage);
 			$mem_high_time = $time[$mem_high];
@@ -147,8 +163,17 @@ class Memory extends LoadAvg
 			$mem_mean = array_sum($usage) / count($usage);
 			$mem_latest = $usage[count($usage)-1];
 
-			$ymin = $mem_low;
-			$ymax = $mem_high;
+			// normalize data if we are swappoing
+			// issue is swap is a single value not over time
+
+			if  ( $swap > 1 ) {
+				$ymin = $swap/2;
+				$ymax = $mem_high*1.05;
+			}
+			else {
+				$ymin = $mem_low;
+				$ymax = $mem_high;
+			}
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
@@ -164,6 +189,7 @@ class Memory extends LoadAvg
 				}
 			}
 		
+			// values used to draw the legend
 			$variables = array(
 				'mem_high' => number_format($mem_high,1),
 				'mem_high_time' => $mem_high_time,
@@ -176,6 +202,7 @@ class Memory extends LoadAvg
 
 			//print_r ($variables);
 		
+			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
 			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
@@ -185,13 +212,17 @@ class Memory extends LoadAvg
 			if (!is_null($dataArraySwap)) ksort($dataArraySwap);
 
 
+			// dataString is cleaned data used to draw the chart
+			// dataSwapString is the swap usage
+			// dataOverString is if we are in overload
+
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
 			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
 
+			//echo "<br><br>";
 			//print_r ($swap);
-			//print_r ($dataSwapString);
-			//print_r ($usageCount);
+			//echo "<br><br>";
 
 			$return['chart'] = array(
 				'chart_format' => 'line',

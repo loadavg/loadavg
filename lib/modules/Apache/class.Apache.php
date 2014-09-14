@@ -199,15 +199,18 @@ class Apache extends LoadAvg
 				}
 			}
 
-			
+
+
 			$variables = array(
-				'mem_high' => $mem_high,
+				'mem_high' => number_format($mem_high,4),
 				'mem_high_time' => $mem_high_time,
-				'mem_low' => $mem_low,
+				'mem_low' => number_format($mem_low,4),
 				'mem_low_time' => $mem_low_time,
-				'mem_mean' => $mem_mean,
-				'mem_latest' => $mem_latest,
+				'mem_mean' => number_format($mem_mean,4),
+				'mem_latest' => number_format($mem_latest,4),
 			);
+
+
 
 			//DEBUG HERE
 			//print_r ($variables);

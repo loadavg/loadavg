@@ -74,41 +74,70 @@
 						ymax: <?php echo $stuff['chart']['ymax']; ?>
 					};
 
-					<?php if ( !isset( $stuff['chart']['chart_data_over'] ) || $stuff['chart']['chart_data_over'] == null ) { ?>
 
-					var chart_data = d1;
+					// temp code to figure out whats going on here
+
+					<?php //have_over means we have a primary overload
+
+					if ( !isset( $stuff['chart']['chart_data_over'] ) || $stuff['chart']['chart_data_over'] == null ) 
+						$have_over = false;
+					else
+						$have_over = true;
 					
-					<?php } elseif (strlen($stuff['chart']['chart_data_over']) > 1) { ?>
+
+					if ( !isset( $stuff['chart']['chart_data_swap'] ) || $stuff['chart']['chart_data_swap'] == null ) 
+						$have_swap = false;
+					else
+						$have_swap = true;		
+					?>
+
+
+
+					// we work when there is overload and no swap
+					// but die when there is swap and no overloard!
+
+					//if ( !isset( $stuff['chart']['chart_data_over'] ) || $stuff['chart']['chart_data_over'] == null ) { ?>
+					<?php
+					if ( !$have_over && !$have_swap  ) { 
+					//if ( !$have_over  ) { 
+						?>
+
+						var chart_data = d1;
+					
+					<?php } 
+
+					//elseif (strlen($stuff['chart']['chart_data_over']) > 1) { 
+					else { 
+						?>
 						
-					var chart_data = new Array();
+						// load core chart data here
+						var chart_data = new Array();
+						chart_data.push(d1);
 
-					var d2 = {
-						label: 'Overload',
-						data: <?php echo $stuff['chart']['chart_data_over']; ?>
-					};
-					
-					chart_data.push(d1);
-					chart_data.push(d2);
 
-						<?php if ( isset($stuff['chart']['swap']) ) {  ?>
 
-							var d3 = {
-								label: 'Swap',
-								data: [
-								<?php
-								$string = null;
-								foreach ( $stuff['chart']['swap_count'] as $timestamp ) {
-									$string .= '['. $timestamp .','. $stuff['chart']['swap'] .'],';
-								}
-								$string = substr($string, 0, strlen($string)-1);
-								echo $string;
-								?>
-								]
+						//used for secondary overlaods
+						<?php if ( isset($stuff['chart']['chart_data_over']) ) { ?>
+							var d2 = {
+								label: 'Overload',
+								data: <?php echo $stuff['chart']['chart_data_over']; ?>
 							};
-							chart_data.push(d3);
-
+							chart_data.push(d2);
 						<?php } ?>
 
+						// new swap code
+						<?php 
+						if ( isset($stuff['chart']['chart_data_swap']) ) { ?>
+							var d3 = {
+								label: 'Swap',
+								data: <?php echo $stuff['chart']['chart_data_swap']; ?>
+							};
+							chart_data.push(d3);
+						<?php } 
+						?>
+
+
+						//used for secondary overlaods
 						<?php if ( isset($stuff['chart']['chart_data_over_2']) ) { ?>
 							var d3 = {
 								label: 'Secondary Overload',
@@ -116,6 +145,8 @@
 							};
 							chart_data.push(d3);
 						<?php } ?>
+
+
 					<?php } ?>
 
 	                // draw chart
@@ -132,6 +163,8 @@
 	                    // Now draw separate chart for mean value display stacked bar chart
 	                    // Dirty hack as mean = 0 is breaking charts 
 	                    // when apache has no log data in log file or log valueas are all set to zero
+	                    // only works if MEAN is set in charts ini file
+	                    // cool as we can also do pie charts etc using different flags
 
 						<?php 
 							//if ( isset($stuff['chart']['mean']) ) {  
@@ -175,16 +208,18 @@
                             	show: false 
                             },
 							tooltip: true,
+
 							tooltipOpts: {
-								content: "Avg <?php echo $stuff['chart']['mean']; ?>"
-										
-								//shifts: {
-								//	x: 10,
-								//	y: 20
-								//},
-								//precision: 1,
-								//dateFormat: "%y-%0m-%0d",
-								//defaultTheme: false
+
+								content: function(label, xval, yval, flotItem) {
+									return "Avg " + parseFloat(yval).toFixed(4);
+						    	},
+
+								shifts: {
+									x: 20,
+									y: -20
+								},
+								defaultTheme: false
 							}
 
 	                     };
@@ -198,6 +233,15 @@
 				})();
 				</script>
 					
+
+
+<?php
+/*
+					echo 'have_swap :'; echo $have_swap; echo '<br>';
+					echo 'have over :'; echo $have_over; echo '<br>';
+*/
+?>
+
 				<div id="<?php echo $chart->id; ?>_legend" class="pull-right innerLR" style="right: 22px;"></div>
 				<div class="clearfix"></div>
 				<div id="<?php echo $chart->id; ?>" style="height: 160px;" class="chart-holder"></div>
