@@ -15,10 +15,15 @@
 ?>	
 
 			<?php if ($loadavg->isLoggedIn()) { ?>
+
 			<div class="well lh70-style-top margin-none center footer">
 				<a href="http://www.loadavg.com/">LoadAVG v <?php echo $settings['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
 				For comments and suggestions please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
-				HTML graphs generated in <?php echo $page_load; ?> sec.					
+
+				<?php
+				if ( $_GET['page'] == '') { ?>
+					HTML graphs generated in <?php echo $page_load; ?> sec.					
+				<?php } ?>
 
 				<?php if (!isset($_SESSION['support_loadavg'])) { ?>
 				<div class="left pull-left">
@@ -27,13 +32,18 @@
 
 				<?php } ?>
 
-				<?php if (isset($_SESSION['download_url'])) { ?>
-				<div class="right pull-right">
-					<!--
-					Update available <a href="<?php echo $_SESSION['download_url']; ?>" title="Download the new version of LoadAvg">click to download</a>
-					-->
-					Update available <a href="http://www.loadavg.com/download/" title="Download the new version of LoadAvg">click to download</a>
-				</div>
+				<!-- only check if check for udpates is on -->
+				<?php if ( $settings['checkforupdates'] == "true" ) {  ?>
+
+					<?php if (isset($_SESSION['download_url'])) { ?>
+
+					<div class="right pull-right">
+						<!--
+						Update available <a href="<?php echo $_SESSION['download_url']; ?>" title="Download the new version of LoadAvg">click to download</a>
+						-->
+						Update available <a href="http://www.loadavg.com/download/" title="Download the new version of LoadAvg">click to download</a>
+					</div>
+					<?php } ?>
 				<?php } ?>
 			</div>
 			<?php } 
@@ -52,7 +62,7 @@
 		<!-- End Content -->
 		</div>
 
-		
+
 		
 		<!-- End Wrapper -->
 		</div>
@@ -61,7 +71,7 @@
 	</div>
 	
 	
-	<!-- JQueryUI v1.9.2 -->
+	<!-- JQueryUI v1.11.1 -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.js"></script>
 
 	<!-- Javascript for Period -->

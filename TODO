@@ -2,6 +2,8 @@ TODO
 
 Fix empty network charts when no log data
 
+>> get rid of google fonts api but keep font awesome
+
 >> activeate eth0 or default primary inet device by default please
 
 	not lo0
@@ -66,3 +68,11 @@ ExtendedStatus On
     Deny from all
     Allow from localhost
 </Location>
+
+
+>> prefs
+
+  need to break into module snow getting too big
+  need to rewrite code as form sucks need propery ajax modular RT
+
+  fix check for udpates ? on even when off ?

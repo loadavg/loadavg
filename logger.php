@@ -22,6 +22,17 @@ $loadavg = new LoadAvg(); // Initializing Main Controller
 $loaded = LoadAvg::$_settings->general['modules']; // Loaded modules
 $logdir = APP_PATH . '/../logs/'; // path to logfiles folder
 
+
+// used to test if logger is running
+//if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'status'))  ||  ($_GET['mode'] = "status")  )
+if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'status'))   )
+	$logger_test = true;
+else
+	$logger_test = false;
+
+//$logger_test = ($mode == "status") ? true : false;
+
+
 // Delete old log files
 // should we execute this every time ?
 $fromDate = strtotime("-". LoadAvg::$_settings->general['daystokeep'] ." days 00:00:00");
@@ -79,6 +90,18 @@ foreach ( $loaded as $module => $value ) {
 
 		}
 	}
+}
+
+//check logger status
+if ( $logger_test ) {
+
+	$logger_status = $loadavg->testLogs();
+
+	if ( $logger_status )
+		echo "The logger appears to be running \n";
+	else
+		echo "The logger does not seem to be running \n";
+
 }
 
 

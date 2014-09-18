@@ -14,6 +14,13 @@
 */
 ?>
 
+<?php
+
+//locate the PHP binary
+$php_location = PHP_BINDIR . "/php";
+
+?>
+
 
 <?php
 if (!$loadavg->isLoggedIn() && !LoadAvg::checkInstall()) {
@@ -22,6 +29,11 @@ if (!$loadavg->isLoggedIn() && !LoadAvg::checkInstall()) {
 else {
 ?>
 
+<!-- 
+	need to create a function to test if the logger is running here 
+	and update STATUS with the status
+	Also want to add a button to test the logger and display results in a dialog
+-->
 
 <div class="well lh70-style">
     <b>LoadAvg Logger</b>
@@ -37,8 +49,8 @@ else {
 					<b>Logging in LoadAvg <?php echo $settings['version']; ?></b>
 					<br><br>
 					<p>
-					LoadAvg records log data at the system level using a logger. For it to function correctly 
-					you need to you need to set up the logger.
+					LoadAvg records log data at the system level using a file called logger.php that is located in the root of your LoadAvg installation. 
+					For it to function correctly you need to you need to set up a cron job that runs the logger every 5 minutes.
 					</p>
 
 					<b>To set up logging</b>
@@ -50,8 +62,18 @@ else {
 					<br>
 					It should have opened up your crontab in your editor, insert this line and save your changes<br>
 					<br>
-					<span class="label label-info">*/5 * * * * /usr/bin/php -q <?php echo dirname(APP_PATH); ?>/logger.php /dev/null 2>1</span>
+					<span class="label label-info">*/5 * * * * <?php echo $php_location; ?> -q <?php echo dirname(APP_PATH); ?>/logger.php /dev/null 2>1</span>
 					</p>
+
+					<b>Testing the logger</b>
+					<br><br>					
+					<p>You can test the logger by running following command at the command line as root or superuser:<br>
+					<br>
+					<span class="label label-info"><?php echo $php_location; ?> <?php echo dirname(APP_PATH); ?>/logger.php</span>
+					<br><br>					
+					<p>If there are no errors then you are all set to go.<br>
+					</p>
+
 
 					<b>Need help ?</b>
 					<br><br>					

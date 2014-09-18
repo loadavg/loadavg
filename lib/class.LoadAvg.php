@@ -104,7 +104,6 @@ class LoadAvg
 
 	public function createFirstLogs()
 	{
-		//die;
 
 		if ( $this->is_dir_empty(APP_PATH . '/../' . self::$_settings->general['logs_dir']) ) {
 			$loaded = self::$_settings->general['modules'];
@@ -167,6 +166,53 @@ class LoadAvg
 			}
 
 	}
+
+/*
+ * used to test if log files are being created by logger
+ * needs better testing currently a bit of a hack
+ * as we just test if the log directory is empty or not
+ */
+
+public function testLogs()
+	{
+
+			$loaded = self::$_settings->general['modules'];
+			$logdir = APP_PATH . '/../' . self::$_settings->general['logs_dir'];
+
+			if ( $this->is_dir_empty($logdir))
+				return false;
+
+			// Check for each module we have loaded
+			foreach ( $loaded as $module => $value ) {
+				if ( $value == "false" ) continue;
+
+				$moduleSettings = self::$_settings->$module;
+
+				// Check if loaded module needs loggable capabilities
+				if ( $moduleSettings['module']['logable'] == "true" ) {
+					
+					foreach ( $moduleSettings['logging']['args'] as $args) {
+						/*
+						$args = json_decode($args);
+						$class = self::$_classes[$module];
+
+						$caller = $args->function;
+
+						echo $logdir . $args->logfile . "\n";
+						
+						//$class->logfile = $logdir . $args->logfile;
+						//$class->$caller();
+						*/
+					}
+					
+				}
+			}
+
+			return true;
+	}
+
+
+	
 
 
 	/**
