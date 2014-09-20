@@ -189,7 +189,7 @@
                                     fillColor: {colors:[{opacity: 1},{opacity: 1}]},
                                     align: "center"
                                 },
-                                color: "#8ec657",
+                                color: "#26ADE4",
                                 stack: 0
                             },
                             width: 0.5,

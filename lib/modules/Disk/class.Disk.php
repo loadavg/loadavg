@@ -41,7 +41,7 @@ class Disk extends LoadAvg
 	 *
 	 */
 
-	public function logDiskUsageData( $type = false )
+	public function logData( $type = false )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
@@ -112,8 +112,6 @@ class Disk extends LoadAvg
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
-			$swap = array();
-
 			$usageCount = array();
 			$dataArray = $dataArrayOver = $dataArraySwap = array();
 
@@ -131,29 +129,18 @@ class Disk extends LoadAvg
 				$usage[] = ( $data[1] / 1048576 );
 			
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
-			
-				//if ( isset($data[3]) )
-				//	$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3] / 1048576 ) ."]";
 
 				$usageCount[] = ($data[0]*1000);
 
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
 					$timestamps[] = $data[0];
 			
-				//if there is a swap value we use it here
-				//if ( isset($data[3]) ) $swap[] = ( $data[3] / 1048576 );
-			
 				//check for overload value here 
 				$percentage_used =  ( $data[1] / $data[2] ) * 100;
 
 				if ( $percentage_used > $settings['settings']['overload'])
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
-			}
-
-			end($swap);
-			
-			//$swapKey = key($swap);
-			//$swap = $swap[$swapKey];
+			}		
 
 			$mem_high= max($usage);
 			$mem_high_time = $time[$mem_high];
@@ -188,10 +175,7 @@ class Disk extends LoadAvg
 				'mem_low_time' => $mem_low_time,
 				'mem_mean' => number_format($mem_mean,1),
 				'mem_latest' => number_format($mem_latest,1),
-				//'mem_swap' => number_format($swap,1),
 			);
-
-			//print_r ($variables);
 		
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
@@ -199,16 +183,9 @@ class Disk extends LoadAvg
 
 			ksort($dataArray);
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			//if (!is_null($dataArraySwap)) ksort($dataArraySwap);
-
 
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			//$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
-
-			//print_r ($swap);
-			//print_r ($dataSwapString);
-			//print_r ($usageCount);
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
@@ -219,9 +196,6 @@ class Disk extends LoadAvg
 				'mean' => $mem_mean,
 				'chart_data' => $dataString,
 				'chart_data_over' => $dataOverString,
-				//'chart_data_swap' => $dataSwapString,
-				//'swap' => $swap,
-				//'swap_count' => $usageCount,
 				'overload' => $settings['settings']['overload']
 			);
 

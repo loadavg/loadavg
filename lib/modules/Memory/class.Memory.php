@@ -39,7 +39,7 @@ class Memory extends LoadAvg
 	 *
 	 */
 
-	public function logMemoryUsageData( $type = false )
+	public function logData( $type = false )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;

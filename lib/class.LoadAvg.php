@@ -74,12 +74,20 @@ class LoadAvg
 			}
 		}
 
-		if (is_dir(APP_PATH . '/../lib/modules/')) {
-			foreach (glob(APP_PATH . "/../lib/modules/*/*.php") as $filename) {
+		//if (is_dir(APP_PATH . '/../lib/modules/')) {
+		//	foreach (glob(APP_PATH . "/../lib/modules/*/*.php") as $filename) {
+		//		$filename = explode(".", basename($filename));
+		//		self::$_modules[$filename[1]] = strtolower($filename[1]);
+		//	}
+		//}
+
+		if (is_dir(HOME_PATH . '/lib/modules/')) {
+			foreach (glob(HOME_PATH . "/lib/modules/*/*.php") as $filename) {
 				$filename = explode(".", basename($filename));
 				self::$_modules[$filename[1]] = strtolower($filename[1]);
 			}
 		}
+
 	}
 
 	/**
@@ -105,9 +113,14 @@ class LoadAvg
 	public function createFirstLogs()
 	{
 
-		if ( $this->is_dir_empty(APP_PATH . '/../' . self::$_settings->general['logs_dir']) ) {
+		echo "Create Logs  \n";
+
+		if ( $this->is_dir_empty(HOME_PATH . '/' . self::$_settings->general['logs_dir']) ) {
+
 			$loaded = self::$_settings->general['modules'];
-			$logdir = APP_PATH . '/../' . self::$_settings->general['logs_dir'];
+			$logdir = HOME_PATH . '/' . self::$_settings->general['logs_dir'];
+
+			$test_nested = false;
 
 			// Check for each module we have loaded
 			foreach ( $loaded as $module => $value ) {
@@ -118,15 +131,58 @@ class LoadAvg
 				// Check if loaded module needs loggable capabilities
 				if ( $moduleSettings['module']['logable'] == "true" ) {
 					foreach ( $moduleSettings['logging']['args'] as $args) {
+
 						$args = json_decode($args);
 						$class = self::$_classes[$module];
-						//$caller = sprintf($args->function, sprintf("'". $args->logfile . "'", date('Y-m-d')));
+						
 						$caller = $args->function;
-						//$class->logfile = $logdir . sprintf($args->logfile, date('Y-m-d'));
-						$class->logfile = $logdir . $args->logfile;
-						$class->$caller();
+
+						//skip network interfaces as they have nested logs and work differently
+						//later need to skip all nested logs as we check those below
+						
+						if ( $args->logfile == "network_%s_%s.log" )
+						{
+							$test_nested = true;
+						}
+						else
+						{
+							$caller = sprintf($args->function, sprintf("'". $args->logfile . "'", date('Y-m-d')));
+							$caller = $args->function;
+							
+							//dont work for network ?
+							$class->logfile = $logdir . sprintf($args->logfile, date('Y-m-d'));
+							$class->logfile = $logdir . $args->logfile;
+
+							$class->$caller();	
+						}
 					}
 				}
+
+			if ($test_nested == true) {
+
+				//now do nested charts 
+				foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
+
+					//$filename = ( $logdir . sprintf($args->logfile, date('Y-m-d') , $interface ) );
+																				
+							$caller = sprintf($args->function, sprintf("'". $args->logfile . "'", date('Y-m-d') , $interface  ));
+							$caller = $args->function;
+							
+							//dont work for network ?
+							$class->logfile = $logdir . sprintf($args->logfile, date('Y-m-d') , $interface );
+							$class->logfile = $logdir . $args->logfile;
+
+							$class->$caller();	
+
+				}
+			}
+
+
+
+
+
+
+
 			}
 
 		}
@@ -142,8 +198,10 @@ class LoadAvg
 	public function rebuildLogs()
 	{
 
+			echo "Rebuild Logs  \n";
+
 			$loaded = self::$_settings->general['modules'];
-			$logdir = APP_PATH . '/../' . self::$_settings->general['logs_dir'];
+			$logdir = HOME_PATH . '/' . self::$_settings->general['logs_dir'];
 
 			// Check for each module we have loaded
 			foreach ( $loaded as $module => $value ) {
@@ -177,7 +235,10 @@ public function testLogs()
 	{
 
 			$loaded = self::$_settings->general['modules'];
-			$logdir = APP_PATH . '/../' . self::$_settings->general['logs_dir'];
+			$logdir = HOME_PATH . '/' . self::$_settings->general['logs_dir'];
+
+			$test_worked = false;
+			$test_nested = false;
 
 			if ( $this->is_dir_empty($logdir))
 				return false;
@@ -192,23 +253,47 @@ public function testLogs()
 				if ( $moduleSettings['module']['logable'] == "true" ) {
 					
 					foreach ( $moduleSettings['logging']['args'] as $args) {
-						/*
+						
 						$args = json_decode($args);
 						$class = self::$_classes[$module];
-
+						
 						$caller = $args->function;
 
-						echo $logdir . $args->logfile . "\n";
+						//skip network interfaces as they have nested logs and work differently
+						//later need to skip all nested logs as we check those below
 						
-						//$class->logfile = $logdir . $args->logfile;
-						//$class->$caller();
-						*/
+						if ( $args->logfile == "network_%s_%s.log" )
+						{
+							$test_nested = true;
+						}
+						else
+						{
+							$filename = ( $logdir . sprintf($args->logfile, date('Y-m-d')) );
+
+							if (file_exists($filename)) {
+						    	$test_worked = true;
+							}
+							echo "Log: $filename Status: $test_worked  \n";		
+						}
 					}
-					
 				}
 			}
 
-			return true;
+			if ($test_nested == true) {
+
+				//now do nested charts 
+				foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
+
+					$filename = ( $logdir . sprintf($args->logfile, date('Y-m-d') , $interface ) );
+																				
+					if (file_exists($filename)) {
+				    	$test_worked = true;
+					}
+					echo "Log: $filename Status: $test_worked  \n";
+				}
+			}
+
+			return $test_worked;
 	}
 
 

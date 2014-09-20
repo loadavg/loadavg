@@ -103,20 +103,20 @@ if (isset($_POST['update_settings'])) {
 		}
 	}
 
-/* need to reload settings here after posting
-   as for some reason after a post the data isnt updated */
+/* 
+ * need to reload settings here after posting
+ * as for some reason after a post the data isnt updated 
+ */
 
 $settings = LoadAvg::$_settings->general;
 
 /* rebuild logs
-   needed for when you turn a module on that has no logs
-   this needs to only rebuild logs for modules that have been turned on */
-
+ * needed for when you turn a module on that has no logs
+ * this needs to only rebuild logs for modules that have been turned on
+ */
 $loadavg->rebuildLogs();
 
-//die;
-
-/* reload settings now */
+/* force reload settings page now */
 header('Location: '.$_SERVER['REQUEST_URI']);
 
 }

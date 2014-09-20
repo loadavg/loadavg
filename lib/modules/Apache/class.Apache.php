@@ -39,7 +39,7 @@ class Apache extends LoadAvg
 	 *
 	 */
 
-	public function logApacheUsageData( $type = false )
+	public function logData( $type = false )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;

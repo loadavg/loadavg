@@ -30,18 +30,29 @@ $settings_file = APP_PATH . '/config/settings.ini';
 
 require_once APP_PATH . '/layout/header.php';
 
+/* 
+ * check for successful installation
+ */	
+
 if ( isset( $_GET['check'] ) ) {
+
 	if ( $loadavg->checkWritePermissions( $settings_file ) ) {
 
-		//try to delete installer...
+		/* 
+		 * Create first log files for all active modules 
+		 * only executes if there are no log files
+ 		 */		
+		$loadavg->createFirstLogs();
+
+		/* 
+		 * try to delete installer...
+ 		 */	
 		if ( $loadavg->checkInstaller() ) {
 			header("Location: index.php");
 		} 
 		else 
 		{
-
-			//try to delete installer first if we have permissions
-
+			//try to delete installer if we have permissions
 			$installer_file = HOME_PATH . "/install/index.php";
 			$installer_loc = HOME_PATH . "/install/";
 
@@ -72,10 +83,6 @@ if ( isset( $_GET['check'] ) ) {
 				</p>
 				<button class="btn btn-primary" onclick="location.reload();">Check again!</button>
 			</div>
-			
-			<!--
-			<script>alert("PLEASE REMOVE install.php FROM YOUR /public FOLDER!");</script>
-			-->
 
 			<?php
 			require_once APP_PATH . '/layout/footer.php'; 
@@ -86,16 +93,12 @@ if ( isset( $_GET['check'] ) ) {
 		header("Location: " . SCRIPT_ROOT . "/install/index.php?step=1");
 	}
 } else {
+	//in case of working scripts, we still if installation 
+	//is safe before moving on for security reasons
 	$loadavg->checkInstall();
 }
 
 
-/* 
- * Create first log files for all active modules 
- * only executes if there are no log files
- */
-
-$loadavg->createFirstLogs();
 
 /* 
  * Set the current period

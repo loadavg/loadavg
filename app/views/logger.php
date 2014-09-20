@@ -69,7 +69,7 @@ else {
 					<br><br>					
 					<p>You can test the logger by running following command at the command line as root or superuser:<br>
 					<br>
-					<span class="label label-info"><?php echo $php_location; ?> <?php echo dirname(APP_PATH); ?>/logger.php</span>
+					<span class="label label-info"><?php echo $php_location; ?> <?php echo dirname(APP_PATH); ?>/logger.php status</span>
 					<br><br>					
 					<p>If there are no errors then you are all set to go.<br>
 					</p>

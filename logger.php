@@ -20,17 +20,14 @@ include 'class.LoadAvg.php'; // including Main Controller
 
 $loadavg = new LoadAvg(); // Initializing Main Controller
 $loaded = LoadAvg::$_settings->general['modules']; // Loaded modules
-$logdir = APP_PATH . '/../logs/'; // path to logfiles folder
+$logdir = HOME_PATH . '/logs/'; // path to logfiles folder
 
-
-// used to test if logger is running
-//if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'status'))  ||  ($_GET['mode'] = "status")  )
-if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'status'))   )
-	$logger_test = true;
-else
-	$logger_test = false;
-
-//$logger_test = ($mode == "status") ? true : false;
+// used to test log creation
+//if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'create'))   ) {
+//
+//	$logger_status = $loadavg->createFirstLogs();
+//	die;
+//}
 
 
 // Delete old log files
@@ -47,12 +44,14 @@ foreach ( $dates as $date ) {
 // End of delete old logs
 
 
-//for api server data transfer
+//check for api server data transfer
 $api = false;
-if (LoadAvg::$_settings->general['apiserver'] == "true")
+if (LoadAvg::$_settings->general['apiserver'] == "true") {
 	$api = true; 
+}
 
 $response = array();
+//
 
 
 // Check for each module we have loaded
@@ -74,9 +73,7 @@ foreach ( $loaded as $module => $value ) {
 
 			$class->$caller(); // call data gethering function of module
 
-
 			// collect data for API server
-			// if api is enabled capture log data to send to server
 			if ( $api ) {
 
 				$responseData = $class->$caller('api'); // call data gethering function of module
@@ -92,17 +89,18 @@ foreach ( $loaded as $module => $value ) {
 	}
 }
 
-//check logger status
-if ( $logger_test ) {
+// used to test if logger is running
+if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'status'))   ) {
 
 	$logger_status = $loadavg->testLogs();
 
 	if ( $logger_status )
 		echo "The logger appears to be running \n";
-	else
-		echo "The logger does not seem to be running \n";
-
+	else 
+		echo "The logger does not seem to be running \n"; 
 }
+
+
 
 
 // Sending data to API server
