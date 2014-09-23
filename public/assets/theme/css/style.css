@@ -1,11 +1,12 @@
 
+/* small text used thorught application 
+
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,800,700,600&subset=latin,latin-ext);
-
-@import url(https://fonts.googleapis.com/css?family=Raleway:400,600,700);
-
+*/
 
 body {
-  font-family: 'Open Sans', sans-serif;
+/* font-family: 'Open Sans', sans-serif; */
+  font-family: arial;
   background: #282828;
   font-size: 10pt;
   padding-bottom: 35px;
@@ -35,8 +36,9 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Raleway', sans-serif;
-  font-weight: 700;
+  /* font-family: 'Open Sans', sans-serif; */
+  font-family: arial;
+  font-weight: 600;
   color: #7c7c7c;
 }
 h1.glyphicons,
@@ -768,7 +770,10 @@ pre {
   position: relative;
 }
 .navbar.main .appbrand {
-  font-family: 'Raleway', sans-serif;
+  /* font-family: 'Raleway', sans-serif; */
+  /* font-family: 'Open Sans', sans-serif; */
+  font-family: arial;
+
   color: #dedede;
   font-size: 18pt;
   text-transform: uppercase;
@@ -1326,7 +1331,10 @@ pre {
   height: 38px;
   color: #AFAFAF;
   font-weight: 600;
-  font-family: 'Raleway', sans-serif;
+/*  font-family: 'Raleway', sans-serif; */
+/* font-family: 'Open Sans', sans-serif; */
+  font-family: arial;
+
   padding: 0 0 0 20px;
   font-size: 11pt;
 }
@@ -1868,11 +1876,15 @@ pre {
   line-height: normal;
   display: inline-block;
   padding: 13px 0 0;
-  font-family: "Raleway", sans-serif;
+/* font-family: 'Open Sans', sans-serif; */
+  font-family: arial;
+
+/* font-family: "Raleway", sans-serif; */
   text-transform: uppercase;
 }
 .widget > .widget-body.list.products .title strong {
-  font-family: "Open Sans", sans-serif;
+/* font-family: 'Open Sans', sans-serif; */
+  font-family: arial;
   text-transform: none;
 }
 .widget > .widget-body.list.fluid ul li {
@@ -2159,7 +2171,9 @@ pre {
 .widget.widget-4 > .widget-head .heading {
   text-transform: uppercase;
   color: #fff;
-  font-family: "Raleway", sans-serif;
+/* font-family: 'Open Sans', sans-serif; */
+  font-family: arial;
+/*  font-family: "Raleway", sans-serif; */
   text-shadow: none;
   padding: 0;
   margin: 0;
@@ -2649,7 +2663,8 @@ input,
 button,
 select,
 textarea {
-  font-family: 'Open Sans', sans-serif;
+/* font-family: 'Open Sans', sans-serif; */
+  font-family: arial;
 }
 .form-inline.small input,
 .form-inline.small select {
