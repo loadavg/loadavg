@@ -112,9 +112,12 @@ class Memory extends LoadAvg
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
-			for ( $i = 0; $i < count( $contents )-1; $i++) {
-			
-				$data = explode("|", $contents[$i]);
+			$chartArray = array();
+
+			$this->getChartData ($chartArray, $contents);
+
+			for ( $i = 0; $i < count( $chartArray ); $i++) {				
+				$data = $chartArray[$i];
 
 				// clean data for missing values
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )

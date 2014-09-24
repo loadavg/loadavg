@@ -14,6 +14,10 @@
 * later.
 */
 
+
+
+
+
 class Cpu extends LoadAvg
 {
 	public $logfile; // Stores the logfile name & path
@@ -44,16 +48,39 @@ class Cpu extends LoadAvg
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
+		$timestamp = time();
+
 		$load = exec("cat /proc/loadavg | awk -F' ' '{print $1\"|\"$2\"|\"$3}'");
-		$string = time() . '|' . $load . "\n";
+		$string = $timestamp . '|' . $load . "\n";
+
+		// need to clean data here 
+		// need to insert a 0 in array if timestamp > previous timestamp + 5min
+
+		// get last timestamp in log file
+		/*
+		$logfile = null;	
+
+		$logfile = sprintf( sprintf($this->logfile, date('Y-m-d') ) );
+
+		echo "logfile:" .  $logfile ;
+
+		$contents = file_get_contents($logfile);
+		$contents = explode("\n", $contents);
+
+		echo "contents:" .  count( $contents ) ;
+		*/
+
+		//this allows us to feed live data to server with no local logging
 
 		if ( $type == "api") {
 			return $string;
 		} else {
-		        $fh = fopen(sprintf($this->logfile, date('Y-m-d')), "a");
+		     $fh = fopen(sprintf($this->logfile, date('Y-m-d')), "a");
 			fwrite($fh, $string);
 			fclose($fh); 
 		}
+
+
 	}
 
 	/**
@@ -89,24 +116,36 @@ class Cpu extends LoadAvg
 			$contents = file_get_contents($this->logfile);
 		}
 
+
 		if ( strlen($contents) > 1 ) {
+
+
+
 
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
-			$dataArray = $dataArrayOver = $dataArrayOver_2 = array();
+			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataRedline = array();
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
-			for ( $i = 0; $i < count( $contents )-1; $i++) {
-				
-				$data = explode("|", $contents[$i]);
+			/*
+			 * build the chartArray array here and patch to check for downtime
+			 */
+
+			$chartArray = array();
+			$this->getChartData ($chartArray, $contents);
+
+			for ( $i = 0; $i < count( $chartArray ); $i++) {				
+				$data = $chartArray[$i];
 
 				// clean data for missing values
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
 					$data[1]=0;
-				
+
 				$time[$witch][$data[$witch]] = date("H:ia", $data[0]);
+
+				//this is used for cpu only to switch between 1 min 5 min and 15 min load
 				$usage[$witch][] = $data[$witch];
 
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$witch] ."']";
@@ -118,6 +157,7 @@ class Cpu extends LoadAvg
 		
 				if ( $data[$witch] > $settings['settings']['overload_2'] )
 					$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", '". $data[$witch] ."']";
+
 			}
 		
 			$cpu_high = max($usage[$witch]);
@@ -182,7 +222,10 @@ class Cpu extends LoadAvg
 			return false;
 		}
 
+
+
 	}
+
 
 	/**
 	 * genChart

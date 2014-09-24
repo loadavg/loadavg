@@ -348,6 +348,94 @@ public function testLogs()
 			header("Location: ../install/index.php");
 	}
 
+
+
+	/*
+	 * build the chart data array here and patch to check for downtime
+	 * as current charts connect last point to next point
+	 * so when we are down / offline for more than logging interval
+	 * charts dont accuratly show downtime
+	 *
+	 * send over chartData and contents
+	 * return data in chartData
+	 */
+
+	function getChartData (array &$chartData, array &$contents, $interval = 400) {
+					
+		// this is based on logger interval, 5 min = 300 aprox we add 100 to be safe
+		$interval = 400;   
+		
+		$patch = $chartData = array();
+		$numPatches = 0;
+
+		for ( $i = 0; $i < count( $contents )-1; $i++) {
+
+			$data = explode("|", $contents[$i]);
+			$nextData = explode("|", $contents[$i+1]);
+
+			//load chartData
+			$chartData[$i] = $data;
+			
+			//difference in timestamps
+			$difference = $nextData[0] - $data[0];
+
+			/*
+			 * check if difference is more than logging interval and patch
+			 * we patch for time between last data (system went down) and next data (system came up)
+			 * need to check if we need the nextData patch as well ie if system came up within 
+			 * the next interval time
+			 */
+			if ( $difference >= $interval ) {
+
+				$patch[$numPatches] = array(  ($data[0]+$interval), "0.00", "0.00", "0.00", $i);
+				$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "0.00", "0.00", "0.00", $i);
+
+				$numPatches += 2;
+			}	
+		}
+		//echo "PATCHARRAY: " . count( $chartData ) . "<br>";
+
+		//iterates through the patcharray and patches dataset
+		//by adding patch points
+
+		for ( $i = 0; $i < (    count( $patch )     ) ; $i++) {
+				
+				$patch_time = ( ($patch[$i][4]) + $i );
+				
+				// this unset should work to drop recorded patch time ? 
+				// but messes up sizeof patcharray
+				//unset ($patch[$i][4]); 
+				//array_splice( $chartData, $patch_time, 0, $patch );
+				
+				$thepatch[0] = array ( $patch[$i][0] , $patch[$i][1] , $patch[$i][2] , $patch[$i][3], "5.0" );
+
+				//print_r ($thepatch); echo "<br>";
+
+				array_splice( $chartData, $patch_time, 0, $thepatch );
+
+        		//echo "PATCHED: " . $patch_time . " count: " . count( $chartData ) . "<br>";
+
+		}
+
+		//echo "PATCHARRAYPATCHED: " . count( $chartData ) . "<br>";
+		//print_r ($chartData);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	/**
 	 * parseInfo
 	 *
@@ -538,7 +626,10 @@ public function testLogs()
 			$resp = curl_exec($curl);
 			// Close request to clear up some resources
 			curl_close($curl);
+
+			//what is this for ?
 			file_put_contents("file.txt",$resp);
+			
 			return $resp;
 		}
 

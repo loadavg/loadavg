@@ -82,7 +82,7 @@ foreach ( $loaded as $module => $value ) {
 
 				$response[$module] = array("data" => $responseData, "timestamp" => $timestamp); // Populating response array
 			}
-			// end collect data to loadavg server	
+			// end collect data for API server	
 
 
 		}

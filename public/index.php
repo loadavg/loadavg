@@ -93,7 +93,7 @@ if ( isset( $_GET['check'] ) ) {
 		header("Location: " . SCRIPT_ROOT . "/install/index.php?step=1");
 	}
 } else {
-	//in case of working scripts, we still if installation 
+	//in case of working scripts, we still if check installation 
 	//is safe before moving on for security reasons
 	$loadavg->checkInstall();
 }

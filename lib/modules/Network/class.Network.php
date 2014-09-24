@@ -152,9 +152,18 @@ class Network extends LoadAvg
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
 			//$dataArrayOver = "[";
+
+
+			$chartArray = array();
+
+			$this->getChartData ($chartArray, $contents);
+
+			for ( $i = 0; $i < count( $chartArray ); $i++) {				
+				$data = $chartArray[$i];
+				/*			
 			for ( $i = 0; $i < count( $contents )-1; $i++) {
 				$data = explode("|", $contents[$i]);
-
+*/
 				// clean data for missing values
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") || (int)$data[1] < 0)
 					$data[1]=0;
@@ -300,9 +309,18 @@ class Network extends LoadAvg
 		
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
+
+			$chartArray = array();
+
+			$this->getChartData ($chartArray, $contents);
+
+			for ( $i = 0; $i < count( $chartArray ); $i++) {				
+				$data = $chartArray[$i];
+
+				/*
 			for ( $i = 0; $i < count( $contents )-1; $i++) {
 				$data = explode("|", $contents[$i]);
-
+*/
 				if ( (int)$data[2] < 0 )
 					$data[2] = 0;
 
