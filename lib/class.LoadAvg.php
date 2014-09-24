@@ -407,7 +407,7 @@ public function testLogs()
 				//unset ($patch[$i][4]); 
 				//array_splice( $chartData, $patch_time, 0, $patch );
 				
-				$thepatch[0] = array ( $patch[$i][0] , $patch[$i][1] , $patch[$i][2] , $patch[$i][3], "5.0" );
+				$thepatch[0] = array ( $patch[$i][0] , $patch[$i][1] , $patch[$i][2] , $patch[$i][3] );
 
 				//print_r ($thepatch); echo "<br>";
 
