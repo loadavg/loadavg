@@ -122,7 +122,9 @@ class Disk extends LoadAvg
 
 			$this->getChartData ($chartArray, $contents);
 
-			for ( $i = 0; $i < count( $chartArray ); $i++) {				
+			$totalchartArray = (int)count($chartArray);
+
+			for ( $i = 0; $i < $totalchartArray; $i++) {				
 				$data = $chartArray[$i];
 
 				// clean data for missing values

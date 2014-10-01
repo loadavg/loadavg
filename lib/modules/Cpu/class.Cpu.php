@@ -53,23 +53,6 @@ class Cpu extends LoadAvg
 		$load = exec("cat /proc/loadavg | awk -F' ' '{print $1\"|\"$2\"|\"$3}'");
 		$string = $timestamp . '|' . $load . "\n";
 
-		// need to clean data here 
-		// need to insert a 0 in array if timestamp > previous timestamp + 5min
-
-		// get last timestamp in log file
-		/*
-		$logfile = null;	
-
-		$logfile = sprintf( sprintf($this->logfile, date('Y-m-d') ) );
-
-		echo "logfile:" .  $logfile ;
-
-		$contents = file_get_contents($logfile);
-		$contents = explode("\n", $contents);
-
-		echo "contents:" .  count( $contents ) ;
-		*/
-
 		//this allows us to feed live data to server with no local logging
 
 		if ( $type == "api") {
@@ -119,9 +102,6 @@ class Cpu extends LoadAvg
 
 		if ( strlen($contents) > 1 ) {
 
-
-
-
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
@@ -136,7 +116,10 @@ class Cpu extends LoadAvg
 			$chartArray = array();
 			$this->getChartData ($chartArray, $contents);
 
-			for ( $i = 0; $i < count( $chartArray ); $i++) {				
+			$totalchartArray = (int)count($chartArray);
+
+			for ( $i = 0; $i < $totalchartArray; $i++) {	
+
 				$data = $chartArray[$i];
 
 				// clean data for missing values

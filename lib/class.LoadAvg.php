@@ -368,7 +368,9 @@ public function testLogs()
 		$patch = $chartData = array();
 		$numPatches = 0;
 
-		for ( $i = 0; $i < count( $contents )-1; $i++) {
+		$totalContents= (int)count( $contents );
+
+		for ( $i = 0; $i < $totalContents-1; $i++) {
 
 			$data = explode("|", $contents[$i]);
 			$nextData = explode("|", $contents[$i+1]);
@@ -397,8 +399,9 @@ public function testLogs()
 
 		//iterates through the patcharray and patches dataset
 		//by adding patch points
+		$totalPatch= (int)count( $patch );
 
-		for ( $i = 0; $i < (    count( $patch )     ) ; $i++) {
+		for ( $i = 0; $i < $totalPatch ; $i++) {
 				
 				$patch_time = ( ($patch[$i][4]) + $i );
 				
@@ -420,20 +423,6 @@ public function testLogs()
 		//echo "PATCHARRAYPATCHED: " . count( $chartData ) . "<br>";
 		//print_r ($chartData);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	/**

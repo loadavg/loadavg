@@ -158,12 +158,11 @@ class Network extends LoadAvg
 
 			$this->getChartData ($chartArray, $contents);
 
-			for ( $i = 0; $i < count( $chartArray ); $i++) {				
+			$totalchartArray = (int)count($chartArray);
+
+			for ( $i = 0; $i < $totalchartArray; $i++) {				
 				$data = $chartArray[$i];
-				/*			
-			for ( $i = 0; $i < count( $contents )-1; $i++) {
-				$data = explode("|", $contents[$i]);
-*/
+				
 				// clean data for missing values
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") || (int)$data[1] < 0)
 					$data[1]=0;

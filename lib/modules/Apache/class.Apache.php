@@ -147,7 +147,9 @@ class Apache extends LoadAvg
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
-			for ( $i = 0; $i < count( $contents )-1; $i++) {
+			$totalContents = (int)count($contents);
+
+			for ( $i = 0; $i < $totalContents-1; $i++) {
 			
 				$data = explode("|", $contents[$i]);
 
