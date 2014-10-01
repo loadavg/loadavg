@@ -109,6 +109,7 @@ class Disk extends LoadAvg
 		}
 
 		if ( strlen($contents) > 1 ) {
+			
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
@@ -116,7 +117,6 @@ class Disk extends LoadAvg
 			$dataArray = $dataArrayOver = $dataArraySwap = array();
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
-
 
 			$chartArray = array();
 

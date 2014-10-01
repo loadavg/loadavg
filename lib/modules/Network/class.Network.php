@@ -146,13 +146,9 @@ class Network extends LoadAvg
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
-			//$dataArray = "[";
 			$dataArray = $dataArrayOver = array();
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
-
-			//$dataArrayOver = "[";
-
 
 			$chartArray = array();
 

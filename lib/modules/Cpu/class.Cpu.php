@@ -89,7 +89,9 @@ class Cpu extends LoadAvg
 			$dates = self::getDates();
 			foreach ( $dates as $date ) {
 				if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
+
 					$this->logfile = str_replace($replaceDate, $date, $this->logfile);
+					
 					$replaceDate = $date;
 					if ( file_exists( $this->logfile ) )
 						$contents .= file_get_contents($this->logfile);
@@ -100,7 +102,9 @@ class Cpu extends LoadAvg
 		}
 
 
-		if ( strlen($contents) > 1 ) {
+		if (isset($contents{1})) {
+
+		//if ( strlen($contents) > 1 ) {
 
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
@@ -118,7 +122,8 @@ class Cpu extends LoadAvg
 
 			$totalchartArray = (int)count($chartArray);
 
-			for ( $i = 0; $i < $totalchartArray; $i++) {	
+			//for ( $i = 0; $i < $totalchartArray; $i++) {	
+			for ( $i = 0; $i < $totalchartArray; ++$i) {	
 
 				$data = $chartArray[$i];
 

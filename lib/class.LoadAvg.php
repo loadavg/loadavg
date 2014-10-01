@@ -63,7 +63,7 @@ class LoadAvg
 
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
 
-		foreach ( self::$_settings->general['modules'] as $key => $value ) {
+		foreach ( self::$_settings->general['modules'] as $key => &$value ) {
 			if ( $value == "true" ) {
 				try {
 					require_once $key . DIRECTORY_SEPARATOR . 'class.' . $key . '.php';
@@ -370,7 +370,8 @@ public function testLogs()
 
 		$totalContents= (int)count( $contents );
 
-		for ( $i = 0; $i < $totalContents-1; $i++) {
+		//for ( $i = 0; $i < $totalContents-1; $i++) {
+		for ( $i = 0; $i < $totalContents-1; ++$i) {
 
 			$data = explode("|", $contents[$i]);
 			$nextData = explode("|", $contents[$i+1]);
@@ -395,13 +396,15 @@ public function testLogs()
 				$numPatches += 2;
 			}	
 		}
-		//echo "PATCHARRAY: " . count( $chartData ) . "<br>";
-
+		
 		//iterates through the patcharray and patches dataset
 		//by adding patch points
 		$totalPatch= (int)count( $patch );
 
-		for ( $i = 0; $i < $totalPatch ; $i++) {
+		// /echo "PATCHCOUNT: " . $totalPatch . "<br>";
+
+		//for ( $i = 0; $i < $totalPatch ; $i++) {
+		for ( $i = 0; $i < $totalPatch ; ++$i) {
 				
 				$patch_time = ( ($patch[$i][4]) + $i );
 				
@@ -613,11 +616,12 @@ public function testLogs()
 
 			// Send the request & save response to $resp
 			$resp = curl_exec($curl);
+
 			// Close request to clear up some resources
 			curl_close($curl);
 
 			//what is this for ?
-			file_put_contents("file.txt",$resp);
+			//file_put_contents("file.txt",$resp);
 			
 			return $resp;
 		}
@@ -773,7 +777,6 @@ public function testLogs()
 
 	public function checkForUpdate()
 	{
-
 
 		if ( !isset($_SESSION['download_url'])) {
 			if ( ini_get("allow_url_fopen") == 1) {

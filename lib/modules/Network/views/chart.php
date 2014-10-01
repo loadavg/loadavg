@@ -3,7 +3,7 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Network charts
+* Network charts derived from views/chart.php
 * 
 * @version SVN: $Id$
 * @link https://github.com/loadavg/loadavg
@@ -130,7 +130,8 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
                                         align: "center"
                                     },
                                     stack: 0,
-                                    color: "#8ec657"
+                                    color: "#26ADE4",
+
                                 },			                                
                                 xaxis: {show: false, min: 1},
                                 yaxis:{show:false, max: '<?php echo $stuff["chart"]["ymax"]; ?>', min: '<?php echo $stuff["chart"]["ymin"]; ?>'},
