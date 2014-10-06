@@ -28,6 +28,9 @@ else {
 
 if (isset($_POST['update_settings'])) {
 
+	///////////////////////////////////////////////////
+	//updates the general settings here
+
 	if ( !empty($_POST['settings']['general']['password']) && strlen($_POST['settings']['general']['password']) > 0 ) {
 		$_POST['settings']['general']['password'] = md5($_POST['settings']['general']['password']);
 	} else {
@@ -41,16 +44,23 @@ if (isset($_POST['update_settings'])) {
 	$_POST['settings']['general']['allow_anyone'] = ( !isset($_POST['settings']['general']['allow_anyone']) ) ? "false" : "true";
 	$_POST['settings']['general']['apiserver'] = ( !isset($_POST['settings']['general']['apiserver']) ) ? "false" : "true";
 
+	//$drive = $settings['settings']['drive'];
+	
+	// echo '<pre>';var_dump($generalSettings);echo'</pre>';
+	// exit;
+
 	// Loop throught settings
 	$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
 	$settings = $_POST['settings'];
 	$setting_to_save = null;
 
+	//echo '<pre>';var_dump($settings);echo'</pre>';
+	//exit;
 
 	$generalSettings = $_POST['settings']['general'];
 
-	// echo '<pre>';var_dump($generalSettings);echo'</pre>';
-	// exit;
+	//echo '<pre>';var_dump($generalSettings);echo'</pre>';
+	//exit;
 
 	unlink($settings_file);
 	$settings_file_handler = fopen($settings_file, "wa");
@@ -84,31 +94,47 @@ if (isset($_POST['update_settings'])) {
 
 	///////////////////////////////////////////////////
 	//updates all the modules settings here
-	$modules = LoadAvg::$_modules;
-    foreach ($modules as $module => $moduleName) {
 
-//    	echo $moduleName;
+	//these are dirty dirty hacks! until we can rewrite the settings using proper api
+	$_POST['Disk_settings']['settings']['displaymode'] = ( !isset($_POST['Disk_settings']['settings']['displaymode']) ) ? "false" : "true";
+
+	$_POST['Network_settings']['settings']['transfer_limiting'] = ( !isset($_POST['Network_settings']['settings']['transfer_limiting']) ) ? "false" : "true";
+	$_POST['Network_settings']['settings']['receive_limiting'] = ( !isset($_POST['Network_settings']['settings']['receive_limiting']) ) ? "false" : "true";
+
+	//echo '<pre>';var_dump($_POST);echo'</pre>';
+
+	$modules = LoadAvg::$_modules;
+
+    foreach ($modules as $module => $moduleName) {
+    
+    //echo $moduleName;
 
 		if (isset($_POST[$module . '_settings'])) {
 
-			    	echo $moduleName;
+			echo $moduleName;
 
 			$module_config_file = APP_PATH . '/../lib/modules/' . $module . '/' . strtolower( $module ) . '.ini';
 			$module_config_ini = parse_ini_file( $module_config_file , true );
 
 			$replaced_settings = array_replace($module_config_ini, $_POST[$module . '_settings']);
 
+//			echo '<pre>';var_dump($_POST[$module . '_settings']);echo'</pre>';
+//			echo '<pre>';var_dump($replaced_settings);echo'</pre>';
+
 			LoadAvg::write_php_ini($replaced_settings, $module_config_file);
 			$fh = fopen($module_config_file, "a"); fwrite($fh, "\n"); fclose($fh);
+			
 		}
-	}
 
+	}
+//exit;
 /* 
  * need to reload settings here after posting
- * as for some reason after a post the data isnt updated 
+ * as for some reason after a post the data isnt updated internally
  */
 
-$settings = LoadAvg::$_settings->general;
+//$settings = LoadAvg::$_settings->general;
+LoadAvg::$_settings->general = $settings;
 
 /* rebuild logs
  * needed for when you turn a module on that has no logs
@@ -368,6 +394,11 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 
 <div class="separator bottom"></div>
 
+    <!-- 
+      * this is where we loop through all the modules
+      * and deal with their individual settings
+	-->
+
 	<div class="well">
                 <h4>Modules</h4>
                 <?php $modules = LoadAvg::$_modules; ?>
@@ -375,7 +406,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 				<div class="separator bottom"></div>
             	<div class="row-fluid">
                     <div class="span3">
-                            <strong><?php echo $module; ?></strong>
+                            <strong> <?php echo $module; ?> Settings</strong>
                     </div>
                     <div class="span9 right">
                         <div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
@@ -390,7 +421,9 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 				<div class="separator bottom"></div>
                 <?php
                 if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" ) {
+
                 	$moduleSettings = LoadAvg::$_settings->$module;
+                	
                 	if ( isset($moduleSettings['module']['has_settings']) && $moduleSettings['module']['has_settings'] == "true") {
                 		?>
                 		<div class="well">
@@ -405,9 +438,22 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 	                        			<strong><?php echo ucwords(str_replace("_"," ",$setting)); ?></strong>
 	                        		</div>
 	                        		<div class="span9 right">
-	                        			<div class="pull-right">
-	                        				<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" class="span5 center">
-	                        			</div>
+
+	                        			<?php if ( $value == 'true' || $value == 'false') { ?>
+
+											<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
+												<input name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" type="checkbox" value="<?php echo $value; ?>" 
+												<?php if ( $value == "true" ) { ?>checked="checked"<?php } ?>>
+											</div>	  
+
+	                        			<?php } else { ?>
+
+	                        				<div class="pull-right">
+	                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" class="span5 center">
+	                        				</div>                      				
+	                        			
+	                        			<?php } ?>
+
 	                        		</div>
 	                        	</div>
 	                        	<?php
@@ -420,6 +466,8 @@ header('Location: '.$_SERVER['REQUEST_URI']);
                 ?>
                 <?php } ?>
         </div>
+
+
 
 		<div class="separator bottom"></div>
 		<div class="separator bottom"></div>

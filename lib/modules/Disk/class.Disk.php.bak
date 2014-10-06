@@ -135,65 +135,115 @@ class Disk extends LoadAvg
 			// false - show percentage
 			$displayMode =	$settings['settings']['displaymode'];
 
-
-			// main loop to build the chart data
-
-			for ( $i = 0; $i < $totalchartArray; $i++) {				
-				$data = $chartArray[$i];
-
-				//set the disk size - bad way to do this in the loop !
-				//but we read this data from the drive logs
-				//$diskSize = $data[2] / 1048576;
-
-				// clean data for missing values
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
-					$data[1]=0;
-				
-				$time[( $data[1] / 1048576 )] = date("H:ia", $data[0]);
-				$usage[] = ( $data[1] / 1048576 );
-
-				$percentage_used =  ( $data[1] / $data[2] ) * 100;
-
-				$usageCount[] = ($data[0]*1000);
-
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
-
-
-				if ($displayMode == 'true' ) {
-					// display data using MB
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
-
-					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
-
-				} else {
-					// display data using percentage
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
-
-					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
-				}
-			}
-
 			if ($displayMode == 'true' )
 
 			{
-				$disk_high= max($usage);
-				$disk_low = min($usage);
+				// display data using MB and zoom
 
+				for ( $i = 0; $i < $totalchartArray; $i++) {				
+					$data = $chartArray[$i];
+
+					//set the disk size - bad way to do this in the loop !
+					//but we read this data from the drive logs
+					//$diskSize = $data[2] / 1048576;
+
+					// clean data for missing values
+					if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
+						$data[1]=0;
+					
+					$time[( $data[1] / 1048576 )] = date("H:ia", $data[0]);
+					$usage[] = ( $data[1] / 1048576 );
+
+					$percentage_used =  ( $data[1] / $data[2] ) * 100;
+
+
+					//flaged
+					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
+
+
+
+
+					$usageCount[] = ($data[0]*1000);
+
+					if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+						$timestamps[] = $data[0];
+
+					if ( $percentage_used > $settings['settings']['overload'])
+						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
+				}		
+				
+				$disk_high= max($usage);
+				$disk_high_time = $time[$disk_high];
+
+				$disk_low = min($usage);
+				$disk_low_time = $time[$disk_low];
+			
 				$disk_mean = array_sum($usage) / count($usage);
+
+				$disk_latest = ( ( $usage[count($usage)-1]  )  / $diskSize  ) * 100   ;
+				$disk_latest = ( ( $usage[count($usage)-1]  )    )    ;
+
+				$disk_total = $diskSize;
+				$disk_free = $diskSize - $disk_latest;
 
 				$ymin = $disk_low;
 				$ymax = $disk_high;
 
-			} else {
+			} 
+			else
+			{
+				// display data using percentages
 
-				$disk_high=   ( max($usage) / $diskSize ) * 100 ;				
+				for ( $i = 0; $i < $totalchartArray; $i++) {
+					$data = $chartArray[$i];
+
+					//set the disk size - bad way to do this in the loop !
+					//but we read this data from the drive logs
+					//$diskSize = $data[2] / 1048576;
+
+					// clean data for missing values
+					if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
+						$data[1]=0;
+					
+					$time[( $data[1] / 1048576 )] = date("H:ia", $data[0]);
+					$usage[] = ( $data[1] / 1048576 );
+				
+					$percentage_used =  ( $data[1] / $data[2] ) * 100;
+
+
+
+					//flaged
+					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+
+
+
+
+					$usageCount[] = ($data[0]*1000);
+
+					if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+						$timestamps[] = $data[0];
+				
+
+
+				
+					if ( $percentage_used > $settings['settings']['overload'])
+						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+						//$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
+				}		
+
+				$disk_high=   ( max($usage) / $diskSize ) * 100 ;
+				$disk_high_time = $time[max($usage)];
+				
 				$disk_low =   ( min($usage) / $diskSize ) * 100 ;
-
-				//$disk_latest = ( ( $usage[count($usage)-1]  )  / $diskSize  ) * 100   ;
+				$disk_low_time = $time[min($usage)];
+			
 				$disk_mean =  ( (array_sum($usage) / count($usage)) / $diskSize ) * 100 ;
+
+				$disk_latest = ( ( $usage[count($usage)-1]  )  / $diskSize  ) * 100   ;
+				$disk_latest = ( ( $usage[count($usage)-1]  )    )    ;
+
+				$disk_total = $diskSize;
+				$disk_free = $diskSize - $disk_latest;
 
 				//these are the min and max values used when drawing the charts
 				//can be used to zoom into datasets
@@ -204,14 +254,6 @@ class Disk extends LoadAvg
 				$ymax = 100;
 
 			}
-				
-			$disk_high_time = $time[max($usage)];
-			$disk_low_time = $time[min($usage)];
-
-				$disk_latest = ( ( $usage[count($usage)-1]  )    )    ;		
-
-			$disk_total = $diskSize;
-			$disk_free = $diskSize - $disk_latest;
 
 
 

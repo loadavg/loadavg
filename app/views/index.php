@@ -44,9 +44,11 @@
                         
                         $date_counter = 1;
 
+                        $totalDates = (int)count($dates);
+
                         foreach ( $dates as $date ) {
 
-                            if (  !($date_counter ==  count($dates)) )
+                            if (  !($date_counter ==  $totalDates) )
 
                             {
                                 ?><option<?php echo ((isset($_GET['logdate']) && !empty($_GET['logdate']) && $_GET['logdate'] == $date) || (!isset($_GET['logdate']) && $date == date('Y-m-d'))) ? ' selected="selected"' : ''; ?> value="<?php echo $date; ?>"><?php echo $date; ?></option><?php

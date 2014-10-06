@@ -168,6 +168,8 @@ class Memory extends LoadAvg
 			$mem_mean = array_sum($usage) / count($usage);
 			$mem_latest = $usage[count($usage)-1];
 
+			$mem_total = $usage[count($usage)-1];
+
 			// normalize data if we are swappoing
 			// issue is swap is a single value not over time
 
@@ -202,6 +204,7 @@ class Memory extends LoadAvg
 				'mem_low_time' => $mem_low_time,
 				'mem_mean' => number_format($mem_mean,1),
 				'mem_latest' => number_format($mem_latest,1),
+				'mem_total' => number_format($mem_total,1),
 				'mem_swap' => number_format($swap,1),
 			);
 

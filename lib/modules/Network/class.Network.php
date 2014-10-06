@@ -198,9 +198,18 @@ class Network extends LoadAvg
         	        	$net_estimate_units = "MB";
 	        	}
 
-			$ymin = $net_low;
-			$ymax = $net_high;
-		
+
+			$displayMode =	$settings['settings']['transfer_limiting'];
+
+			if ($displayMode == 'true' ) {
+				$ymin = 0;
+
+				//$ymax = 16;
+				$ymax =	(int)$settings['settings']['transfer_cutoff'];
+			} else {
+				$ymin = $net_low;
+				$ymax = $net_high;
+			}
 		
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				//$dataArray = substr($dataArray, 0, strlen($dataArray)-1);
@@ -349,8 +358,20 @@ class Network extends LoadAvg
     	        $net_estimate_units = "MB";
             }
 
-			$ymin = $net_low;
-			$ymax = $net_high;
+			$displayMode =	$settings['settings']['receive_limiting'];
+
+			if ($displayMode == 'true' ) {
+				$ymin = 0;
+				//$ymax = 16;
+				$ymax =	(int)$settings['settings']['receive_cutoff'];
+
+			} else {
+				$ymin = $net_low;
+				$ymax = $net_high;	
+			}		
+
+
+
 /*
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);

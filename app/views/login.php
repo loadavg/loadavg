@@ -24,19 +24,17 @@
 		</div>
 		<h3 class="form-signin-heading"><i class="fa fa-unlock-alt"></i> Please sign in</h3>
 		<div class="uniformjs">
+
 			<input type="text" name="username" class="input-block-level text" placeholder="Email address"> 
 			<input type="password" name="password" class="input-block-level password" placeholder="Password"> 
-			<label class="checkbox"><div class="checker" id="uniform-undefined">
-				<span><input type="checkbox" value="remember-me" style="opacity: 0;"></span></div>Remember me
+			
+			<label class="checkbox">
+				<div class="checker" id="uniform-undefined">
+				<span><input type="checkbox" value="remember-me" style="opacity: 100;"></span>
+				</div>Remember me
 			</label>
+
 		</div>
 		<button class="btn btn-large btn-primary" type="submit">Sign in</button>
 	</form>
-
-<!-- moved to footer
-	<center>
-				<a href="http://www.loadavg.com/">LoadAVG v <?php echo $settings['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
-				For comments and suggestions please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
-	</center>
--->
 </div>

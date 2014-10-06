@@ -50,6 +50,18 @@ class Server extends LoadAvg
 		}
 	}
 
+	public function getTotalMemory(  )
+	{
+		try {
+								$Bytes = disk_total_space($drive);
+								$totalBytes = dataSize($Bytes);
+								return $totalBytes;
+
+		} catch (Exception $e) {
+
+		}
+	}
+
 	public function getTotalStorage( $drive )
 	{
 		try {

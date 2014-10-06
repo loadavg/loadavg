@@ -13,17 +13,49 @@
 * later.
 */
 
+
+/*
+ *check is user has logged in and give errors
+ */
+
 $error = '';
+
 if (isset($_POST['login'])) {
+
+	echo "login attempt<br>";
+
 	if ( isset($_POST['username']) && isset($_POST['password']) ) {
+
+		echo "login with user and pass<br>";
+
 		$loadavg->logIn( $_POST['username'], $_POST['password']);
+
 		if ($loadavg->isLoggedIn()) header("Location: index.php");
-	} else {
-		if (!isset($_POST['username'])) { $error .= "<li>Username is mandatory!</li>"; }
-		if (!isset($_POST['password'])) { $error .= "<li>Password is mandatory!</li>"; }
+
+	 	else {
+		
+			echo "login attempt failed<br>";
+
+			if ( isset($_POST['username']) && isset($_POST['password']) ) {
+
+				echo "login attempt had correct credentials<br>";
+
+			}
+
+			if (!isset($_POST['username'])) { echo "no user"; $error .= "<li>Username is mandatory!</li>"; }
+			if (!isset($_POST['password'])) { echo "no pass"; $error .= "<li>Password is mandatory!</li>"; }
+
+			echo $error;
+		}
 	}
 }
 
+/*
+else
+{
+	echo "boogie you";
+}
+*/
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -100,15 +132,15 @@ if (isset($_POST['login'])) {
 			<a href="index.php" class="appbrand"><img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;"><span>LoadAvg<span>Advanced Server Analytics</span></span></a>
 			
 			<?php if ($loadavg->isLoggedIn() || (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "true")) { ?>
+
 			<ul class="topnav pull-right">
 				<li<?php if (isset($_GET['page']) && $_GET['page'] == '') : ?> class="active"<?php endif; ?>><a href="index.php"><i class="fa fa-bar-chart-o"></i> Charts</a></li>
 
 				<li <?php if (isset($_GET['page']) && $_GET['page'] == 'server') : ?> class="active"<?php endif; ?>><a href="?page=server"><i class="fa fa-gears"></i> Server</a></li>
 				
 
+
 				<?php if ( $loadavg->isLoggedIn() ) { ?>
-
-
 
 				<li class="account <?php if (isset($_GET['page']) && $_GET['page'] == 'settings') : ?> active<?php endif; ?>">
 					<a data-toggle="dropdown" href="" class="logout"><span class="hidden-phone text">
@@ -130,7 +162,6 @@ if (isset($_POST['login'])) {
 				</li>
 
 				
-
 				<?php }
 
 				else
@@ -139,11 +170,7 @@ if (isset($_POST['login'])) {
 
 				<li><a href="?page=login"><i class="fa fa-question-circle"></i> Login</a></li>
 
-
 				<?php } ?>
-
-	
-
 
 			</ul>
 			<?php } ?>
@@ -153,4 +180,8 @@ if (isset($_POST['login'])) {
 		
 		<div id="content">
 
+		<!--
+			really should have a error console that we create here but draw to in the footer for proper 
+			error reporting after the script has run
+		-->
 			<?php if (strlen($error)>0) { echo "<ul>" . $error . "</ul>"; }?>

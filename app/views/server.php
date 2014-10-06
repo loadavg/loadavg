@@ -164,24 +164,29 @@
 
 						<?php
 						
-						$drive="/";
+						//this is how we get a loaded modules settings data
+						$settings = LoadAvg::$_settings->Disk;
+						//print_r($settings);
+
+						$drive = $settings['settings']['drive'];
+
+						//really need to do this 
+						//if (is_dir($drive)) {				
+						//}
 
 						$totalBytes =  $server->getTotalStorage( $drive );
-
-
 						$freeData = $server->getFreeStorage( $drive );
 						$usedData = $server->getUsedStorage( $drive );
 
 						//list ( $freeBytes , $percentFreeBytes  ) = $server->getFreeStorage( $drive );
 						//list ( $usedBytes , $percentUsedBytes  ) = $server->getUsedStorage( $drive );
 
-
 						?>
 							
 						<ul class="unstyled row-fluid">
-	                        <li><strong class="span4">Total Space:</strong><span class="span8"><?php echo $totalBytes; ?></span></li>
-	                        <li><strong class="span4">Used Space:</strong><span class="span8"><?php echo $usedData[0]; ?></span></li>
-	                        <li><strong class="span4">Free Space:</strong><span class="span8"><?php echo $freeData[0]; ?></span></li>
+	                        <li><strong class="span4">Total Space:</strong><span class="span8"><?php echo number_format($totalBytes,2); ?> GB</span></li>
+	                        <li><strong class="span4">Used Space:</strong><span class="span8"><?php echo number_format($usedData[0],2); ?> GB</span></li>
+	                        <li><strong class="span4">Free Space:</strong><span class="span8"><?php echo number_format($freeData[0],2); ?> GB</span></li>
 	                        <li><strong class="span4">Free %:</strong><span class="span8"><?php echo $freeData[1]; ?> %</span></li>
 	                        <li><strong class="span4">Used %:</strong><span class="span8"><?php echo $usedData[1]; ?> %</span></li>
 	                   </ul>

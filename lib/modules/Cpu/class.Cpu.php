@@ -103,7 +103,6 @@ class Cpu extends LoadAvg
 
 
 		if (isset($contents{1})) {
-
 		//if ( strlen($contents) > 1 ) {
 
 			$contents = explode("\n", $contents);
