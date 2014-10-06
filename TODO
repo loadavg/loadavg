@@ -2,7 +2,17 @@ TODO
 
 Fix empty network charts when no log data
 
->> get rid of google fonts api but keep font awesome
+>> test update checker
+
+	public function checkForUpdate()
+
+>> when showing periods of data , display only shows current date in header
+
+	Today - Tuesday, Sep. 30 23:06 pm 
+	(America/New_York) 
+
+>> all charts run to end of time except for disk data ?
+
 
 >> activeate eth0 or default primary inet device by default please
 
@@ -21,9 +31,6 @@ Fix empty network charts when no log data
 	change email addess to email address or username
 	get rid of server name in title tag for login screen
 
->> add a page that shows the logger to debug and help with logger !!! 
-	copy from installation... into app... and put in settings menu 'logger'
-
 >> apache issues
 	
 	fix legend needs truncating of data
@@ -35,9 +42,6 @@ Fix empty network charts when no log data
 	// Dirty hack as mean = 0 is breaking charts 
 	// when apache has no log data in log file or log valueas are all set to zero
 
->> crontab testing
-
-	*/5 * * * * /usr/bin/php -q /var/www/vhosts/load.loadavg.com/httpdocs/logger.php /dev/null 2>1
 
 >> module ui dividers
 
