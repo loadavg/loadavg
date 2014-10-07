@@ -102,6 +102,7 @@ class Cpu extends LoadAvg
 		}
 
 
+		// is this really faster than strlen ?
 		if (isset($contents{1})) {
 		//if ( strlen($contents) > 1 ) {
 

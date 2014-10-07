@@ -149,7 +149,7 @@ class Apache extends LoadAvg
 
 			$totalContents = (int)count($contents);
 
-			for ( $i = 0; $i < $totalContents-1; $i++) {
+			for ( $i = 0; $i < $totalContents-1; ++$i) {
 			
 				$data = explode("|", $contents[$i]);
 
@@ -175,17 +175,17 @@ class Apache extends LoadAvg
 				
 			}
 
-			$mem_high= max($usage);
-			$mem_high_time = $time[$mem_high];
+			$apache_high= max($usage);
+			$apache_high_time = $time[$apache_high];
 
-			$mem_low = min($usage);
-			$mem_low_time = $time[$mem_low];
+			$apache_low = min($usage);
+			$apache_low_time = $time[$apache_low];
 		
-			$mem_mean = array_sum($usage) / count($usage);
-			$mem_latest = $usage[count($usage)-1];
+			$apache_mean = array_sum($usage) / count($usage);
+			$apache_latest = $usage[count($usage)-1];
 
-			$ymin = $mem_low;
-			$ymax = $mem_high;
+			$ymin = $apache_low;
+			$ymax = $apache_high;
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
@@ -204,15 +204,13 @@ class Apache extends LoadAvg
 
 
 			$variables = array(
-				'mem_high' => number_format($mem_high,4),
-				'mem_high_time' => $mem_high_time,
-				'mem_low' => number_format($mem_low,4),
-				'mem_low_time' => $mem_low_time,
-				'mem_mean' => number_format($mem_mean,4),
-				'mem_latest' => number_format($mem_latest,4),
+				'apache_high' => number_format($apache_high,4),
+				'apache_high_time' => $apache_high_time,
+				'apache_low' => number_format($apache_low,4),
+				'apache_low_time' => $apache_low_time,
+				'apache_mean' => number_format($apache_mean,4),
+				'apache_latest' => number_format($apache_latest,4),
 			);
-
-
 
 			//DEBUG HERE
 			//print_r ($variables);
@@ -236,7 +234,7 @@ class Apache extends LoadAvg
 				'ymax' => $ymax,
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => $mem_mean,
+				'mean' => $apache_mean,
 				'chart_data' => $dataString,
 				'chart_data_over' => $dataOverString,
 				//'swap_count' => $usageCount,

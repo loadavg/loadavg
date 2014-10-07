@@ -138,7 +138,7 @@ class Disk extends LoadAvg
 
 			// main loop to build the chart data
 
-			for ( $i = 0; $i < $totalchartArray; $i++) {	
+			for ( $i = 0; $i < $totalchartArray; ++$i) {	
 
 				$data = $chartArray[$i];
 

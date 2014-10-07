@@ -118,7 +118,7 @@ class Memory extends LoadAvg
 
 			$totalchartArray = (int)count($chartArray);
 
-			for ( $i = 0; $i < $totalchartArray; $i++) {				
+			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
 
 				// clean data for missing values
@@ -168,6 +168,7 @@ class Memory extends LoadAvg
 			$mem_mean = array_sum($usage) / count($usage);
 			$mem_latest = $usage[count($usage)-1];
 
+			//need to get total memory here
 			$mem_total = $usage[count($usage)-1];
 
 			// normalize data if we are swappoing

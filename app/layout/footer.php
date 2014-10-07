@@ -17,37 +17,34 @@
 			<?php if ($loadavg->isLoggedIn()) { ?>
 
 			<div class="well lh70-style-top margin-none center footer">
-				<a href="http://www.loadavg.com/">LoadAVG v <?php echo $settings['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
+				<a href="http://www.loadavg.com/">LoadAVG v <?php echo LoadAvg::$_settings->general['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
 				For comments and suggestions please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
 
-				<?php
-				if ( $_GET['page'] == '') { ?>
-					HTML graphs generated in <?php echo $page_load; ?> sec.					
-				<?php } ?>
 
 				<?php if (!isset($_SESSION['support_loadavg'])) { ?>
 				<div class="left pull-left">
 					Like LoadAvg ? <a href="http://www.loadavg.com/donate/" title="Make a donation, support LoadAvg">Please donate</a>
 				</div>
-
 				<?php } ?>
 
-				<!-- only check if check for udpates is on -->
-				<?php if ( $settings['checkforupdates'] == "true" ) {  ?>
+				<?php
+				if ( $_GET['page'] == '') { ?>
+					HTML graphs generated in <?php echo $page_load; ?> sec.		
+				<?php } ?>
 
-					<?php if (isset($_SESSION['download_url'])) { ?>
-
+				<!-- only check if check for updates is on -->
+				<?php if ( ( LoadAvg::$_settings->general['checkforupdates'] == "true" ) && (isset($_SESSION['download_url'])) )  {  ?>
 					<div class="right pull-right">
 						<!--
 						Update available <a href="<?php echo $_SESSION['download_url']; ?>" title="Download the new version of LoadAvg">click to download</a>
 						-->
 						Update available <a href="http://www.loadavg.com/download/" title="Download the new version of LoadAvg">click to download</a>
 					</div>
-					<?php } ?>
 				<?php } ?>
 			</div>
 			<?php } 
 
+			//not logged in show this footer
 			else { ?>
 
 			<div class="well lh70-style-top margin-none center footer">
@@ -62,8 +59,6 @@
 		<!-- End Content -->
 		</div>
 
-
-		
 		<!-- End Wrapper -->
 		</div>
 		
