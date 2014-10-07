@@ -360,6 +360,7 @@ public function testLogs()
 	 * return data in chartData
 	 */
 
+
 	function getChartData (array &$chartData, array &$contents, $interval = 400) {
 					
 		// this is based on logger interval, 5 min = 300 aprox we add 100 to be safe
@@ -387,11 +388,16 @@ public function testLogs()
 			 * we patch for time between last data (system went down) and next data (system came up)
 			 * need to check if we need the nextData patch as well ie if system came up within 
 			 * the next interval time
+			 * 
+			 * for local data we dont check the first value in the data set
 			 */
-			if ( $difference >= $interval ) {
+			if ( $difference >= $interval && ($i > 0) ) {
 
 				$patch[$numPatches] = array(  ($data[0]+$interval), "0.00", "0.00", "0.00", $i);
 				$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "0.00", "0.00", "0.00", $i);
+
+				//$patch[$numPatches] = array(  ($data[0]+$interval), "REDLINE", $i);
+				//$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "REDLINE", $i);
 
 				$numPatches += 2;
 			}	
@@ -401,7 +407,7 @@ public function testLogs()
 		//by adding patch points
 		$totalPatch= (int)count( $patch );
 
-		// /echo "PATCHCOUNT: " . $totalPatch . "<br>";
+		//echo "PATCHCOUNT: " . $totalPatch . "<br>";
 
 		//for ( $i = 0; $i < $totalPatch ; $i++) {
 		for ( $i = 0; $i < $totalPatch ; ++$i) {

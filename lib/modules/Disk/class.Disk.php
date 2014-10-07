@@ -138,7 +138,8 @@ class Disk extends LoadAvg
 
 			// main loop to build the chart data
 
-			for ( $i = 0; $i < $totalchartArray; $i++) {				
+			for ( $i = 0; $i < $totalchartArray; $i++) {	
+
 				$data = $chartArray[$i];
 
 				//set the disk size - bad way to do this in the loop !
@@ -179,13 +180,14 @@ class Disk extends LoadAvg
 			if ($displayMode == 'true' )
 
 			{
-				$disk_high= max($usage);
-				$disk_low = min($usage);
+				$disk_high = max($usage);
+				$disk_low  = min($usage);
 
 				$disk_mean = array_sum($usage) / count($usage);
 
-				$ymin = $disk_low;
+				//to scale charts
 				$ymax = $disk_high;
+				$ymin = $disk_low;
 
 			} else {
 
@@ -197,9 +199,6 @@ class Disk extends LoadAvg
 
 				//these are the min and max values used when drawing the charts
 				//can be used to zoom into datasets
-				//$ymin = $disk_low;
-				//$ymax = $disk_high;
-
 				$ymin = 0;
 				$ymax = 100;
 
@@ -208,12 +207,10 @@ class Disk extends LoadAvg
 			$disk_high_time = $time[max($usage)];
 			$disk_low_time = $time[min($usage)];
 
-				$disk_latest = ( ( $usage[count($usage)-1]  )    )    ;		
+			$disk_latest = ( ( $usage[count($usage)-1]  )    )    ;		
 
 			$disk_total = $diskSize;
 			$disk_free = $diskSize - $disk_latest;
-
-
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
