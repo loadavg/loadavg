@@ -418,7 +418,7 @@ class LoadAvg
 		//by adding patch points
 		$totalPatch= (int)count( $patch );
 
-		echo "PATCHCOUNT: " . $totalPatch . "<br>";
+		//echo "PATCHCOUNT: " . $totalPatch . "<br>";
 
 		//for ( $i = 0; $i < $totalPatch ; $i++) {
 		for ( $i = 0; $i < $totalPatch ; ++$i) {
