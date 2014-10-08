@@ -45,6 +45,15 @@ class Network extends LoadAvg
 		$settings = LoadAvg::$_settings->$class;
 
 		foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
+
+		//skip disabled interfaces
+		if (  !( isset(LoadAvg::$_settings->general['network_interface'][$interface]) 
+			&& LoadAvg::$_settings->general['network_interface'][$interface] == "true" ) )
+			continue;
+
+			//skip inactive interfaces here
+			//if settings _> false continue basically
+
 			$logfile = sprintf($this->logfile, date('Y-m-d'), $interface);
 
 			$netdev = file_get_contents('/proc/net/dev');

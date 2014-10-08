@@ -31,119 +31,59 @@ if (isset($_POST['update_settings'])) {
 	///////////////////////////////////////////////////
 	//updates the general settings here
 
-	if ( !empty($_POST['settings']['general']['password']) && strlen($_POST['settings']['general']['password']) > 0 ) {
-		$_POST['settings']['general']['password'] = md5($_POST['settings']['general']['password']);
+	//check to see if password was updated
+	if ( !empty($_POST['formsettings']['password']) && strlen($_POST['formsettings']['password']) > 0 ) {
+		$_POST['formsettings']['password'] = md5($_POST['formsettings']['password']);
 	} else {
-		$_POST['settings']['general']['password'] = $_POST['settings']['general']['password2'];
+		$_POST['formsettings']['password'] = $_POST['formsettings']['password2'];
 	}
 
-	unset($_POST['settings']['general']['password2']);
+	unset($_POST['formsettings']['password2']);
 
-	$_POST['settings']['general']['https'] = ( !isset($_POST['settings']['general']['https']) ) ? "false" : "true";
-	$_POST['settings']['general']['checkforupdates'] = ( !isset($_POST['settings']['general']['checkforupdates']) ) ? "false" : "true";
-	$_POST['settings']['general']['allow_anyone'] = ( !isset($_POST['settings']['general']['allow_anyone']) ) ? "false" : "true";
-	$_POST['settings']['general']['apiserver'] = ( !isset($_POST['settings']['general']['apiserver']) ) ? "false" : "true";
-
-	//$drive = $settings['settings']['drive'];
-	
-	// echo '<pre>';var_dump($generalSettings);echo'</pre>';
-	// exit;
+	$_POST['formsettings']['https'] = ( !isset($_POST['formsettings']['https']) ) ? "false" : "true";
+	$_POST['formsettings']['checkforupdates'] = ( !isset($_POST['formsettings']['checkforupdates']) ) ? "false" : "true";
+	$_POST['formsettings']['allow_anyone'] = ( !isset($_POST['formsettings']['allow_anyone']) ) ? "false" : "true";
+	$_POST['formsettings']['apiserver'] = ( !isset($_POST['formsettings']['apiserver']) ) ? "false" : "true";
 
 	// Loop throught settings
 	$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
-	$settings = $_POST['settings'];
-	$setting_to_save = null;
+	
+	//get current settings from memory
+	$settings = LoadAvg::$_settings->general;
 
-	//echo '<pre>';var_dump($settings);echo'</pre>';
-	//exit;
+	$postsettings = $_POST['formsettings'];
 
-	$generalSettings = $_POST['settings']['general'];
-
-	//echo '<pre>';var_dump($generalSettings);echo'</pre>';
-	//exit;
-
-	unlink($settings_file);
-	$settings_file_handler = fopen($settings_file, "wa");
-
-	foreach ( $generalSettings as $key => $value ):
-		$value = (is_string($value)) ? "\"$value\"" : $value;
-		$setting_to_save = $key . " = " . $value . PHP_EOL;
-		// var_dump($setting_to_save);
-		fwrite($settings_file_handler, $setting_to_save);
-	endforeach;
-
-	$settings = $_POST['settings'];
-
-	foreach ( $settings as $key => $value ):
-		if ( $key == "general" ) continue;
-
-		$setting_to_save = "[" . $key . "]" . PHP_EOL;
-		fwrite($settings_file_handler, $setting_to_save);
-		// var_dump($setting_to_save);
-		foreach ($settings[$key] as $key => $value) {
-			$value = (is_string($value)) ? "\"$value\"" : $value;
-			$setting_to_save = $key . " = " . $value . PHP_EOL;
-			// var_dump($setting_to_save);
-			fwrite($settings_file_handler, $setting_to_save);
-		}
-	endforeach;
+	//what is better here - ini_merge or array_replace ?
+	//need to test instances where we add new variables to the mix
+	
+	//$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
+	$replaced_settings = array_replace($settings, $postsettings);
 
 
-	fwrite($settings_file_handler, "\n");
-	fclose($settings_file_handler);
+	//LoadAvg::write_php_ini($mergedsettings, $settings_file);
+	LoadAvg::write_php_ini($replaced_settings, $settings_file);
+
 
 	///////////////////////////////////////////////////
 	//updates all the modules settings here
 
-	//these are dirty dirty hacks! until we can rewrite the settings using proper api
-	$_POST['Disk_settings']['settings']['displaymode'] = ( !isset($_POST['Disk_settings']['settings']['displaymode']) ) ? "false" : "true";
+	//exit;
+	/* 
+	 * need to reload settings here after posting
+	 * as for some reason after a post the data isnt updated internally
+	 */
 
-	$_POST['Network_settings']['settings']['transfer_limiting'] = ( !isset($_POST['Network_settings']['settings']['transfer_limiting']) ) ? "false" : "true";
-	$_POST['Network_settings']['settings']['receive_limiting'] = ( !isset($_POST['Network_settings']['settings']['receive_limiting']) ) ? "false" : "true";
+	//$settings = LoadAvg::$_settings->general;
+	//LoadAvg::$_settings->general = $settings;
 
-	//echo '<pre>';var_dump($_POST);echo'</pre>';
+	/* rebuild logs
+	 * needed for when you turn a module on that has no logs
+	 * this needs to only rebuild logs for modules that have been turned on
+	 */
+	//$loadavg->rebuildLogs();
 
-	$modules = LoadAvg::$_modules;
-
-    foreach ($modules as $module => $moduleName) {
-    
-    //echo $moduleName;
-
-		if (isset($_POST[$module . '_settings'])) {
-
-			echo $moduleName;
-
-			$module_config_file = APP_PATH . '/../lib/modules/' . $module . '/' . strtolower( $module ) . '.ini';
-			$module_config_ini = parse_ini_file( $module_config_file , true );
-
-			$replaced_settings = array_replace($module_config_ini, $_POST[$module . '_settings']);
-
-//			echo '<pre>';var_dump($_POST[$module . '_settings']);echo'</pre>';
-//			echo '<pre>';var_dump($replaced_settings);echo'</pre>';
-
-			LoadAvg::write_php_ini($replaced_settings, $module_config_file);
-			$fh = fopen($module_config_file, "a"); fwrite($fh, "\n"); fclose($fh);
-			
-		}
-
-	}
-//exit;
-/* 
- * need to reload settings here after posting
- * as for some reason after a post the data isnt updated internally
- */
-
-$settings = LoadAvg::$_settings->general;
-//LoadAvg::$_settings->general = $settings;
-
-/* rebuild logs
- * needed for when you turn a module on that has no logs
- * this needs to only rebuild logs for modules that have been turned on
- */
-$loadavg->rebuildLogs();
-
-/* force reload settings page now */
-header('Location: '.$_SERVER['REQUEST_URI']);
+	/* force reload settings page now */
+	header('Location: '.$_SERVER['REQUEST_URI']);
 
 }
 
@@ -152,25 +92,38 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 
 <form action="" method="post">
 	<input type="hidden" name="update_settings" value="1" />
-	<input type="hidden" name="settings[general][version]" value="<?php echo $settings['version']; ?>" />
-	<input type="hidden" name="settings[general][extensions_dir]" value="<?php echo $settings['extensions_dir']; ?>" />
-	<input type="hidden" name="settings[general][logs_dir]" value="<?php echo $settings['logs_dir']; ?>" />
-	<input type="hidden" name="settings[general][title]" value="<?php echo $settings['title']; ?>" />
-	<input type="hidden" name="settings[general][password2]" value="<?php echo $settings['password']; ?>" />
+
+	<!--
+	<input type="hidden" name="settings[version]" value="<?php echo $settings['version']; ?>" />
+	<input type="hidden" name="settings[extensions_dir]" value="<?php echo $settings['extensions_dir']; ?>" />
+	<input type="hidden" name="settings[logs_dir]" value="<?php echo $settings['logs_dir']; ?>" />
+	<input type="hidden" name="settings[title]" value="<?php echo $settings['title']; ?>" />
+	-->
+	<input type="hidden" name="formsettings[password2]" value="<?php echo $settings['password']; ?>" />
+	
 <div class="innerAll">
 	<!--
 	<h2>Settings</h2>
 	-->
 	<div class="well">
 
-		<h4>Default settings</h4>
+		<h4>System settings</h4>
+
+	</div>
+
+	<div class="separator bottom"></div>
+
+	<div class="well">
+
+		<h4>Core settings</h4>
+
 
 		<div class="row-fluid">
 			<div class="span3">
 				<strong>Server name</strong>
 			</div>
 			<div class="span9 right">
-				<input type="text" name="settings[general][title]" value="<?php echo $settings['title']; ?>" >
+				<input type="text" name="formsettings[title]" value="<?php echo $settings['title']; ?>" >
 			</div>
 		</div>
 
@@ -183,10 +136,8 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 
 
 			<?php
-
 			$timezones = LoadAvg::getTimezones();
-
-			print '<select name="settings[general][timezone]" id="timezone">';
+			print '<select name="formsettings[timezone]" id="timezone">';
 
 			foreach($timezones as $region => $list)
 			{
@@ -194,16 +145,13 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 				foreach($list as $thetimezone => $name)
 				{
 					print '<option name="' . $thetimezone . '"';
-
 					$check = $settings['timezone'];
 					if (  $check == $thetimezone )  { print ' selected="selected"'; }
-
 					print '>' . $thetimezone . '</option>' . "\n";
 				}
 				print '<optgroup>' . "\n";
 			}
 			print '</select>';
-
 			?>
 
 
@@ -214,7 +162,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 				<strong>Days to keep</strong>
 			</div>
 			<div class="span9 right">
-				<input type="text" name="settings[general][daystokeep]" value="<?php echo $settings['daystokeep']; ?>" size="4" class="span2 center">
+				<input type="text" name="formsettings[daystokeep]" value="<?php echo $settings['daystokeep']; ?>" size="4" class="span2 center">
 			</div>
 		</div>
 
@@ -224,7 +172,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 			</div>
 			<div class="span9 right">
 				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="settings[general][checkforupdates]" type="checkbox" value="true" <?php if ( $settings['checkforupdates'] == "true" ) { ?>checked="checked"<?php } ?>>
+					<input name="formsettings[checkforupdates]" type="checkbox" value="true" <?php if ( $settings['checkforupdates'] == "true" ) { ?>checked="checked"<?php } ?>>
 				</div>
 			</div>
 		</div>
@@ -235,7 +183,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 			</div>
 			<div class="span8 right">
 				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="settings[general][https]" type="checkbox" value="true" <?php if ( $settings['https'] == "true" ) { ?>checked="checked"<?php } ?>>
+					<input name="formsettings[https]" type="checkbox" value="true" <?php if ( $settings['https'] == "true" ) { ?>checked="checked"<?php } ?>>
 				</div>
 			</div>
 		</div>
@@ -246,7 +194,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 			</div>
 			<div class="span8 right">
 				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="settings[general][allow_anyone]" type="checkbox" value="true" <?php if ( $settings['allow_anyone'] == "true" ) { ?>checked="checked"<?php } ?>>
+					<input name="formsettings[allow_anyone]" type="checkbox" value="true" <?php if ( $settings['allow_anyone'] == "true" ) { ?>checked="checked"<?php } ?>>
 				</div>
 			</div>
 		</div>
@@ -256,7 +204,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 				<strong>Chart(s) format</strong>
 			</div>
 			<div class="span9 right">
-				<select name="settings[general][chart_type]">
+				<select name="formsettings[chart_type]">
 					<option value="1" <?php if ( $settings['chart_type'] == "1" ) { ?>selected="selected"<?php } ?>>Hourly</option>
 					<option value="24" <?php if ( $settings['chart_type'] == "24" ) { ?>selected="selected"<?php } ?>>All day</option>
 				</select>
@@ -265,8 +213,6 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 
 
 	</div>
-
-
 
 
 
@@ -280,7 +226,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 				<strong>Username</strong>
 			</div>
 			<div class="span9 right">
-				<input type="text" name="settings[general][username]" value="<?php echo $settings['username']; ?>" >
+				<input type="text" name="formsettings[username]" value="<?php echo $settings['username']; ?>" >
 			</div>
 		</div>
 
@@ -289,187 +235,18 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 				<strong>Password</strong>
 			</div>
 			<div class="span9 right">
-				<input type="text" name="settings[general][password]" />
+				<input type="text" name="formsettings[password]" />
 			</div>
 		</div>
 
 	</div>
 
-	<div class="separator bottom"></div>
-
-
-
-
-
-
-
-
-
-
-	<div class="separator bottom"></div>
-
-	<div class="well">
-    <h4>API settings</h4>
-
-		<div class="row-fluid">
-			<div class="span3">
-				<strong>Connect to API</strong>
-			</div>
-			<div class="span9 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="settings[general][apiserver]" type="checkbox" value="true" <?php if ( $settings['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
-				</div>
-			</div>
-		</div>
-
-    <div class="row-fluid">
-      <div class="span3">
-        <strong>API URL</strong>
-      </div>
-      <div class="span9 right">
-        <input type="text" name="settings[api][url]" value="<?php echo $settings['api']['url']; ?>" size="4" class="span6 left">
-      </div>
-    </div>
-
-    <div class="row-fluid">
-      <div class="span3">
-        <strong>API Key</strong>
-      </div>
-      <div class="span9 right">
-				<input type="text" name="settings[api][key]" value="<?php echo $settings['api']['key']; ?>" size="4" class="span6 left">
-      </div>
-    </div>
-
-    <!-- <div class="row-fluid">
-      <div class="span3">
-        <strong>API Username</strong>
-      </div>
-      <div class="span9 right">
-				<input type="text" name="settings[api][username]" value="<?php //echo $settings['api']['username']; ?>" size="4" class="span6 left">
-      </div>
-    </div> -->
-
-    <div class="row-fluid">
-      <div class="span3">
-        <strong>Server Token</strong>
-      </div>
-      <div class="span9 right">
-        <input type="text" name="settings[api][server_token]" value="<?php echo $settings['api']['server_token']; ?>" size="4" class="span6 left">
-      </div>
-    </div>
-
-    <!-- <div class="row-fluid">
-      <div class="span3">
-        <strong>API Server ID</strong>
-      </div>
-      <div class="span9 right">
-        <input type="text" name="settings[api][server]" value="<?php //echo $settings['api']['server']; ?>" size="4" class="span6 left">
-      </div>
-    </div> -->
-	</div>
-
-	<div class="separator bottom"></div>
-
-	<div class="well">
-		<h4>Network interfaces</h4>
-		<?php $interfaces = LoadAvg::getNetworkInterfaces(); ?>
-		<?php foreach ($interfaces as $interface) { ?>
-		<div class="row-fluid">
-			<div class="span3">
-				<strong>Monitor: <?php echo trim($interface['name']); ?></strong>
-			</div>
-			<div class="span9 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-                    <input name="settings[network_interface][<?php echo trim($interface['name']); ?>]" value="true" type="checkbox"
-                    	<?php
-                    		if ( isset($settings['network_interface'][trim($interface['name'])]) && $settings['network_interface'][trim($interface['name'])] == "true" )
-                    		{ ?>checked="checked"<?php }
-                    	?>
-                    >
-                </div>
-			</div>
-		</div>
-		<?php } ?>
-	</div>
 
 <div class="separator bottom"></div>
 
-    <!-- 
-      * this is where we loop through all the modules
-      * and deal with their individual settings
-	-->
-
-	<div class="well">
-                <h4>Modules</h4>
-                <?php $modules = LoadAvg::$_modules; ?>
-                <?php foreach ($modules as $module => $moduleName) { ?>
-				<div class="separator bottom"></div>
-            	<div class="row-fluid">
-                    <div class="span3">
-                            <strong> <?php echo $module; ?> Settings</strong>
-                    </div>
-                    <div class="span9 right">
-                        <div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-                            <input name="settings[modules][<?php echo $module; ?>]" value="true" type="checkbox"
-                            	<?php if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" )
-                            		{ ?>checked="checked"<?php }
-                            	?>
-                            >
-                        </div>
-                    </div>
-                </div>
-				<div class="separator bottom"></div>
-                <?php
-                if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" ) {
-
-                	$moduleSettings = LoadAvg::$_settings->$module;
-                	
-                	if ( isset($moduleSettings['module']['has_settings']) && $moduleSettings['module']['has_settings'] == "true") {
-                		?>
-                		<div class="well">
-
-            				<strong><?php echo $module; ?> module settings:</strong>
-
-	                        <?php
-	                        foreach ($moduleSettings['settings'] as $setting => $value) {
-	                        	?>
-	                        	<div class="row-fluid">
-	                        		<div class="span3">
-	                        			<strong><?php echo ucwords(str_replace("_"," ",$setting)); ?></strong>
-	                        		</div>
-	                        		<div class="span9 right">
-
-	                        			<?php if ( $value == 'true' || $value == 'false') { ?>
-
-											<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-												<input name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" type="checkbox" value="<?php echo $value; ?>" 
-												<?php if ( $value == "true" ) { ?>checked="checked"<?php } ?>>
-											</div>	  
-
-	                        			<?php } else { ?>
-
-	                        				<div class="pull-right">
-	                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" class="span5 center">
-	                        				</div>                      				
-	                        			
-	                        			<?php } ?>
-
-	                        		</div>
-	                        	</div>
-	                        	<?php
-	                        }
-	                        ?>
-                		</div>
-                		<?php
-                	}
-                }
-                ?>
-                <?php } ?>
-        </div>
 
 
 
-		<div class="separator bottom"></div>
 		<div class="separator bottom"></div>
 
         <div class="panel">

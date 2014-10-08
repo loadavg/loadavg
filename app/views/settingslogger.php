@@ -38,7 +38,20 @@ else {
 <div class="well lh70-style">
     <b>LoadAvg Logger</b>
     <div class="pull-right">
-		STATUS
+
+	<?php
+	$logger_Status = false;
+	$logger_Status = $loadavg->testLogs(false);
+	?>
+	Logger Status:
+	<?php   
+	if ($logger_Status == true) {
+		echo "<strong>Running</strong>";
+	} else {
+		echo "<strong>Not Running</strong>";
+	}
+	?>
+    
     </div>
 </div>
 

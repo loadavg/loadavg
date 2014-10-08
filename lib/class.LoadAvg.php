@@ -195,7 +195,7 @@ class LoadAvg
  * what module has changed or been enabled
  */
 
-	public function rebuildLogs()
+	public static function rebuildLogs()
 	{
 
 			echo "Rebuild Logs  \n";
@@ -231,7 +231,7 @@ class LoadAvg
  * as we just test if the log directory is empty or not
  */
 
-public function testLogs()
+ 	function testLogs( $mode = true)
 	{
 
 			$loaded = self::$_settings->general['modules'];
@@ -273,7 +273,9 @@ public function testLogs()
 							if (file_exists($filename)) {
 						    	$test_worked = true;
 							}
-							echo "Log: $filename Status: $test_worked  \n";		
+
+							if ($mode == true)
+								echo "Log: $filename Status: $test_worked  \n";		
 						}
 					}
 				}
@@ -284,12 +286,18 @@ public function testLogs()
 				//now do nested charts 
 				foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
 
+					if (  !( isset(LoadAvg::$_settings->general['network_interface'][$interface]) 
+						&& LoadAvg::$_settings->general['network_interface'][$interface] == "true" ) )
+						continue;
+
 					$filename = ( $logdir . sprintf($args->logfile, date('Y-m-d') , $interface ) );
 																				
 					if (file_exists($filename)) {
 				    	$test_worked = true;
 					}
-					echo "Log: $filename Status: $test_worked  \n";
+
+					if ($mode == true)
+						echo "Log: $filename Status: $test_worked  \n";
 				}
 			}
 
@@ -391,23 +399,26 @@ public function testLogs()
 			 * 
 			 * for local data we dont check the first value in the data set
 			 */
-			if ( $difference >= $interval && ($i > 0) ) {
+			if ($i > 0) {
 
-				$patch[$numPatches] = array(  ($data[0]+$interval), "0.00", "0.00", "0.00", $i);
-				$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "0.00", "0.00", "0.00", $i);
+				if ( $difference >= $interval ) {
 
-				//$patch[$numPatches] = array(  ($data[0]+$interval), "REDLINE", $i);
-				//$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "REDLINE", $i);
+					$patch[$numPatches] = array(  ($data[0]+$interval), "0.00", "0.00", "0.00", $i);
+					$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "0.00", "0.00", "0.00", $i);
 
-				$numPatches += 2;
-			}	
+					//$patch[$numPatches] = array(  ($data[0]+$interval), "REDLINE", $i);
+					//$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "REDLINE", $i);
+
+					$numPatches += 2;
+				}	
+			}
 		}
 		
 		//iterates through the patcharray and patches dataset
 		//by adding patch points
 		$totalPatch= (int)count( $patch );
 
-		//echo "PATCHCOUNT: " . $totalPatch . "<br>";
+		echo "PATCHCOUNT: " . $totalPatch . "<br>";
 
 		//for ( $i = 0; $i < $totalPatch ; $i++) {
 		for ( $i = 0; $i < $totalPatch ; ++$i) {
@@ -518,6 +529,29 @@ public function testLogs()
 	    //LoadAvg::safefilerewrite($file, implode("\r\n", $res));
 	}
 
+
+	//modified to not clean numeric values
+	/*
+	function write_php_ini($array, $file)
+	{
+	    $res = array();
+	    foreach($array as $key => $val)
+	    {
+	        if(is_array($val))
+	        {
+	            $res[] = "[$key]";
+
+	            //foreach($val as $skey => $sval) $res[] = "$skey = ".(is_numeric($sval) ? $sval : '"'.$sval.'"');
+	            foreach($val as $skey => $sval) 
+	            	$res[] = "$skey = ".'"'.$sval.'"';
+	        }
+	        //else $res[] = "$key = ".(is_numeric($val) ? $val : '"'.$val.'"');
+	        else $res[] = "$key = ".'"'.$val.'"';
+	    }
+	    safefilerewrite($file, implode("\r\n", $res));
+	}
+	*/
+
 	/**
 	 * safefilewrite
 	 *
@@ -549,6 +583,50 @@ public function testLogs()
 	    }
 
 	}
+
+	/*
+	function safefilerewrite($fileName, $dataToSave)
+	{    if ($fp = fopen($fileName, 'w'))
+	    {
+	        $startTime = microtime();
+	        do
+	        {            $canWrite = flock($fp, LOCK_EX);
+	           // If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
+	           if(!$canWrite) usleep(round(rand(0, 100)*1000));
+	        } while ((!$canWrite)and((microtime()-$startTime) < 1000));
+
+	        //file was locked so now we can store information
+	        if ($canWrite)
+	        {            fwrite($fp, $dataToSave);
+	            flock($fp, LOCK_UN);
+	        }
+	        fclose($fp);
+	    }
+
+	}
+	*/
+
+	/**
+	 * ini_merge
+	 *
+	 * used in settings modules to merge changes inot settings files
+	 * may be depreciated now in exchange for array_replace
+	 *
+	 * @param string $config_ini config file array
+	 * @param string $custom_ini data config file array to merge with
+	 */
+
+	 public static function ini_merge ($config_ini, $custom_ini) {
+	  foreach ($custom_ini AS $k => $v):
+	    if (is_array($v)):
+	      $config_ini[$k] = self::ini_merge($config_ini[$k], $custom_ini[$k]);
+	    else:
+	      $config_ini[$k] = $v;
+	    endif;
+	  endforeach;
+	  return $config_ini;
+	 }
+
 
 	/**
 	 * logIn

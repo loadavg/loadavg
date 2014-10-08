@@ -20,9 +20,18 @@
 <!-- loop through each interface -->
 
 <?php
+
 $i = 0; 
+
 foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) { 
+
 	$i++;
+
+	//skip disabled interfaces
+	if (  !( isset(LoadAvg::$_settings->general['network_interface'][$interface]) 
+		&& LoadAvg::$_settings->general['network_interface'][$interface] == "true" ) )
+		continue;
+
 ?>
 
 <!-- draw charts for each interface -->

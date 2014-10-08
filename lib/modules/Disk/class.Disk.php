@@ -194,7 +194,6 @@ class Disk extends LoadAvg
 				$disk_high=   ( max($usage) / $diskSize ) * 100 ;				
 				$disk_low =   ( min($usage) / $diskSize ) * 100 ;
 
-				//$disk_latest = ( ( $usage[count($usage)-1]  )  / $diskSize  ) * 100   ;
 				$disk_mean =  ( (array_sum($usage) / count($usage)) / $diskSize ) * 100 ;
 
 				//these are the min and max values used when drawing the charts
@@ -210,7 +209,7 @@ class Disk extends LoadAvg
 			$disk_latest = ( ( $usage[count($usage)-1]  )    )    ;		
 
 			$disk_total = $diskSize;
-			$disk_free = $diskSize - $disk_latest;
+			$disk_free = $disk_total - $disk_latest;
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);

@@ -150,7 +150,9 @@ else
 					
 					<ul class="dropdown-menu pull-right">
 						<li><a href="?page=settings">System <i class="fa fa-cog pull-right"></i></a></li>
-						<li><a href="?page=logger">Logger <i class="fa fa-cog pull-right"></i></a></li>
+						<li><a href="?page=settingsmodules">Modules <i class="fa fa-cog pull-right"></i></a></li>
+						<li><a href="?page=settingsapi">API <i class="fa fa-cog pull-right"></i></a></li>
+						<li><a href="?page=settingslogger">Logger <i class="fa fa-cog pull-right"></i></a></li>
 						<?php if ( $loadavg->isLoggedIn() ): ?>
 						<li>
 							<span>
