@@ -158,33 +158,24 @@ class LoadAvg
 					}
 				}
 
-			if ($test_nested == true) {
+				if ($test_nested == true) {
 
-				//now do nested charts 
-				foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
+					//now do nested charts 
+					foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
 
-					//$filename = ( $logdir . sprintf($args->logfile, date('Y-m-d') , $interface ) );
-																				
-							$caller = sprintf($args->function, sprintf("'". $args->logfile . "'", date('Y-m-d') , $interface  ));
-							$caller = $args->function;
-							
-							//dont work for network ?
-							$class->logfile = $logdir . sprintf($args->logfile, date('Y-m-d') , $interface );
-							$class->logfile = $logdir . $args->logfile;
+						//$filename = ( $logdir . sprintf($args->logfile, date('Y-m-d') , $interface ) );
+																					
+								$caller = sprintf($args->function, sprintf("'". $args->logfile . "'", date('Y-m-d') , $interface  ));
+								$caller = $args->function;
+								
+								//dont work for network ?
+								$class->logfile = $logdir . sprintf($args->logfile, date('Y-m-d') , $interface );
+								$class->logfile = $logdir . $args->logfile;
 
-							$class->$caller();	
-
+								$class->$caller();	
+					}
 				}
 			}
-
-
-
-
-
-
-
-			}
-
 		}
 	}
 

@@ -154,7 +154,9 @@ class Cpu extends LoadAvg
 			$cpu_low = min($usage[$witch]);
 			$cpu_low_time = $time[$witch][$cpu_low];
 		
-			$cpu_mean = number_format(array_sum($usage[$witch]) / count($usage[$witch]), 2);
+			//$cpu_mean = (float)number_format(array_sum($usage[$witch]) / count($usage[$witch]), 3);
+			$cpu_mean = array_sum($usage[$witch]) / count($usage[$witch]) ;
+			
 			$cpu_latest = $usage[$witch][count($usage[$witch])-1];
 
 			$ymin = $cpu_low;
@@ -175,13 +177,27 @@ class Cpu extends LoadAvg
 			}
 
 			$variables = array(
-    	        'cpu_high' => $cpu_high,
+    	        'cpu_high' => number_format($cpu_high,3),
                 'cpu_high_time' => $cpu_high_time,
-                'cpu_low' => $cpu_low,
-            	'cpu_low_time' => $cpu_low_time,
-    	        'cpu_mean' => $cpu_mean,
-                'cpu_latest' => $cpu_latest
+                'cpu_low' => number_format($cpu_low,3),
+                'cpu_low_time' => $cpu_low_time,
+    	        'cpu_mean' => number_format($cpu_mean,3),
+                'cpu_latest' => number_format($cpu_latest,3)
             );
+
+
+/*
+				'disk_high' => number_format($disk_high,2),
+				'disk_high_time' => $disk_high_time,
+				'disk_low' => number_format($disk_low,2),
+				'disk_low_time' => $disk_low_time,
+				'disk_mean' => number_format($disk_mean,2),
+				'disk_total' => number_format($disk_total,1),
+				'disk_free' => number_format($disk_free,1),
+				'disk_latest' => number_format($disk_latest,1),
+
+*/
+
 
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
