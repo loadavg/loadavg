@@ -174,9 +174,9 @@
 						//if (is_dir($drive)) {				
 						//}
 
-						$totalBytes =  $server->getTotalStorage( $drive );
-						$freeData = $server->getFreeStorage( $drive );
-						$usedData = $server->getUsedStorage( $drive );
+						$totalBytes = (float) $server->getTotalStorage( $drive );
+						$freeData   = (float) $server->getFreeStorage( $drive );
+						$usedData   = (float) $server->getUsedStorage( $drive );
 
 						//list ( $freeBytes , $percentFreeBytes  ) = $server->getFreeStorage( $drive );
 						//list ( $usedBytes , $percentUsedBytes  ) = $server->getUsedStorage( $drive );

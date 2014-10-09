@@ -28,7 +28,8 @@
 				<?php } ?>
 
 				<?php
-				if ( $_GET['page'] == '') { ?>
+				//page is not deifned for index and index is currently charts so show time here
+				if (!isset($_GET['page']) ) { ?>
 					HTML graphs generated in <?php echo $page_load; ?> sec.		
 				<?php } ?>
 

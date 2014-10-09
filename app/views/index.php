@@ -14,7 +14,12 @@
 */
 ?>
 
-<?php if ($loadavg->isLoggedIn()) { ?>
+<?php if ($loadavg->isLoggedIn()) { 
+
+//if (!isset($_GET['page'])) {
+//    $_SET['page'] = '';
+//}
+    ?>
 
 <table class="well lh70 lh70-style" width="100%" border="0" cellspacing="1" cellpadding="3">
     <tr>
