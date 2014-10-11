@@ -483,7 +483,7 @@ class LoadAvg
 	 * @param string $file filename to write.
 	 */
 
-	public function write_php_ini($array, $file)
+	public static function write_php_ini($array, $file)
 	{
 	    $res = array();
 		$bval = null;
@@ -544,7 +544,7 @@ class LoadAvg
 
 
 
-	public function write_module_ini($newsettings, $module_name)
+	public static function write_module_ini($newsettings, $module_name)
 	{
 
 		$module_config_file = HOME_PATH . '/lib/modules/' . $module_name . '/' . strtolower( $module_name ) . '.ini';

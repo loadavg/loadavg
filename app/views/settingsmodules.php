@@ -131,7 +131,7 @@ $settings = LoadAvg::$_settings->general;
  * needed for when you turn a module on that has no logs
  * this needs to only rebuild logs for modules that have been turned on
  */
-$loadavg->rebuildLogs();
+//$loadavg->rebuildLogs();
 
 /* force reload settings page now */
 header('Location: '.$_SERVER['REQUEST_URI']);
