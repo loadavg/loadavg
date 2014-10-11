@@ -67,6 +67,7 @@ if (isset($_POST['update_settings'])) {
 	 //echo '<pre>';var_dump($postsettings);echo'</pre>';
 
 	$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
+  	//$mergedsettings = array_replace($settings, $postsettings);
 
 	 //echo '<pre>MERGESETTINGS</pre>';
 	 //echo '<pre>';var_dump($mergedsettings);echo'</pre>';
@@ -98,17 +99,20 @@ if (isset($_POST['update_settings'])) {
 
 		if (isset($_POST[$module . '_settings'])) {
 
-			echo $moduleName;
+			//echo $moduleName;
 
 			$module_config_file = APP_PATH . '/../lib/modules/' . $module . '/' . strtolower( $module ) . '.ini';
+			
 			$module_config_ini = parse_ini_file( $module_config_file , true );
 
 			$replaced_settings = array_replace($module_config_ini, $_POST[$module . '_settings']);
 
-//			echo '<pre>';var_dump($_POST[$module . '_settings']);echo'</pre>';
-//			echo '<pre>';var_dump($replaced_settings);echo'</pre>';
+			//echo '<pre>';var_dump($_POST[$module . '_settings']);echo'</pre>';
+			//echo '<pre>';var_dump($replaced_settings);echo'</pre>';
 
 			LoadAvg::write_php_ini($replaced_settings, $module_config_file);
+
+			//why is this here ?
 			$fh = fopen($module_config_file, "a"); fwrite($fh, "\n"); fclose($fh);
 			
 		}

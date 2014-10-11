@@ -360,8 +360,8 @@ class LoadAvg
 	 */
 
 
-	function getChartData (array &$chartData, array &$contents, $interval = 400) {
-					
+	function getChartData (array &$chartData, array &$contents, $interval = 400) 
+	{				
 		// this is based on logger interval, 5 min = 300 aprox we add 100 to be safe
 		$interval = 400;   
 		
@@ -520,7 +520,6 @@ class LoadAvg
 	    //LoadAvg::safefilerewrite($file, implode("\r\n", $res));
 	}
 
-
 	//modified to not clean numeric values
 	/*
 	function write_php_ini($array, $file)
@@ -542,6 +541,17 @@ class LoadAvg
 	    safefilerewrite($file, implode("\r\n", $res));
 	}
 	*/
+
+
+
+	public function write_module_ini($newsettings, $module_name)
+	{
+
+		$module_config_file = HOME_PATH . '/lib/modules/' . $module_name . '/' . strtolower( $module_name ) . '.ini';
+
+		$this->write_php_ini($newsettings, $module_config_file);
+
+	}
 
 	/**
 	 * safefilewrite
@@ -575,27 +585,6 @@ class LoadAvg
 
 	}
 
-	/*
-	function safefilerewrite($fileName, $dataToSave)
-	{    if ($fp = fopen($fileName, 'w'))
-	    {
-	        $startTime = microtime();
-	        do
-	        {            $canWrite = flock($fp, LOCK_EX);
-	           // If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
-	           if(!$canWrite) usleep(round(rand(0, 100)*1000));
-	        } while ((!$canWrite)and((microtime()-$startTime) < 1000));
-
-	        //file was locked so now we can store information
-	        if ($canWrite)
-	        {            fwrite($fp, $dataToSave);
-	            flock($fp, LOCK_UN);
-	        }
-	        fclose($fp);
-	    }
-
-	}
-	*/
 
 	/**
 	 * ini_merge
@@ -607,15 +596,17 @@ class LoadAvg
 	 * @param string $custom_ini data config file array to merge with
 	 */
 
-	 public static function ini_merge ($config_ini, $custom_ini) {
-	  foreach ($custom_ini AS $k => $v):
-	    if (is_array($v)):
-	      $config_ini[$k] = self::ini_merge($config_ini[$k], $custom_ini[$k]);
-	    else:
-	      $config_ini[$k] = $v;
-	    endif;
-	  endforeach;
-	  return $config_ini;
+	 public static function ini_merge ($config_ini, $custom_ini) 
+	 {
+	 	foreach ($custom_ini AS $k => $v):
+	    	if (is_array($v)):
+	      		$config_ini[$k] = self::ini_merge($config_ini[$k], $custom_ini[$k]);
+	    	else:
+	      		$config_ini[$k] = $v;
+	    	endif;
+	  	endforeach;
+	 
+	 	return $config_ini;
 	 }
 
 
@@ -628,12 +619,16 @@ class LoadAvg
 	 * @param string $password the password
 	 */
 
-	public function logIn( $username, $password) {
-		if ( isset($username) && isset($password) ) {
-			if ($username == LoadAvg::$_settings->general['username'] && md5($password) == LoadAvg::$_settings->general['password']) {
+	public function logIn( $username, $password) 
+	{
+		if ( isset($username) && isset($password) ) 
+		{
+			if ($username == LoadAvg::$_settings->general['username'] && md5($password) == LoadAvg::$_settings->general['password']) 
+			{
 				$_SESSION['logged_in'] = true;
 
-				if (isset(self::$_settings->general['checkforupdates'])) {
+				if (isset(self::$_settings->general['checkforupdates'])) 
+				{
 					$this->checkForUpdate();
 				}
 			}
@@ -653,31 +648,25 @@ class LoadAvg
 	public function sendApiData( $data ) {
 
 		// for debugging
-		//var_dump(self::$_settings->general['api']['key']);
-		//var_dump(self::$_settings->general['api']['url']);
-		//var_dump(self::$_settings->general['api']['username']);
-		//var_dump(self::$_settings->general['api']['server']);
 		//var_dump($data); //exit;
-
 
 		$url = self::$_settings->general['api']['url'];
 
-		$json = array(
-			'api_key'  => self::$_settings->general['api']['key'],
-			'username' => self::$_settings->general['api']['username'],
-			'server_id' => self::$_settings->general['api']['server'],
-			'data'   => json_encode( $data )
-		);
-
-		$json = json_encode( $json );
 		$user_url = $url . '/users/';
 		$server_url = $url . '/servers/';
+		
 		$user_exists = file_get_contents($user_url . self::$_settings->general['api']['key'] . '/data');
 		$server_exists = file_get_contents($server_url . self::$_settings->general['api']['server_token'] . '/t');
 
-		if($user_exists != 'false' && $server_exists != 'false') {
+		//echo 'USER EXISTS  : '; var_dump($user_exists);
+		//echo 'SERV EXISTS  : '; var_dump($server_exists);
+
+		if($user_exists != 'false' && $server_exists != 'false') 
+		{
+
 			//file_put_contents("file.txt", json_encode($data)); test data
 			$curl = curl_init();
+
 			// Set some options - we are passing in a useragent too here
 			curl_setopt_array($curl, array(
 		    CURLOPT_RETURNTRANSFER => 1,
@@ -695,7 +684,7 @@ class LoadAvg
 			// Close request to clear up some resources
 			curl_close($curl);
 
-			//what is this for ?
+			//used for debugging to file
 			//file_put_contents("file.txt",$resp);
 			
 			return $resp;
@@ -703,6 +692,37 @@ class LoadAvg
 
 		return null;
 	}
+
+
+	/**
+	 * sendApiData
+	 *
+	 * If API is activated sends data to server
+	 *
+	 * @param array $data array of data to send to the server
+	 * @return string $result message returned from the server
+	 */
+
+	public function testApiConnection( ) {
+
+
+		$url = self::$_settings->general['api']['url'];
+
+		$user_url = $url . '/users/';
+		$server_url = $url . '/servers/';
+		
+		$user_exists = file_get_contents($user_url . self::$_settings->general['api']['key'] . '/data');
+		$server_exists = file_get_contents($server_url . self::$_settings->general['api']['server_token'] . '/t');
+
+		//echo 'USER EXISTS  : '; var_dump($user_exists);
+		//echo 'SERV EXISTS  : '; var_dump($server_exists);
+
+		if($user_exists != 'false' && $server_exists != 'false') 
+			return true;
+		else
+			return false;
+	}
+
 
 	/**
 	 * isLoggedIn
