@@ -652,14 +652,20 @@ class LoadAvg
 
 		$url = self::$_settings->general['api']['url'];
 
-		$user_url = $url . '/users/';
-		$server_url = $url . '/servers/';
+		$user_url = $url . '/#/users/';
+		$server_url = $url . '/#/servers/';
 		
+		//these no longer work but work less without # above
 		$user_exists = file_get_contents($user_url . self::$_settings->general['api']['key'] . '/data');
 		$server_exists = file_get_contents($server_url . self::$_settings->general['api']['server_token'] . '/t');
 
 		//echo 'USER EXISTS  : '; var_dump($user_exists);
 		//echo 'SERV EXISTS  : '; var_dump($server_exists);
+
+		echo $server_url.json_decode($server_exists)->id.'/data';
+
+		//but how do we know if this key is linked to this server ?
+		//all this test for is if the key and the server are present so i can use my key to access your server ?
 
 		if($user_exists != 'false' && $server_exists != 'false') 
 		{
@@ -708,14 +714,17 @@ class LoadAvg
 
 		$url = self::$_settings->general['api']['url'];
 
-		$user_url = $url . '/users/';
-		$server_url = $url . '/servers/';
+		$user_url = $url . '#/users/';
+		$server_url = $url . '#/servers/';
 		
 		$user_exists = file_get_contents($user_url . self::$_settings->general['api']['key'] . '/data');
 		$server_exists = file_get_contents($server_url . self::$_settings->general['api']['server_token'] . '/t');
 
 		//echo 'USER EXISTS  : '; var_dump($user_exists);
 		//echo 'SERV EXISTS  : '; var_dump($server_exists);
+
+		//but how do we know if this key is linked to this server ?
+		//all this test for is if the key and the server are present so i can use my key to access your server ?
 
 		if($user_exists != 'false' && $server_exists != 'false') 
 			return true;
