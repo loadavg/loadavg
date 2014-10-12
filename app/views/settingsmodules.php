@@ -28,7 +28,7 @@ else {
 
 if (isset($_POST['update_settings'])) {
 
-	$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
+	$settings_file = HOME_PATH . '/app/config/' . LoadAvg::$settings_ini;
 	
 	$settings = LoadAvg::$_settings->general;
 
@@ -101,7 +101,7 @@ if (isset($_POST['update_settings'])) {
 
 			//echo $moduleName;
 
-			$module_config_file = APP_PATH . '/../lib/modules/' . $module . '/' . strtolower( $module ) . '.ini';
+			$module_config_file = HOME_PATH . '/lib/modules/' . $module . '/' . strtolower( $module ) . '.ini';
 			
 			$module_config_ini = parse_ini_file( $module_config_file , true );
 

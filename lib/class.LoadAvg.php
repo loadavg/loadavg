@@ -513,6 +513,7 @@ class LoadAvg
 	        		$res[] = "$key = ".(is_numeric($val) ? $val : (strstr($val, '{') !== false) ? '\''.$val.'\'' : '"'.$val.'"');
 	        }
 	    }
+
 	    if ($fp = fopen($file, 'w') ) {
 	    	fwrite($fp, implode("\r\n", $res));
 	    	fclose($fp);
