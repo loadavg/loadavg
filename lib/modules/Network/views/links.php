@@ -41,10 +41,10 @@
 
 
 	//get settings for this module
-	$cpuSettings = LoadAvg::$_settings->$module;
+	//$cpuSettings = LoadAvg::$_settings->$module;
 
 	//get the displaymode setting from the settings subsection for this module
-	$thedata = $cpuSettings['settings']['displaymode'];
+	//$thedata = $cpuSettings['settings']['displaymode'];
 
 /*
 	//if we are changing mode
@@ -75,6 +75,8 @@
 	}
 */
 
+$links ="/";
+$thedata ='true';
 ?>
 
 <strong>Data displayed</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'fitted' : 'fixed'; ?></a>

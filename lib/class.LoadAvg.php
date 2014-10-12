@@ -550,7 +550,8 @@ class LoadAvg
 
 		$module_config_file = HOME_PATH . '/lib/modules/' . $module_name . '/' . strtolower( $module_name ) . '.ini';
 
-		$this->write_php_ini($newsettings, $module_config_file);
+		//$this->write_php_ini($newsettings, $module_config_file);
+		self::write_php_ini($newsettings, $module_config_file);
 
 	}
 
