@@ -597,7 +597,7 @@ class LoadAvg
 
 	        //if its a new log file fix permissions
 	        if (!$exists && $logs==true ) {
-	        	echo "fix logs";
+	        	//echo "fix logs";
 				chmod($fileName, 0777);
 			}
 
