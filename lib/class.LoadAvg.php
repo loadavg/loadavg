@@ -784,7 +784,9 @@ class LoadAvg
 		        if (!empty($regex)) {
 		                $interface = array();
 		                //$interface['name'] = $regex[1];
-		                $interface['name'] = (substr(trim($regex[1]), strlen(trim($regex[1]))-1, strlen(trim($regex[1]))) == ":") ? substr(trim($regex[1]), 0 , strlen(trim($regex[1]))-1) : $regex[1];
+		                $interface['name'] =  trim ( (substr(trim($regex[1]), strlen(trim($regex[1]))-1, strlen(trim($regex[1]))) == ":") ? substr(trim($regex[1]), 0 , strlen(trim($regex[1]))-1) : $regex[1] );
+
+		                //echo ':' . $interface['name'] . ':';
 
 		                $interfaces[] = $interface;
 		        }

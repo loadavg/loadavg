@@ -63,14 +63,14 @@ if (isset($_POST['update_settings'])) {
 	  
 	$postsettings = $_POST['formsettings'];
 
-	 //echo '<pre>POSTSETTINGS</pre>';
-	 //echo '<pre>';var_dump($postsettings);echo'</pre>';
+	//echo '<pre>POSTSETTINGS</pre>';
+	//echo '<pre>';var_dump($postsettings);echo'</pre>';
 
 	$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
   	//$mergedsettings = array_replace($settings, $postsettings);
 
-	 //echo '<pre>MERGESETTINGS</pre>';
-	 //echo '<pre>';var_dump($mergedsettings);echo'</pre>';
+	//echo '<pre>MERGESETTINGS</pre>';
+	//echo '<pre>';var_dump($mergedsettings);echo'</pre>';
 
 	//echo '<pre>';var_dump($generalSettings);echo'</pre>';
 	//exit;
@@ -118,6 +118,9 @@ if (isset($_POST['update_settings'])) {
 		}
 
 	}
+
+
+
 //exit;
 /* 
  * need to reload settings here after posting
