@@ -400,8 +400,11 @@ class LoadAvg
 
 				if ( $difference >= $interval ) {
 
-					$patch[$numPatches] = array(  ($data[0]+$interval), "0.00", "0.00", "0.00", $i);
-					$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "0.00", "0.00", "0.00", $i);
+					//$patch[$numPatches] = array(  ($data[0]+$interval), "0.00", "0.00", "0.00", $i);
+					//$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "0.00", "0.00", "0.00", $i);
+
+					$patch[$numPatches] = array(  ($data[0]+$interval), "-1", "-1", "-1", $i);
+					$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "-1", "-1", "-1", $i);
 
 					//$patch[$numPatches] = array(  ($data[0]+$interval), "REDLINE", $i);
 					//$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "REDLINE", $i);
@@ -574,6 +577,8 @@ class LoadAvg
 	{    
 
 		//if file is new and is a logfile then we need to make it chmod 777
+		//or we have issues between flies create using app and ones using cron
+		//cron gives root permissions and app gives appache permissions
 		$exists = file_exists ( $fileName );
 
 		if ($fp = fopen($fileName, $mode))
@@ -807,6 +812,8 @@ class LoadAvg
 		        if (!empty($regex)) {
 		                $interface = array();
 		                //$interface['name'] = $regex[1];
+
+		                //added a trim to the return value as on centos 6.5 we had whitespace
 		                $interface['name'] =  trim ( (substr(trim($regex[1]), strlen(trim($regex[1]))-1, strlen(trim($regex[1]))) == ":") ? substr(trim($regex[1]), 0 , strlen(trim($regex[1]))-1) : $regex[1] );
 
 		                //echo ':' . $interface['name'] . ':';
@@ -918,6 +925,7 @@ class LoadAvg
 				$response = file_get_contents("http://updates.loadavg.com/version.php?site_url=" 
 					. $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
 
+				//log the action locally
 				$this->logUpdateCheck( $response );
 
 				//var_dump("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");

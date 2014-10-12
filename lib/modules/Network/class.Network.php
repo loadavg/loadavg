@@ -166,7 +166,14 @@ class Network extends LoadAvg
 
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
-				
+
+
+				// clean data for missing values
+				$redline = ($data[1] == "-1" ? true : false);
+
+				//if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")|| ($data[1] == "-1")  )
+				//	$data[1]=0;
+
 				// clean data for missing values
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") || (int)$data[1] < 0)
 					$data[1]=0;
@@ -330,6 +337,9 @@ class Network extends LoadAvg
 
 			for ( $i = 0; $i < $totalchartArray; ++$i) {
 				$data = $chartArray[$i];
+
+				// clean data for missing values
+				$redline = ($data[2] == "-1" ? true : false);
 
 				if ( (int)$data[2] < 0 )
 					$data[2] = 0;

@@ -22,11 +22,11 @@ $error = '';
 
 if (isset($_POST['login'])) {
 
-	echo "login attempt<br>";
+	//echo "login attempt<br>";
 
 	if ( isset($_POST['username']) && isset($_POST['password']) ) {
 
-		echo "login with user and pass<br>";
+		//echo "login with user and pass<br>";
 
 		$loadavg->logIn( $_POST['username'], $_POST['password']);
 
@@ -34,11 +34,11 @@ if (isset($_POST['login'])) {
 
 	 	else {
 		
-			echo "login attempt failed<br>";
+			//echo "login attempt failed<br>";
 
 			if ( isset($_POST['username']) && isset($_POST['password']) ) {
 
-				echo "login attempt had correct credentials<br>";
+				//echo "login attempt had correct credentials<br>";
 
 			}
 

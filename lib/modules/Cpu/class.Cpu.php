@@ -127,13 +127,18 @@ class Cpu extends LoadAvg
 				$data = $chartArray[$i];
 
 				// clean data for missing values
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
-					$data[1]=0;
+				$redline = ($data[1] == "-1" ? true : false);
+
+				//if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")|| ($data[1] == "-1")  )
+					$data[1]=0.0;
+
+				//used to filter out redline data from usage data as it skews it
+				//this is used for cpu only to switch between 1 min 5 min and 15 min load
+				if (!$redline)
+					$usage[$witch][] = $data[$witch];
 
 				$time[$witch][$data[$witch]] = date("H:ia", $data[0]);
-
-				//this is used for cpu only to switch between 1 min 5 min and 15 min load
-				$usage[$witch][] = $data[$witch];
 
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$witch] ."']";
 

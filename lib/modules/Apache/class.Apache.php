@@ -146,18 +146,30 @@ class Apache extends LoadAvg
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
-			$totalContents = (int)count($contents);
+			$chartArray = array();
 
-			for ( $i = 0; $i < $totalContents-1; ++$i) {
+			$this->getChartData ($chartArray, $contents);
+
+			$totalchartArray = (int)count($chartArray);
+
+			for ( $i = 0; $i < $totalchartArray-1; ++$i) {
 			
-				$data = explode("|", $contents[$i]);
+				$data = $chartArray[$i];
 
 				// clean data for missing values
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
-					$data[1]=0;
+				$redline = ($data[1] == "-1" ? true : false);
+
+				// clean data for missing values
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")|| ($data[1] == "-1")  )
+					$data[1]=0.0;
+
+				//used to filter out redline data from usage data as it skews it
+				//usage is used to calculate view perspectives
+				if (!$redline)
+					$usage[] = ( $data[1]  );
+
 
 				$time[( $data[1]  )] = date("H:ia", $data[0]);
-				$usage[] = ( $data[1]  );
 			
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] ) ."]";
 			

@@ -121,11 +121,16 @@ class Memory extends LoadAvg
 				$data = $chartArray[$i];
 
 				// clean data for missing values
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
-					$data[1]=0;
+				$redline = ($data[1] == "-1" ? true : false);
+
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") || ($data[1] == "-1")  )
+					$data[1]=0.0;
+
+				//used to filter out redline data from usage data as it skews it
+				if (!$redline)
+					$usage[] = ( $data[1] / 1024 );
 				
 				$time[( $data[1] / 1024 )] = date("H:ia", $data[0]);
-				$usage[] = ( $data[1] / 1024 );
 			
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 			
@@ -153,10 +158,8 @@ class Memory extends LoadAvg
 
 			end($swap);
 
-
 			$swapKey = key($swap);
 			$swap = $swap[$swapKey];
-
 
 			$mem_high= max($usage);
 			$mem_high_time = $time[$mem_high];
@@ -167,10 +170,14 @@ class Memory extends LoadAvg
 			$mem_mean = array_sum($usage) / count($usage);
 			$mem_latest = $usage[count($usage)-1];
 
-			//need to get total memory here
-			$mem_total = $usage[count($usage)-1];
+			//TODO need to get total memory here
+			//disk now stores total disk we need to also store total ram when recording logs
+			//as memory can change dynamically in todays world!
+			exec("free -o | grep Mem | awk -F' ' '{print $2}'", $total_memory);
+			$total_memory = implode(chr(26), $total_memory);
+			$mem_total = $total_memory / 1024;
 
-			// normalize data if we are swappoing
+			// normalize data if we are swapping
 			// issue is swap is a single value not over time
 
 			if  ( $swap > 1 ) {

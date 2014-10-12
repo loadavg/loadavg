@@ -146,11 +146,18 @@ class Disk extends LoadAvg
 				//$diskSize = $data[2] / 1048576;
 
 				// clean data for missing values
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") )
-					$data[1]=0;
-				
+				$redline = ($data[1] == "-1" ? true : false);
+
+				//if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")|| ($data[1] == "-1")  )
+					$data[1]=0.0;
+
+				//used to filter out redline data from usage data as it skews it
+				//usage is used to calculate view perspectives
+				if (!$redline)
+					$usage[] = ( $data[1] / 1048576 );
+
 				$time[( $data[1] / 1048576 )] = date("H:ia", $data[0]);
-				$usage[] = ( $data[1] / 1048576 );
 
 				$percentage_used =  ( $data[1] / $data[2] ) * 100;
 
@@ -158,7 +165,6 @@ class Disk extends LoadAvg
 
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
 					$timestamps[] = $data[0];
-
 
 				if ($displayMode == 'true' ) {
 					// display data using MB
@@ -176,11 +182,13 @@ class Disk extends LoadAvg
 				}
 			}
 
+			//check for displaymode as we show data in MB or %
 			if ($displayMode == 'true' )
 
 			{
 				$disk_high = max($usage);
-				$disk_low  = min($usage);
+				$disk_low  = min($usage); //gives problems when there is redline!
+										  //need to make redline -1 and drop -1 from min
 
 				$disk_mean = array_sum($usage) / count($usage);
 
