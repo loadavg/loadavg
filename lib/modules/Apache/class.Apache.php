@@ -59,12 +59,11 @@ class Apache extends LoadAvg
 
 	    $string = time() . '|' . $dataValue . "\n";
 
-		if ( $type == "api" ) {
+		if ( $type == "api") {
 			return $string;
 		} else {
-        	$fh = fopen(sprintf($this->logfile, date('Y-m-d')), "a");
-	        fwrite($fh, $string);
-			fclose($fh); 
+			$filename = sprintf($this->logfile, date('Y-m-d'));
+			$this->safefilerewrite($filename,$string,"a",true);
 		}
 	}
 
@@ -221,7 +220,7 @@ class Apache extends LoadAvg
 
 			ksort($dataArray);
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			if (!is_null($dataArraySwap)) ksort($dataArraySwap);
+			//if (!is_null($dataArraySwap)) ksort($dataArraySwap);
 
 
 			$dataString = "[" . implode(",", $dataArray) . "]";

@@ -66,8 +66,8 @@ if (isset($_POST['update_settings'])) {
 	//echo '<pre>POSTSETTINGS</pre>';
 	//echo '<pre>';var_dump($postsettings);echo'</pre>';
 
-	$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
-  	//$mergedsettings = array_replace($settings, $postsettings);
+	//$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
+  	$mergedsettings = array_replace($settings, $postsettings);
 
 	//echo '<pre>MERGESETTINGS</pre>';
 	//echo '<pre>';var_dump($mergedsettings);echo'</pre>';
@@ -134,7 +134,10 @@ $settings = LoadAvg::$_settings->general;
  * needed for when you turn a module on that has no logs
  * this needs to only rebuild logs for modules that have been turned on
  */
-//$loadavg->rebuildLogs();
+
+//why dont this work ?
+
+$loadavg->rebuildLogs();
 
 /* force reload settings page now */
 header('Location: '.$_SERVER['REQUEST_URI']);

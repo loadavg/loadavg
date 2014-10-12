@@ -115,6 +115,7 @@ class LoadAvg
 
 		echo "Create Logs  \n";
 
+		//only does it if DIR is empty ?
 		if ( $this->is_dir_empty(HOME_PATH . '/' . self::$_settings->general['logs_dir']) ) {
 
 			$loaded = self::$_settings->general['modules'];
@@ -138,7 +139,7 @@ class LoadAvg
 						$caller = $args->function;
 
 						//skip network interfaces as they have nested logs and work differently
-						//later need to skip all nested logs as we check those below
+						//later need to skip all other nested logs as we check those below
 						
 						if ( $args->logfile == "network_%s_%s.log" )
 						{
@@ -157,6 +158,8 @@ class LoadAvg
 						}
 					}
 				}
+
+				//network interface is off at install time so dont really matter at this point
 
 				if ($test_nested == true) {
 
@@ -192,6 +195,7 @@ class LoadAvg
 			echo "Rebuild Logs  \n";
 
 			$loaded = self::$_settings->general['modules'];
+
 			$logdir = HOME_PATH . '/' . self::$_settings->general['logs_dir'];
 
 			// Check for each module we have loaded
@@ -209,6 +213,8 @@ class LoadAvg
 						$caller = $args->function;
 
 						$class->logfile = $logdir . $args->logfile;
+
+						//what does this do ? run args function ?
 						$class->$caller();
 					}
 				}
@@ -564,8 +570,13 @@ class LoadAvg
 	 * @param array $dataToSave data to save to file
 	 */
 
-	private function safefilerewrite($fileName, $dataToSave)
-	{    if ($fp = fopen($fileName, 'w'))
+	public function safefilerewrite($fileName, $dataToSave, $mode = "w", $logs = false )
+	{    
+
+		//if file is new and is a logfile then we need to make it chmod 777
+		$exists = file_exists ( $fileName );
+
+		if ($fp = fopen($fileName, $mode))
 	    {
 	        $startTime = microtime();
 	        do
@@ -583,6 +594,18 @@ class LoadAvg
 	        }
 
 	        fclose($fp);
+
+	        //if its a new log file fix permissions
+	        if (!$exists && $logs==true ) {
+	        	echo "fix logs";
+				chmod($fileName, 0777);
+			}
+
+	        return true;
+	    }
+	    else
+	    {
+	    	return false;
 	    }
 
 	}

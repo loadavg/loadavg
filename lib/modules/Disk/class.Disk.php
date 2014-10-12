@@ -66,14 +66,13 @@ class Disk extends LoadAvg
 		$swapBytes = implode(chr(26), $swapBytes);
 
 	    $string = time() . '|' . $usedBytes  . '|' . $spaceBytes . '|' . $swapBytes . "\n";
-
-		if ( $type == "api" ) {
+		
+		if ( $type == "api") {
 			return $string;
 		} else {
-        	$fh = fopen(sprintf($this->logfile, date('Y-m-d')), "a");
-	        fwrite($fh, $string);
-			fclose($fh); 
-		}
+			$filename = sprintf($this->logfile, date('Y-m-d'));
+			$this->safefilerewrite($filename,$string,"a",true);
+		}		
 	}
 
 	/**

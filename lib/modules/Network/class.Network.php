@@ -100,20 +100,19 @@ class Network extends LoadAvg
 				$string = time() . "|0.0|0.0\n";
 			}
 
-	      		if ( $type == "api") {
+	      	if ( $type == "api") {
 				return $string;
 			} else {
-
-				$fh = fopen($logfile, "a");
-			    	fwrite($fh, $string);
-				fclose($fh);
-
+			
+				$this->safefilerewrite($logfile,$string,"a",true);
 
 				$last_string = $trans."|".$recv;
+
 				// Writing transfare and received bytes to file
-				$fh = fopen(dirname($this->logfile) . DIRECTORY_SEPARATOR . "_net_latest_" . $interface, "w");
-				fwrite($fh, $last_string);
-				fclose($fh);
+				$fh = dirname($this->logfile) . DIRECTORY_SEPARATOR . "_net_latest_" . $interface;
+
+				$this->safefilerewrite($fh,$last_string,"w",true);
+
 			}
 		}
 	}

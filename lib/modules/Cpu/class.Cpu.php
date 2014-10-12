@@ -58,13 +58,12 @@ class Cpu extends LoadAvg
 		if ( $type == "api") {
 			return $string;
 		} else {
-		     $fh = fopen(sprintf($this->logfile, date('Y-m-d')), "a");
-			fwrite($fh, $string);
-			fclose($fh); 
+			$filename = sprintf($this->logfile, date('Y-m-d'));
+			$this->safefilerewrite($filename,$string,"a",true);
 		}
-
-
 	}
+
+
 
 	/**
 	 * getData
