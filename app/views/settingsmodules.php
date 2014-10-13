@@ -85,6 +85,7 @@ if (isset($_POST['update_settings'])) {
 
 	//these are dirty dirty hacks! until we can rewrite the settings using proper api
 	$_POST['Disk_settings']['settings']['displaymode'] = ( !isset($_POST['Disk_settings']['settings']['displaymode']) ) ? "false" : "true";
+	$_POST['Memory_settings']['settings']['displaymode'] = ( !isset($_POST['Memory_settings']['settings']['displaymode']) ) ? "false" : "true";
 
 	$_POST['Network_settings']['settings']['transfer_limiting'] = ( !isset($_POST['Network_settings']['settings']['transfer_limiting']) ) ? "false" : "true";
 	$_POST['Network_settings']['settings']['receive_limiting'] = ( !isset($_POST['Network_settings']['settings']['receive_limiting']) ) ? "false" : "true";
@@ -136,8 +137,7 @@ $settings = LoadAvg::$_settings->general;
  */
 
 //why dont this work ?
-
-$loadavg->rebuildLogs();
+//$loadavg->rebuildLogs();
 
 /* force reload settings page now */
 header('Location: '.$_SERVER['REQUEST_URI']);

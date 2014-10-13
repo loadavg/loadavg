@@ -119,7 +119,8 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 							charts.<?php echo $chart->id; ?>.init('<?php echo $chart->id; ?>');
 						// });
 						
-						<?php if ( @$stuff['chart']['mean'] ) { ?>
+						<?php 
+						if ( @$stuff['chart']['mean'] ) { ?>
                             // Separate chart for mean value display stacked bar chart
                             var options =  {
                                 grid: {
@@ -138,17 +139,42 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
                                         fillColor: {colors:[{opacity: 1},{opacity: 1}]},
                                         align: "center"
                                     },
-                                    stack: 0,
                                     color: "#26ADE4",
+                                    stack: 0,
+                                },	
+	                            width: 0.5,
+	                            xaxis: {
+	                            	show: false, 
+	                            	min: 1
+	                            },		                                
+                            yaxis: {
+                            	show: false, 
+                            	max: <?php echo $stuff['chart']['ymax']; ?>, 
+                            	min: <?php echo $stuff['chart']['ymin'];?>, 
+                            	reserveSpace: false, 
+                            	labelWidth: 15
+                            },
+							tooltip: true,
 
-                                },			                                
-                                xaxis: {show: false, min: 1},
-                                yaxis:{show:false, max: '<?php echo $stuff["chart"]["ymax"]; ?>', min: '<?php echo $stuff["chart"]["ymin"]; ?>'},
-                                legend: { show: false }
-                            };
-                            $("#minmax_<?php echo $chart->id; ?>").width(35).height(140);
-				        	$.plot($("#minmax_<?php echo $chart->id; ?>"),[[[1, <?php echo $stuff['chart']['mean']; ?>]]],options);
-        		         <?php } ?>
+							tooltipOpts: {
+
+								content: function(label, xval, yval, flotItem) {
+									return "Avg " + parseFloat(yval).toFixed(4);
+						    	},
+
+								shifts: {
+									x: 20,
+									y: -20
+								},
+								defaultTheme: false
+							}
+
+	                     };
+	                     
+	                     $("#minmax_<?php echo $chart->id; ?>").width(35).height(140);
+	                     $.plot($("#minmax_<?php echo $chart->id; ?>"),[[[1, <?php echo $stuff['chart']['mean']; ?>]]],options);
+
+	                     <?php } ?>
 						
 					})
 				})();

@@ -148,7 +148,6 @@ class Disk extends LoadAvg
 				// clean data for missing values
 				$redline = ($data[1] == "-1" ? true : false);
 
-				//if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")|| ($data[1] == "-1")  )
 					$data[1]=0.0;
 
@@ -181,6 +180,10 @@ class Disk extends LoadAvg
 						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 				}
 			}
+
+
+			//echo '<pre>PRESETTINGS</pre>';
+			//echo '<pre>';var_dump($usage);echo'</pre>';
 
 			//check for displaymode as we show data in MB or %
 			if ($displayMode == 'true' )

@@ -41,9 +41,9 @@
 	$thedata = $cpuSettings['settings']['displaymode'];
 
 	//if we are changing mode
-	if  ( isset($_GET['diskmode']) || !empty($_GET['diskmode']))  {
+	if  ( isset($_GET['memorymode']) || !empty($_GET['memorymode']))  {
 
-		$newmode = $_GET['diskmode'];
+		$newmode = $_GET['memorymode'];
 
 		switch ( $newmode) {
 			case "1": 	$mydata['settings']['displaymode'] = "true";
@@ -62,13 +62,13 @@
 
 		//if not build the links
 		switch ( $thedata) {
-			case "true": $links = $links . "diskmode=2"; break;
-			case "false": $links = $links . "diskmode=1"; break;
+			case "true": $links = $links . "memorymode=2"; break;
+			case "false": $links = $links . "memorymode=1"; break;
 		}
 	}
 
 
 ?>
 
-<strong>Disk usage in</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'MB' : '%'; ?></a>
+<strong>Memory usage in</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'MB' : '%'; ?></a>
 

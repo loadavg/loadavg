@@ -25,7 +25,7 @@
 		<h3 class="form-signin-heading"><i class="fa fa-unlock-alt"></i> Please sign in</h3>
 		<div class="uniformjs">
 
-			<input type="text" name="username" class="input-block-level text" placeholder="Email address"> 
+			<input type="text" name="username" class="input-block-level text" placeholder="Email or Username"> 
 			<input type="password" name="password" class="input-block-level password" placeholder="Password"> 
 			
 			<label class="checkbox">

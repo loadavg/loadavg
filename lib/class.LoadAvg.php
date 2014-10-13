@@ -682,17 +682,18 @@ class LoadAvg
 
 		$url = self::$_settings->general['api']['url'];
 
-		$user_url = $url . '/#/users/';
-		$server_url = $url . '/#/servers/';
+		$user_url = $url . '/users/';
+		$server_url = $url . '/servers/';
 		
-		//these no longer work but work less without # above
-		$user_exists = file_get_contents($user_url . self::$_settings->general['api']['key'] . '/data');
-		$server_exists = file_get_contents($server_url . self::$_settings->general['api']['server_token'] . '/t');
+		$ch =  curl_init($user_url . self::$_settings->general['api']['key'] . '/data');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$user_exists = curl_exec($ch);
 
-		//echo 'USER EXISTS  : '; var_dump($user_exists);
-		//echo 'SERV EXISTS  : '; var_dump($server_exists);
+		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/t');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$server_exists = curl_exec($ch);
 
-		echo $server_url.json_decode($server_exists)->id.'/data';
+		//echo $server_url.json_decode($server_exists)->id.'/data';
 
 		//but how do we know if this key is linked to this server ?
 		//all this test for is if the key and the server are present so i can use my key to access your server ?
@@ -710,7 +711,7 @@ class LoadAvg
 		    CURLOPT_USERAGENT => 'LoadAvg Client',
 		    CURLOPT_POST => 1,
 		    CURLOPT_POSTFIELDS => array(
-		      data => json_encode($data),
+		      'data' => json_encode($data),
 		    )
 			));
 
@@ -723,7 +724,7 @@ class LoadAvg
 			//used for debugging to file
 			//file_put_contents("file.txt",$resp);
 			
-			return $resp;
+			return true;
 		}
 
 		return null;
@@ -731,7 +732,7 @@ class LoadAvg
 
 
 	/**
-	 * sendApiData
+	 * testApiConnection
 	 *
 	 * If API is activated sends data to server
 	 *
@@ -739,23 +740,38 @@ class LoadAvg
 	 * @return string $result message returned from the server
 	 */
 
-	public function testApiConnection( ) {
-
+	public function testApiConnection( $echo = false ) {
 
 		$url = self::$_settings->general['api']['url'];
 
-		$user_url = $url . '#/users/';
-		$server_url = $url . '#/servers/';
+		$user_url = $url . '/users/';
+		$server_url = $url . '/servers/';
 		
-		$user_exists = file_get_contents($user_url . self::$_settings->general['api']['key'] . '/data');
-		$server_exists = file_get_contents($server_url . self::$_settings->general['api']['server_token'] . '/t');
+		$ch =  curl_init($user_url . self::$_settings->general['api']['key'] . '/data');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$user_exists = curl_exec($ch);
 
-		//echo 'USER EXISTS  : '; var_dump($user_exists);
-		//echo 'SERV EXISTS  : '; var_dump($server_exists);
+		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/t');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$server_exists = curl_exec($ch);
+
+		if ($echo) {
+
+			if($user_exists != 'false') {
+				echo 'User status  : '; 
+				echo json_decode($user_exists)->api_token . ' MATCH' . "\n";
+
+				//$match = ($user_exists->api_token == self::$_settings->general['api']['key'] ? true : false);
+			}
+
+			if($server_exists != 'false') {
+				echo 'Server status: '; 
+				echo json_decode($server_exists)->server_token . ' MATCH' . "\n";
+			}
+		}
 
 		//but how do we know if this key is linked to this server ?
 		//all this test for is if the key and the server are present so i can use my key to access your server ?
-
 		if($user_exists != 'false' && $server_exists != 'false') 
 			return true;
 		else
