@@ -46,9 +46,21 @@ if (isset($_POST['update_settings'])) {
   //LoadAvg::write_php_ini($mergedsettings, $settings_file);
   LoadAvg::write_php_ini($replaced_settings, $settings_file);
 
-  /* force reload settings page now */
-  header('Location: '.$_SERVER['REQUEST_URI']);
+  //dont work only page reload work
+  //$settings = LoadAvg::$_settings->general;
 
+
+    /////////////////////////////////////////////////////////////////////
+    //test api connection done inline on reload for now need AJAX
+
+  if (isset($_POST['Test_Settings'])) {
+
+    //header('Location: '.$_SERVER['REQUEST_URI'] . '&test=true' );
+    header('Location: '. '/public/index.php?page=settingsapi&test=true' );
+  }
+  else
+    header('Location: '. '/public/index.php?page=settingsapi'  );
+    //header('Location: '.$_SERVER['REQUEST_URI'] );
 }
 
 ?>
@@ -107,11 +119,28 @@ if (isset($_POST['update_settings'])) {
 
   	</div>
 
+    <?php
+    if    (isset($_GET['test']) && !empty($_GET['test']) ) { 
+
+        $status = LoadAvg::testApiConnection( true );
+        echo '<br>API STATUS:' . $status;
+
+    }
+    ?>
+
+
   	<div class="separator bottom"></div>
       <div class="panel">
-        <input type="submit" class="btn btn-primary" value="Save Settings">
+        <input type="submit" class="btn btn-primary pull-left" value="Save Settings" name="Save Settings">
+      </div>
+
+      <div class="panel">
+        <input type="submit" class="btn btn-primary pull-right" value="Test Settings" name="Test Settings">
       </div>
     </div>
+    <div class="separator bottom"></div>
 
 </form>
+
+
 <?php } ?>

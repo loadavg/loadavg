@@ -734,9 +734,8 @@ class LoadAvg
 	/**
 	 * testApiConnection
 	 *
-	 * If API is activated sends data to server
+	 * Test if API connection is working
 	 *
-	 * @param array $data array of data to send to the server
 	 * @return string $result message returned from the server
 	 */
 

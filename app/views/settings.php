@@ -73,7 +73,7 @@ if (isset($_POST['update_settings'])) {
 	 * as for some reason after a post the data isnt updated internally
 	 */
 
-	//$settings = LoadAvg::$_settings->general;
+	$settings = LoadAvg::$_settings->general;
 	//LoadAvg::$_settings->general = $settings;
 
 	/* rebuild logs
