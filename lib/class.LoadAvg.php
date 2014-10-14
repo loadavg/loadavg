@@ -757,14 +757,14 @@ class LoadAvg
 		if ($echo) {
 
 			if($user_exists != 'false') {
-				echo 'User status  : '; 
+				echo 'API Key  : '; 
 				echo json_decode($user_exists)->api_token . ' MATCH' . "\n";
 
 				//$match = ($user_exists->api_token == self::$_settings->general['api']['key'] ? true : false);
 			}
 
 			if($server_exists != 'false') {
-				echo 'Server status: '; 
+				echo 'Server Token: '; 
 				echo json_decode($server_exists)->server_token . ' MATCH' . "\n";
 			}
 		}

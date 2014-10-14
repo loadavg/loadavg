@@ -117,14 +117,54 @@ if (isset($_POST['update_settings'])) {
         </div>
       </div>
 
+
+      <?php if ( $settings['apiserver'] == "false" ) { ?>
+      <div class="row-fluid">
+        <div class="center">
+          <br>
+          <strong>Sign up for a <a href="http://www.gridload.com">Free GridLoad Monitoring Account</a></strong>
+          <br>
+          And access your server data & analytics anywhere
+        </div>
+      </div>      
+      <?php } ?>
+
   	</div>
+
 
     <?php
     if    (isset($_GET['test']) && !empty($_GET['test']) ) { 
+    ?>
+    <div class="separator bottom"></div>
+    <div class="well">
+    <?php
 
         $status = LoadAvg::testApiConnection( true );
-        echo '<br>API STATUS:' . $status;
 
+        if ($status) {
+
+        ?>
+      <div class="row-fluid">
+        <div class="center">
+          <br>
+          <strong>Account Status:</strong> Active 
+        </div>
+      </div> 
+        <?php
+        }
+        else {
+        ?>
+      <div class="row-fluid">
+        <div class="center">
+          <br>
+          <strong>Account Status:</strong> Inactive 
+        </div>
+      </div>
+        <?php
+        }
+    ?>
+    </div>
+    <?php
     }
     ?>
 
