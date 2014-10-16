@@ -161,6 +161,7 @@
 						<?php } ?>
 
 	                    // Now draw separate chart for mean value display stacked bar chart
+	                    
 	                    // Dirty hack as mean = 0 is breaking charts 
 	                    // when apache has no log data in log file or log valueas are all set to zero
 	                    // only works if MEAN is set in charts ini file

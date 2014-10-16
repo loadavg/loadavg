@@ -138,7 +138,6 @@ class Disk extends LoadAvg
 			// main loop to build the chart data
 
 			for ( $i = 0; $i < $totalchartArray; ++$i) {	
-
 				$data = $chartArray[$i];
 
 				//set the disk size - bad way to do this in the loop !
@@ -165,6 +164,11 @@ class Disk extends LoadAvg
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
 					$timestamps[] = $data[0];
 
+
+
+
+
+
 				if ($displayMode == 'true' ) {
 					// display data using MB
 					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
@@ -190,9 +194,7 @@ class Disk extends LoadAvg
 
 			{
 				$disk_high = max($usage);
-				$disk_low  = min($usage); //gives problems when there is redline!
-										  //need to make redline -1 and drop -1 from min
-
+				$disk_low  = min($usage); 
 				$disk_mean = array_sum($usage) / count($usage);
 
 				//to scale charts
@@ -203,7 +205,6 @@ class Disk extends LoadAvg
 
 				$disk_high=   ( max($usage) / $diskSize ) * 100 ;				
 				$disk_low =   ( min($usage) / $diskSize ) * 100 ;
-
 				$disk_mean =  ( (array_sum($usage) / count($usage)) / $diskSize ) * 100 ;
 
 				//these are the min and max values used when drawing the charts

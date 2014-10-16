@@ -117,6 +117,26 @@ class Memory extends LoadAvg
 
 			$totalchartArray = (int)count($chartArray);
 
+			//need to get disk size in order to process data properly
+			//is it better before loop or in loop
+			//what happens if you resize disk on the fly ? in loop would be better
+			$memorySize = 0;
+
+			//need to start logging total memory
+			//what happens if this is -1 ???
+			$memorySize = $chartArray[$totalchartArray-1][3] / 1024;
+
+			// get from settings here for module
+			// true - show MB
+			// false - show percentage
+				
+			//data[0] = time
+			//data[1] = mem used
+			//data[2] = swap
+			//data[3] = total mem
+
+			$displayMode =	$settings['settings']['displaymode'];
+
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
 
@@ -126,30 +146,69 @@ class Memory extends LoadAvg
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") || ($data[1] == "-1")  )
 					$data[1]=0.0;
 
+//				if (  (!$data[2]) ||  ($data[2] == null) || ($data[2] == "") || ($data[2] == "-1")  )
+				if (  ($data[2] == "-1")  )
+					$data[2]=0.0;
+
+//				if (  (!$data[3]) ||  ($data[3] == null) || ($data[3] == "") || ($data[3] == "-1")  )
+				if (  ($data[3] == "-1")  )
+					$data[3]=0.0;
+									//if (  isset($data[2]) && ($data[2] == "-1")  )
+
 				//used to filter out redline data from usage data as it skews it
-				if (!$redline)
+				if (!$redline) {
 					$usage[] = ( $data[1] / 1024 );
-				
+				}
+
 				$time[( $data[1] / 1024 )] = date("H:ia", $data[0]);
 			
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
-			
-				// sort out swap data here
-				if ( isset($data[2]) )
-					$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
+				$percentage_used =  ( $data[1] / $data[3] ) * 100;
 
 				$usageCount[] = ($data[0]*1000);
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
-			
-				if ( isset($data[2]) ) $swap[] = ( $data[2] / 1024 );
-			
-				// check overload in percentage 
-				$percentage_used =  ( $data[1] / $data[3] ) * 100;
+				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+					$timestamps[] = $data[0];
 
-				if ( $percentage_used > $settings['settings']['overload'])  {
-					//echo $percentage_used; die;
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+				if ($displayMode == 'true' ) {
+					// display data using MB
+					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+
+					//echo 'SYST1:' . ' : ' . $data[1] / 1024 . '<br>';
+
+					if ( $percentage_used > $settings['settings']['overload'] )
+						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+
+					//swapping
+					if ( isset($data[2])  ) {
+						$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
+
+						$swap[] = ( $data[2] / 1024 );
+
+						//echo 'SWAP1:' . ' : ' . $data[2] / 1024 . '<br>';
+
+					}
+
+				} else {
+					// display data using percentage
+					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+
+					//echo 'SYST2:' . ' : ' . $percentage_used  . '<br>';
+
+					if ( $percentage_used > $settings['settings']['overload'])
+						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+
+					//swapping
+					if ( isset($data[2])  ) {
+
+						$swap_percentage = ( ($data[2] / $data[3])  * 100);
+
+						$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". $swap_percentage ."]";
+
+						$swap[] = $swap_percentage;
+
+						//echo 'SWAP2:' . ' : ' . $swap_percentage . '<br>';					
+					}
+
 				}
 
 			}
@@ -157,37 +216,48 @@ class Memory extends LoadAvg
 			//echo $percentage_used; die;
 
 			end($swap);
-
 			$swapKey = key($swap);
 			$swap = $swap[$swapKey];
 
-			$mem_high= max($usage);
-			$mem_high_time = $time[$mem_high];
+			//check for displaymode as we show data in MB or %
+			if ($displayMode == 'true' )
 
-			$mem_low = min($usage);
-			$mem_low_time = $time[$mem_low];
-		
-			$mem_mean = array_sum($usage) / count($usage);
-			$mem_latest = $usage[count($usage)-1];
+			{
+				$mem_high = max($usage);
+				$mem_low  = min($usage); 
+				$mem_mean = array_sum($usage) / count($usage);
+
+				if  ( $swap > 1 ) {
+					$ymax = $mem_high*1.05;
+					$ymin = $swap/2;
+				}
+				else {
+					$ymax = $mem_high;
+					$ymin = $mem_low;
+				}
+
+			} else {
+
+				$mem_high=   ( max($usage) / $memorySize ) * 100 ;				
+				$mem_low =   ( min($usage) / $memorySize ) * 100 ;
+				$mem_mean =  ( (array_sum($usage) / count($usage)) / $memorySize ) * 100 ;
+
+				//these are the min and max values used when drawing the charts
+				//can be used to zoom into datasets
+				$ymin = 1;
+				$ymax = 100;
+
+			}
+
+			$mem_high_time = $time[max($usage)];
+			$mem_low_time = $time[min($usage)];
+			$mem_latest = ( ( $usage[count($usage)-1]  )  )    ;		
 
 			//TODO need to get total memory here
-			//disk now stores total disk we need to also store total ram when recording logs
 			//as memory can change dynamically in todays world!
-			exec("free -o | grep Mem | awk -F' ' '{print $2}'", $total_memory);
-			$total_memory = implode(chr(26), $total_memory);
-			$mem_total = $total_memory / 1024;
 
-			// normalize data if we are swapping
-			// issue is swap is a single value not over time
-
-			if  ( $swap > 1 ) {
-				$ymin = $swap/2;
-				$ymax = $mem_high*1.05;
-			}
-			else {
-				$ymin = $mem_low;
-				$ymax = $mem_high;
-			}
+			$mem_total = $memorySize;
+			$mem_free = $mem_total - $mem_latest;
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
@@ -205,14 +275,14 @@ class Memory extends LoadAvg
 		
 			// values used to draw the legend
 			$variables = array(
-				'mem_high' => number_format($mem_high,1),
+				'mem_high' => number_format($mem_high,2),
 				'mem_high_time' => $mem_high_time,
-				'mem_low' => number_format($mem_low,1),
+				'mem_low' => number_format($mem_low,2),
 				'mem_low_time' => $mem_low_time,
-				'mem_mean' => number_format($mem_mean,1),
-				'mem_latest' => number_format($mem_latest,1),
-				'mem_total' => number_format($mem_total,1),
-				'mem_swap' => number_format($swap,1),
+				'mem_mean' => number_format($mem_mean,2),
+				'mem_latest' => number_format($mem_latest,2),
+				'mem_total' => number_format($mem_total,2),
+				'mem_swap' => number_format($swap,2),
 			);
 
 			//print_r ($variables);
@@ -235,9 +305,14 @@ class Memory extends LoadAvg
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
 			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
 
-			//echo "<br><br>";
-			//print_r ($swap);
-			//echo "<br><br>";
+	//echo '<pre>dataString</pre>';
+	//echo '<pre>';print_r($dataString);echo'</pre>';
+	//echo '<pre>';var_dump($dataString);echo'</pre>';
+
+	//echo '<pre>dataSwapString</pre>';
+	//echo '<pre>';print_r($dataSwapString);echo'</pre>';
+	//echo '<pre>';var_dump($dataSwapString);echo'</pre>';
+
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
@@ -248,9 +323,9 @@ class Memory extends LoadAvg
 				'mean' => $mem_mean,
 				'chart_data' => $dataString,
 				'chart_data_over' => $dataOverString,
-				'chart_data_swap' => $dataSwapString,
-				'swap' => $swap,
-				'swap_count' => $usageCount,
+				'chart_data_swap' => $dataSwapString,				// how is it used
+				//'swap' => $swap,									// how is it used
+				//'swap_count' => $usageCount,						// how is it used
 				'overload' => $settings['settings']['overload']
 			);
 
