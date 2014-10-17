@@ -684,21 +684,24 @@ class LoadAvg
 
 		$user_url = $url . '/users/';
 		$server_url = $url . '/servers/';
-		
-		$ch =  curl_init($user_url . self::$_settings->general['api']['key'] . '/data');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$user_exists = curl_exec($ch);
 
+		//validate API access here
+		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/' . self::$_settings->general['api']['key'] . '/v');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$account_valid = curl_exec($ch);
+
+		//get server id from server token
 		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/t');
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$server_exists = curl_exec($ch);
 
+
 		//echo $server_url.json_decode($server_exists)->id.'/data';
 
-		//but how do we know if this key is linked to this server ?
-		//all this test for is if the key and the server are present so i can use my key to access your server ?
+		//validation needs to happen on the sever this is still insecure!
+		//need to pass api token and server token over in data push
 
-		if($user_exists != 'false' && $server_exists != 'false') 
+		if( $server_exists != 'false' && $account_valid != 'false' ) 
 		{
 
 			//file_put_contents("file.txt", json_encode($data)); test data
@@ -746,35 +749,37 @@ class LoadAvg
 		$user_url = $url . '/users/';
 		$server_url = $url . '/servers/';
 		
-		$ch =  curl_init($user_url . self::$_settings->general['api']['key'] . '/data');
+		//validate users api key
+		$ch =  curl_init($user_url . self::$_settings->general['api']['key'] . '/va');
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$user_exists = curl_exec($ch);
 
-		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/t');
+		//val;idate server token
+		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/vs');
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$server_exists = curl_exec($ch);
 
+		//validate api key against server token
+		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/' . self::$_settings->general['api']['key'] . '/v');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$server_valid = curl_exec($ch);
+
+
 		if ($echo) {
 
-			if($user_exists != 'false') {
-				echo 'API Key  : '; 
-				echo json_decode($user_exists)->api_token . ' MATCH' . "\n";
+			echo ($user_exists == 'false' ?  'API Key : INVALID ' :  'API Key : VALID ');
 
-				//$match = ($user_exists->api_token == self::$_settings->general['api']['key'] ? true : false);
-			}
+			echo ($server_exists == 'false' ?  'API Key : INVALID ' :  'API Key : VALID ');
+			
+			echo ($server_valid == 'false' ?  'API Key : INVALID ' :  'API Key : VALID ');
 
-			if($server_exists != 'false') {
-				echo 'Server Token: '; 
-				echo json_decode($server_exists)->server_token . ' MATCH' . "\n";
-			}
 		}
 
-		//but how do we know if this key is linked to this server ?
-		//all this test for is if the key and the server are present so i can use my key to access your server ?
-		if($user_exists != 'false' && $server_exists != 'false') 
-			return true;
-		else
+		//return server valid status
+		if($server_valid == 'false') 
 			return false;
+		else
+			return true;
 	}
 
 
