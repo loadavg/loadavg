@@ -3,7 +3,7 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Hardware/CPU links
+* Network module links
 * 
 * @version SVN: $Id$
 * @link https://github.com/loadavg/loadavg
@@ -17,7 +17,7 @@
 
 
 <?php
-/*
+
 	//clean up links first
 	if (
 		(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
@@ -33,51 +33,85 @@
 		$links = "?";
 	}
 
-*/
-
-	//will need to know if we are in transmit or receive for a device
-	//as they can work independently
-	//and need to work acorss multiple devices!
-
 
 	//get settings for this module
-	//$cpuSettings = LoadAvg::$_settings->$module;
+	$networkSettings = LoadAvg::$_settings->$module;
 
-	//get the displaymode setting from the settings subsection for this module
-	//$thedata = $cpuSettings['settings']['displaymode'];
 
-/*
-	//if we are changing mode
-	if  ( isset($_GET['diskmode']) || !empty($_GET['diskmode']))  {
+	//currently we dont store settings per network interface but we need to!
+	//settings are across all network interfaces however we are coded her as if its possible!
+	// would need something like the following in the ini files
+	// 		$mydata['settings' . $interface ]['transfer_limiting'] = "true";
 
-		$newmode = $_GET['diskmode'];
+	if ( $chart->type == "Transmit") {
 
-		switch ( $newmode) {
-			case "1": 	$mydata['settings']['displaymode'] = "true";
-						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
-						LoadAvg::write_module_ini($mergedsettings, $module);
-						header("Location: " . $links);						
-						break;
+		//get the displaymode setting from the settings subsection for this module
+		$thedata = $networkSettings['settings']['transfer_limiting'];
 
-			case "2": 	$mydata['settings']['displaymode'] = "false";
-						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
-						LoadAvg::write_module_ini($mergedsettings, $module);
-						header("Location: " . $links);						
-						break;
-		}		
-	} else {
+		//if we are changing mode
+		if  ( isset($_GET[$interface . 'transfermode']) || !empty($_GET[$interface . 'transfermode']))  {
 
-		//if not build the links
-		switch ( $thedata) {
-			case "true": $links = $links . "diskmode=2"; break;
-			case "false": $links = $links . "diskmode=1"; break;
+			$newmode = $_GET[$interface . 'transfermode'];
+
+			switch ( $newmode) {
+				case "1": 	$mydata['settings']['transfer_limiting'] = "true";
+							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
+							LoadAvg::write_module_ini($mergedsettings, $module);
+							header("Location: " . $links);						
+							break;
+
+				case "2": 	$mydata['settings']['transfer_limiting'] = "false";
+							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
+							LoadAvg::write_module_ini($mergedsettings, $module);
+							header("Location: " . $links);						
+							break;
+			}		
+		} else {
+
+			//if not build the links
+			switch ( $thedata) {
+				case "true": $links = $links . $interface ."transfermode=2"; break;
+				case "false": $links = $links . $interface ."transfermode=1"; break;
+			}
 		}
-	}
-*/
 
-$links ="/";
-$thedata ='true';
+	}
+
+	if ( $chart->type == "Receive") {
+
+		//get the displaymode setting from the settings subsection for this module
+		$thedata = $networkSettings['settings']['receive_limiting'];
+
+		//if we are changing mode
+		if  ( isset($_GET[$interface . 'receivemode']) || !empty($_GET[$interface . 'receivemode']))  {
+
+			$newmode = $_GET[$interface . 'receivemode'];
+
+			switch ( $newmode) {
+				case "1": 	$mydata['settings']['receive_limiting'] = "true";
+							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
+							LoadAvg::write_module_ini($mergedsettings, $module);
+							header("Location: " . $links);						
+							break;
+
+				case "2": 	$mydata['settings']['receive_limiting'] = "false";
+							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
+							LoadAvg::write_module_ini($mergedsettings, $module);
+							header("Location: " . $links);						
+							break;
+			}		
+		} else {
+
+			//if not build the links
+			switch ( $thedata) {
+				case "true": $links = $links . $interface . "receivemode=2"; break;
+				case "false": $links = $links . $interface . "receivemode=1"; break;
+			}
+		}
+
+	}
+
 ?>
 
-<strong>Data displayed</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'fitted' : 'fixed'; ?></a>
+<strong><?php echo $chart->type; ?> data display</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'fixed' : 'fitted'; ?></a>
 

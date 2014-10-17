@@ -43,10 +43,16 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 	<div class="widget-body collapse in" style="height: auto;">
 		<?php
 		$j = 0;
+
+		/* draw charts for each subchart as per args will be Transmit and receive */
+
 		foreach ( $charts['args'] as $chart ) {
 			$j++;
 			$chart = json_decode($chart);
 		
+			//echo '<pre>CHART</pre>';
+			//echo '<pre>';var_dump($chart);echo'</pre>';
+			//echo $chart->type;
 
 			// note that this will probably need to be fixed for PERIODS
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date, $interface);
