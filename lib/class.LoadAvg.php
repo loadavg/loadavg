@@ -769,9 +769,9 @@ class LoadAvg
 
 			echo ($user_exists == 'false' ?  'API Key : INVALID ' :  'API Key : VALID ');
 
-			echo ($server_exists == 'false' ?  'API Key : INVALID ' :  'API Key : VALID ');
+			echo ($server_exists == 'false' ?  'Server Token : INVALID ' :  'Server Token : VALID ');
 			
-			echo ($server_valid == 'false' ?  'API Key : INVALID ' :  'API Key : VALID ');
+			echo ($server_valid == 'false' ?  'Server Access : INVALID ' :  'Server Access : VALID ');
 
 		}
 
