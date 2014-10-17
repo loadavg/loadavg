@@ -17,12 +17,15 @@
 
 <strong>
 <?php
+
+$load_mode = "";
+
 switch ( ( isset($_GET['load']) || !empty($_GET['load'])) ? $_GET['load'] : '2' ) {
-	case "1": echo "1 min"; $load = 1; break;
-	case "3": echo "15 min"; $load = 3; break;
+	case "1": $load_mode = "1 min"; $load = 1; break;
+	case "3": $load_mode = "15 min"; $load = 3; break;
 	default:
 	case 2:
-		echo "5 min"; $load = 2; break;
+		$load_mode = "5 min"; $load = 2; break;
 }
 
 if (
@@ -38,11 +41,61 @@ if (
 } else {
 	$links = "?";
 }
+
+	$displaylinks = $links;
+
+
+	//get settings for this module
+	$cpuSettings = LoadAvg::$_settings->$module;
+
+	//get the display_limiting setting from the settings subsection for this module
+	$thedata = $cpuSettings['settings']['display_limiting'];
+
+
+	//if we are changing mode
+	if  ( isset($_GET['loadmode']) || !empty($_GET['loadmode']))  {
+
+		$newmode = $_GET['loadmode'];
+
+		switch ( $newmode) {
+			case "1": 	$mydata['settings']['display_limiting'] = "true";
+						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
+						LoadAvg::write_module_ini($mergedsettings, $module);
+						header("Location: " . $displaylinks);						
+						break;
+
+			case "2": 	$mydata['settings']['display_limiting'] = "false";
+						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
+						LoadAvg::write_module_ini($mergedsettings, $module);
+						header("Location: " . $displaylinks);						
+						break;
+		}		
+	} else {
+
+		//if not build the links
+		switch ( $thedata) {
+			case "true": $displaylinks = $displaylinks . "loadmode=2"; break;
+			case "false": $displaylinks = $displaylinks . "loadmode=1"; break;
+		}
+	}
+
+
+
+
+
+
 ?>
- load average</strong>
+
+<?php echo $load_mode ?> load average</strong>
 <p>
 <a href="<?php echo $links; ?>load=1" class="<?php echo ($load == '1') ? 'strong' : ''; ?>">1 min</a> | 
 <a href="<?php echo $links; ?>load=2" class="<?php echo ($load == '2') ? 'strong' : ''; ?>">5 min</a> | 
 <a href="<?php echo $links; ?>load=3" class="<?php echo ($load == '3') ? 'strong' : ''; ?>">15 min</a>
 </p>
 
+<?php
+
+// need to add links to displaylinks when both are used!
+
+?>
+<strong>Data display</strong> <a href="<?php echo $displaylinks; ?>"><?php echo ($thedata == 'true') ? 'fixed' : 'fitted'; ?></a>

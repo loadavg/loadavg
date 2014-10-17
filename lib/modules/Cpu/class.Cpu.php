@@ -121,6 +121,10 @@ class Cpu extends LoadAvg
 
 			$totalchartArray = (int)count($chartArray);
 
+			//used to limit display data from being sqewed by overloads
+			$displayMode =	$settings['settings']['display_limiting'];
+
+
 			//for ( $i = 0; $i < $totalchartArray; $i++) {	
 			for ( $i = 0; $i < $totalchartArray; ++$i) {	
 
@@ -151,7 +155,8 @@ class Cpu extends LoadAvg
 					$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", '". $data[$witch] ."']";
 
 			}
-		
+
+
 			$cpu_high = max($usage[$witch]);
 			$cpu_high_time = $time[$witch][$cpu_high];
 
@@ -163,8 +168,14 @@ class Cpu extends LoadAvg
 			
 			$cpu_latest = $usage[$witch][count($usage[$witch])-1];
 
-			$ymin = $cpu_low;
-			$ymax = $cpu_high;
+			if ($displayMode == 'true' )
+			{
+				$ymin = $cpu_low;
+				$ymax = $settings['settings']['display_cutoff'];
+			} else {
+				$ymin = $cpu_low;
+				$ymax = $cpu_high;
+			}
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);

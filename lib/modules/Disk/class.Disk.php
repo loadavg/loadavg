@@ -132,7 +132,7 @@ class Disk extends LoadAvg
 			// get from settings here for module
 			// true - show MB
 			// false - show percentage
-			$displayMode =	$settings['settings']['displaymode'];
+			$displayMode =	$settings['settings']['display_limiting'];
 
 
 			// main loop to build the chart data

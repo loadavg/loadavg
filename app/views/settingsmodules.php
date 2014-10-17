@@ -84,8 +84,12 @@ if (isset($_POST['update_settings'])) {
 	//updates all the modules settings here
 
 	//these are dirty dirty hacks! until we can rewrite the settings using proper api
-	$_POST['Disk_settings']['settings']['displaymode'] = ( !isset($_POST['Disk_settings']['settings']['displaymode']) ) ? "false" : "true";
-	$_POST['Memory_settings']['settings']['displaymode'] = ( !isset($_POST['Memory_settings']['settings']['displaymode']) ) ? "false" : "true";
+	//$_POST['Disk_settings']['settings']['displaymode'] = ( !isset($_POST['Disk_settings']['settings']['displaymode']) ) ? "false" : "true";
+	//$_POST['Memory_settings']['settings']['displaymode'] = ( !isset($_POST['Memory_settings']['settings']['displaymode']) ) ? "false" : "true";
+	
+	$_POST['Disk_settings']['settings']['display_limiting'] = ( !isset($_POST['Disk_settings']['settings']['display_limiting']) ) ? "false" : "true";
+	$_POST['Memory_settings']['settings']['display_limiting'] = ( !isset($_POST['Memory_settings']['settings']['display_limiting']) ) ? "false" : "true";
+	$_POST['Cpu_settings']['settings']['display_limiting'] = ( !isset($_POST['Cpu_settings']['settings']['display_limiting']) ) ? "false" : "true";
 
 	$_POST['Network_settings']['settings']['transfer_limiting'] = ( !isset($_POST['Network_settings']['settings']['transfer_limiting']) ) ? "false" : "true";
 	$_POST['Network_settings']['settings']['receive_limiting'] = ( !isset($_POST['Network_settings']['settings']['receive_limiting']) ) ? "false" : "true";

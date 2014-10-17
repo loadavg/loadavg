@@ -37,8 +37,8 @@
 	//get settings for this module
 	$cpuSettings = LoadAvg::$_settings->$module;
 
-	//get the displaymode setting from the settings subsection for this module
-	$thedata = $cpuSettings['settings']['displaymode'];
+	//get the display_limiting setting from the settings subsection for this module
+	$thedata = $cpuSettings['settings']['display_limiting'];
 
 	//if we are changing mode
 	if  ( isset($_GET['memorymode']) || !empty($_GET['memorymode']))  {
@@ -46,13 +46,13 @@
 		$newmode = $_GET['memorymode'];
 
 		switch ( $newmode) {
-			case "1": 	$mydata['settings']['displaymode'] = "true";
+			case "1": 	$mydata['settings']['display_limiting'] = "true";
 						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
 						LoadAvg::write_module_ini($mergedsettings, $module);
 						header("Location: " . $links);						
 						break;
 
-			case "2": 	$mydata['settings']['displaymode'] = "false";
+			case "2": 	$mydata['settings']['display_limiting'] = "false";
 						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
 						LoadAvg::write_module_ini($mergedsettings, $module);
 						header("Location: " . $links);						

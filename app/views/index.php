@@ -24,7 +24,19 @@
 <table class="well lh70 lh70-style" width="100%" border="0" cellspacing="1" cellpadding="3">
     <tr>
         <td width="30%">
-            <b>Today</b> - <?php echo date("l, M. j H:i a (e)", (time()-300)); ?>
+            <b>Today</b> - <?php echo date("l, M. j H:i a", (time()-300)); ?>  <!--  need to add log file dates here when overriden   -->
+
+
+
+            <?php if ( (isset($_GET['logdate'])) && !empty($_GET['logdate']) ) 
+            {
+            echo '<br>Viewing ' .  $_GET['logdate'];
+            } else {
+            ?> 
+            <br>Zone <?php echo date("(e)", (time()-300)); 
+            }
+            ?>  
+            
         </td>
         <td width="70%" align="right">
             <form action="" method="get" class="margin-none form-horizontal">
@@ -53,7 +65,7 @@
 
                         foreach ( $dates as $date ) {
 
-                            if (  !($date_counter ==  $totalDates) )
+                            if (  ($date_counter !=  $totalDates) )
 
                             {
                                 ?><option<?php echo ((isset($_GET['logdate']) && !empty($_GET['logdate']) && $_GET['logdate'] == $date) || (!isset($_GET['logdate']) && $date == date('Y-m-d'))) ? ' selected="selected"' : ''; ?> value="<?php echo $date; ?>"><?php echo $date; ?></option><?php

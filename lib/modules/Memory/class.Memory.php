@@ -135,7 +135,7 @@ class Memory extends LoadAvg
 			//data[2] = swap
 			//data[3] = total mem
 
-			$displayMode =	$settings['settings']['displaymode'];
+			$displayMode =	$settings['settings']['display_limiting'];
 
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
