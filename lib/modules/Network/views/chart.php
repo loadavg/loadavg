@@ -37,9 +37,7 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 <!-- draw charts for each interface -->
 
 <div class="widget" data-toggle="collapse-widget" data-collapse-closed="false">
-	<div class="widget-head">
-		<h4 class="heading"><strong>Network</strong> Interface: <?php echo $interface; ?></h4>
-	</div>
+	<div class="widget-head"><h4 class="heading"><strong>Network</strong> Interface: <?php echo $interface; ?></h4></div>
 	<div class="widget-body collapse in" style="height: auto;">
 		<?php
 		$j = 0;
@@ -57,18 +55,24 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 			// note that this will probably need to be fixed for PERIODS
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date, $interface);
 
-			//this was old code here
-			//$this->logfile = $logdir . sprintf($chart->logfile, date('Y-m-d'), $interface);
+			if ( file_exists( $this->logfile )) {
+				$no_logfile = false;
+			} else {				
+				$no_logfile = true;
+			}
 
 			$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
 
+			$caller = $chart->function;
+			$stuff = $this->$caller();
+
 			?>
+
 		<!-- <div class="row-fluid"> -->
 		<table border="0" width="100%" cellspacing="0" cellpadding="0">
 			<tr>
 			<?php
-			$caller = $chart->function;
-			$stuff = $this->$caller();
+
 			?>
 			<!-- <div class="span3 right"> -->
 			<td width="26%" align="right" style="padding-right: 15px">
@@ -89,8 +93,11 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 				<?php } ?>
 			<!-- </div> -->
 			</td>
-			<!-- <div class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?>"> -->
+
 			<td  class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT">
+				
+				<!-- no $stuff means no log files mate -->
+
 				<?php if ( $stuff ) { ?>
 				<script type="text/javascript">
 				(function () {
@@ -120,13 +127,33 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 					<?php } ?>
 
 					$(function () {
-						// $('[data-target="#network_<?php echo $interface; ?>_<?php echo $chart->type; ?>"]').on('shown', function (e) {
+
+
+
+
 							charts.<?php echo $chart->id; ?>.setData(chart_data);
+
+							<?php if ($no_logfile == true) { 
+								$errorMessage = 'No logfile data to generate charts for module ' . $module . ' check your logger';
+								?>
+								charts.<?php echo $chart->id; ?>.setLabel("<?php echo $errorMessage; ?>");
+							<?php } ?>
+
+
 							charts.<?php echo $chart->id; ?>.init('<?php echo $chart->id; ?>');
-						// });
+
+
+
+
+
+
+
+
 						
-						<?php 
-						if ( @$stuff['chart']['mean'] ) { ?>
+							<?php 
+								if ( isset($stuff['chart']['mean']) ) {  
+    						?>
+
                             // Separate chart for mean value display stacked bar chart
                             var options =  {
                                 grid: {
@@ -195,7 +222,7 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 
 			<!-- </div> -->
 			</td>
-			<?php if ( @$stuff['chart']['mean'] ) { ?>
+			<?php if ( isset($stuff['chart']['mean']) ) { ?>
             <!-- <div class="span1 hidden-phone"> -->
             <td class="span1 hidden-phone" style="height: 170px">
                 <div id="minmax_<?php echo $chart->id; ?>" style="width:35px;height:140px;top: 18px;right: 5px;"></div>

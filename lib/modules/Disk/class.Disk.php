@@ -270,8 +270,32 @@ class Disk extends LoadAvg
 			);
 
 			return $return;	
+			
 		} else {
-			return false;
+
+			//means there was no chart data sent over to chart
+			//so just trturn legend and null data back over
+
+			//can we create a null dataString ?
+			$dataString =   "[[0, '0.01']]";
+
+			//return false;
+			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
+
+			$return['chart'] = array(
+				'chart_format' => 'line',
+				'ymin' => 0,
+				'ymax' => 1,
+				'xmin' => date("Y/m/d 00:00:01"),
+				'xmax' => date("Y/m/d 23:59:59"),
+				'mean' => 0,
+				'chart_data' => $dataString,
+				'chart_data_over' => null,
+				'overload' => false
+			);
+
+			return $return;
+
 		}
 	}
 
@@ -285,25 +309,50 @@ class Disk extends LoadAvg
 	 *
 	 */
 
+
 	public function genChart($moduleSettings, $logdir)
 	{
-		$charts = $moduleSettings['chart'];
+		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
+
 		$module = __CLASS__;
 		$i = 0;
 		foreach ( $charts['args'] as $chart ) {
 			$chart = json_decode($chart);
 
-			//grab the log file and date
+			//grab the log file for current date (current date can be overriden to show other dates)
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
-			
+
+				// find out main function from module args that generates chart data
+				// in this module its getData above
+				$caller = $chart->function;
+
 			if ( file_exists( $this->logfile )) {
 				$i++;				
-				// $this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
-				$caller = $chart->function;
-				$stuff = $this->$caller( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
-				
-				include APP_PATH . '/views/chart.php';
+
+				$no_logfile = false;
+
+				//check if function takes settings get url_args if chosen which is GET load for load view option
+				//otherwise default to middle view (2) which is 5 min load avg
+
+				$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+
+				//call modules main function and pass over functionSettings
+				//calls getData with setting 1,2 or 3 for 1 5 or 15 min load display as per load value
+				if ($functionSettings) {
+					$stuff = $this->$caller( $functionSettings );
+				} else {
+					$stuff = $this->$caller( );
+				}
+
+			} else {
+				$i++;				
+
+				$no_logfile = true;
+				$stuff = $this->$caller( );
 			}
+			
+			//now draw chart to screen
+			include APP_PATH . '/views/chart.php';
 		}
 	}
 }

@@ -102,13 +102,19 @@
         $moduleSettings = LoadAvg::$_settings->$module; // if module is enabled ... get his settings
         
         if ( $moduleSettings['module']['logable'] == "true" ) { // if module has loggable enabled it has a chart
+            
             $class = LoadAvg::$_classes[$module];
+
             $i = 0;
+
             if (isset($moduleSettings['module']['tabbed']) && $moduleSettings['module']['tabbed'] == "true") {
                 if ($i == 1) break;
+
+                //echo 'NESTEDCHART:';
                 $class->genChart( $moduleSettings, $logdir );
-                $i++;
+                $i++; //will this ever be hit ? as i = 1 breaks things
             } else {
+                //echo 'CORECHART:';
                 $class->genChart( $moduleSettings, $logdir );
             }
         }

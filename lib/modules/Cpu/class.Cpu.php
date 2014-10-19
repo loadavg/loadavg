@@ -77,6 +77,7 @@ class Cpu extends LoadAvg
 
 	public function getData( $witch )
 	{
+
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
@@ -201,19 +202,6 @@ class Cpu extends LoadAvg
             );
 
 
-/*
-				'disk_high' => number_format($disk_high,2),
-				'disk_high_time' => $disk_high_time,
-				'disk_low' => number_format($disk_low,2),
-				'disk_low_time' => $disk_low_time,
-				'disk_mean' => number_format($disk_mean,2),
-				'disk_total' => number_format($disk_total,1),
-				'disk_free' => number_format($disk_free,1),
-				'disk_latest' => number_format($disk_latest,1),
-
-*/
-
-
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
 			if ( count($dataArrayOver) == 0 ) $dataArrayOver = null;
@@ -238,7 +226,25 @@ class Cpu extends LoadAvg
 			);
 			return $return;
 		} else {
-			return false;
+
+			//means there was no chart data sent over to chart
+			//so just trturn legend and null data back over
+			$dataString =   "[[0, '0.01']]";
+
+			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
+
+			$return['chart'] = array(
+				'chart_format' => 'line',
+				'ymin' => 0,
+				'ymax' => 1,
+				'mean' => 0,
+				'chart_data' => $dataString,
+				'chart_data_over' => null,
+				'chart_data_over_2' => null
+			);
+			return $return;
+			//return false;
+
 		}
 
 
@@ -256,23 +262,58 @@ class Cpu extends LoadAvg
 	 *
 	 */
 
+	/*
+	$stuff is array of:
+
+		$info 
+			$line -> array of legend items
+
+		$chart -> 	chart data such as 
+					ymin, ymax, chart settings and main chart data array
+	*/
+
 	public function genChart($moduleSettings, $logdir)
 	{
-		$charts = $moduleSettings['chart'];
+		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
+
 		$module = __CLASS__;
 		$i = 0;
 		foreach ( $charts['args'] as $chart ) {
-			$chart = json_decode($chart);			
+			$chart = json_decode($chart);
+
+			//grab the log file for current date (current date can be overriden to show other dates)
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
-			
-			if ( file_exists( $this->logfile )) {
-				$i++;
+
+				// find out main function from module args that generates chart data
+				// in this module its getData above
 				$caller = $chart->function;
-				$stuff = $this->$caller( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+
+			if ( file_exists( $this->logfile )) {
+				$i++;				
+
 				$no_logfile = false;
+
+				//check if function takes settings get url_args if chosen which is GET load for load view option
+				//otherwise default to middle view (2) which is 5 min load avg
+
+				$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+
+				//call modules main function and pass over functionSettings
+				//calls getData with setting 1,2 or 3 for 1 5 or 15 min load display as per load value
+				if ($functionSettings) {
+					$stuff = $this->$caller( $functionSettings );
+				} else {
+					$stuff = $this->$caller( );
+				}
+
 			} else {
+				$i++;				
+
 				$no_logfile = true;
+				$stuff = $this->$caller( );
 			}
+			
+			//now draw chart to screen
 			include APP_PATH . '/views/chart.php';
 		}
 	}

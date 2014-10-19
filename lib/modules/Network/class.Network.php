@@ -280,7 +280,25 @@ class Network extends LoadAvg
 
 			return $return;
 		} else {
-			return false;
+			//means there was no chart data sent over to chart
+			//so just trturn legend and null data back over
+
+			//can we create a null dataString ?
+			$dataString =   "[[0, '0.01']]";
+
+			//return false;
+			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
+
+			$return['chart'] = array(
+				'chart_format' => 'line',
+				'ymin' => 0,
+				'ymax' => 1,
+				'mean' => 0,
+				'chart_data' => $dataString,
+				'chart_data_over' => null
+			);
+
+			return $return;		
 		}
 
 	}
@@ -434,7 +452,25 @@ class Network extends LoadAvg
 
 			return $return;
 		} else {
-			return false;
+			//means there was no chart data sent over to chart
+			//so just trturn legend and null data back over
+
+			//can we create a null dataString ?
+			$dataString =   "[[0, '0.01']]";
+
+			//return false;
+			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
+
+			$return['chart'] = array(
+				'chart_format' => 'line',
+				'ymin' => 0,
+				'ymax' => 1,
+				'mean' => 0,
+				'chart_data' => $dataString,
+				'chart_data_over' => null
+			);
+
+			return $return;	
 		}
 	}
 

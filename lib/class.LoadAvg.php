@@ -222,6 +222,45 @@ class LoadAvg
 
 	}
 
+	/**
+	 * genChart - move from modules into core ASAP
+	 *
+	 * Function witch passes the data formatted for the chart view
+	 *
+	 * @param array @moduleSettings settings of the module
+	 * @param string @logdir path to logfiles folder
+	 *
+	 */
+	
+	/*
+	public function genChart($moduleSettings, $logdir)
+	{
+
+		$charts = $moduleSettings['chart'];
+		$module = __CLASS__;
+		$i = 0;
+		foreach ( $charts['args'] as $chart ) {
+			$chart = json_decode($chart);
+
+			//grab the log file and date
+			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
+			
+			if ( file_exists( $this->logfile )) {
+				$i++;				
+
+				$caller = $chart->function;
+				$stuff = $this->$caller( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+				$no_logfile = false;
+				
+			} else {
+				$no_logfile = true;
+			}
+			
+			include APP_PATH . '/views/chart.php';
+		}
+	}
+	*/
+
 /*
  * used to test if log files are being created by logger
  * needs better testing currently a bit of a hack
