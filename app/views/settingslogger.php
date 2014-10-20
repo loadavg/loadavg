@@ -26,10 +26,11 @@ $php_location = PHP_BINDIR . "/php";
 if (!$loadavg->isLoggedIn() && !LoadAvg::checkInstall()) {
 	include('login.php');
 }
-else {
+else 
+{
 ?>
 
-<?php
+	<?php
 	if (isset($_POST['Run_Logger'])) {
 
 		$loadavg->rebuildLogs();
@@ -37,117 +38,105 @@ else {
 		/* force reload settings page now */
 		header('Location: '. '/public/index.php?page=settingslogger'  );
     }
-?>
 
-<?php
+	if (isset($_POST['update_settings'])) {
 
-if (isset($_POST['update_settings'])) {
+		/////////////////////////////////////////////////////////////////////
+		//updates the general settings here as api settings are stored there
 
+		// Loop throught settings
+		$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
+		
+		$settings = LoadAvg::$_settings->general;
 
-	/////////////////////////////////////////////////////////////////////
-	//updates the general settings here as api settings are stored there
+		$postsettings = $_POST['formsettings'];
 
-	//we clean input here for items with checkbox values for some reason not sure if we still need to
-	//$_POST['formsettings']['apiserver'] = ( !isset($_POST['formsettings']['apiserver']) ) ? "false" : "true";
+		//$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
+		$replaced_settings = array_replace($settings, $postsettings);
 
-	// Loop throught settings
-	$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
-	
-	$settings = LoadAvg::$_settings->general;
+		//LoadAvg::write_php_ini($mergedsettings, $settings_file);
+		LoadAvg::write_php_ini($replaced_settings, $settings_file);
 
-	$postsettings = $_POST['formsettings'];
+		//reload page
+		header('Location: '. '/public/index.php?page=settingslogger'  );
 
-	//$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
-	$replaced_settings = array_replace($settings, $postsettings);
+	}
+	?>
 
-	//LoadAvg::write_php_ini($mergedsettings, $settings_file);
-	LoadAvg::write_php_ini($replaced_settings, $settings_file);
+	<div class="innerAll">
 
-	//reload page
-	header('Location: '. '/public/index.php?page=settingslogger'  );
+		<div class="well">
+		  		<h4>Logger</h4>
+		</div>
 
-}
+	  	<div class="separator bottom"></div>
 
-?>
+		<div class="well">
 
-
-
-
-
-<div class="innerAll">
-
-	<div class="well">
-	  		<h4>Logger</h4>
-	</div>
-
-  	<div class="separator bottom"></div>
-
-	<div class="well">
-
-	    <div class="pull-right">
-			<?php
-			$logger_Status = false;
-			$logger_Status = $loadavg->testLogs(false);
-			?>
-			Logger Status:
-			<?php   
-			if ($logger_Status == true) {
-				echo "<strong>Running</strong>";
-			} else {
-				echo "<strong>Not Running</strong>";
-			}
-			?>
-	    </div>
-
-		<b>Logging in LoadAvg <?php echo $settings['version']; ?></b>
-		<br><br>
-		<p>
-		LoadAvg records log data at the system level using a file called logger.php that is located in the root of your LoadAvg installation. 
-		For it to function correctly you need to you need to set up a cron job that runs the logger according to the logger interval, default is every 5 minutes.
-		</p>
-
-		<form action="" method="post">
-
-			<input type="hidden" name="update_settings" value="1" />
-
-	    	<div class="row-fluid">
-	    		<div class="span3">
-	    			<strong>Days to keep</strong>
-	    		</div>
-	        	<div class="span9 right">
-	        		<input type="text" name="formsettings[daystokeep]" value="<?php echo $settings['daystokeep']; ?>" size="4" class="span6 left">
-	        	</div>
-	    	</div>
-
-	    	<div class="row-fluid">
-	    		<div class="span3">
-	    			<strong>Logger interval</strong>
-	    		</div>
-	    		<div class="span9 right">
-	        		<input type="text" name="formsettings[logger_interval]" value="<?php echo $settings['logger_interval']; ?>" size="4" class="span6 left">
-	        	</div>
-	    	</div>
-
-			<div class="separator bottom"></div>
-
-		    <div class="panel">
-		    	<input type="submit" class="btn btn-primary pull-left" value="Save Settings" name="Save Settings">
+		    <div class="pull-right">
+				<?php
+				$logger_Status = false;
+				$logger_Status = $loadavg->testLogs(false);
+				?>
+				Logger Status:
+				<?php   
+				if ($logger_Status == true) {
+					echo "<strong>Running</strong>";
+				} else {
+					echo "<strong>Not Running</strong>";
+				}
+				?>
 		    </div>
 
-		    <div class="panel">
-		    	<input type="submit" class="btn btn-primary pull-right" value="Run Logger" name="Run Logger">
-		    </div>
-		    
-			<div class="separator bottom"></div>
+			<b>Logging in LoadAvg <?php echo $settings['version']; ?></b>
+			<br><br>
+			<p>
+			LoadAvg records log data at the system level using a file called logger.php that is located in the root of your LoadAvg installation. 
+			For it to function correctly you need to you need to set up a cron job that runs the logger according to the logger interval, default is every 5 minutes.
+			</p>
 
-		</form>
+			<form action="" method="post">
 
-	</div>
+				<input type="hidden" name="update_settings" value="1" />
+
+		    	<div class="row-fluid">
+		    		<div class="span3">
+		    			<strong>Days to keep</strong>
+		    		</div>
+		        	<div class="span9 right">
+		        		<input type="text" name="formsettings[daystokeep]" value="<?php echo $settings['daystokeep']; ?>" size="4" class="span6 left">
+		        	</div>
+		    	</div>
+
+		    	<div class="row-fluid">
+		    		<div class="span3">
+		    			<strong>Logger interval</strong>
+		    		</div>
+		    		<div class="span9 right">
+		        		<input type="text" name="formsettings[logger_interval]" value="<?php echo $settings['logger_interval']; ?>" size="4" class="span6 left">
+		        	</div>
+		    	</div>
+
+				<div class="separator bottom"></div>
+
+			    <div class="panel">
+			    	<input type="submit" class="btn btn-primary pull-left" value="Save Settings" name="Save Settings">
+			    </div>
+
+			    <div class="panel">
+			    	<input type="submit" class="btn btn-primary pull-right" value="Run Logger" name="Run Logger">
+			    </div>
+			    
+				<div class="separator bottom"></div>
+
+			</form>
+
+		</div>
 
 
-	<div class="separator bottom"></div>
+		<div class="separator bottom"></div>
 
-	<div class="well">
+		<div class="well">
 
 			<b>To set up logging</b>
 			<br><br>					
@@ -161,11 +150,11 @@ if (isset($_POST['update_settings'])) {
 			<span class="label label-info">*/<?php echo $settings['logger_interval'] ?> * * * * <?php echo $php_location; ?> -q <?php echo dirname(APP_PATH); ?>/logger.php /dev/null 2>1</span>
 			</p>
 
-	</div>
+		</div>
 
-	<div class="separator bottom"></div>
+		<div class="separator bottom"></div>
 
-	<div class="well">
+		<div class="well">
 
 			<b>Testing the logger</b>
 			<br><br>					
@@ -176,11 +165,11 @@ if (isset($_POST['update_settings'])) {
 			<p>If there are no errors then you are all set to go.<br>
 			</p>
 
-	</div>
+		</div>
 
-	<div class="separator bottom"></div>
+		<div class="separator bottom"></div>
 
-	<div class="well">
+		<div class="well">
 
 			<b>Need help ?</b>
 			<br><br>					
@@ -189,12 +178,8 @@ if (isset($_POST['update_settings'])) {
 			<a href="http://www.loadavg.com/kb/logging/" target="new">http://www.loadavg.com/kb/logging/</a><br>
 			</p>
 
+		</div>
+
 	</div>
 
-</div>
-
 <?php } ?>
-
-
-
-
