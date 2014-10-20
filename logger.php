@@ -22,6 +22,31 @@ $loadavg = new LoadAvg(); // Initializing Main Controller
 $loaded = LoadAvg::$_settings->general['modules']; // Loaded modules
 $logdir = HOME_PATH . '/logs/'; // path to logfiles folder
 
+
+//for testing the system
+$testmode = false;
+
+if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'status'))   ) {
+	$testmode = true;
+}
+
+$timemode = false;
+
+if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'time'))   ) {
+	$timemode = true;
+	$loadavg->setStartTime(); // Setting page load start time
+}
+
+//check for api server data transfer
+$api = false;
+
+if (LoadAvg::$_settings->general['apiserver'] == "true") {
+	$api = true; 
+}
+
+//array of data from logging used to send to api
+$response = array();
+
 // Delete old log files
 // should we execute this every time ?
 $fromDate = strtotime("-". LoadAvg::$_settings->general['daystokeep'] ." days 00:00:00");
@@ -35,21 +60,7 @@ foreach ( $dates as $date ) {
 }
 // End of delete old logs
 
-//for testing the system
-$testmode = false;
 
-if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'status'))   ) 
-	$testmode = true;
-
-//check for api server data transfer
-$api = false;
-
-if (LoadAvg::$_settings->general['apiserver'] == "true") {
-	$api = true; 
-}
-
-//array of data from logging used to send to api
-$response = array();
 
 if (!$testmode) {
 
@@ -123,6 +134,25 @@ if  ( $testmode  ) {
 		else 
 			echo "The API does not seem to be running \n"; 
 	 }
+}
+
+/////////////////////////////////////////////////////////
+// timing  section
+if  ( $timemode ) {
+
+	$loadavg->setFinishTime(); // Setting page load finish time
+
+	$page_load = $loadavg->getPageLoadTime(); // Calculating page load time
+
+	$mytime = (float) $loadavg->timeFinish - (float) $loadavg->timeStart;
+
+	echo "Start Time : " . $loadavg->timeStart . " \n"; 
+	echo "End   Time : " . $loadavg->timeFinish . " \n"; 
+
+	echo "Total Time : " . $mytime . " \n"; 
+
+	echo "           : " . $page_load . " \n"; 
+
 }
 
 ?>

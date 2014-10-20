@@ -93,22 +93,12 @@ if (isset($_POST['update_settings'])) {
 <form action="" method="post">
 	<input type="hidden" name="update_settings" value="1" />
 
-	<!--
-	<input type="hidden" name="settings[version]" value="<?php echo $settings['version']; ?>" />
-	<input type="hidden" name="settings[extensions_dir]" value="<?php echo $settings['extensions_dir']; ?>" />
-	<input type="hidden" name="settings[logs_dir]" value="<?php echo $settings['logs_dir']; ?>" />
-	<input type="hidden" name="settings[title]" value="<?php echo $settings['title']; ?>" />
-	-->
 	<input type="hidden" name="formsettings[password2]" value="<?php echo $settings['password']; ?>" />
 	
 <div class="innerAll">
-	<!--
-	<h2>Settings</h2>
-	-->
+
 	<div class="well">
-
 		<h4>System settings</h4>
-
 	</div>
 
 	<div class="separator bottom"></div>
@@ -116,7 +106,6 @@ if (isset($_POST['update_settings'])) {
 	<div class="well">
 
 		<h4>Core settings</h4>
-
 
 		<div class="row-fluid">
 			<div class="span3">
@@ -157,23 +146,6 @@ if (isset($_POST['update_settings'])) {
 
 			</div>
 		</div>
-		<div class="row-fluid">
-			<div class="span3">
-				<strong>Days to keep</strong>
-			</div>
-			<div class="span9 right">
-				<input type="text" name="formsettings[daystokeep]" value="<?php echo $settings['daystokeep']; ?>" size="4" class="span2 center">
-			</div>
-		</div>
-
-		<div class="row-fluid">
-			<div class="span3">
-				<strong>Logger interval</strong>
-			</div>
-			<div class="span9 right">
-				<input type="text" name="formsettings[logger_interval]" value="<?php echo $settings['logger_interval']; ?>" size="4" class="span2 center">
-			</div>
-		</div>
 
 		<div class="row-fluid">
 			<div class="span3">
@@ -185,6 +157,26 @@ if (isset($_POST['update_settings'])) {
 				</div>
 			</div>
 		</div>
+
+		<div class="row-fluid">
+			<div class="span3">
+				<strong>Chart(s) format</strong>
+			</div>
+			<div class="span9 right">
+				<select name="formsettings[chart_type]">
+					<option value="1" <?php if ( $settings['chart_type'] == "1" ) { ?>selected="selected"<?php } ?>>Hourly</option>
+					<option value="24" <?php if ( $settings['chart_type'] == "24" ) { ?>selected="selected"<?php } ?>>All day</option>
+				</select>
+			</div>
+		</div>
+
+
+	</div>
+
+	<div class="separator bottom"></div>
+
+	<div class="well">
+    <h4>Security settings</h4>
 
 		<div class="row-fluid">
 			<div class="span4">
@@ -208,21 +200,7 @@ if (isset($_POST['update_settings'])) {
 			</div>
 		</div>
 
-		<div class="row-fluid">
-			<div class="span3">
-				<strong>Chart(s) format</strong>
-			</div>
-			<div class="span9 right">
-				<select name="formsettings[chart_type]">
-					<option value="1" <?php if ( $settings['chart_type'] == "1" ) { ?>selected="selected"<?php } ?>>Hourly</option>
-					<option value="24" <?php if ( $settings['chart_type'] == "24" ) { ?>selected="selected"<?php } ?>>All day</option>
-				</select>
-			</div>
-		</div>
-
-
 	</div>
-
 
 
 	<div class="separator bottom"></div>
@@ -250,17 +228,13 @@ if (isset($_POST['update_settings'])) {
 
 	</div>
 
+	<div class="separator bottom"></div>
 
-<div class="separator bottom"></div>
+    <div class="panel">
+    	<input type="submit" class="btn btn-primary" value="Save Settings">
+    </div>
 
-
-
-
-		<div class="separator bottom"></div>
-
-        <div class="panel">
-        	<input type="submit" class="btn btn-primary" value="Save Settings">
-        </div>
 </div>
+
 </form>
 <?php } ?>
