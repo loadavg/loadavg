@@ -168,6 +168,15 @@ if (isset($_POST['update_settings'])) {
 
 		<div class="row-fluid">
 			<div class="span3">
+				<strong>Logger interval</strong>
+			</div>
+			<div class="span9 right">
+				<input type="text" name="formsettings[logger_interval]" value="<?php echo $settings['logger_interval']; ?>" size="4" class="span2 center">
+			</div>
+		</div>
+
+		<div class="row-fluid">
+			<div class="span3">
 				<strong>Check for updates</strong>
 			</div>
 			<div class="span9 right">

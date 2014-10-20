@@ -41,25 +41,25 @@ class Network extends LoadAvg
 
 	public function logData( $type = false )
 	{
+
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
 		foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
 
-		//skip disabled interfaces
+		//skip disabled interfaces - should be and / or not and ?
 		if (  !( isset(LoadAvg::$_settings->general['network_interface'][$interface]) 
 			&& LoadAvg::$_settings->general['network_interface'][$interface] == "true" ) )
 			continue;
-
-			//skip inactive interfaces here
-			//if settings _> false continue basically
 
 			$logfile = sprintf($this->logfile, date('Y-m-d'), $interface);
 
 			$netdev = file_get_contents('/proc/net/dev');
 			$pattern = "/^.*\b($interface)\b.*$/mi";
 			preg_match($pattern, $netdev, $hits);
+
 			$venet = '';
+
 			if(isset($hits[0]))
 			{
 				$venet = trim($hits[0]);
@@ -77,12 +77,42 @@ class Network extends LoadAvg
 			if ( $logfile && file_exists($logfile) )
 				$elapsed = time() - filemtime($logfile);
 			else
-				$elapsed = 0;
+				$elapsed = 0;  //meaning new logfile
 
-			if (file_exists( dirname($logfile) . DIRECTORY_SEPARATOR . '_net_latest_' . $interface)) {
-				$last = explode("|", file_get_contents(dirname($logfile) . DIRECTORY_SEPARATOR . '_net_latest_' . $interface) );
+			//used to help calculate the difference as network is thruput not value based
+			//so is based on the difference between thruput before the current run
+			//this data is stored in _net_latest_elapsed_
+
+			// grab net latest location and elapsed
+			$netlatestElapsed = 0;
+			$netLatestLocation = dirname($logfile) . DIRECTORY_SEPARATOR . '_net_latest_' . $interface;
+
+			// basically if netlatest elapsed is within reasonable limits (logger interval + 20%) then its from the day
+			// before rollover so we can use it to replace regular elapsed
+			// which is 0 when there is anew log file
+			if (file_exists( $netLatestLocation )) {
+				
+				$last = explode("|", file_get_contents(  $netLatestLocation ) );
+
+				$netlatestElapsed =  ( time() - filemtime($netLatestLocation));
+
+				//if its a new logfile check to see if there is previous netlatest data
+				if ($elapsed == 0) {
+
+					//data needs to within the logging period limits to be accurate
+					$interval = $this->getLoggerInterval();
+
+					if (!$interval)
+						$interval = 360;
+					else
+						$interval = $interval * 1.2;
+
+					if ( $netlatestElapsed <= $interval ) 
+						$elapsed = $netlatestElapsed;
+				}
 			}
 
+			//if we were able to get last data from net latest above
 			if (@$last && $elapsed) {
 				$trans_diff = ($trans - $last[0]) / 1024;
 				if ($trans_diff < 0) {
@@ -97,25 +127,32 @@ class Network extends LoadAvg
 				
 				$string = time() . "|" . $trans_rate . "|" . $recv_rate . "\n";
 			} else {
-				$string = time() . "|0.0|0.0\n";
+				//if this is the first value in the set and there is no previous data then its null
+				
+				$lastlogdata = "|0.0|0.0";
+
+				$string = time() . $lastlogdata . "\n" ;
+
 			}
+
+
 
 	      	if ( $type == "api") {
 				return $string;
 			} else {
 			
+				//write out log data here
 				$this->safefilerewrite($logfile,$string,"a",true);
 
+				// write out last transfare and received bytes to latest
 				$last_string = $trans."|".$recv;
-
-				// Writing transfare and received bytes to file
 				$fh = dirname($this->logfile) . DIRECTORY_SEPARATOR . "_net_latest_" . $interface;
 
 				$this->safefilerewrite($fh,$last_string,"w",true);
-
 			}
 		}
 	}
+
 
 	/**
 	 * getTransferRateData

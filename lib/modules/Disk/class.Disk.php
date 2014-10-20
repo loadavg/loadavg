@@ -277,7 +277,7 @@ class Disk extends LoadAvg
 			//so just trturn legend and null data back over
 
 			//can we create a null dataString ?
-			$dataString =   "[[0, '0.01']]";
+			$dataString =   "[[0, '0.00']]";
 
 			//return false;
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);

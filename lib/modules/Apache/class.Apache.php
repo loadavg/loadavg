@@ -206,6 +206,7 @@ class Apache extends LoadAvg
 				$difference = ( $endTime - $lastTimeString );
 				$loops = ( $difference / 300 );
 
+				//line 212 below dies with memory leak regularly - why ?
 				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++ ) {
 					$lastTimeString = $lastTimeString + 300;
 					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";

@@ -74,13 +74,6 @@ class LoadAvg
 			}
 		}
 
-		//if (is_dir(APP_PATH . '/../lib/modules/')) {
-		//	foreach (glob(APP_PATH . "/../lib/modules/*/*.php") as $filename) {
-		//		$filename = explode(".", basename($filename));
-		//		self::$_modules[$filename[1]] = strtolower($filename[1]);
-		//	}
-		//}
-
 		if (is_dir(HOME_PATH . '/lib/modules/')) {
 			foreach (glob(HOME_PATH . "/lib/modules/*/*.php") as $filename) {
 				$filename = explode(".", basename($filename));
@@ -106,7 +99,9 @@ class LoadAvg
 	/**
 	 * createFirstLogs
 	 *
-	 * Creates first log files for every loaded modules after installation
+	 * Creates first log files for every loaded modules 
+	 * only run once - after installation - and may not be needed as modules will do this themselves
+	 * if the file isnt there they create it
 	 *
 	 */
 
@@ -165,8 +160,6 @@ class LoadAvg
 
 					//now do nested charts 
 					foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
-
-						//$filename = ( $logdir . sprintf($args->logfile, date('Y-m-d') , $interface ) );
 																					
 								$caller = sprintf($args->function, sprintf("'". $args->logfile . "'", date('Y-m-d') , $interface  ));
 								$caller = $args->function;
@@ -407,9 +400,16 @@ class LoadAvg
 
 	function getChartData (array &$chartData, array &$contents, $interval = 400) 
 	{				
-		// this is based on logger interval, 5 min = 300 aprox we add 100 to be safe
-		$interval = 400;   
+		// this is based on logger interval of 5, 5 min = 300 aprox we add 100 to be safe
+		//$interval = 360;  // 5 minutes is 300 seconds + slippage of 20% aprox 
 		
+		$interval = $this->getLoggerInterval();
+
+		if (!$interval)
+			$interval = 360;
+		else
+			$interval = $interval * 1.2;
+
 		$patch = $chartData = array();
 		$numPatches = 0;
 
@@ -487,7 +487,7 @@ class LoadAvg
 	/**
 	 * parseInfo
 	 *
-	 * Checks if specified file has write permissions.
+	 * Parses ini file data for a module
 	 *
 	 * @param array $info array with info lines from the classes INI file
 	 * @param array $variables variables to format lines
@@ -677,6 +677,31 @@ class LoadAvg
 	 
 	 	return $config_ini;
 	 }
+	/**
+	 * getLoggerInterval
+	 *
+	 * User login, checks username and password from default settings to match.
+	 *
+	 * @param string $username the username
+	 * @param string $password the password
+	 */
+
+	public function getLoggerInterval( ) 
+	{
+
+		$interval = LoadAvg::$_settings->general['logger_interval'];
+
+		if  ( $interval ) {
+
+			$interval = $interval * 60;
+			return $interval;
+
+		} else {
+
+			return false;
+		}
+
+	}
 
 
 	/**

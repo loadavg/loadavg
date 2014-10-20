@@ -66,9 +66,11 @@ if (!$testmode) {
 
 				$args = json_decode($args); // decode arguments
 				$class = LoadAvg::$_classes[$module]; // load module information
+
+				//the modules logging function is read from the args
 				$caller = $args->function;
 
-				$class->logfile = $logdir . $args->logfile; // the modules logfile
+				$class->logfile = $logdir . $args->logfile; // the modules logfile si read from args
 
 				$class->$caller(); // call data gethering function of module
 
