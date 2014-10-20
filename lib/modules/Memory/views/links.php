@@ -46,13 +46,13 @@
 		$newmode = $_GET['memorymode'];
 
 		switch ( $newmode) {
-			case "1": 	$mydata['settings']['display_limiting'] = "true";
+			case "true": 	$mydata['settings']['display_limiting'] = "true";
 						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
 						LoadAvg::write_module_ini($mergedsettings, $module);
 						header("Location: " . $links);						
 						break;
 
-			case "2": 	$mydata['settings']['display_limiting'] = "false";
+			case "false": 	$mydata['settings']['display_limiting'] = "false";
 						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
 						LoadAvg::write_module_ini($mergedsettings, $module);
 						header("Location: " . $links);						
@@ -62,8 +62,8 @@
 
 		//if not build the links
 		switch ( $thedata) {
-			case "true": $links = $links . "memorymode=2"; break;
-			case "false": $links = $links . "memorymode=1"; break;
+			case "true": $links = $links . "memorymode=false"; break;
+			case "false": $links = $links . "memorymode=true"; break;
 		}
 	}
 

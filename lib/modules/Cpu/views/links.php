@@ -58,13 +58,13 @@ if (
 		$newmode = $_GET['loadmode'];
 
 		switch ( $newmode) {
-			case "1": 	$mydata['settings']['display_limiting'] = "true";
+			case "true": 	$mydata['settings']['display_limiting'] = "true";
 						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
 						LoadAvg::write_module_ini($mergedsettings, $module);
 						header("Location: " . $displaylinks);						
 						break;
 
-			case "2": 	$mydata['settings']['display_limiting'] = "false";
+			case "false": 	$mydata['settings']['display_limiting'] = "false";
 						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
 						LoadAvg::write_module_ini($mergedsettings, $module);
 						header("Location: " . $displaylinks);						
@@ -74,8 +74,8 @@ if (
 
 		//if not build the links
 		switch ( $thedata) {
-			case "true": $displaylinks = $displaylinks . "loadmode=2"; break;
-			case "false": $displaylinks = $displaylinks . "loadmode=1"; break;
+			case "true": $displaylinks = $displaylinks . "loadmode=false"; break;
+			case "false": $displaylinks = $displaylinks . "loadmode=true"; break;
 		}
 	}
 

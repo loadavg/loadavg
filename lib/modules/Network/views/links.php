@@ -54,13 +54,13 @@
 			$newmode = $_GET[$interface . 'transfermode'];
 
 			switch ( $newmode) {
-				case "1": 	$mydata['settings']['transfer_limiting'] = "true";
+				case "true": 	$mydata['settings']['transfer_limiting'] = "true";
 							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
 							LoadAvg::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 
-				case "2": 	$mydata['settings']['transfer_limiting'] = "false";
+				case "false": 	$mydata['settings']['transfer_limiting'] = "false";
 							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
 							LoadAvg::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
@@ -70,8 +70,8 @@
 
 			//if not build the links
 			switch ( $thedata) {
-				case "true": $links = $links . $interface ."transfermode=2"; break;
-				case "false": $links = $links . $interface ."transfermode=1"; break;
+				case "true": $links = $links . $interface ."transfermode=false"; break;
+				case "false": $links = $links . $interface ."transfermode=true"; break;
 			}
 		}
 
@@ -88,13 +88,13 @@
 			$newmode = $_GET[$interface . 'receivemode'];
 
 			switch ( $newmode) {
-				case "1": 	$mydata['settings']['receive_limiting'] = "true";
+				case "true": 	$mydata['settings']['receive_limiting'] = "true";
 							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
 							LoadAvg::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 
-				case "2": 	$mydata['settings']['receive_limiting'] = "false";
+				case "false": 	$mydata['settings']['receive_limiting'] = "false";
 							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
 							LoadAvg::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
@@ -104,8 +104,8 @@
 
 			//if not build the links
 			switch ( $thedata) {
-				case "true": $links = $links . $interface . "receivemode=2"; break;
-				case "false": $links = $links . $interface . "receivemode=1"; break;
+				case "true": $links = $links . $interface . "receivemode=false"; break;
+				case "false": $links = $links . $interface . "receivemode=true"; break;
 			}
 		}
 
