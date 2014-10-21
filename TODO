@@ -1,5 +1,7 @@
 TODO
 
+clean up and test logUpdateCheck in class.loadavg
+
 Fix empty network charts when no log data
 
 >> test update checker

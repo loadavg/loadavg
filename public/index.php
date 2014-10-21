@@ -126,7 +126,10 @@ $loadavg->setStartTime(); // Setting page load start time
  */
 
 $loaded = LoadAvg::$_settings->general['modules']; 
-$logdir = APP_PATH . '/../logs/';
+
+//$logdir = APP_PATH . '/../logs/';
+$logdir = HOME_PATH . '/logs/';
+
 
 //security here check for access
 if ($settings['allow_anyone'] == "false" && !$loadavg->isLoggedIn()) {

@@ -56,9 +56,9 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date, $interface);
 
 			if ( file_exists( $this->logfile )) {
-				$no_logfile = false;
+				$logfileStatus = false;
 			} else {				
-				$no_logfile = true;
+				$logfileStatus = true;
 			}
 
 			$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
@@ -133,7 +133,7 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 
 							charts.<?php echo $chart->id; ?>.setData(chart_data);
 
-							<?php if ($no_logfile == true) { 
+							<?php if ($logfileStatus == true) { 
 								$errorMessage = 'No logfile data to generate charts for module ' . $module . ' check your logger';
 								?>
 								charts.<?php echo $chart->id; ?>.setLabel("<?php echo $errorMessage; ?>");

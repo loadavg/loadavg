@@ -318,24 +318,34 @@ class Network extends LoadAvg
 			return $return;
 		} else {
 			//means there was no chart data sent over to chart
-			//so just trturn legend and null data back over
+			//so just return legend and null data back over
 
-			//can we create a null dataString ?
-			$dataString =   "[[0, '0.01']]";
+			//really should just return null and if null then charts.php does its thing
+			//but.. legend is from return value below so need to send that or charts look wacky
 
-			//return false;
-			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
+			$return = $this->parseInfo($settings['info']['line'], null, __CLASS__);
+
+			////////////////////////////////////////////////////////////////////////////
+			//this data can be created in charts.php really if $datastring is null ?
+			//or adda  flag to the array for chartdata here...
+
+			$dataString =   "[[0, '0.00']]";
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'ymin' => 0,
 				'ymax' => 1,
+				'xmin' => date("Y/m/d 00:00:01"),
+				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => 0,
-				'chart_data' => $dataString,
-				'chart_data_over' => null
+				'chart_data' => $dataString
+				/*
+				'chart_data_over' => null,
+				'overload' => false
+				*/
 			);
 
-			return $return;		
+			return $return;	
 		}
 
 	}
@@ -440,23 +450,7 @@ class Network extends LoadAvg
 				$ymax = $net_high;	
 			}		
 
-
-
-/*
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				end($timestamps);
-				$key = key($timestamps);
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-				$lastTimeString = $timestamps[$key];
-				$difference = ( $endTime - $lastTimeString );
-				$loops = ( $difference / 300 );
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-				}
-			}
-*/		
+		
 			$variables = array(
 				'net_high' => $net_high,
 				'net_high_time' => $net_high_time,
@@ -490,24 +484,34 @@ class Network extends LoadAvg
 			return $return;
 		} else {
 			//means there was no chart data sent over to chart
-			//so just trturn legend and null data back over
+			//so just return legend and null data back over
 
-			//can we create a null dataString ?
-			$dataString =   "[[0, '0.01']]";
+			//really should just return null and if null then charts.php does its thing
+			//but.. legend is from return value below so need to send that or charts look wacky
 
-			//return false;
-			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
+			$return = $this->parseInfo($settings['info']['line'], null, __CLASS__);
+
+			////////////////////////////////////////////////////////////////////////////
+			//this data can be created in charts.php really if $datastring is null ?
+			//or adda  flag to the array for chartdata here...
+
+			$dataString =   "[[0, '0.00']]";
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'ymin' => 0,
 				'ymax' => 1,
+				'xmin' => date("Y/m/d 00:00:01"),
+				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => 0,
-				'chart_data' => $dataString,
-				'chart_data_over' => null
+				'chart_data' => $dataString
+				/*
+				'chart_data_over' => null,
+				'overload' => false
+				*/
 			);
 
-			return $return;	
+			return $return;
 		}
 	}
 

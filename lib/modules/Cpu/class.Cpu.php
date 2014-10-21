@@ -70,12 +70,12 @@ class Cpu extends LoadAvg
 	 *
 	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
 	 *
-	 * @param string $witch with witch data to populate return array
+	 * @param string $switch with switch data to populate return array
 	 * @return array $return data retrived from logfile
 	 *
 	 */
 
-	public function getData( $witch )
+	public function getData( $logfileStatus, $switch ) 
 	{
 
 		$class = __CLASS__;
@@ -85,20 +85,25 @@ class Cpu extends LoadAvg
 	
 		$replaceDate = self::$current_date;
 		
-		if ( LoadAvg::$period ) {
-			$dates = self::getDates();
-			foreach ( $dates as $date ) {
-				if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-
-					$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-					
-					$replaceDate = $date;
-					if ( file_exists( $this->logfile ) )
-						$contents .= file_get_contents($this->logfile);
+		if ($logfileStatus == false ) {
+		
+			if ( LoadAvg::$period ) {
+				$dates = self::getDates();
+				foreach ( $dates as $date ) {
+					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
+						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
+						$replaceDate = $date;
+						if ( file_exists( $this->logfile ) )
+							$contents .= file_get_contents($this->logfile);
+					}
 				}
+			} else {
+				$contents = file_get_contents($this->logfile);
 			}
+
 		} else {
-			$contents = file_get_contents($this->logfile);
+
+			$contents = 0;
 		}
 
 
@@ -141,33 +146,33 @@ class Cpu extends LoadAvg
 				//used to filter out redline data from usage data as it skews it
 				//this is used for cpu only to switch between 1 min 5 min and 15 min load
 				if (!$redline)
-					$usage[$witch][] = $data[$witch];
+					$usage[$switch][] = $data[$switch];
 
-				$time[$witch][$data[$witch]] = date("H:ia", $data[0]);
+				$time[$switch][$data[$switch]] = date("H:ia", $data[0]);
 
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$witch] ."']";
+				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
 		
-				if ( $data[$witch] > $settings['settings']['overload_1'] )
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $data[$witch] ."']";
+				if ( $data[$switch] > $settings['settings']['overload_1'] )
+					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 		
-				if ( $data[$witch] > $settings['settings']['overload_2'] )
-					$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", '". $data[$witch] ."']";
+				if ( $data[$switch] > $settings['settings']['overload_2'] )
+					$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 
 			}
 
 
-			$cpu_high = max($usage[$witch]);
-			$cpu_high_time = $time[$witch][$cpu_high];
+			$cpu_high = max($usage[$switch]);
+			$cpu_high_time = $time[$switch][$cpu_high];
 
-			$cpu_low = min($usage[$witch]);
-			$cpu_low_time = $time[$witch][$cpu_low];
+			$cpu_low = min($usage[$switch]);
+			$cpu_low_time = $time[$switch][$cpu_low];
 		
-			//$cpu_mean = (float)number_format(array_sum($usage[$witch]) / count($usage[$witch]), 3);
-			$cpu_mean = array_sum($usage[$witch]) / count($usage[$witch]) ;
+			//$cpu_mean = (float)number_format(array_sum($usage[$switch]) / count($usage[$switch]), 3);
+			$cpu_mean = array_sum($usage[$switch]) / count($usage[$switch]) ;
 			
-			$cpu_latest = $usage[$witch][count($usage[$witch])-1];
+			$cpu_latest = $usage[$switch][count($usage[$switch])-1];
 
 			if ($displayMode == 'true' )
 			{
@@ -227,28 +232,8 @@ class Cpu extends LoadAvg
 			return $return;
 		} else {
 
-			//means there was no chart data sent over to chart
-			//so just trturn legend and null data back over
-			$dataString =   "[[0, '0.01']]";
-
-			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
-
-			$return['chart'] = array(
-				'chart_format' => 'line',
-				'ymin' => 0,
-				'ymax' => 1,
-				'mean' => 0,
-				'chart_data' => $dataString,
-				'chart_data_over' => null,
-				'chart_data_over_2' => null
-			);
-			return $return;
-			//return false;
-
+			return false;
 		}
-
-
-
 	}
 
 
@@ -284,35 +269,30 @@ class Cpu extends LoadAvg
 			//grab the log file for current date (current date can be overriden to show other dates)
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
 
-				// find out main function from module args that generates chart data
-				// in this module its getData above
-				$caller = $chart->function;
+			// find out main function from module args that generates chart data
+			// in this module its getData above
+			$caller = $chart->function;
+
+			//check if function takes settings via GET url_args 
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
 			if ( file_exists( $this->logfile )) {
 				$i++;				
-
-				$no_logfile = false;
-
-				//check if function takes settings get url_args if chosen which is GET load for load view option
-				//otherwise default to middle view (2) which is 5 min load avg
-
-				$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+				$logfileStatus = false;
 
 				//call modules main function and pass over functionSettings
-				//calls getData with setting 1,2 or 3 for 1 5 or 15 min load display as per load value
 				if ($functionSettings) {
-					$stuff = $this->$caller( $functionSettings );
+					$stuff = $this->$caller( $logfileStatus, $functionSettings );
 				} else {
-					$stuff = $this->$caller( );
+					$stuff = $this->$caller( $logfileStatus );
 				}
 
 			} else {
+				//no log file so draw empty charts
 				$i++;				
-
-				$no_logfile = true;
-				$stuff = $this->$caller( );
+				$logfileStatus = true;
 			}
-			
+
 			//now draw chart to screen
 			include APP_PATH . '/views/chart.php';
 		}

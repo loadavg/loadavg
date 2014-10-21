@@ -58,7 +58,7 @@
 
 
                         $dates = LoadAvg::getDates();
-                        
+
                         $date_counter = 1;
 
                         $totalDates = (int)count($dates);
@@ -89,9 +89,8 @@
         </td>
     </tr>
 </table>
-<?php } 
-
-
+<?php 
+} 
 ?>
 
 <div class="innerAll">
@@ -110,7 +109,7 @@
             if (isset($moduleSettings['module']['tabbed']) && $moduleSettings['module']['tabbed'] == "true") {
                 if ($i == 1) break;
 
-                //echo 'NESTEDCHART:';
+                //echo 'NESTEDCHARTS:';
                 $class->genChart( $moduleSettings, $logdir );
                 $i++; //will this ever be hit ? as i = 1 breaks things
             } else {

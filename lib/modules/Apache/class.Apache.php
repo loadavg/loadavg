@@ -100,9 +100,6 @@ class Apache extends LoadAvg
 		return($dataValue);
     }
     
-
-
-
 	/**
 	 * getApacheUsageData
 	 *
@@ -111,8 +108,8 @@ class Apache extends LoadAvg
 	 * @return array $return data retrived from logfile
 	 *
 	 */
-	
-	public function getApacheUsageData()
+
+	public function getApacheUsageData( $logfileStatus )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
@@ -120,27 +117,33 @@ class Apache extends LoadAvg
 		$contents = null;
 
 		$replaceDate = self::$current_date;
+			
+		if ($logfileStatus == false ) {
 		
-		if ( LoadAvg::$period ) {
-			$dates = self::getDates();
-			foreach ( $dates as $date ) {
-				if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-					$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-					$replaceDate = $date;
-					if ( file_exists( $this->logfile ) )
-						$contents .= file_get_contents($this->logfile);
+			if ( LoadAvg::$period ) {
+				$dates = self::getDates();
+				foreach ( $dates as $date ) {
+					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
+						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
+						$replaceDate = $date;
+						if ( file_exists( $this->logfile ) )
+							$contents .= file_get_contents($this->logfile);
+					}
 				}
+			} else {
+				$contents = file_get_contents($this->logfile);
 			}
+
 		} else {
-			$contents = file_get_contents($this->logfile);
+
+			$contents = 0;
 		}
 
 		if ( strlen($contents) > 1 ) {
-
+			
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
-			//$swap = array();
 			$usageCount = array();
 			$dataArray = $dataArrayOver = array();
 
@@ -152,51 +155,49 @@ class Apache extends LoadAvg
 
 			$totalchartArray = (int)count($chartArray);
 
-			for ( $i = 0; $i < $totalchartArray-1; ++$i) {
-			
+			// main loop to build the chart data
+			for ( $i = 0; $i < $totalchartArray; ++$i) {	
 				$data = $chartArray[$i];
 
 				// clean data for missing values
 				$redline = ($data[1] == "-1" ? true : false);
 
-				// clean data for missing values
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")|| ($data[1] == "-1")  )
 					$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
 				//usage is used to calculate view perspectives
-				if (!$redline)
-					$usage[] = ( $data[1]  );
-
+				if (!$redline) 
+					$usage[] = ( $data[1] );
 
 				$time[( $data[1]  )] = date("H:ia", $data[0]);
-			
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] ) ."]";
-			
-				//if ( isset($data[2]) )
-				//	$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
 
 				$usageCount[] = ($data[0]*1000);
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
-			
+				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+					$timestamps[] = $data[0];
+
+				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] ) ."]";
 
 				if ( (float) $data[1] > $settings['settings']['overload'])
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
-				
+
 			}
-
-			$apache_high= max($usage);
-			$apache_high_time = $time[$apache_high];
-
-			$apache_low = min($usage);
-			$apache_low_time = $time[$apache_low];
-		
+			
+			$apache_high = max($usage);
+			$apache_low  = min($usage); 
 			$apache_mean = array_sum($usage) / count($usage);
-			$apache_latest = $usage[count($usage)-1];
 
-			$ymin = $apache_low;
+			//to scale charts
 			$ymax = $apache_high;
+			$ymin = $apache_low;
+
+			$apache_high_time = $time[max($usage)];
+			$apache_low_time = $time[min($usage)];
+
+			$apache_latest = ( ( $usage[count($usage)-1]  )    )    ;		
+
+
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
@@ -206,15 +207,12 @@ class Apache extends LoadAvg
 				$difference = ( $endTime - $lastTimeString );
 				$loops = ( $difference / 300 );
 
-				//line 212 below dies with memory leak regularly - why ?
 				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++ ) {
 					$lastTimeString = $lastTimeString + 300;
 					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
 				}
 			}
-
-
-
+		
 			$variables = array(
 				'apache_high' => number_format($apache_high,4),
 				'apache_high_time' => $apache_high_time,
@@ -223,9 +221,6 @@ class Apache extends LoadAvg
 				'apache_mean' => number_format($apache_mean,4),
 				'apache_latest' => number_format($apache_latest,4),
 			);
-
-			//DEBUG HERE
-			//print_r ($variables);
 		
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
@@ -233,12 +228,9 @@ class Apache extends LoadAvg
 
 			ksort($dataArray);
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			//if (!is_null($dataArraySwap)) ksort($dataArraySwap);
-
 
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			//print_r ($usageCount);
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
@@ -249,36 +241,20 @@ class Apache extends LoadAvg
 				'mean' => $apache_mean,
 				'chart_data' => $dataString,
 				'chart_data_over' => $dataOverString,
-				//'swap_count' => $usageCount,
 				'overload' => $settings['settings']['overload']
 			);
 
 			return $return;	
+			
 		} else {
-			//means there was no chart data sent over to chart
-			//so just trturn legend and null data back over
 
-			//can we create a null dataString ?
-			$dataString =   "[[0, '0.01']]";
-
-			//return false;
-			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
-
-			$return['chart'] = array(
-				'chart_format' => 'line',
-				'ymin' => 0,
-				'ymax' => 1,
-				'xmin' => date("Y/m/d 00:00:01"),
-				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => 0,
-				'chart_data' => $dataString,
-				'chart_data_over' => null,
-				'overload' => false
-			);
-
-			return $return;
+			return false;
 		}
 	}
+
+
+	
+
 
 	/**
 	 * genChart
@@ -302,30 +278,30 @@ class Apache extends LoadAvg
 			//grab the log file for current date (current date can be overriden to show other dates)
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
 
-				// find out main function from module args that generates chart data
-				// in this module its getData above
-				$caller = $chart->function;
+			// find out main function from module args that generates chart data
+			// in this module its getData above
+			$caller = $chart->function;
+
+			//check if function takes settings via GET url_args 
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
 			if ( file_exists( $this->logfile )) {
 				$i++;				
-				$no_logfile = false;
-
-				//check if function takes settings via GET url_args 
-				$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+				$logfileStatus = false;
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $functionSettings );
+					$stuff = $this->$caller( $logfileStatus, $functionSettings );
 				} else {
-					$stuff = $this->$caller( );
+					$stuff = $this->$caller( $logfileStatus );
 				}
 
 			} else {
+				//no log file so draw empty charts
 				$i++;				
-				$no_logfile = true;
-				$stuff = $this->$caller( );
+				$logfileStatus = true;
 			}
-			
+
 			//now draw chart to screen
 			include APP_PATH . '/views/chart.php';
 		}

@@ -108,7 +108,7 @@ class LoadAvg
 	public function createFirstLogs()
 	{
 
-		echo "Create Logs  \n";
+		//echo "Create Logs  \n";
 
 		//only does it if DIR is empty ?
 		if ( $this->is_dir_empty(HOME_PATH . '/' . self::$_settings->general['logs_dir']) ) {
@@ -243,10 +243,10 @@ class LoadAvg
 
 				$caller = $chart->function;
 				$stuff = $this->$caller( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
-				$no_logfile = false;
+				$logfileStatus = false;
 				
 			} else {
-				$no_logfile = true;
+				$logfileStatus = true;
 			}
 			
 			include APP_PATH . '/views/chart.php';
@@ -961,15 +961,26 @@ class LoadAvg
 	 * @return array $return array with list of dates
 	 */
 
+	//grabs dates of ALL log files to be safe but would be faster if it did just one module
+
 	public static function getDates()
 	{
 		$dates = array();
+
 		foreach ( glob(dirname(__FILE__) . "/../logs/*.log") as $file ) {
 			preg_match("/([0-9-]+)/", basename($file), $output_array);
+		
 			if ( isset( $output_array[0] ) && !empty( $output_array[0] ) )
 				$dates[] = $output_array[0];
 		}
-		return array_unique($dates);
+
+ 		//get rid of all duplicate dates
+		$dates = array_unique($dates);
+
+		//need to properly sort the array before returning it
+		asort ($dates);
+
+		return $dates;
 	}
 
 	/**
@@ -984,7 +995,7 @@ class LoadAvg
 		$fh = fopen(dirname(__FILE__) . '/../logs/update.log', 'a+');
 		$logLine = "Update check at " . date("Y-m-d H:i:s a") . " ---- Response: " . $response . PHP_EOL;
 		if ( $fh ) {
--			fwrite($fh, $logLine);
+			fwrite($fh, $logLine);
 			fclose($fh);
 		}
 

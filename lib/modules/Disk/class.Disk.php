@@ -84,7 +84,7 @@ class Disk extends LoadAvg
 	 *
 	 */
 	
-	public function getDiskUsageData()
+	public function getDiskUsageData( $logfileStatus )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
@@ -92,19 +92,26 @@ class Disk extends LoadAvg
 		$contents = null;
 
 		$replaceDate = self::$current_date;
+			
+		if ($logfileStatus == false ) {
 		
-		if ( LoadAvg::$period ) {
-			$dates = self::getDates();
-			foreach ( $dates as $date ) {
-				if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-					$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-					$replaceDate = $date;
-					if ( file_exists( $this->logfile ) )
-						$contents .= file_get_contents($this->logfile);
+			if ( LoadAvg::$period ) {
+				$dates = self::getDates();
+				foreach ( $dates as $date ) {
+					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
+						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
+						$replaceDate = $date;
+						if ( file_exists( $this->logfile ) )
+							$contents .= file_get_contents($this->logfile);
+					}
 				}
+			} else {
+				$contents = file_get_contents($this->logfile);
 			}
+
 		} else {
-			$contents = file_get_contents($this->logfile);
+
+			$contents = 0;
 		}
 
 		if ( strlen($contents) > 1 ) {
@@ -152,12 +159,15 @@ class Disk extends LoadAvg
 
 				//used to filter out redline data from usage data as it skews it
 				//usage is used to calculate view perspectives
-				if (!$redline)
+				if (!$redline) {
 					$usage[] = ( $data[1] / 1048576 );
+					$percentage_used =  ( $data[1] / $data[2] ) * 100;
+				} else {
+					$percentage_used = 0;
+				}
 
 				$time[( $data[1] / 1048576 )] = date("H:ia", $data[0]);
 
-				$percentage_used =  ( $data[1] / $data[2] ) * 100;
 
 				$usageCount[] = ($data[0]*1000);
 
@@ -273,29 +283,7 @@ class Disk extends LoadAvg
 			
 		} else {
 
-			//means there was no chart data sent over to chart
-			//so just trturn legend and null data back over
-
-			//can we create a null dataString ?
-			$dataString =   "[[0, '0.00']]";
-
-			//return false;
-			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
-
-			$return['chart'] = array(
-				'chart_format' => 'line',
-				'ymin' => 0,
-				'ymax' => 1,
-				'xmin' => date("Y/m/d 00:00:01"),
-				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => 0,
-				'chart_data' => $dataString,
-				'chart_data_over' => null,
-				'overload' => false
-			);
-
-			return $return;
-
+			return false;
 		}
 	}
 
@@ -309,7 +297,6 @@ class Disk extends LoadAvg
 	 *
 	 */
 
-
 	public function genChart($moduleSettings, $logdir)
 	{
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
@@ -322,35 +309,31 @@ class Disk extends LoadAvg
 			//grab the log file for current date (current date can be overriden to show other dates)
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
 
-				// find out main function from module args that generates chart data
-				// in this module its getData above
-				$caller = $chart->function;
+			// find out main function from module args that generates chart data
+			// in this module its getData above
+			$caller = $chart->function;
+
+			//check if function takes settings via GET url_args 
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
 			if ( file_exists( $this->logfile )) {
 				$i++;				
-
-				$no_logfile = false;
-
-				//check if function takes settings get url_args if chosen which is GET load for load view option
-				//otherwise default to middle view (2) which is 5 min load avg
-
-				$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+				$logfileStatus = false;
 
 				//call modules main function and pass over functionSettings
-				//calls getData with setting 1,2 or 3 for 1 5 or 15 min load display as per load value
 				if ($functionSettings) {
-					$stuff = $this->$caller( $functionSettings );
+					$stuff = $this->$caller( $logfileStatus, $functionSettings );
 				} else {
-					$stuff = $this->$caller( );
+					$stuff = $this->$caller( $logfileStatus );
 				}
 
 			} else {
+				//no log file so draw empty charts
 				$i++;				
+				$logfileStatus = true;
 
-				$no_logfile = true;
-				$stuff = $this->$caller( );
 			}
-			
+
 			//now draw chart to screen
 			include APP_PATH . '/views/chart.php';
 		}

@@ -78,7 +78,7 @@ class Memory extends LoadAvg
 	 *
 	 */
 	
-	public function getMemoryUsageData()
+	public function getMemoryUsageData( $logfileStatus)
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
@@ -87,18 +87,25 @@ class Memory extends LoadAvg
 
 		$replaceDate = self::$current_date;
 		
-		if ( LoadAvg::$period ) {
-			$dates = self::getDates();
-			foreach ( $dates as $date ) {
-				if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-					$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-					$replaceDate = $date;
-					if ( file_exists( $this->logfile ) )
-						$contents .= file_get_contents($this->logfile);
+		if ($logfileStatus == false ) {
+		
+			if ( LoadAvg::$period ) {
+				$dates = self::getDates();
+				foreach ( $dates as $date ) {
+					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
+						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
+						$replaceDate = $date;
+						if ( file_exists( $this->logfile ) )
+							$contents .= file_get_contents($this->logfile);
+					}
 				}
+			} else {
+				$contents = file_get_contents($this->logfile);
 			}
+
 		} else {
-			$contents = file_get_contents($this->logfile);
+
+			$contents = 0;
 		}
 
 		if ( strlen($contents) > 1 ) {
@@ -146,23 +153,22 @@ class Memory extends LoadAvg
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") || ($data[1] == "-1")  )
 					$data[1]=0.0;
 
-//				if (  (!$data[2]) ||  ($data[2] == null) || ($data[2] == "") || ($data[2] == "-1")  )
-				if (  ($data[2] == "-1")  )
+				if (  ($data[2] == "-1")  ) 
 					$data[2]=0.0;
 
-//				if (  (!$data[3]) ||  ($data[3] == null) || ($data[3] == "") || ($data[3] == "-1")  )
 				if (  ($data[3] == "-1")  )
 					$data[3]=0.0;
-									//if (  isset($data[2]) && ($data[2] == "-1")  )
 
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {
 					$usage[] = ( $data[1] / 1024 );
+					$percentage_used =  ( $data[1] / $data[3] ) * 100; // DIV 0 REDLINE
+				} else {
+					$percentage_used = 0;
 				}
+			
 
 				$time[( $data[1] / 1024 )] = date("H:ia", $data[0]);
-			
-				$percentage_used =  ( $data[1] / $data[3] ) * 100;
 
 				$usageCount[] = ($data[0]*1000);
 
@@ -173,18 +179,13 @@ class Memory extends LoadAvg
 					// display data using MB
 					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
-					//echo 'SYST1:' . ' : ' . $data[1] / 1024 . '<br>';
-
 					if ( $percentage_used > $settings['settings']['overload'] )
 						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
 					//swapping
 					if ( isset($data[2])  ) {
 						$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
-
 						$swap[] = ( $data[2] / 1024 );
-
-						//echo 'SWAP1:' . ' : ' . $data[2] / 1024 . '<br>';
 
 					}
 
@@ -192,21 +193,19 @@ class Memory extends LoadAvg
 					// display data using percentage
 					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 
-					//echo 'SYST2:' . ' : ' . $percentage_used  . '<br>';
-
 					if ( $percentage_used > $settings['settings']['overload'])
 						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 
 					//swapping
 					if ( isset($data[2])  ) {
 
-						$swap_percentage = ( ($data[2] / $data[3])  * 100);
-
+						if (!$redline) 
+							$swap_percentage = ( ($data[2] / $data[3])  * 100); // DIV 0 REDLINE
+						else
+							$swap_percentage = 0;
+						
 						$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". $swap_percentage ."]";
-
 						$swap[] = $swap_percentage;
-
-						//echo 'SWAP2:' . ' : ' . $swap_percentage . '<br>';					
 					}
 
 				}
@@ -284,8 +283,6 @@ class Memory extends LoadAvg
 				'mem_total' => number_format($mem_total,2),
 				'mem_swap' => number_format($swap,2),
 			);
-
-			//print_r ($variables);
 		
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
@@ -305,15 +302,6 @@ class Memory extends LoadAvg
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
 			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
 
-	//echo '<pre>dataString</pre>';
-	//echo '<pre>';print_r($dataString);echo'</pre>';
-	//echo '<pre>';var_dump($dataString);echo'</pre>';
-
-	//echo '<pre>dataSwapString</pre>';
-	//echo '<pre>';print_r($dataSwapString);echo'</pre>';
-	//echo '<pre>';var_dump($dataSwapString);echo'</pre>';
-
-
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'ymin' => $ymin,
@@ -331,29 +319,9 @@ class Memory extends LoadAvg
 
 			return $return;	
 		} else {
-			//means there was no chart data sent over to chart
-			//so just trturn legend and null data back over
 
-			//can we create a null dataString ?
-			$dataString =   "[[0, '0.01']]";
-
-			//return false;
-			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
-
-			$return['chart'] = array(
-				'chart_format' => 'line',
-				'ymin' => 0,
-				'ymax' => 1,
-				'xmin' => date("Y/m/d 00:00:01"),
-				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => 0,
-				'chart_data' => $dataString,
-				'chart_data_over' => null,
-				'chart_data_swap' => null,				// how is it used				
-				'overload' => false
-			);
-
-			return $return;		}
+			return false;	
+		}
 	}
 
 	/**
@@ -378,30 +346,30 @@ class Memory extends LoadAvg
 			//grab the log file for current date (current date can be overriden to show other dates)
 			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
 
-				// find out main function from module args that generates chart data
-				// in this module its getData above
-				$caller = $chart->function;
+			// find out main function from module args that generates chart data
+			// in this module its getData above
+			$caller = $chart->function;
+
+			//check if function takes settings via GET url_args 
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
 			if ( file_exists( $this->logfile )) {
 				$i++;				
-				$no_logfile = false;
-
-				//check if function takes settings via GET url_args 
-				$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+				$logfileStatus = false;
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $functionSettings );
+					$stuff = $this->$caller( $logfileStatus, $functionSettings );
 				} else {
-					$stuff = $this->$caller( );
+					$stuff = $this->$caller( $logfileStatus );
 				}
 
 			} else {
+				//no log file so draw empty charts
 				$i++;				
-				$no_logfile = true;
-				$stuff = $this->$caller( );
+				$logfileStatus = true;
 			}
-			
+
 			//now draw chart to screen
 			include APP_PATH . '/views/chart.php';
 		}

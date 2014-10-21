@@ -14,6 +14,32 @@
 */
 
 ?>
+
+<?php
+
+	//if there is no logfile or error from the caller (stuff is false) 
+	//then we just build empty charts
+	if ($stuff == false || $logfileStatus == true ) {
+
+		$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
+
+		////////////////////////////////////////////////////////////////////////////
+		//this data can be created in charts.php really if $datastring is null ?
+		//or add a flag to the array for chartdata here...
+		$stuff['chart'] = array(
+			'chart_format' => 'line',
+			'ymin' => 0,
+			'ymax' => 1,
+			'xmin' => date("Y/m/d 00:00:01"),
+			'xmax' => date("Y/m/d 23:59:59"),
+			'mean' => 0,
+			'chart_data' => "[[0, '0.00']]"
+		);
+	
+	}
+
+?>
+
 <div class="widget" data-toggle="collapse-widget" data-collapse-closed="false">
 
 
@@ -150,7 +176,7 @@
 						$(function () {
 							<?php if ( $i == 1) { ?>
 							charts.<?php echo $chart->chart_function; ?>.setData(chart_data);
-							<?php if ($no_logfile == true) { 
+							<?php if ($logfileStatus == true) { 
 								$errorMessage = 'No logfile data to generate charts for module ' . $module . ' check your logger';
 								?>
 								charts.<?php echo $chart->chart_function; ?>.setLabel("<?php echo $errorMessage; ?>");
@@ -161,7 +187,7 @@
 							<?php } elseif ($i > 1) { ?>
 
 							charts.<?php echo $chart->id; ?>.setData(chart_data);							
-							<?php if ($no_logfile == true) { 
+							<?php if ($logfileStatus == true) { 
 								$errorMessage = 'No logfile data to generate charts for module ' . $module . ' check your logger';
 								?>
 								charts.<?php echo $chart->chart_function; ?>.setLabel("<?php echo $errorMessage; ?>");
@@ -253,7 +279,7 @@
 					<div id="<?php echo $chart->id; ?>" style="height: 160px;" class="chart-holder"></div>
 
 
-					<?php if ($no_logfile) { // need to implement this method for overlay errors on charts ?>
+					<?php if ($logfileStatus) { // need to implement this method for overlay errors on charts ?>
 					<!--
 					
 					NOTE: Enable canvas: true, in chart js options
