@@ -750,15 +750,20 @@ class LoadAvg
 		$server_url = $url . '/servers/';
 
 		//validate API access here
+		if ( self::$_settings->general['api']['server_token'] && self::$_settings->general['api']['key'] ) {		
 		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/' . self::$_settings->general['api']['key'] . '/v');
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$account_valid = curl_exec($ch);
+		} else
+			$account_valid = 'false';
 
 		//get server id from server token
+		if ( self::$_settings->general['api']['server_token'] ) {			
 		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/t');
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$server_exists = curl_exec($ch);
-
+		} else
+			$server_exists = 'false';
 
 		//echo $server_url.json_decode($server_exists)->id.'/data';
 
@@ -806,7 +811,7 @@ class LoadAvg
 	 * @return string $result message returned from the server
 	 */
 
-	public function testApiConnection( $echo = false ) {
+	public static function testApiConnection( $echo = false ) {
 
 		$url = self::$_settings->general['api']['url'];
 
@@ -814,28 +819,37 @@ class LoadAvg
 		$server_url = $url . '/servers/';
 		
 		//validate users api key
-		$ch =  curl_init($user_url . self::$_settings->general['api']['key'] . '/va');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$user_exists = curl_exec($ch);
+		if ( self::$_settings->general['api']['key'] ) {
+			$ch =  curl_init($user_url . self::$_settings->general['api']['key'] . '/va');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$user_exists = curl_exec($ch);
+		} else
+			$user_exists = 'false';
+
 
 		//val;idate server token
-		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/vs');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$server_exists = curl_exec($ch);
+		if ( self::$_settings->general['api']['server_token'] ) {
+			$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/vs');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$server_exists = curl_exec($ch);
+		} else
+			$server_exists = 'false';		
 
 		//validate api key against server token
-		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/' . self::$_settings->general['api']['key'] . '/v');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$server_valid = curl_exec($ch);
-
+		if ( self::$_settings->general['api']['server_token'] && self::$_settings->general['api']['key'] ) {
+			$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/' . self::$_settings->general['api']['key'] . '/v');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$server_valid = curl_exec($ch);
+		} else
+			$server_valid = 'false';
 
 		if ($echo) {
 
-			echo ($user_exists == 'false' ?  'API Key : INVALID ' :  'API Key : VALID ');
+			echo ($user_exists == 'false' ?  "API Key : INVALID \n" :  "API Key : VALID \n");
 
-			echo ($server_exists == 'false' ?  'Server Token : INVALID ' :  'Server Token : VALID ');
+			echo ($server_exists == 'false' ?  "Server Token : INVALID \n" :  "Server Token : VALID \n");
 			
-			echo ($server_valid == 'false' ?  'Server Access : INVALID ' :  'Server Access : VALID ');
+			echo ($server_valid == 'false' ?  "Server Access : INVALID \n" :  "Server Access : VALID \n");
 
 		}
 

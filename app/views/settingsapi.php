@@ -53,14 +53,11 @@ if (isset($_POST['update_settings'])) {
     /////////////////////////////////////////////////////////////////////
     //test api connection done inline on reload for now need AJAX
 
-  if (isset($_POST['Test_Settings'])) {
-
-    header('Location: '.$_SERVER['REQUEST_URI'] . '&test=true' );
-    //header('Location: '. '/public/index.php?page=settingsapi&test=true' );
-  }
+  if (isset($_POST['Test_Settings'])) 
+    header('Location: '. strtok($_SERVER["REQUEST_URI"],'&') . '&test=true' );
   else
-    //header('Location: '. '/public/index.php?page=settingsapi'  );
-    header('Location: '.$_SERVER['REQUEST_URI'] );
+    header('Location: '. strtok($_SERVER["REQUEST_URI"],'&') );
+
 }
 
 ?>
