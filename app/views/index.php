@@ -30,7 +30,7 @@
 
             <?php if ( (isset($_GET['logdate'])) && !empty($_GET['logdate']) ) 
             {
-            echo '<br>Viewing ' .  $_GET['logdate'];
+            echo '<br>Viewing ' . date("l, M. j", strtotime($_GET['logdate'])); 
             } else {
             ?> 
             <br>Zone <?php echo date("(e)", (time()-300)); 
