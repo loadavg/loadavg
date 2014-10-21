@@ -55,12 +55,12 @@ if (isset($_POST['update_settings'])) {
 
   if (isset($_POST['Test_Settings'])) {
 
-    //header('Location: '.$_SERVER['REQUEST_URI'] . '&test=true' );
-    header('Location: '. '/public/index.php?page=settingsapi&test=true' );
+    header('Location: '.$_SERVER['REQUEST_URI'] . '&test=true' );
+    //header('Location: '. '/public/index.php?page=settingsapi&test=true' );
   }
   else
-    header('Location: '. '/public/index.php?page=settingsapi'  );
-    //header('Location: '.$_SERVER['REQUEST_URI'] );
+    //header('Location: '. '/public/index.php?page=settingsapi'  );
+    header('Location: '.$_SERVER['REQUEST_URI'] );
 }
 
 ?>

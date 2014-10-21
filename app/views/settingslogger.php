@@ -60,8 +60,8 @@ else
 		/* force reload settings page now */
 
 		//echo 'URI ' . $_SERVER['REQUEST_URI'] ;
-		//header('Location: '.$_SERVER['REQUEST_URI']);
-		header('Location: '. '/public/index.php?page=settingslogger'  );
+		header('Location: '.$_SERVER['REQUEST_URI']);
+		//header('Location: '. '/public/index.php?page=settingslogger'  );
 
 	}
 	?>
