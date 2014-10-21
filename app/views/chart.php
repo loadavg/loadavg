@@ -19,7 +19,7 @@
 
 	//if there is no logfile or error from the caller (stuff is false) 
 	//then we just build empty charts
-	if ($stuff == false || $logfileStatus == true ) {
+	if ( !isset($stuff) || $stuff == false || $logfileStatus == true ) {
 
 		$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
 
@@ -177,7 +177,7 @@
 							<?php if ( $i == 1) { ?>
 							charts.<?php echo $chart->chart_function; ?>.setData(chart_data);
 							<?php if ($logfileStatus == true) { 
-								$errorMessage = 'No logfile data to generate charts for module ' . $module . ' check your logger';
+								$errorMessage = 'No logfile data to generate charts for module ' . $module;
 								?>
 								charts.<?php echo $chart->chart_function; ?>.setLabel("<?php echo $errorMessage; ?>");
 							<?php } ?>
