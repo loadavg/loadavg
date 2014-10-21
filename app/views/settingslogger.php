@@ -57,8 +57,11 @@ else
 		//LoadAvg::write_php_ini($mergedsettings, $settings_file);
 		LoadAvg::write_php_ini($replaced_settings, $settings_file);
 
-		//reload page
-		header('Location: '. '/public/index.php?page=settingslogger'  );
+		/* force reload settings page now */
+
+		//echo 'URI ' . $_SERVER['REQUEST_URI'] ;
+		header('Location: '.$_SERVER['REQUEST_URI']);
+		//header('Location: '. '/public/index.php?page=settingslogger'  );
 
 	}
 	?>
