@@ -387,6 +387,62 @@ class LoadAvg
 
 
 
+
+
+
+
+	/**
+	 * checkInstall
+	 *
+	 * Checks if is still installation progress and redirects if TRUE.
+	 *
+	 */
+
+	public function cleanUpInstaller() {
+
+		//location of core settings
+		$settings_file = APP_PATH . '/config/settings.ini';
+
+		if ( $this->checkWritePermissions( $settings_file ) ) 
+		{
+			/* 
+			 * Create first log files for all active modules 
+			 * only executes if there are no log files
+	 		 */		
+			$this->createFirstLogs();
+
+			/* 
+			 * try to delete installer...
+	 		 */	
+			if ( $this->checkInstaller() ) {
+				header("Location: index.php");
+			} 
+			else 
+			{
+				//try to delete installer if we have permissions
+				$installer_file = HOME_PATH . "/install/index.php";
+				$installer_loc = HOME_PATH . "/install/";
+
+				unlink($installer_file);
+				rmdir($installer_loc);
+
+				if ( $this->checkInstaller() ) {
+					header("Location: index.php");
+				}
+				else
+				{ 
+					//throw a error and exit
+					require_once APP_PATH . '/layout/secure.php'; 
+					require_once APP_PATH . '/layout/footer.php'; 
+					
+					exit;
+				}
+			}
+		} else {
+			header("Location: " . SCRIPT_ROOT . "/install/index.php?step=1");
+		}
+	}
+
 	/*
 	 * build the chart data array here and patch to check for downtime
 	 * as current charts connect last point to next point
@@ -723,6 +779,7 @@ class LoadAvg
 
 				if (isset(self::$_settings->general['checkforupdates'])) 
 				{
+					//check for updates at login
 					$this->checkForUpdate();
 				}
 			}

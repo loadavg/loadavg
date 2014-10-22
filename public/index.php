@@ -24,84 +24,29 @@ session_start();
 include 'class.LoadAvg.php';
 $loadavg = new LoadAvg();
 
+//grab core settings
 $settings = LoadAvg::$_settings->general;
 
-$settings_file = APP_PATH . '/config/settings.ini';
 
+
+//draw the header
 require_once APP_PATH . '/layout/header.php';
 
 /* 
  * check for successful installation
  */	
 
-if ( isset( $_GET['check'] ) ) {
-
-	if ( $loadavg->checkWritePermissions( $settings_file ) ) {
-
-		/* 
-		 * Create first log files for all active modules 
-		 * only executes if there are no log files
- 		 */		
-		$loadavg->createFirstLogs();
-
-		/* 
-		 * try to delete installer...
- 		 */	
-		if ( $loadavg->checkInstaller() ) {
-			header("Location: index.php");
-		} 
-		else 
-		{
-			//try to delete installer if we have permissions
-			$installer_file = HOME_PATH . "/install/index.php";
-			$installer_loc = HOME_PATH . "/install/";
-
-			unlink($installer_file);
-			rmdir($installer_loc);
-
-			if ( $loadavg->checkInstaller() ) {
-				header("Location: index.php");
-			}
-			else
-			{ 
-			?>
-
-			<div class="well">
-				<h3>Secure your installation!</h3>
-
-					<p>For security reasons, you need to delete the <span class="label label-info">/install</span> folder 
-					before you can run LoadAvg<br> 
-					<br>
-					To do this go to the location you installed LoadAvg and type:<br>
-					<br>
-					<span class="label label-info">rm -rf install</span>
-					<br><br>
-					LoadAvg will not run until this has been done.
-					<br><br>
-					After you have removed the install folder hit <span class="label label-info">Check again</span> 
-				to login<br><br>
-				</p>
-				<button class="btn btn-primary" onclick="location.reload();">Check again!</button>
-			</div>
-
-			<?php
-			require_once APP_PATH . '/layout/footer.php'; 
-			exit;
-			}
-		}
-	} else {
-		header("Location: " . SCRIPT_ROOT . "/install/index.php?step=1");
-	}
+//check if installation is complete passed over by installer
+if ( isset( $_GET['check'] ) ) 
+{
+	$loadavg->cleanUpInstaller();
 } else {
-	//in case of working scripts, we still if check installation 
-	//is safe before moving on for security reasons
+	//check installation has been cleaned up for security reasons
 	$loadavg->checkInstall();
 }
 
-
-
 /* 
- * Set the current period
+ * Grab the current period if a period has been selected
  */
 
 if ( 
@@ -125,34 +70,41 @@ $loadavg->setStartTime(); // Setting page load start time
  * draw the current page view
  */
 
+//array of modules and status either on or off
 $loaded = LoadAvg::$_settings->general['modules']; 
 
-//$logdir = APP_PATH . '/../logs/';
+//grab the log diretory
 $logdir = HOME_PATH . '/logs/';
 
-
-//security here check for access
-if ($settings['allow_anyone'] == "false" && !$loadavg->isLoggedIn()) {
+//security check for all access
+if ( isset($settings['allow_anyone']) && $settings['allow_anyone'] == "false" && !$loadavg->isLoggedIn() ) 
+{
 	include( APP_PATH . '/views/login.php');
-} else {
-	if (isset($_GET['page']) && file_exists( APP_PATH . '/views/' . $_GET['page'] . '.php' ) ) {
-		if ( !$loadavg->isLoggedIn() && $_GET['page'] == "settings" && (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "true")) {
-			if (!$loadavg->isLoggedIn()) { include( APP_PATH . '/views/login.php'); }
-		} else {
-			require_once APP_PATH . '/views/' . $_GET['page'] . '.php';
-		}
-	} else {
+} 
+else 
+{
+	//draw current page
+	if (isset($_GET['page']) && file_exists( APP_PATH . '/views/' . $_GET['page'] . '.php' ) ) 
+	{
+		require_once APP_PATH . '/views/' . $_GET['page'] . '.php';
+	} 
+	else 
+	{
+		//if page doesnt exist redirect to index, can be modified to a page not found if need be
 		require_once APP_PATH . '/views/index.php';
 	}
 }
 
-/*
+/* 
  * finish polling time to generate charts
  */
 
-$loadavg->setFinishTime(); // Setting page load finish time
+// set page load finish time
+$loadavg->setFinishTime(); 
 
-$page_load = $loadavg->getPageLoadTime(); // Calculating page load time
+// Calculating total page load time
+$page_load = $loadavg->getPageLoadTime(); 
 
-
-require_once APP_PATH . '/layout/footer.php'; ?>
+//draw the footer
+require_once APP_PATH . '/layout/footer.php'; 
+?>

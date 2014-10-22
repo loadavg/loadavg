@@ -15,19 +15,15 @@
 ?>
 
 <?php
+/*
+ * Security wrapper for private pages
+ *
+ */
 
-//locate the PHP binary
-$php_location = PHP_BINDIR . "/php";
-
-?>
-
-
-<?php
 if (!$loadavg->isLoggedIn() && !LoadAvg::checkInstall()) {
 	include('login.php');
 }
-else 
-{
+else {
 ?>
 
 	<?php
@@ -63,6 +59,10 @@ else
     	header('Location: '. strtok($_SERVER["REQUEST_URI"],'&') );
 
 	}
+
+	//locate php binary for logger location text below
+	$php_location = PHP_BINDIR . "/php";
+		
 	?>
 
 	<div class="innerAll">

@@ -16,6 +16,11 @@
 
 
 <?php
+/*
+ * Security wrapper for private pages
+ *
+ */
+
 if (!$loadavg->isLoggedIn() && !LoadAvg::checkInstall()) {
 	include('login.php');
 }
