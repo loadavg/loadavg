@@ -96,7 +96,27 @@
                         </ul>	
 						</div>
 					</div>
-					
+
+			<div class="separator bottom"></div>
+
+			<div class="widget widget-4">
+				<div class="widget-head">
+					<h4 class="heading">Networking</h4>
+				</div>
+				<div class="widget-body">
+					<div class="widget ">
+						<div class="widget-head"><h4 class="heading">Interfaces</h4></div>
+						<div class="widget-body">
+								<ul class="unstyled row-fluid">
+                            <li><strong class="span4">Interface:</strong><span class="span8"><?php echo $server->getData('network_name'); ?></span></li>
+                            <li><strong class="span4">IP:</strong><span class="span8"><?php echo $server->getData('network_ip'); ?></span></li>
+                        </ul>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
 				</div>
 			</div>
 
@@ -133,25 +153,7 @@
 				</div>
 			</div>
 
-			<div class="separator bottom"></div>
 
-			<div class="widget widget-4">
-				<div class="widget-head">
-					<h4 class="heading">Networking</h4>
-				</div>
-				<div class="widget-body">
-					<div class="widget ">
-						<div class="widget-head"><h4 class="heading">Interfaces</h4></div>
-						<div class="widget-body">
-								<ul class="unstyled row-fluid">
-                            <li><strong class="span4">Interface:</strong><span class="span8"><?php echo $server->getData('network_name'); ?></span></li>
-                            <li><strong class="span4">IP:</strong><span class="span8"><?php echo $server->getData('network_ip'); ?></span></li>
-                        </ul>
-						</div>
-					</div>
-
-				</div>
-			</div>
 
 			<div class="separator bottom"></div>
 
@@ -159,8 +161,10 @@
 				<div class="widget-head">
 					<h4 class="heading">Disk usage</h4>
 				</div>
-
-					<div class="widget-body">
+				<div class="widget-body">
+					<div class="widget ">
+						<div class="widget-head"><h4 class="heading">Primary Storage</h4></div>
+						<div class="widget-body">
 
 						<?php
 						
@@ -174,29 +178,69 @@
 						//if (is_dir($drive)) {				
 						//}
 
-						$totalBytes = (float) $server->getTotalStorage( $drive );
-						$freeData   = (float) $server->getFreeStorage( $drive );
-						$usedData   = (float) $server->getUsedStorage( $drive );
-
-						//list ( $freeBytes , $percentFreeBytes  ) = $server->getFreeStorage( $drive );
-						//list ( $usedBytes , $percentUsedBytes  ) = $server->getUsedStorage( $drive );
+						$totalBytes =  $server->getTotalStorage( $drive, true );
+						$freeData   =  $server->getFreeStorage( $drive, true );
+						$usedData   =  $server->getUsedStorage( $drive, true );
 
 						?>
 							
 						<ul class="unstyled row-fluid">
-	                        <li><strong class="span4">Total Space:</strong><span class="span8"><?php echo number_format($totalBytes,2); ?> GB</span></li>
-	                        <li><strong class="span4">Used Space:</strong><span class="span8"><?php echo number_format($usedData[0],2); ?> GB</span></li>
-	                        <li><strong class="span4">Free Space:</strong><span class="span8"><?php echo number_format($freeData[0],2); ?> GB</span></li>
+	                        <li><strong class="span4">Total Space:</strong><span class="span8"><?php echo $totalBytes; ?></span></li>
+
+	                        <li><strong class="span4">Used Space:</strong><span class="span8"><?php echo $usedData[0]; ?></span></li>
+	                        <li><strong class="span4">Free Space:</strong><span class="span8"><?php echo $freeData[0]; ?></span></li>
+
 	                        <li><strong class="span4">Free %:</strong><span class="span8"><?php echo $freeData[1]; ?> %</span></li>
 	                        <li><strong class="span4">Used %:</strong><span class="span8"><?php echo $usedData[1]; ?> %</span></li>
 	                   </ul>
 					</div>
+					</div>
+					</div>
 
-				<?php
-				
-				?>
+				<div class="separator bottom"></div>
+
+
+
+
+
+				<div class="widget-head">
+					<h4 class="heading">Disk Partitions</h4>
+				</div>
+
 				<div class="widget-body">
-					<pre><?php echo $server->getData('hdd_usage'); ?></pre>
+					<div class="widget ">
+						<!--
+						<div class="widget-head"><h4 class="heading">Interfaces</h4></div>
+					-->
+						<div class="widget-body">					
+					<?php 
+					//old way
+					//echo $server->getData('hdd_usage'); 
+
+					//$Stats = $server->getPartitionData( $server->getData('partitions') );
+					$Stats = $server->getPartitionData( );
+
+		            foreach($Stats as $row){
+					?>
+						<ul class="unstyled row-fluid">
+
+	<li><strong class="span4">Disk:</strong><span class="span8"><?php echo $row['disk']; ?></span></li>
+	<li><strong class="span4">Mount:</strong><span class="span8"><?php echo $row['mount']; ?></span></li>
+	<li><strong class="span4">Type:</strong><span class="span8"><?php echo $row['type']; ?></span></li>
+	<li><strong class="span4">Total:</strong><span class="span8"><?php echo (int)$row['mb_total']; ?></span></li>
+	<li><strong class="span4">Used:</strong><span class="span8"><?php echo (int)$row['mb_used']; ?></span></li>
+	<li><strong class="span4">Free:</strong><span class="span8"><?php echo (int)$row['mb_free']; ?></span></li>
+	<li><strong class="span4">Percent:</strong><span class="span8"><?php echo (int)$row['percent']; ?></span></li>
+
+						</ul>
+					<?php		 
+
+		            }    
+
+					?>
+
+				</div>
+				</div>
 				</div>
 
 			</div>
@@ -204,23 +248,3 @@
 	</div>
 </div>
 
-
-
-
-
-<?php
-
-//This is  a more readable way of viewing the returned float
-
-function dataSize($Bytes)
-{
-$Type=array("", "kilo", "mega", "giga", "tera");
-$counter=0;
-while($Bytes>=1024)
-{
-$Bytes/=1024;
-$counter++;
-}
-return("".$Bytes." ".$Type[$counter]."bytes");
-}
-?>

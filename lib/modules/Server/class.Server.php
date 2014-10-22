@@ -50,6 +50,16 @@ class Server extends LoadAvg
 		}
 	}
 
+	/**
+	 * dataSize
+	 *
+	 * A more readable way of viewing the returned float when polling disk size
+	 *
+	 * @param string $cmd command to execute for data
+	 * @return array $results array of command execution results
+	 *
+	 */
+
 	public function getTotalMemory(  )
 	{
 		try {
@@ -62,26 +72,26 @@ class Server extends LoadAvg
 		}
 	}
 
-	public function getTotalStorage( $drive )
+	public function getTotalStorage( $drive, $formatted = false )
 	{
 		try {
 			if (is_dir($drive)) {
 
 								$Bytes = disk_total_space($drive);
-								$totalBytes = dataSize($Bytes);
-								return $totalBytes;
 
+								if ($formatted)
+									$totalBytes = $this->dataSize($Bytes);
+								else
+									$totalBytes = $Bytes;
+
+								return $totalBytes;								
 			}
 		} catch (Exception $e) {
 
 		}
 	}
 
-
-
-//$percentBytes = $freeBytes ? round($freeBytes / $totalBytes, 2) * 100 : 0;
-
-	public function getFreeStorage( $drive )
+	public function getFreeStorage( $drive, $formatted = false )
 	{
 		try {
 			if (is_dir($drive)) {
@@ -89,29 +99,37 @@ class Server extends LoadAvg
 								$total = disk_total_space($drive);
 								$free = disk_free_space($drive);
 
-								$freeBytes = dataSize($free);
 								$percentFreeBytes =  $free ? round($free / $total, 2) * 100 : 0;
-								
-								return array($freeBytes, $percentFreeBytes);
+
+								if ($formatted)
+									$freeBytes = $this->dataSize($free);
+								else
+									$freeBytes = $free;
+
+								return array( $freeBytes, $percentFreeBytes);
 			}
 		} catch (Exception $e) {
 
 		}
 	}
 
-	public function getUsedStorage( $drive )
+	public function getUsedStorage( $drive, $formatted = false )
 	{
 		try {
 			if (is_dir($drive)) {
+
 								$total = disk_total_space($drive);
 								$free = disk_free_space($drive);
-
 								$used = ($total - $free);
-								$usedBytes = dataSize($used);
-								
+
 								$percentUsedBytes =  $used ? round($used / $total, 2) * 100 : 0;
 
-								return array($usedBytes, $percentUsedBytes);
+								if ($formatted)
+									$usedBytes = $this->dataSize($used);
+								else
+									$usedBytes = $used;
+
+								return array(  $usedBytes, $percentUsedBytes );
 
 			}
 		} catch (Exception $e) {
@@ -119,30 +137,56 @@ class Server extends LoadAvg
 		}
 	}
 
+	/*
+	* move into plugin
+	*/
 
-	/**
-	 * dataSize
-	 *
-	 * A more readable way of viewing the returned float when polling disk size
-	 *
-	 * @param string $cmd command to execute for data
-	 * @return array $results array of command execution results
-	 *
-	 */
+	public function getPartitionData( $df )
+	{
+		try {
+
+		   $df = array();
+
+		   //careful as we are rounding down
+		    exec("df -T -x tmpfs -x devtmpfs -P -B 1G",$df);
+		    array_shift($df);
+		 
+		    $Stats = array();
+
+		    foreach($df as $disks) {
+		        $split = preg_split('/\s+/', $disks);
+		        $Stats[] = array(
+		                    'disk'      => $split[0],
+		                    'mount'     => $split[6],
+		                    'type'      => $split[1],
+		                    'mb_total'  => $split[2],
+		                    'mb_used'   => $split[3],
+		                    'mb_free'   => $split[4],
+		                    'percent'   => $split[5],
+		                );
+		    }
+
+		    return $Stats;
+
+		} catch (Exception $e) {
+
+		}
+	}
 
 	public function dataSize( $Bytes )
 	{
-			
-		$Type=array("", "kilo", "mega", "giga", "tera");
+		$Type=array("", "KB", "MB", "GB", "TB");
 		$counter=0;
 		while($Bytes>=1024) {
 							$Bytes/=1024;
 							$counter++;
 		}
 
-		return("".$Bytes." ".$Type[$counter]."bytes");
-		
+		return("". number_format($Bytes,2) ." ".$Type[$counter]);
+
+
 	}
+
 
 }
 
