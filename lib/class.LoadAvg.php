@@ -360,7 +360,7 @@ class LoadAvg
 
 	public function checkInstaller() {
 
-		$install_loc = SCRIPT_ROOT . "/install/index.php";
+		$install_loc = HOME_PATH . "/install/index.php";
 
 		if ( file_exists($install_loc) )
 			return false;
@@ -380,7 +380,7 @@ class LoadAvg
 		$install_loc = HOME_PATH . "/install/index.php";
 
 		if ( file_exists($install_loc) )
-			header("Location: " . SCRIPT_ROOT . "/install/index.php");
+			header("Location: " . HOME_PATH . "/install/index.php");
 	}
 
 
@@ -421,8 +421,8 @@ class LoadAvg
 			else 
 			{
 				//clean up - try to delete installer if we have permissions
-				$installer_file = SCRIPT_ROOT . "/install/index.php";
-				$installer_loc = SCRIPT_ROOT . "/install/";
+				$installer_file = HOME_PATH . "/install/index.php";
+				$installer_loc = HOME_PATH . "/install/";
 
 				unlink($installer_file);
 				rmdir($installer_loc);
@@ -442,7 +442,7 @@ class LoadAvg
 			}
 		} else {
 
-			header("Location: " . SCRIPT_ROOT . "/install/index.php?step=1");
+			header("Location: " . HOME_PATH . "/install/index.php?step=1");
 		}
 	}
 
