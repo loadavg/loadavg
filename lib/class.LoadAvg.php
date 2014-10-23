@@ -108,8 +108,6 @@ class LoadAvg
 	public function createFirstLogs()
 	{
 
-		//echo "Create Logs  \n";
-
 		//only does it if DIR is empty ?
 		if ( $this->is_dir_empty(HOME_PATH . '/' . self::$_settings->general['logs_dir']) ) {
 
@@ -362,7 +360,7 @@ class LoadAvg
 
 	public function checkInstaller() {
 
-		$install_loc = "../install/index.php";
+		$install_loc = SCRIPT_ROOT . "/install/index.php";
 
 		if ( file_exists($install_loc) )
 			return false;
@@ -379,10 +377,10 @@ class LoadAvg
 
 	public function checkInstall() {
 
-		$install_loc = "../install/index.php";
+		$install_loc = HOME_PATH . "/install/index.php";
 
 		if ( file_exists($install_loc) )
-			header("Location: ../install/index.php");
+			header("Location: " . SCRIPT_ROOT . "/install/index.php");
 	}
 
 
@@ -403,6 +401,7 @@ class LoadAvg
 		//location of core settings
 		$settings_file = APP_PATH . '/config/settings.ini';
 
+		//see if we can write to settings file
 		if ( $this->checkWritePermissions( $settings_file ) ) 
 		{
 			/* 
@@ -412,26 +411,29 @@ class LoadAvg
 			$this->createFirstLogs();
 
 			/* 
-			 * try to delete installer...
+			 * clean up installation files
 	 		 */	
+
+			//if installer is not present (true) leave
 			if ( $this->checkInstaller() ) {
 				header("Location: index.php");
 			} 
 			else 
 			{
-				//try to delete installer if we have permissions
-				$installer_file = HOME_PATH . "/install/index.php";
-				$installer_loc = HOME_PATH . "/install/";
+				//clean up - try to delete installer if we have permissions
+				$installer_file = SCRIPT_ROOT . "/install/index.php";
+				$installer_loc = SCRIPT_ROOT . "/install/";
 
 				unlink($installer_file);
 				rmdir($installer_loc);
 
+				//check again if it worked exit
 				if ( $this->checkInstaller() ) {
 					header("Location: index.php");
 				}
 				else
 				{ 
-					//throw a error and exit
+					//if not throw a error and exit
 					require_once APP_PATH . '/layout/secure.php'; 
 					require_once APP_PATH . '/layout/footer.php'; 
 					
@@ -439,6 +441,7 @@ class LoadAvg
 				}
 			}
 		} else {
+
 			header("Location: " . SCRIPT_ROOT . "/install/index.php?step=1");
 		}
 	}
