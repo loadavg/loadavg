@@ -380,17 +380,12 @@ class LoadAvg
 		$install_loc = HOME_PATH . "/install/index.php";
 
 		if ( file_exists($install_loc) )
-			header("Location: " . HOME_PATH . "/install/index.php");
+            header("Location: ../install/index.php");
 	}
 
 
-
-
-
-
-
 	/**
-	 * checkInstall
+	 * cleanUpInstaller
 	 *
 	 * Checks if is still installation progress and redirects if TRUE.
 	 *
@@ -441,8 +436,7 @@ class LoadAvg
 				}
 			}
 		} else {
-
-			header("Location: " . HOME_PATH . "/install/index.php?step=1");
+			header("Location: /install/index.php?step=1");
 		}
 	}
 
