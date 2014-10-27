@@ -93,9 +93,15 @@ if (!$testmode) {
 				if  ( $timemode  ) 
 					$st = $loadavg->getTime();
 
-				// call data gethering function of module
-				if ( $api )
+				// collect data for API server
+				if ( $api ) {
 					$responseData = $class->$caller('api');
+
+					$data = explode("|", $responseData); // parsing response data
+					$timestamp = $data[0];
+
+					$response[$module] = array("data" => $responseData, "timestamp" => $timestamp); // Populating response array
+				}
 				else
 					$responseData = $class->$caller(); 
 
@@ -103,18 +109,6 @@ if (!$testmode) {
 					$et = $loadavg->getTime();
 					echo "Module " . $module . " Time : " .   ($et - $st)   . " \n";
 				}
-
-
-				// collect data for API server
-				if ( $api ) {
-
-					//$responseData = $class->$caller('api'); // call data gethering function of module
-					$data = explode("|", $responseData); // parsing response data
-					$timestamp = $data[0];
-
-					$response[$module] = array("data" => $responseData, "timestamp" => $timestamp); // Populating response array
-				}
-				// end collect data for API server	
 
 			}
 		}
