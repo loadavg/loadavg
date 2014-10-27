@@ -92,7 +92,7 @@ if (!$testmode) {
 
 					$st = $loadavg->getTime();
 
-					$modTime = $class->$caller(); // call data gethering function of module
+					$class->$caller(); // call data gethering function of module
 					
 					$et = $loadavg->getTime();
 
