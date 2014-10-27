@@ -44,17 +44,28 @@ class Mysql extends LoadAvg
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
+
+
+			$mysqlserver =	$settings['settings']['mysqlserver'];
+			$mysqluser =	$settings['settings']['mysqluser'];
+			$mysqlpassword =	$settings['settings']['mysqlpassword'];
+
 		//connect to the database
-		@mysql_connect ("localhost","root","vision7") 
+		@mysql_connect ($mysqlserver,$mysqluser,$mysqlpassword) 
 			or die ('Cannot connect to MySQL: ' . mysql_error());
 
 		//need to move over to this way
 		//$connection = mysqli_connect('localhost', 'root', 'vision7');
 
 
-		$query1 = mysql_query("SHOW GLOBAL STATUS LIKE 'Bytes_received'") or die ('Query is invalid: ' . mysql_error());
-		$query2 = mysql_query("SHOW GLOBAL STATUS LIKE 'Bytes_sent'") or die ('Query is invalid: ' . mysql_error());
-		$query3 = mysql_query("SHOW GLOBAL STATUS LIKE 'Queries'") or die ('Query is invalid: ' . mysql_error());
+		$query1 = mysql_query("SHOW GLOBAL STATUS LIKE 'Bytes_received'") 
+			or die ('Query is invalid: ' . mysql_error());
+		
+		$query2 = mysql_query("SHOW GLOBAL STATUS LIKE 'Bytes_sent'") 
+			or die ('Query is invalid: ' . mysql_error());
+		
+		$query3 = mysql_query("SHOW GLOBAL STATUS LIKE 'Queries'") 
+			or die ('Query is invalid: ' . mysql_error());
 
 		//write the results
 		$row = mysql_fetch_array($query1);
