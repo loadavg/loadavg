@@ -45,40 +45,49 @@ class Mysql extends LoadAvg
 		$settings = LoadAvg::$_settings->$class;
 
 
+		//get database settings
+		//need to return if they are empty
+		$mysqlserver =	$settings['settings']['mysqlserver'];
+		$mysqluser =	$settings['settings']['mysqluser'];
+		$mysqlpassword =	$settings['settings']['mysqlpassword'];
 
-			$mysqlserver =	$settings['settings']['mysqlserver'];
-			$mysqluser =	$settings['settings']['mysqluser'];
-			$mysqlpassword =	$settings['settings']['mysqlpassword'];
+		//test database connection
+		$connection = mysqli_connect($mysqlserver,$mysqluser,$mysqlpassword); 
 
-		//connect to the database
-		@mysql_connect ($mysqlserver,$mysqluser,$mysqlpassword) 
-			or die ('Cannot connect to MySQL: ' . mysql_error());
+		if (mysqli_connect_errno())
+		{
+			echo "Failed to connect to MySQL: " . mysqli_connect_error();
+			return false;
+		} 
 
-		//need to move over to this way
-		//$connection = mysqli_connect('localhost', 'root', 'vision7');
+		$query1 = mysqli_query($connection, "SHOW GLOBAL STATUS LIKE 'Bytes_received'") ;
+			//or die(mysqli_error($connection)); 
 
+		$query2 = mysqli_query($connection, "SHOW GLOBAL STATUS LIKE 'Bytes_sent'") ;
+			//or die(mysqli_error($connection)); 
 
-		$query1 = mysql_query("SHOW GLOBAL STATUS LIKE 'Bytes_received'") 
-			or die ('Query is invalid: ' . mysql_error());
-		
-		$query2 = mysql_query("SHOW GLOBAL STATUS LIKE 'Bytes_sent'") 
-			or die ('Query is invalid: ' . mysql_error());
-		
-		$query3 = mysql_query("SHOW GLOBAL STATUS LIKE 'Queries'") 
-			or die ('Query is invalid: ' . mysql_error());
+		$query3 = mysqli_query($connection, "SHOW GLOBAL STATUS LIKE 'Queries'") ;
+			//or die(mysqli_error($connection)); 
+
 
 		//write the results
-		$row = mysql_fetch_array($query1);
+		$row = mysqli_fetch_array($query1);
 			$bytesReceived = $row[1];
 
-		$row = mysql_fetch_array($query2);
+		$row = mysqli_fetch_array($query2);
 			$bytesSent = $row[1];
 
-		$row = mysql_fetch_array($query3);
+		$row = mysqli_fetch_array($query3);
 			$queries = $row[1];
 
+		mysqli_free_result($query1);
+		mysqli_free_result($query2);
+		mysqli_free_result($query3);
 
-	    $string = time() . '|' . $bytesReceived . '|' . $bytesSent . '|' . $queries . "\n";
+		mysqli_close($connection);
+
+
+	    //$string = time() . '|' . $bytesReceived . '|' . $bytesSent . '|' . $queries . "\n";
 
 		$logfile = sprintf($this->logfile, date('Y-m-d'));
 
@@ -143,15 +152,15 @@ class Mysql extends LoadAvg
 				}
 				$recv_rate = round(($recv_diff/$elapsed),2);
 				
+				//echo 'queries' . $queries . "\n";
+				$queries_diff = ($queries - $last[2]) - 4;  // we are the 4 queries! remove to be accurate really
+				//echo 'queries diff' . $queries_diff . "\n";
 
-				$queries_diff = ($queries - $last[2]);
-				if ($queries_diff < 0) {
-					$queries_diff = (4294967296 + $queries - $last[2]) ;
+				if ($queries_diff < 0) {  //for first runs
+					$queries_diff = 0 ;
 				}
-				$queries_rate = round(($queries_diff/$elapsed),2);
 
-
-				$string = time() . "|" . $trans_rate . "|" . $recv_rate  . "|" . $queries_rate       . "\n";
+				$string = time() . "|" . $trans_rate . "|" . $recv_rate  . "|" . $queries_diff       . "\n";
 			} else {
 				//if this is the first value in the set and there is no previous data then its null
 				
@@ -232,25 +241,16 @@ class Mysql extends LoadAvg
 
 			$totalchartArray = (int)count($chartArray);
 
-			//need to get disk size in order to process data properly
-			//is it better before loop or in loop
-			//what happens if you resize disk on the fly ? in loop would be better
-			$memorySize = 0;
-
-			//need to start logging total memory
-			//what happens if this is -1 ???
-			$memorySize = $chartArray[$totalchartArray-1][3] / 1024;
-
-			// get from settings here for module
+			// get  settings here for module
 			// true - show MB
 			// false - show percentage
-				
-			//data[0] = time
-			//data[1] = mem used
-			//data[2] = swap
-			//data[3] = total mem
 
-			$displayMode =	$settings['settings']['display_limiting'];
+			//$displayMode =	$settings['settings']['display_limiting'];
+
+			//data[0] = time
+			//data[1] = sent
+			//data[2] = received
+			//data[3] = queries
 
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
@@ -267,6 +267,12 @@ class Mysql extends LoadAvg
 				if (  ($data[3] == "-1")  )
 					$data[3]=0.0;
 
+				//not currently using these so blank them out
+				//really they needot be separte charts like the network charts are displayed
+				//or possible overlay sent with received ?
+				$data[2]=null;
+				$data[3]=null;
+
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {
 					$usage[] = ( $data[1] / 1024 );
@@ -281,30 +287,24 @@ class Mysql extends LoadAvg
 					$timestamps[] = $data[0];
 
 					// display data using MB
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
 
 				if ( (float) $data[1] > $settings['settings']['overload'])
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
-					//swapping
-					//if ( isset($data[2])  ) {
-					//	$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
-					//	$swap[] = ( $data[2] / 1024 );
-					//}
-
 			}
 			
-			$mem_high = max($usage);
-			$mem_low  = min($usage); 
-			$mem_mean = array_sum($usage) / count($usage);
+			$mysql_high = max($usage);
+			$mysql_low  = min($usage); 
+			$mysql_mean = array_sum($usage) / count($usage);
 
-			$ymax = $mem_high;
-			$ymin = $mem_low;			
+			$ymax = $mysql_high;
+			$ymin = $mysql_low;			
 
-			$mem_high_time = $time[max($usage)];
-			$mem_low_time = $time[min($usage)];
-			$mem_latest = ( ( $usage[count($usage)-1]  )  )    ;		
+			$mysql_high_time = $time[max($usage)];
+			$mysql_low_time = $time[min($usage)];
+			$mysql_latest = ( ( $usage[count($usage)-1]  )  )    ;		
 
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
@@ -323,12 +323,12 @@ class Mysql extends LoadAvg
 		
 			// values used to draw the legend
 			$variables = array(
-				'mem_high' => number_format($mem_high,2),
-				'mem_high_time' => $mem_high_time,
-				'mem_low' => number_format($mem_low,2),
-				'mem_low_time' => $mem_low_time,
-				'mem_mean' => number_format($mem_mean,2),
-				'mem_latest' => number_format($mem_latest,2),
+				'mysql_high' => number_format($mysql_high,4),
+				'mysql_high_time' => $mysql_high_time,
+				'mysql_low' => number_format($mysql_low,4),
+				'mysql_low_time' => $mysql_low_time,
+				'mysql_mean' => number_format($mysql_mean,4),
+				'mysql_latest' => number_format($mysql_latest,4),
 				//'mem_total' => number_format($mem_total,2),
 				//'mem_swap' => number_format($swap,2),
 			);
@@ -340,8 +340,6 @@ class Mysql extends LoadAvg
 
 			ksort($dataArray);
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			if (!is_null($dataArraySwap)) ksort($dataArraySwap);
-
 
 			// dataString is cleaned data used to draw the chart
 			// dataSwapString is the swap usage
@@ -349,7 +347,7 @@ class Mysql extends LoadAvg
 
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
+			//$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
@@ -357,12 +355,9 @@ class Mysql extends LoadAvg
 				'ymax' => $ymax,
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => $mem_mean,
+				'mean' => $mysql_mean,
 				'chart_data' => $dataString,
 				'chart_data_over' => $dataOverString,
-				'chart_data_swap' => $dataSwapString,				// how is it used
-				//'swap' => $swap,									// how is it used
-				//'swap_count' => $usageCount,						// how is it used
 				'overload' => $settings['settings']['overload']
 			);
 
