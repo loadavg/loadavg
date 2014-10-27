@@ -93,9 +93,15 @@ if (!$testmode) {
 				if  ( $timemode  ) 
 					$st = $loadavg->getTime();
 
+				//we can add 3 different modes to caller
+				//log - log data
+				//api - send back for api
+				//logapi - log and send back for api
+				$logMode = "api";
+
 				// collect data for API server
 				if ( $api ) {
-					$responseData = $class->$caller('api');
+					$responseData = $class->$caller($logMode);
 
 					$data = explode("|", $responseData); // parsing response data
 					$timestamp = $data[0];
@@ -103,7 +109,7 @@ if (!$testmode) {
 					$response[$module] = array("data" => $responseData, "timestamp" => $timestamp); // Populating response array
 				}
 				else
-					$responseData = $class->$caller(); 
+					$class->$caller(); 
 
 				if  ( $timemode  ) {
 					$et = $loadavg->getTime();
