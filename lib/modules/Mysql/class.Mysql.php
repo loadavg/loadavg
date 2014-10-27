@@ -14,7 +14,7 @@
 * later.
 */
 
-class Memory extends LoadAvg
+class Mysql extends LoadAvg
 {
 	public $logfile; // Stores the logfile name & path
 
@@ -39,38 +39,134 @@ class Memory extends LoadAvg
 	 *
 	 */
 
-	public function logData( $timer = false, $type = false )
+	public function logData( $type = false )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-		exec("free -o | grep Mem | awk -F' ' '{print $3}'", $memory);
-		//exec("free -o | grep Mem | awk -F' ' '{print $3 - $6 - $7}'", $memory);
+		//connect to the database
+		@mysql_connect ("localhost","root","vision7") 
+			or die ('Cannot connect to MySQL: ' . mysql_error());
 
-		$memory = implode(chr(26), $memory);
+		//need to move over to this way
+		//$connection = mysqli_connect('localhost', 'root', 'vision7');
 
-		//exec("free -o | grep Mem | awk -F' ' '{print $3}'", $swap);
-		exec("free -o | grep Swap | awk -F' ' '{print $3}'", $swap);
 
-		$swap = implode(chr(26), $swap);
+		$query1 = mysql_query("SHOW GLOBAL STATUS LIKE 'Bytes_received'") or die ('Query is invalid: ' . mysql_error());
+		$query2 = mysql_query("SHOW GLOBAL STATUS LIKE 'Bytes_sent'") or die ('Query is invalid: ' . mysql_error());
+		$query3 = mysql_query("SHOW GLOBAL STATUS LIKE 'Queries'") or die ('Query is invalid: ' . mysql_error());
 
-		exec("free -o | grep Mem | awk -F' ' '{print $2}'", $totalmemory);
-		//exec("free -o | grep Mem | awk -F' ' '{print $3 - $6 - $7}'", $memory);
+		//write the results
+		$row = mysql_fetch_array($query1);
+			$bytesReceived = $row[1];
 
-		$totalmemory = implode(chr(26), $totalmemory);
+		$row = mysql_fetch_array($query2);
+			$bytesSent = $row[1];
 
-	    $string = time() . '|' . $memory . '|' . $swap . '|' . $totalmemory . "\n";
+		$row = mysql_fetch_array($query3);
+			$queries = $row[1];
+
+
+	    $string = time() . '|' . $bytesReceived . '|' . $bytesSent . '|' . $queries . "\n";
+
+		$logfile = sprintf($this->logfile, date('Y-m-d'));
+
+
+			$recv = $bytesReceived;
+			$trans = $bytesSent;
+
+
+
+			if ( $logfile && file_exists($logfile) )
+				$elapsed = time() - filemtime($logfile);
+			else
+				$elapsed = 0;  //meaning new logfile
+
+			//used to help calculate the difference as mysql is thruput not value based
+			//so is based on the difference between thruput before the current run
+			//this data is stored in _mysql_latest
+
+			// grab net latest location and elapsed
+			$mysqllatestElapsed = 0;
+			$mysqlLatestLocation = dirname($logfile) . DIRECTORY_SEPARATOR . '_mysql_latest';
+
+
+			// basically if netlatest elapsed is within reasonable limits (logger interval + 20%) then its from the day
+			// before rollover so we can use it to replace regular elapsed
+			// which is 0 when there is anew log file
+			if (file_exists( $mysqlLatestLocation )) {
+				
+				$last = explode("|", file_get_contents(  $mysqlLatestLocation ) );
+
+				$mysqllatestElapsed =  ( time() - filemtime($mysqlLatestLocation));
+
+				//if its a new logfile check to see if there is previous netlatest data
+				if ($elapsed == 0) {
+
+					//data needs to within the logging period limits to be accurate
+					$interval = $this->getLoggerInterval();
+
+					if (!$interval)
+						$interval = 360;
+					else
+						$interval = $interval * 1.2;
+
+					if ( $mysqllatestElapsed <= $interval ) 
+						$elapsed = $mysqllatestElapsed;
+				}
+			}
+
+			//if we were able to get last data from mysql latest above
+			//not sure if these are the right dividers
+			if (@$last && $elapsed) {
+
+				$trans_diff = ($trans - $last[0]) / 1024;
+				if ($trans_diff < 0) {
+					$trans_diff = (4294967296 + $trans - $last[0]) / 1024;
+				}
+				$trans_rate = round(($trans_diff/$elapsed),2);
+				
+				$recv_diff = ($recv - $last[1]) / 1024;
+				if ($recv_diff < 0) {
+					$recv_diff = (4294967296 + $recv - $last[1]) / 1024;
+				}
+				$recv_rate = round(($recv_diff/$elapsed),2);
+				
+
+				$queries_diff = ($queries - $last[2]);
+				if ($queries_diff < 0) {
+					$queries_diff = (4294967296 + $queries - $last[2]) ;
+				}
+				$queries_rate = round(($queries_diff/$elapsed),2);
+
+
+				$string = time() . "|" . $trans_rate . "|" . $recv_rate  . "|" . $queries_rate       . "\n";
+			} else {
+				//if this is the first value in the set and there is no previous data then its null
+				
+				$lastlogdata = "|0.0|0.0|0.0";
+
+				$string = time() . $lastlogdata . "\n" ;
+
+			}
+
 
 		if ( $type == "api") {
 			return $string;
 		} else {
-			$filename = sprintf($this->logfile, date('Y-m-d'));
-			$this->safefilerewrite($filename,$string,"a",true);
+				//write out log data here
+				$this->safefilerewrite($logfile,$string,"a",true);
+
+				// write out last transfare and received bytes to latest
+				$last_string = $trans."|".$recv."|".$queries;
+				$fh = dirname($this->logfile) . DIRECTORY_SEPARATOR . "_mysql_latest";
+
+				$this->safefilerewrite($fh,$last_string,"w",true);
 		}
 	}
 
 	/**
-	 * getMemoryUsageData
+	 * getUsageData
 	 *
 	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
 	 *
@@ -162,9 +258,6 @@ class Memory extends LoadAvg
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {
 					$usage[] = ( $data[1] / 1024 );
-					$percentage_used =  ( $data[1] / $data[3] ) * 100; // DIV 0 REDLINE
-				} else {
-					$percentage_used = 0;
 				}
 			
 
@@ -175,88 +268,32 @@ class Memory extends LoadAvg
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
 					$timestamps[] = $data[0];
 
-				if ($displayMode == 'true' ) {
 					// display data using MB
 					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
-					if ( $percentage_used > $settings['settings']['overload'] )
-						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+
+				if ( (float) $data[1] > $settings['settings']['overload'])
+					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
 					//swapping
-					if ( isset($data[2])  ) {
-						$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
-						$swap[] = ( $data[2] / 1024 );
-
-					}
-
-				} else {
-					// display data using percentage
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
-
-					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
-
-					//swapping
-					if ( isset($data[2])  ) {
-
-						if (!$redline) 
-							$swap_percentage = ( ($data[2] / $data[3])  * 100); // DIV 0 REDLINE
-						else
-							$swap_percentage = 0;
-						
-						$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". $swap_percentage ."]";
-						$swap[] = $swap_percentage;
-					}
-
-				}
+					//if ( isset($data[2])  ) {
+					//	$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
+					//	$swap[] = ( $data[2] / 1024 );
+					//}
 
 			}
+			
+			$mem_high = max($usage);
+			$mem_low  = min($usage); 
+			$mem_mean = array_sum($usage) / count($usage);
 
-			//echo $percentage_used; die;
-
-			end($swap);
-			$swapKey = key($swap);
-			$swap = $swap[$swapKey];
-
-			//check for displaymode as we show data in MB or %
-			if ($displayMode == 'true' )
-
-			{
-				$mem_high = max($usage);
-				$mem_low  = min($usage); 
-				$mem_mean = array_sum($usage) / count($usage);
-
-				if  ( $swap > 1 ) {
-					$ymax = $mem_high*1.05;
-					$ymin = $swap/2;
-				}
-				else {
-					$ymax = $mem_high;
-					$ymin = $mem_low;
-				}
-
-			} else {
-
-				$mem_high=   ( max($usage) / $memorySize ) * 100 ;				
-				$mem_low =   ( min($usage) / $memorySize ) * 100 ;
-				$mem_mean =  ( (array_sum($usage) / count($usage)) / $memorySize ) * 100 ;
-
-				//these are the min and max values used when drawing the charts
-				//can be used to zoom into datasets
-				$ymin = 1;
-				$ymax = 100;
-
-			}
+			$ymax = $mem_high;
+			$ymin = $mem_low;			
 
 			$mem_high_time = $time[max($usage)];
 			$mem_low_time = $time[min($usage)];
 			$mem_latest = ( ( $usage[count($usage)-1]  )  )    ;		
 
-			//TODO need to get total memory here
-			//as memory can change dynamically in todays world!
-
-			$mem_total = $memorySize;
-			$mem_free = $mem_total - $mem_latest;
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
@@ -280,8 +317,8 @@ class Memory extends LoadAvg
 				'mem_low_time' => $mem_low_time,
 				'mem_mean' => number_format($mem_mean,2),
 				'mem_latest' => number_format($mem_latest,2),
-				'mem_total' => number_format($mem_total,2),
-				'mem_swap' => number_format($swap,2),
+				//'mem_total' => number_format($mem_total,2),
+				//'mem_swap' => number_format($swap,2),
 			);
 		
 			// get legend layout from ini file

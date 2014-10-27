@@ -31,10 +31,14 @@ if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'status'))   ) {
 }
 
 $timemode = false;
+$st = $et = null;
 
 if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'time'))   ) {
 	$timemode = true;
 	$loadavg->setStartTime(); // Setting page load start time
+
+	echo "Start Time : " . $loadavg->timeStart . " \n"; 
+
 }
 
 //check for api server data transfer
@@ -75,6 +79,7 @@ if (!$testmode) {
 		if ( $moduleSettings['module']['logable'] == "true" ) {
 			foreach ( $moduleSettings['logging']['args'] as $args) { // loop trought module logging arguments
 
+
 				$args = json_decode($args); // decode arguments
 				$class = LoadAvg::$_classes[$module]; // load module information
 
@@ -83,7 +88,20 @@ if (!$testmode) {
 
 				$class->logfile = $logdir . $args->logfile; // the modules logfile si read from args
 
-				$class->$caller(); // call data gethering function of module
+				if  ( $timemode  ) {
+
+					$st = $loadavg->getTime();
+
+					$modTime = $class->$caller(); // call data gethering function of module
+					
+					$et = $loadavg->getTime();
+
+					echo "Module " . $module . " Time : " .   ($et - $st)   . " \n";
+
+				} else {
+					$class->$caller(); // call data gethering function of module
+				}
+
 
 				// collect data for API server
 				if ( $api ) {
@@ -146,7 +164,6 @@ if  ( $timemode ) {
 
 	$mytime = (float) $loadavg->timeFinish - (float) $loadavg->timeStart;
 
-	echo "Start Time : " . $loadavg->timeStart . " \n"; 
 	echo "End   Time : " . $loadavg->timeFinish . " \n"; 
 
 	echo "Total Time : " . $mytime . " \n"; 

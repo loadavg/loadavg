@@ -459,9 +459,9 @@ class LoadAvg
 		$interval = $this->getLoggerInterval();
 
 		if (!$interval)
-			$interval = 360;
+			$interval = 360; //default interval of 5 min
 		else
-			$interval = $interval * 1.2;
+			$interval = $interval * 1.2; //add 20% to interval for system lag
 
 		$patch = $chartData = array();
 		$numPatches = 0;
@@ -492,14 +492,10 @@ class LoadAvg
 
 				if ( $difference >= $interval ) {
 
-					//$patch[$numPatches] = array(  ($data[0]+$interval), "0.00", "0.00", "0.00", $i);
-					//$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "0.00", "0.00", "0.00", $i);
+					//echo 'patch difference:' . $difference;
 
 					$patch[$numPatches] = array(  ($data[0]+$interval), "-1", "-1", "-1", $i);
 					$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "-1", "-1", "-1", $i);
-
-					//$patch[$numPatches] = array(  ($data[0]+$interval), "REDLINE", $i);
-					//$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "REDLINE", $i);
 
 					$numPatches += 2;
 				}	
@@ -512,16 +508,12 @@ class LoadAvg
 
 		//echo "PATCHCOUNT: " . $totalPatch . "<br>";
 
-		//for ( $i = 0; $i < $totalPatch ; $i++) {
 		for ( $i = 0; $i < $totalPatch ; ++$i) {
 				
 				$patch_time = ( ($patch[$i][4]) + $i );
 				
 				// this unset should work to drop recorded patch time ? 
-				// but messes up sizeof patcharray
-				//unset ($patch[$i][4]); 
-				//array_splice( $chartData, $patch_time, 0, $patch );
-				
+				// but messes up sizeof patcharray				
 				$thepatch[0] = array ( $patch[$i][0] , $patch[$i][1] , $patch[$i][2] , $patch[$i][3] );
 
 				//print_r ($thepatch); echo "<br>";
@@ -533,7 +525,6 @@ class LoadAvg
 		}
 
 		//echo "PATCHARRAYPATCHED: " . count( $chartData ) . "<br>";
-		//print_r ($chartData);
 }
 
 
@@ -598,7 +589,6 @@ class LoadAvg
 				for ($i = 0; $i < count($sval); $i++) {
 					$res[] = $skey . '[] = \'' . $sval[$i] . '\'';
 				}
-				#echo '<pre>';var_dump($res);echo'</pre>';
 			} else {
 	        	    	if (strpos($sval, ";") === 0)
 		            		$res[] = $sval;
@@ -615,11 +605,13 @@ class LoadAvg
 	        }
 	    }
 
+	    //we should use this instead
+	    //LoadAvg::safefilerewrite($file, implode("\r\n", $res));
+
 	    if ($fp = fopen($file, 'w') ) {
 	    	fwrite($fp, implode("\r\n", $res));
 	    	fclose($fp);
 	    }
-	    //LoadAvg::safefilerewrite($file, implode("\r\n", $res));
 	}
 
 	//modified to not clean numeric values
@@ -975,6 +967,21 @@ class LoadAvg
 		}
 
 		return $interfaces;
+	}
+
+	/**
+	 * getTime
+	 *
+	 * Sets startTime of page load
+	 *
+	 */
+
+	public function getTime()
+	{
+		$time = microtime();
+		$time = explode(' ', $time);
+		$time = $time[1] + $time[0];
+		return $time;
 	}
 
 	/**

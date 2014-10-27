@@ -2,16 +2,14 @@ TODO
 
 clean up and test logUpdateCheck in class.loadavg
 
-Fix empty network charts when no log data
 
 >> test update checker
 
 	public function checkForUpdate()
 
->> when showing periods of data , display only shows current date in header
+>> API
 
-	Today - Tuesday, Sep. 30 23:06 pm 
-	(America/New_York) 
+fix API to authentice when sending data ?
 
 >> all charts run to end of time except for disk data ?
 
@@ -19,10 +17,6 @@ Fix empty network charts when no log data
 >> activeate eth0 or default primary inet device by default please
 
 	not lo0
-
->> clean up all errors in error log -espoecially for suddomain install
-
-	loadavg errors in installer - looking for interfaces ? when is this triggered
 
 >> when i activate network adapter for the first time - new logs arent created unless i save settings twice - due to function call 
 

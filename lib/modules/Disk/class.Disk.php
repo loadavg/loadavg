@@ -84,7 +84,7 @@ class Disk extends LoadAvg
 	 *
 	 */
 	
-	public function getDiskUsageData( $logfileStatus )
+	public function getUsageData( $logfileStatus )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;

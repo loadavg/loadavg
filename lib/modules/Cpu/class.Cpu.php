@@ -75,7 +75,7 @@ class Cpu extends LoadAvg
 	 *
 	 */
 
-	public function getData( $logfileStatus, $switch ) 
+	public function getUsageData( $logfileStatus, $switch ) 
 	{
 
 		$class = __CLASS__;
