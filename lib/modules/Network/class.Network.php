@@ -136,10 +136,6 @@ class Network extends LoadAvg
 			}
 
 
-
-	      	if ( $type == "api") {
-				return $string;
-			} else {
 			
 				//write out log data here
 				$this->safefilerewrite($logfile,$string,"a",true);
@@ -149,7 +145,13 @@ class Network extends LoadAvg
 				$fh = dirname($this->logfile) . DIRECTORY_SEPARATOR . "_net_latest_" . $interface;
 
 				$this->safefilerewrite($fh,$last_string,"w",true);
-			}
+
+				//this kills the loop when more than one interface is present
+				if ( $type == "api")
+					return $string;
+				else
+					return true;
+
 		}
 	}
 

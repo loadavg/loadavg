@@ -161,19 +161,20 @@ class Mysql extends LoadAvg
 
 			}
 
+		//write out log data here
+		$this->safefilerewrite($logfile,$string,"a",true);
 
-		if ( $type == "api") {
+		// write out last transfare and received bytes to latest
+		$last_string = $trans."|".$recv."|".$queries;
+		$fh = dirname($this->logfile) . DIRECTORY_SEPARATOR . "_mysql_latest";
+
+		$this->safefilerewrite($fh,$last_string,"w",true);
+
+		if ( $type == "api")
 			return $string;
-		} else {
-				//write out log data here
-				$this->safefilerewrite($logfile,$string,"a",true);
+		else
+			return true;
 
-				// write out last transfare and received bytes to latest
-				$last_string = $trans."|".$recv."|".$queries;
-				$fh = dirname($this->logfile) . DIRECTORY_SEPARATOR . "_mysql_latest";
-
-				$this->safefilerewrite($fh,$last_string,"w",true);
-		}
 	}
 
 	/**

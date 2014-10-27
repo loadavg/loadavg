@@ -44,9 +44,8 @@ class Apache extends LoadAvg
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-
-		$url = $settings['settings']['serverstatus'];
 		//$url = "http://localhost/server-status";
+		$url = $settings['settings']['serverstatus'];
 
 		$parseUrl = $url . "/?auto";
 
@@ -59,12 +58,14 @@ class Apache extends LoadAvg
 
 	    $string = time() . '|' . $dataValue . "\n";
 
-		if ( $type == "api") {
+		$filename = sprintf($this->logfile, date('Y-m-d'));
+		$this->safefilerewrite($filename,$string,"a",true);
+
+		if ( $type == "api")
 			return $string;
-		} else {
-			$filename = sprintf($this->logfile, date('Y-m-d'));
-			$this->safefilerewrite($filename,$string,"a",true);
-		}
+		else
+			return true;	
+
 	}
 
 

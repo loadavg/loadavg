@@ -61,12 +61,13 @@ class Memory extends LoadAvg
 
 	    $string = time() . '|' . $memory . '|' . $swap . '|' . $totalmemory . "\n";
 
-		if ( $type == "api") {
+		$filename = sprintf($this->logfile, date('Y-m-d'));
+		$this->safefilerewrite($filename,$string,"a",true);
+
+		if ( $type == "api")
 			return $string;
-		} else {
-			$filename = sprintf($this->logfile, date('Y-m-d'));
-			$this->safefilerewrite($filename,$string,"a",true);
-		}
+		else
+			return true;
 	}
 
 	/**

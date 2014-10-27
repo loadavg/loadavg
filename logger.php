@@ -64,7 +64,8 @@ foreach ( $dates as $date ) {
 }
 // End of delete old logs
 
-
+//when sending api data we call data gathering 2x this is unnecssary
+//we only need to call 1x and return data as string or true/false
 
 if (!$testmode) {
 
@@ -88,25 +89,23 @@ if (!$testmode) {
 
 				$class->logfile = $logdir . $args->logfile; // the modules logfile si read from args
 
+
 				if  ( $timemode  ) {
-
 					$st = $loadavg->getTime();
+				}
 
-					$class->$caller(); // call data gethering function of module
-					
+				$responseData = $class->$caller(); // call data gethering function of module
+
+				if  ( $timemode  ) {
 					$et = $loadavg->getTime();
-
 					echo "Module " . $module . " Time : " .   ($et - $st)   . " \n";
-
-				} else {
-					$class->$caller(); // call data gethering function of module
 				}
 
 
 				// collect data for API server
 				if ( $api ) {
 
-					$responseData = $class->$caller('api'); // call data gethering function of module
+					//$responseData = $class->$caller('api'); // call data gethering function of module
 					$data = explode("|", $responseData); // parsing response data
 					$timestamp = $data[0];
 

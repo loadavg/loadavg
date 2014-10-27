@@ -53,14 +53,18 @@ class Cpu extends LoadAvg
 		$load = exec("cat /proc/loadavg | awk -F' ' '{print $1\"|\"$2\"|\"$3}'");
 		$string = $timestamp . '|' . $load . "\n";
 
-		//this allows us to feed live data to server with no local logging
+		//we can also add a switch to feed live data to server with no local logging
+		//by just returning data
+		
+		$filename = sprintf($this->logfile, date('Y-m-d'));
+		$this->safefilerewrite($filename,$string,"a",true);
 
-		if ( $type == "api") {
+		if ( $type == "api")
 			return $string;
-		} else {
-			$filename = sprintf($this->logfile, date('Y-m-d'));
-			$this->safefilerewrite($filename,$string,"a",true);
-		}
+		else
+			return true;		
+
+
 	}
 
 
