@@ -90,11 +90,14 @@ if (!$testmode) {
 				$class->logfile = $logdir . $args->logfile; // the modules logfile si read from args
 
 
-				if  ( $timemode  ) {
+				if  ( $timemode  ) 
 					$st = $loadavg->getTime();
-				}
 
-				$responseData = $class->$caller(); // call data gethering function of module
+				// call data gethering function of module
+				if ( $api )
+					$responseData = $class->$caller('api');
+				else
+					$responseData = $class->$caller(); 
 
 				if  ( $timemode  ) {
 					$et = $loadavg->getTime();
