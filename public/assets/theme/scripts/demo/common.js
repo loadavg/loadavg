@@ -2,9 +2,11 @@ $(function () {
 	$('.widget[data-toggle="collapse-widget"] .widget-body')
 	.on('show', function(){
 		$(this).parents('.widget:first').attr('data-collapse-closed', "false");
+			storeState();
 	})
 	.on('hidden', function(){
 		$(this).parents('.widget:first').attr('data-collapse-closed', "true");
+			storeState();
 	});
 	
 	$('.widget[data-toggle="collapse-widget"]').each(function()
@@ -24,4 +26,28 @@ $(function () {
 			$(this).parents('.widget:first').find('.widget-body').collapse('toggle');
 		});
 	});
+
 });
+
+//http://stackoverflow.com/questions/22811549/jquery-cookie-from-data-attributes-using-json-string
+
+function storeState() {
+
+    var check_open_divs = [];
+
+    //mine
+    var toggled_div = $('.widget[data-toggle="collapse-widget"]:not(.data-collapse-closed)');
+
+    $(toggled_div).each(function() {
+      check_open_divs.push($(this).attr('data-target'));
+    });
+
+    // stringify array object
+    check_open_divs = JSON.stringify(check_open_divs);
+    console.log(check_open_divs);
+
+    $.cookie('bg-noise-div-state', check_open_divs, {expires:365, path: '/'});
+}
+
+
+

@@ -40,7 +40,13 @@
 
 ?>
 
-<div class="widget" data-toggle="collapse-widget" data-collapse-closed="false">
+<!--
+accordion widgets are built using this code here 
+NEED HELP setting up remember status of accordions on page reload using cookies
+using code to manage accordion state is in common.js
+-->
+
+<div class="widget" data-toggle="collapse-widget" data-collapse-closed="false" data-target="#accordion<?php echo $module; ?>">
 
 
 	<?php if ( $chart ) { ?>
