@@ -17,7 +17,7 @@
 
 
 <?php
-
+/*
 	//clean up links first
 	if (
 		(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
@@ -67,8 +67,10 @@
 		}
 	}
 
-
+*/
 ?>
 
+<!--
 <strong>Memory usage in</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'MB' : '%'; ?></a>
-
+-->
+<strong>Mysql usage data</strong>
