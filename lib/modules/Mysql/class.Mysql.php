@@ -46,7 +46,7 @@ class Mysql extends LoadAvg
 
 
 		//get database settings
-		//need to return if they are empty
+		//need some error checking here ie  return if they are empty
 		$mysqlserver =	$settings['settings']['mysqlserver'];
 		$mysqluser =	$settings['settings']['mysqluser'];
 		$mysqlpassword =	$settings['settings']['mysqlpassword'];
@@ -61,13 +61,10 @@ class Mysql extends LoadAvg
 		} 
 
 		$query1 = mysqli_query($connection, "SHOW GLOBAL STATUS LIKE 'Bytes_received'") ;
-			//or die(mysqli_error($connection)); 
 
 		$query2 = mysqli_query($connection, "SHOW GLOBAL STATUS LIKE 'Bytes_sent'") ;
-			//or die(mysqli_error($connection)); 
 
 		$query3 = mysqli_query($connection, "SHOW GLOBAL STATUS LIKE 'Queries'") ;
-			//or die(mysqli_error($connection)); 
 
 
 		//write the results
@@ -80,87 +77,79 @@ class Mysql extends LoadAvg
 		$row = mysqli_fetch_array($query3);
 			$queries = $row[1];
 
+		//free up querys and connections
 		mysqli_free_result($query1);
 		mysqli_free_result($query2);
 		mysqli_free_result($query3);
-
 		mysqli_close($connection);
 
+		//for debugging	    
+	    //echo 'DATA READ   : ' . $bytesReceived . '|' . $bytesSent . '|' . $queries . "\n";
 
-	    //$string = time() . '|' . $bytesReceived . '|' . $bytesSent . '|' . $queries . "\n";
-
+	    //grab the logfile
 		$logfile = sprintf($this->logfile, date('Y-m-d'));
 
 
-			$recv = $bytesReceived;
-			$trans = $bytesSent;
+		if ( $logfile && file_exists($logfile) )
+			$elapsed = time() - filemtime($logfile);
+		else
+			$elapsed = 0;  //meaning new logfile
+
+		//used to help calculate the difference as mysql charts is thruput not value based
+		//this data is stored in _mysql_latest
+
+		// grab net latest location and figure out elapsed
+		$mysqllatestElapsed = 0;
+		$mysqlLatestLocation = dirname($logfile) . DIRECTORY_SEPARATOR . '_mysql_latest';
 
 
+		// basically if mysqllatestElapsed is within reasonable limits (logger interval + 20%) then its from the day
+		// before rollover so we can use it to replace regular elapsed
+		// which is 0 when there is anew log file
+		$last = null;
 
-			if ( $logfile && file_exists($logfile) )
-				$elapsed = time() - filemtime($logfile);
-			else
-				$elapsed = 0;  //meaning new logfile
+		if (file_exists( $mysqlLatestLocation )) {
+			
+			$last = explode("|", file_get_contents(  $mysqlLatestLocation ) );
 
-			//used to help calculate the difference as mysql is thruput not value based
-			//so is based on the difference between thruput before the current run
-			//this data is stored in _mysql_latest
+			$mysqllatestElapsed =  ( time() - filemtime($mysqlLatestLocation));
 
-			// grab net latest location and elapsed
-			$mysqllatestElapsed = 0;
-			$mysqlLatestLocation = dirname($logfile) . DIRECTORY_SEPARATOR . '_mysql_latest';
+			//if its a new logfile check to see if there is previous netlatest data
+			if ($elapsed == 0) {
 
+				//data needs to within the logging period limits to be accurate
+				$interval = $this->getLoggerInterval();
 
-			// basically if netlatest elapsed is within reasonable limits (logger interval + 20%) then its from the day
-			// before rollover so we can use it to replace regular elapsed
-			// which is 0 when there is anew log file
-			if (file_exists( $mysqlLatestLocation )) {
-				
-				$last = explode("|", file_get_contents(  $mysqlLatestLocation ) );
+				if (!$interval)
+					$interval = 360;
+				else
+					$interval = $interval * 1.2;
 
-				$mysqllatestElapsed =  ( time() - filemtime($mysqlLatestLocation));
-
-				//if its a new logfile check to see if there is previous netlatest data
-				if ($elapsed == 0) {
-
-					//data needs to within the logging period limits to be accurate
-					$interval = $this->getLoggerInterval();
-
-					if (!$interval)
-						$interval = 360;
-					else
-						$interval = $interval * 1.2;
-
-					if ( $mysqllatestElapsed <= $interval ) 
-						$elapsed = $mysqllatestElapsed;
-				}
+				if ( $mysqllatestElapsed <= $interval ) 
+					$elapsed = $mysqllatestElapsed;
 			}
+		}
+
+	    	//echo 'LAST STORED : ' . $last[0] . '|' . $last[1] . '|' . $last[2] . "\n";
 
 			//if we were able to get last data from mysql latest above
-			//not sure if these are the right dividers
+			//figure out the difference as thats what we chart
 			if (@$last && $elapsed) {
 
-				$trans_diff = ($trans - $last[0]) / 1024;
-				if ($trans_diff < 0) {
-					$trans_diff = (4294967296 + $trans - $last[0]) / 1024;
-				}
-				$trans_rate = round(($trans_diff/$elapsed),2);
-				
-				$recv_diff = ($recv - $last[1]) / 1024;
-				if ($recv_diff < 0) {
-					$recv_diff = (4294967296 + $recv - $last[1]) / 1024;
-				}
-				$recv_rate = round(($recv_diff/$elapsed),2);
-				
-				//echo 'queries' . $queries . "\n";
-				$queries_diff = ($queries - $last[2]) - 4;  // we are the 4 queries! remove to be accurate really
-				//echo 'queries diff' . $queries_diff . "\n";
+				$recv_diff = ($bytesReceived - $last[0]) ;
+				if ($recv_diff < 0) $recv_diff = 0;
 
-				if ($queries_diff < 0) {  //for first runs
-					$queries_diff = 0 ;
-				}
+				$sent_diff = ($bytesSent - $last[1]) ;
+				if ($sent_diff < 0) $sent_diff = 0;
 
-				$string = time() . "|" . $trans_rate . "|" . $recv_rate  . "|" . $queries_diff       . "\n";
+				//$queries_diff = ($queries - $last[2]) - 4;  // we are the 4 queries! remove to be accurate really
+				$queries_diff = ($queries - $last[2]) ;  
+				if ($queries_diff < 0) $queries_diff = 0 ;
+
+				$string = time() . "|" . $recv_diff . "|" . $sent_diff  . "|" . $queries_diff       . "\n";
+
+	    		//echo 'DATA WRITE  : ' . $recv_diff . '|' . $sent_diff . '|' . $queries_diff . "\n";
+
 			} else {
 				//if this is the first value in the set and there is no previous data then its null
 				
@@ -174,7 +163,8 @@ class Mysql extends LoadAvg
 		$this->safefilerewrite($logfile,$string,"a",true);
 
 		// write out last transfare and received bytes to latest
-		$last_string = $trans."|".$recv."|".$queries;
+		$last_string = $bytesReceived."|".$bytesSent."|".$queries;
+
 		$fh = dirname($this->logfile) . DIRECTORY_SEPARATOR . "_mysql_latest";
 
 		$this->safefilerewrite($fh,$last_string,"w",true);
