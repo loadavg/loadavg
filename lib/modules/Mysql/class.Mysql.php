@@ -285,7 +285,7 @@ class Mysql extends LoadAvg
 				// sent
 				$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
 
-				echo 'CHARTING: ' .  ( $data[1] / 1024 ) . ' : ' . ( $data[2] / 1024 ) . "\n";
+				//echo 'CHARTING: ' .  ( $data[1] / 1024 ) . ' : ' . ( $data[2] / 1024 ) . "\n";
 
 				/*
 				if (    ((float) ($data[1] / 1024 )) > $settings['settings']['overload'])
