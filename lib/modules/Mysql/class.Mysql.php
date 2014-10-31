@@ -231,15 +231,11 @@ class Mysql extends LoadAvg
 
 			$totalchartArray = (int)count($chartArray);
 
-			// get  settings here for module
-			// true - show MB
-			// false - show percentage
-
 			//$displayMode =	$settings['settings']['display_limiting'];
 
 			//data[0] = time
-			//data[1] = sent
-			//data[2] = received
+			//data[1] = received
+			//data[2] = sent
 			//data[3] = queries
 
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
@@ -257,10 +253,16 @@ class Mysql extends LoadAvg
 				if (  ($data[3] == "-1")  )
 					$data[3]=0.0;
 
+
+				//get value to chart here
+				//$chartVal = ( $data[1] / 1024 );
+				//$chartVal = ( $data[1] / 1024 );
+
 				//not currently using these so blank them out
 				//really they needot be separte charts like the network charts are displayed
 				//or possible overlay sent with received ?
-				$data[2]=null;
+				//$data[1]=null;
+				//$data[2]=null;
 				$data[3]=null;
 
 				//used to filter out redline data from usage data as it skews it
@@ -268,7 +270,6 @@ class Mysql extends LoadAvg
 					$usage[] = ( $data[1] / 1024 );
 				}
 			
-
 				$time[( $data[1] / 1024 )] = date("H:ia", $data[0]);
 
 				$usageCount[] = ($data[0]*1000);
@@ -276,13 +277,20 @@ class Mysql extends LoadAvg
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
 					$timestamps[] = $data[0];
 
-					// display data using MB
+
+				// received
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+				//$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". $chartVal ."]";
 
+				// sent
+				$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
 
-				if ( (float) $data[1] > $settings['settings']['overload'])
+				echo 'CHARTING: ' .  ( $data[1] / 1024 ) . ' : ' . ( $data[2] / 1024 ) . "\n";
+
+				/*
+				if (    ((float) ($data[1] / 1024 )) > $settings['settings']['overload'])
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
-
+				*/
 			}
 			
 			$mysql_high = max($usage);
