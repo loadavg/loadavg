@@ -176,8 +176,9 @@ class Mysql extends LoadAvg
 
 	}
 
+
 	/**
-	 * getUsageData
+	 * getData
 	 *
 	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
 	 *
@@ -185,7 +186,7 @@ class Mysql extends LoadAvg
 	 *
 	 */
 	
-	public function getUsageData( $logfileStatus)
+	public function getData( $logfileStatus, $useData = 1)
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
@@ -253,44 +254,21 @@ class Mysql extends LoadAvg
 				if (  ($data[3] == "-1")  )
 					$data[3]=0.0;
 
-
-				//get value to chart here
-				//$chartVal = ( $data[1] / 1024 );
-				//$chartVal = ( $data[1] / 1024 );
-
-				//not currently using these so blank them out
-				//really they needot be separte charts like the network charts are displayed
-				//or possible overlay sent with received ?
-				//$data[1]=null;
-				//$data[2]=null;
-				$data[3]=null;
-
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {
-					$usage[] = ( $data[1] / 1024 );
+					$usage[] = ( $data[$useData] / 1024 );
 				}
 			
-				$time[( $data[1] / 1024 )] = date("H:ia", $data[0]);
+				$time[( $data[$useData] / 1024 )] = date("H:ia", $data[0]);
 
 				$usageCount[] = ($data[0]*1000);
 
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
 					$timestamps[] = $data[0];
 
-
 				// received
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
-				//$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". $chartVal ."]";
+				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$useData] / 1024 ) ."]";
 
-				// sent
-				$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
-
-				//echo 'CHARTING: ' .  ( $data[1] / 1024 ) . ' : ' . ( $data[2] / 1024 ) . "\n";
-
-				/*
-				if (    ((float) ($data[1] / 1024 )) > $settings['settings']['overload'])
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
-				*/
 			}
 			
 			$mysql_high = max($usage);
@@ -321,14 +299,12 @@ class Mysql extends LoadAvg
 		
 			// values used to draw the legend
 			$variables = array(
-				'mysql_high' => number_format($mysql_high,4),
+				'mysql_high' => number_format($mysql_high,0),
 				'mysql_high_time' => $mysql_high_time,
-				'mysql_low' => number_format($mysql_low,4),
+				'mysql_low' => number_format($mysql_low,0),
 				'mysql_low_time' => $mysql_low_time,
-				'mysql_mean' => number_format($mysql_mean,4),
-				'mysql_latest' => number_format($mysql_latest,4),
-				//'mem_total' => number_format($mem_total,2),
-				//'mem_swap' => number_format($swap,2),
+				'mysql_mean' => number_format($mysql_mean,0),
+				'mysql_latest' => number_format($mysql_latest,0),
 			);
 		
 			// get legend layout from ini file
@@ -366,6 +342,40 @@ class Mysql extends LoadAvg
 		}
 	}
 
+
+	/**
+	 * getTransferData
+	 *
+	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
+	 *
+	 * @return array $return data retrived from logfile
+	 *
+	 */
+	
+	public function getTransferData( $logfileStatus )
+	{
+		$returnStatus = $this->getData( $logfileStatus, 1 );
+		
+		return $returnStatus;	
+	}
+
+
+/**
+	 * getTransferData
+	 *
+	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
+	 *
+	 * @return array $return data retrived from logfile
+	 *
+	 */
+	
+	public function getReceiveData( $logfileStatus)
+	{
+		$returnStatus = $this->getData( $logfileStatus, 2 );
+		
+		return $returnStatus;			
+	}
+
 	/**
 	 * genChart
 	 *
@@ -375,45 +385,21 @@ class Mysql extends LoadAvg
 	 * @param string @logdir path to logfiles folder
 	 *
 	 */
-
 	public function genChart($moduleSettings, $logdir)
 	{
-		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
+
+	//used for debugging
+    //echo '<pre>';var_dump(self::$current_date);echo'</pre>';
+
+		$charts = $moduleSettings['chart'];
 
 		$module = __CLASS__;
 		$i = 0;
-		foreach ( $charts['args'] as $chart ) {
-			$chart = json_decode($chart);
 
-			//grab the log file for current date (current date can be overriden to show other dates)
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
-
-			// find out main function from module args that generates chart data
-			// in this module its getData above
-			$caller = $chart->function;
-
-			//check if function takes settings via GET url_args 
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
-
-			if ( file_exists( $this->logfile )) {
-				$i++;				
-				$logfileStatus = false;
-
-				//call modules main function and pass over functionSettings
-				if ($functionSettings) {
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
-				} else {
-					$stuff = $this->$caller( $logfileStatus );
-				}
-
-			} else {
-				//no log file so draw empty charts
-				$i++;				
-				$logfileStatus = true;
-			}
-
-			//now draw chart to screen
-			include APP_PATH . '/views/chart.php';
-		}
+		if ( file_exists( dirname(__FILE__) . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'chart.php')) {
+			include dirname(__FILE__) . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'chart.php';
+		} else {
+			include APP_PATH . '/lib/views/chart.php';
+		}		
 	}
 }

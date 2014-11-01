@@ -17,60 +17,18 @@
 
 
 <?php
-/*
-	//clean up links first
-	if (
-		(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
-		(isset($_GET['maxDate']) && !empty($_GET['maxDate'])) &&
-		(isset($_GET['logdate']) && !empty($_GET['logdate']))
-		) {
-		$links = "?minDate=" . $_GET['minDate'] . "&maxDate=" . $_GET['maxDate'] . "&logdate=" . $_GET['logdate'] ."&";
-	} elseif (
-		(isset($_GET['logdate']) && !empty($_GET['logdate']))
-		) {
-		$links = "?logdate=" . $_GET['logdate'] . "&";
-	} else {
-		$links = "?";
-	}
 
-
-	//get settings for this module
-	$cpuSettings = LoadAvg::$_settings->$module;
-
-	//get the display_limiting setting from the settings subsection for this module
-	$thedata = $cpuSettings['settings']['display_limiting'];
-
-	//if we are changing mode
-	if  ( isset($_GET['memorymode']) || !empty($_GET['memorymode']))  {
-
-		$newmode = $_GET['memorymode'];
-
-		switch ( $newmode) {
-			case "true": 	$mydata['settings']['display_limiting'] = "true";
-						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
-						LoadAvg::write_module_ini($mergedsettings, $module);
-						header("Location: " . $links);						
-						break;
-
-			case "false": 	$mydata['settings']['display_limiting'] = "false";
-						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
-						LoadAvg::write_module_ini($mergedsettings, $module);
-						header("Location: " . $links);						
-						break;
-		}		
-	} else {
-
-		//if not build the links
-		switch ( $thedata) {
-			case "true": $links = $links . "memorymode=false"; break;
-			case "false": $links = $links . "memorymode=true"; break;
-		}
-	}
-
-*/
+	if ( $chart->type == "Transmit") {
 ?>
+	<strong>Mysql transmit data</strong>
+<?php
+	}
 
-<!--
-<strong>Memory usage in</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'MB' : '%'; ?></a>
--->
-<strong>Mysql usage data</strong>
+	if ( $chart->type == "Receive") {
+?>
+	<strong>Mysql receive data</strong>
+
+<?php
+
+	}
+?>
