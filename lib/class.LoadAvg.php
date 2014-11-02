@@ -749,32 +749,7 @@ class LoadAvg
 	}
 
 
-	/**
-	 * logIn
-	 *
-	 * User login, checks username and password from default settings to match.
-	 *
-	 * @param string $username the username
-	 * @param string $password the password
-	 */
 
-	public function logIn( $username, $password) 
-	{
-		if ( isset($username) && isset($password) ) 
-		{
-			if ($username == LoadAvg::$_settings->general['username'] && md5($password) == LoadAvg::$_settings->general['password']) 
-			{
-				$_SESSION['logged_in'] = true;
-
-				if (isset(self::$_settings->general['checkforupdates'])) 
-				{
-					//check for updates at login
-					$this->checkForUpdate();
-				}
-			}
-
-		}
-	}
 
 	/**
 	 * sendApiData
@@ -906,6 +881,48 @@ class LoadAvg
 			return true;
 	}
 
+	/**
+	 * logIn
+	 *
+	 * User login, checks username and password from default settings to match.
+	 *
+	 * @param string $username the username
+	 * @param string $password the password
+	 */
+
+	public function logIn( $username, $password ) 
+	{
+		if ( isset($username) && isset($password) ) 
+		{
+			if ($username == LoadAvg::$_settings->general['username'] && md5($password) == LoadAvg::$_settings->general['password']) 
+			{
+				$_SESSION['logged_in'] = true;
+
+				if (isset(self::$_settings->general['checkforupdates'])) 
+				{
+					//check for updates at login
+					$this->checkForUpdate();
+				}
+
+
+				if($_POST['remember-me']) {
+
+					$cookietime = time() + 86400; // 1 day
+					
+					setcookie('remember_me', $username, $cookietime);
+				}
+				elseif(!$_POST['remember-me']) {
+					
+					if(isset($_COOKIE['remember_me'])) {
+						$past = time() - 100;
+						setcookie(remember_me, gone, $past);
+					}
+				}
+
+			}
+
+		}
+	}
 
 	/**
 	 * isLoggedIn
@@ -931,7 +948,18 @@ class LoadAvg
 	 *
 	 */
 
-	public function logOut() { session_destroy(); }
+	public function logOut() { 
+
+		//used for easy ermemebr me functionality
+		
+		if(isset($_COOKIE['remember_me'])) {
+			$past = time() - 100;
+			setcookie(remember_me, gone, $past);
+		}
+
+		session_destroy(); 
+
+	}
 
 	/**
 	 * getNetworkInteraces
