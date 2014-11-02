@@ -77,17 +77,16 @@ $loaded = LoadAvg::$_settings->general['modules'];
 $logdir = HOME_PATH . '/logs/';
 
 
-//dirty hack to remember users!
-//really should load usaername and password into login form
-//however we delete the cookie when a user logs out so safety is on the user
-
-if ( !$loadavg->isLoggedIn() ) 
+//used for remember me at login time
+//if no session exists check for cookies
+if (  !isset($_SESSION['logged_in']) || ($_SESSION['logged_in'] == false) )
 {
-	if(isset($_COOKIE['remember_me'])) {
-
-	$_SESSION['logged_in'] = true;
-
+	//if cookies are here and match log them in
+	if ($loadavg->checkCookies()) {
+		$_SESSION['logged_in'] = true;        
+	    header("Location: /index.php");
 	}
+
 }
 
 

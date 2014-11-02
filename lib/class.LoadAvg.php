@@ -908,15 +908,23 @@ class LoadAvg
 				if($_POST['remember-me']) {
 
 					$cookietime = time() + 86400; // 1 day
-					
-					setcookie('remember_me', $username, $cookietime);
+
+					setcookie('remember_me', true, $cookietime);
+					setcookie('loaduser', $username, $cookietime);
+					setcookie('loadpass', md5($password), $cookietime);
 				}
 				elseif(!$_POST['remember-me']) {
-					
-					if(isset($_COOKIE['remember_me'])) {
-						$past = time() - 100;
+
+					$past = time() - 100;
+
+					if( isset($_COOKIE['remember_me']) ) 
 						setcookie(remember_me, gone, $past);
-					}
+
+					if(isset($_COOKIE['loaduser'])) 
+						setcookie(loaduser, gone, $past);
+
+					if(isset($_COOKIE['loadpass'])) 
+						setcookie(loadpass, gone, $past);
 				}
 
 			}
@@ -934,7 +942,7 @@ class LoadAvg
 
 	public function isLoggedIn()
 	{
-		if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+		if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
 			return true;
 		} else {
 			return false;
@@ -948,18 +956,52 @@ class LoadAvg
 	 *
 	 */
 
-	public function logOut() { 
+	public static function logOut() { 
 
-		//used for easy ermemebr me functionality
-		
-		if(isset($_COOKIE['remember_me'])) {
-			$past = time() - 100;
+		//used to clean up remember me functionality
+		$past = time() - 100;
+
+		if(isset($_COOKIE['remember_me'])) 
 			setcookie(remember_me, gone, $past);
-		}
 
+		if(isset($_COOKIE['loaduser'])) 
+			setcookie(loaduser, gone, $past);
+
+		if(isset($_COOKIE['loadpass'])) 
+			setcookie(loadpass, gone, $past);
+
+		//clean up session
 		session_destroy(); 
 
 	}
+
+
+	/**
+	 * checkCookies
+	 *
+	 * Checks if the user is logged in and has SESSION started.
+	 *
+	 * @return boolean TRUE if is logged in and FALSE if not.
+	 */
+
+	public function checkCookies()
+	{
+
+		if ( isset($_COOKIE['loaduser']) && isset($_COOKIE['loadpass']) ) {
+
+			echo 'found cookies';
+
+			if (         $_COOKIE['loaduser'] == LoadAvg::$_settings->general['username'] 
+		          &&     $_COOKIE['loadpass'] == LoadAvg::$_settings->general['password'] ) 
+			{
+				return true;        
+			} 
+		}
+
+		return false;
+
+	}
+
 
 	/**
 	 * getNetworkInteraces

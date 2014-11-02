@@ -93,14 +93,6 @@ using code to manage accordion state is in common.js
 
 
 
-
-
-
-
-
-
-
-
 				<!-- no $stuff means no log data  -->
 				<?php if ( $stuff  ) {  ?>
 					<script type="text/javascript">
@@ -341,10 +333,5 @@ using code to manage accordion state is in common.js
 
 	</div> <!-- // Accordion end -->
 </div> <!-- // Accordion group -->
-
-<script type="text/javascript">
-
-
-</script>
 
 <div class="separator bottom"></div>
