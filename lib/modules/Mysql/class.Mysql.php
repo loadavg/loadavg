@@ -254,12 +254,19 @@ class Mysql extends LoadAvg
 				if (  ($data[3] == "-1")  )
 					$data[3]=0.0;
 
+				//when showing send and receive its bytes to MB
+				//when showing queries, mode 3, its 1 to 1
+				if ($useData == 3)
+					$divisor = 1;
+				else
+					$divisor = 1024;
+
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {
-					$usage[] = ( $data[$useData] / 1024 );
+					$usage[] = ( $data[$useData] / $divisor );
 				}
 			
-				$time[( $data[$useData] / 1024 )] = date("H:ia", $data[0]);
+				$time[( $data[$useData] / $divisor )] = date("H:ia", $data[0]);
 
 				$usageCount[] = ($data[0]*1000);
 
@@ -267,7 +274,7 @@ class Mysql extends LoadAvg
 					$timestamps[] = $data[0];
 
 				// received
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$useData] / 1024 ) ."]";
+				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$useData] / $divisor ) ."]";
 
 			}
 			

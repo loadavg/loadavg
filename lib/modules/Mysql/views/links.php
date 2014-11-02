@@ -20,13 +20,13 @@
 
 	if ( $chart->type == "Transmit") {
 ?>
-	<strong>Mysql transmit data</strong>
+	<strong>Mysql transmit data MB</strong>
 <?php
 	}
 
 	if ( $chart->type == "Receive") {
 ?>
-	<strong>Mysql receive data</strong>
+	<strong>Mysql receive data MB</strong>
 
 <?php
 
