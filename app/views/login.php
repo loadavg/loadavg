@@ -24,7 +24,7 @@ http://devzone.co.in/remember-functionality-signinlogin-form-using-html5-jquery/
 //see if we remember them and if so load values
 $loaduser = $loadpass = $remember = false;
 
-if (isset($_COOKIE['remember_me'])) 
+if (isset($_COOKIE['loadremember'])) 
 	$remember = true;
 
 if (isset($_COOKIE['loaduser'])) 

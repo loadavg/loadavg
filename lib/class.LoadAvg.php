@@ -909,7 +909,7 @@ class LoadAvg
 
 					$cookietime = time() + 86400; // 1 day
 
-					setcookie('remember_me', true, $cookietime);
+					setcookie('loadremember', true, $cookietime);
 					setcookie('loaduser', $username, $cookietime);
 					setcookie('loadpass', md5($password), $cookietime);
 				}
@@ -917,14 +917,14 @@ class LoadAvg
 
 					$past = time() - 100;
 
-					if( isset($_COOKIE['remember_me']) ) 
-						setcookie(remember_me, gone, $past);
+					if( isset($_COOKIE['loadremember']) ) 
+						setcookie('loadremember', 0, $past);
 
 					if(isset($_COOKIE['loaduser'])) 
-						setcookie(loaduser, gone, $past);
+						setcookie('loaduser', 0, $past);
 
 					if(isset($_COOKIE['loadpass'])) 
-						setcookie(loadpass, gone, $past);
+						setcookie('loadpass', 0, $past);
 				}
 
 			}
@@ -961,14 +961,11 @@ class LoadAvg
 		//used to clean up remember me functionality
 		$past = time() - 100;
 
-		if(isset($_COOKIE['remember_me'])) 
-			setcookie(remember_me, gone, $past);
-
 		if(isset($_COOKIE['loaduser'])) 
-			setcookie(loaduser, gone, $past);
+			setcookie('loaduser', 0, $past);
 
 		if(isset($_COOKIE['loadpass'])) 
-			setcookie(loadpass, gone, $past);
+			setcookie('loadpass', 0, $past);
 
 		//clean up session
 		session_destroy(); 
