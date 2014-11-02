@@ -32,3 +32,12 @@
 
 	}
 ?>
+
+<?php
+
+	if ( $chart->type == "Queries") {
+?>
+	<strong>Mysql queries</strong>
+<?php
+	}
+?>

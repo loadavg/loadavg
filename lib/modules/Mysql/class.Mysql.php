@@ -360,7 +360,7 @@ class Mysql extends LoadAvg
 	}
 
 
-/**
+	/**
 	 * getTransferData
 	 *
 	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
@@ -372,6 +372,22 @@ class Mysql extends LoadAvg
 	public function getReceiveData( $logfileStatus)
 	{
 		$returnStatus = $this->getData( $logfileStatus, 2 );
+		
+		return $returnStatus;			
+	}
+
+	/**
+	 * getTransferData
+	 *
+	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
+	 *
+	 * @return array $return data retrived from logfile
+	 *
+	 */
+	
+	public function getQueryData( $logfileStatus)
+	{
+		$returnStatus = $this->getData( $logfileStatus, 3 );
 		
 		return $returnStatus;			
 	}

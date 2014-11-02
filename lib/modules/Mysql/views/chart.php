@@ -25,10 +25,19 @@
 		<?php
 		$j = 0;
 
+		//show or skip last chart
+		$showqueries = $moduleSettings['settings']['show_queries'];
+
 		/* draw charts for each subchart as per args will be Transmit and receive */
 
 		foreach ( $charts['args'] as $chart ) {
 			$j++;
+
+			//this is to skip the 3rd chart which is queries
+			//bit of a hack could be made nicer
+			if ( $showqueries == "false" && $j == 3)
+					continue;
+
 			$chart = json_decode($chart);
 
 			// note that this will probably need to be fixed for PERIODS
@@ -63,9 +72,6 @@
 		<!-- <div class="row-fluid"> -->
 		<table border="0" width="100%" cellspacing="0" cellpadding="0">
 			<tr>
-			<?php
-
-			?>
 			<!-- <div class="span3 right"> -->
 			<td width="26%" align="right" style="padding-right: 15px">
 				<?php if ( $stuff ) { ?>

@@ -17,6 +17,10 @@
 <!--
 HTML 5 remember me ?
 http://devzone.co.in/remember-functionality-signinlogin-form-using-html5-jquery/
+
+use a salt and a auth cookie to make more secure
+http://stackoverflow.com/questions/15194663/encrypt-and-decrypt-md5
+salt needs to be created at install time and stored in settings.ini
 -->
 
 <?php

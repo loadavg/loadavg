@@ -260,10 +260,22 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 
 	                        			<?php } else { ?>
 
+<!--
+        									<div class="span9 right">
+	                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="4" class="span6 left">
+	                        				</div>  
+-->
+
+
+	                        				<div class="pull-right">
+	                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">
+	                        				</div>  
+
+	                        				<!-- original code
 	                        				<div class="pull-right">
 	                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" class="span5 center">
 	                        				</div>                      				
-	                        			
+	                        				-->
 	                        			<?php } ?>
 
 	                        		</div>
