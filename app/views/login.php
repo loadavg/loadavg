@@ -30,7 +30,13 @@
 			
 			<label class="checkbox">
 				<div class="checker" id="uniform-undefined">
-				<span><input type="checkbox" value="remember-me" style="opacity: 100;"></span>
+				<span><input type="checkbox" name = "remember-me" value="remember-me" style="opacity: 100;" 
+				<?php if(isset($_COOKIE['remember_me'])) {
+				echo 'checked="checked"';
+				}
+				else {
+				echo '';
+				} ?>></span>
 				</div>Remember me
 			</label>
 

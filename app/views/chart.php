@@ -48,10 +48,10 @@ using code to manage accordion state is in common.js
 
 <div class="widget" data-toggle="collapse-widget" data-collapse-closed="false" data-target="#accordion<?php echo $module; ?>">
 
-
 	<?php if ( $chart ) { ?>
 	<div class="widget-head"><h4 class="heading"><?php echo $chart->label; ?></h4></div>
-	<div class="widget-body collapse in" style="height: auto;">
+	<div class="widget-body in collapse" style="height: auto;">
+
 		<table border="0" width="100%" cellspacing="0" cellpadding="0">
 			<tr>	
 
@@ -92,9 +92,17 @@ using code to manage accordion state is in common.js
 			<?php }	?>
 
 
+
+
+
+
+
+
+
+
+
 				<!-- no $stuff means no log data  -->
 				<?php if ( $stuff  ) {  ?>
-
 					<script type="text/javascript">
 					(function () {
 						<?php if ( $i > 1) { ?>
@@ -273,6 +281,11 @@ using code to manage accordion state is in common.js
 					</script>
 
 
+
+
+
+
+
 					<?php
 					/*
 						echo 'have_swap :'; echo $have_swap; echo '<br>';
@@ -328,5 +341,10 @@ using code to manage accordion state is in common.js
 
 	</div> <!-- // Accordion end -->
 </div> <!-- // Accordion group -->
+
+<script type="text/javascript">
+
+
+</script>
 
 <div class="separator bottom"></div>

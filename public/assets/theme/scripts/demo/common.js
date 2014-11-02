@@ -2,15 +2,20 @@ $(function () {
 	$('.widget[data-toggle="collapse-widget"] .widget-body')
 	.on('show', function(){
 		$(this).parents('.widget:first').attr('data-collapse-closed', "false");
+		    //console.log('open');
 			storeState();
 	})
 	.on('hidden', function(){
 		$(this).parents('.widget:first').attr('data-collapse-closed', "true");
+		    //console.log('close');
 			storeState();
 	});
 	
 	$('.widget[data-toggle="collapse-widget"]').each(function()
 	{
+		//console.log('create');
+		//console.log($(this).attr('data-collapse-closed'));
+
 		// append toggle button
 		$(this).find('.widget-head').append('<span class="collapse-toggle"></span>');
 		
@@ -44,7 +49,7 @@ function storeState() {
 
     // stringify array object
     check_open_divs = JSON.stringify(check_open_divs);
-    console.log(check_open_divs);
+    //console.log(check_open_divs);
 
     $.cookie('bg-noise-div-state', check_open_divs, {expires:365, path: '/'});
 }
