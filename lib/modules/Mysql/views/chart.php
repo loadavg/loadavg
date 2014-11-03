@@ -38,6 +38,12 @@
 			if ( $showqueries == "false" && $j == 3)
 					continue;
 
+			if ( $showqueries == "true" && $j == 1)
+					continue;
+
+			if ( $showqueries == "true" && $j == 2)
+					continue;
+
 			$chart = json_decode($chart);
 
 			// note that this will probably need to be fixed for PERIODS
