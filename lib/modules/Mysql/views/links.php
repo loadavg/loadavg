@@ -21,31 +21,26 @@
 
 
 <?php
+	// draw chart labels here
 
 	if ( $chart->type == "Transmit") {
-?>
-	<strong>Mysql transmit data MB</strong><br>
-<?php
+	?>
+		<strong>Mysql transmit data MB</strong><br>
+	<?php
 	}
 
 	if ( $chart->type == "Receive") {
-?>
-	<strong>Mysql receive data MB</strong><br>
-
-<?php
-
+	?>
+		<strong>Mysql receive data MB</strong><br>
+	<?php
 	}
-?>
-
-<?php
 
 	if ( $chart->type == "Queries") {
-?>
-	<strong>Mysql queries</strong><br>
-<?php
+	?>
+		<strong>Mysql queries</strong><br>
+	<?php
 	}
 ?>
-
 
 <?php
 
@@ -99,11 +94,14 @@
 		}
 	}
 
+	if ( $chart->type == "Transmit" || $chart->type == "Queries") 
+	{
+	?>
+		<a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'View bandwidth' : 'View queries'; ?></a>
+	<?php
+	}
 
 ?>
-
-<a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'View bandwidth' : 'View queries'; ?></a>
-
 
 
 

@@ -33,16 +33,16 @@
 		foreach ( $charts['args'] as $chart ) {
 			$j++;
 
-			//this is to skip the 3rd chart which is queries
-			//bit of a hack could be made nicer
+			//this is to switch between differet chart modes
+			//we can clean this up later on
+
+			//if set to show queries skip charts 1 and 2
+			if ( ( $showqueries == "true" ) && ( $j == 1 || $j == 2) )
+				continue;
+
+			//if set to not show queries skip chart 3
 			if ( $showqueries == "false" && $j == 3)
-					continue;
-
-			if ( $showqueries == "true" && $j == 1)
-					continue;
-
-			if ( $showqueries == "true" && $j == 2)
-					continue;
+				continue;
 
 			$chart = json_decode($chart);
 
