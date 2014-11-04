@@ -24,16 +24,51 @@ include 'class.LoadAvg.php'; // including Main Controller
 $loadavg = new LoadAvg(); // Initializing Main Controller
 $settings = LoadAvg::$_settings->general; // Default settings
 
-require_once APP_PATH . '/layout/header.php'; // Including header view
+// Including header view
+require_once APP_PATH . '/layout/header.php'; 
 
-if ( isset($_GET['step'])) {
+//check for settings
+$settings_file = APP_PATH . '/config/settings.ini'; // path to settings INI file
+
+//read some system data
+$settingsActive = $loadavg->checkWritePermissions( $settings_file );
+$logStatus = $loadavg->testLogs(false);
+
+//check if any data has been passed in
+$step = 1;
+if ( isset($_GET['step']) ) 
 	$step = $_GET['step']; // if step argument exists set the step
-} else {
-	$step = 1; // setting default step
+
+//if (isset($_GET['step'])) ? $step=1; : $step = $_GET['step'];
+
+
+//forceinstall is used to force a install when script has detected an upgrade
+$forceInstall = false;
+if ( isset($_GET['forceinstall']))	
+	$forceInstall = true;
+
+//see if we can get the version number
+if ( isset($settings['version'])) 
+	$version = $settings['version']; 
+
+//if script is newer than stored version its a upgrade
+$upgrade = false;
+if ( (float)SCRIPT_VERSION > (float)$version )
+{
+	if ( ($settingsActive && $logStatus && !$forceInstall) ) {
+		$upgrade = true;
+	}
 }
 
-$settings_file = APP_PATH . '/config/settings.ini'; // path to settings INI file
+//if its a upgrade jump to upgrade portion
+if ( $upgrade )
+{
+		$step = 4;
+}
+
 ?>
+
+
 <div class="innerAll">
 <?php
 switch ( $step )
@@ -41,7 +76,7 @@ switch ( $step )
 	default:
 	case 1: // Checking for permissions. If we have permissions to write go to step 2 if nut display message with information on
 			// how to run the configuration tool and reload the page so the check runs again...
-		if ( !$loadavg->checkWritePermissions( $settings_file ) )
+		if ( !$settingsActive )
 		{
 			?>
 			<h4>Installation: Step 1</h4>
@@ -55,16 +90,22 @@ switch ( $step )
 			</div>
 			<?php
 		} else {
-			header("Location: index.php?step=2"); // redirecting to step 2
+			header("Location: index.php?step=2<?php if ($forceInstall) echo '&forceinstall=1'; ?>"); // redirecting to step 2
 		}
 		break;
+
+
 	case 2: // Configuration: Username, password, Site name, Check for updates
-		if ( $loadavg->checkWritePermissions( $settings_file ) ) {
+		if ( $settingsActive ) {
 		?>
 		<h4>Installation: Step 2</h4>
 		<div class="well">
 			<form class="form-horizontal">
 				<input type="hidden" name="step" value="3">
+
+				<?php if ($forceInstall) { ?>
+				<input type="hidden" name="forceinstall" value="1">
+				<?php } ?>
 
 				<div class="control-group">
 					<label class="control-label" for="inputSiteName">Server name</label>
@@ -106,7 +147,7 @@ switch ( $step )
 				<div class="control-group">
 					<label class="control-label" for="inputUpdate">Automatically check for update(s).</label>
 					<div class="controls">
-						<input type="checkbox" id="inputUpdate" name="checkforupdates">
+						<input type="checkbox" id="inputUpdate" name="checkforupdates" checked="checked">
 						<span class="help-block">Please check this checkbox if you want to automatically check for new update(s).</span>
 					</div>
 				</div>
@@ -135,8 +176,10 @@ switch ( $step )
 			header("Location: ?step=1");
 		}
 		break;
+
+
 	case 3: // Complete the installation, default settings saved you can now remove the install.php from your public folder
-		if ( $loadavg->checkWritePermissions( $settings_file ) ) {
+		if ( $settingsActive ) {
 			$errorMsg = '';
 
 			$settings['title'] = ( isset( $_GET['title'] ) && !empty( $_GET['title'] ) ) ? $_GET['title'] : $errorMsg .= '<li>Title not set!</li>';
@@ -152,21 +195,16 @@ switch ( $step )
 			$settings['password'] = md5($settings['password']);
 
 			if (ini_get('date.timezone')) {
-    			//echo 'date.timezone: ' . ini_get('date.timezone');
 		    	$settings['timezone']=ini_get('date.timezone'); 
 			}
 			?>
 
-			<!--
-			<h4>Installation: Complete</h4>
-			<div class="well">
-			-->
 				<?php
 				if ( strlen( $errorMsg ) > 0) {
-					?>
+				?>
 
-			<h4>Installation Errors</h4>
-			<div class="well">
+					<h4>Installation Errors</h4>
+					<div class="well">
 
 					<h3>Error(s).</h3>
 					<ul>
@@ -175,17 +213,15 @@ switch ( $step )
 					<?php
 				} else { ?>
 
-			<h4>Installation Complete</h4>
-			<div class="well">
+					<h4>Installation Complete</h4>
+					<div class="well">
 
-			<?php
-			// write settings file out
-			//var_dump($settings);
-			$loadavg->write_php_ini( $settings, $settings_file);
-			$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
-			?>
-
-
+					<?php
+					// write settings file out
+					//var_dump($settings);
+					$loadavg->write_php_ini( $settings, $settings_file);
+					$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
+					?>
 
 					<b>Thank you for installing LoadAvg <?php echo $settings['version']; ?></b>
 					<br><br>
@@ -214,28 +250,12 @@ switch ( $step )
 					<br>
 					</p>
 
-					<!--				
-					<b>2. Secure your installation</b>
-					<br><br>
-					<p>For security reasons, you need to delete the <span class="label label-info">install.php</span> file from your <span class="label label-info">/public</span> folder.
-					To do this type:<br>
-					<br>
-					<span class="label label-info">rm public/install.php</span>
-					<br><br>
-					LoadAvg will not run until this has been done.
-					</p>
-					<br>
-
-					<b>Once you have completed steps 1 and 2 above you can log in.</b>
-					<br><br>
-					-->
-
 					<?php
 				}
 				?>
 				<?php
 				if ( strlen( $errorMsg ) > 0) {
-					?><a class="btn btn-primary" href="?step=2">Go back!</a><?php	
+					?><a class="btn btn-primary" href="?step=2<?php if ($forceInstall) echo '&forceinstall=1'; ?>">Go back!</a><?php	
 				} else {
 					?><a class="btn btn-primary" href="<?php echo SCRIPT_ROOT ?>public/index.php?check=1">Continue</a><?php
 				}
@@ -246,6 +266,34 @@ switch ( $step )
 			header("Location: ?step=1");
 		}
 		break;
+
+
+	case 4: // this is a upgrade
+		if ( $settingsActive )
+		{
+			?>
+			<h4>Upgrade</h4>
+			<div class="well">
+				<b>This appears to be a upgrade</b>
+				<br><br>
+				Select if you want to upgrade now
+				<br><br>
+				<button class="btn btn-primary" onclick="location.href='public/index.php?check=1'">Upgrade</button>
+				<br><br>
+				or if you want to run the installer again
+				<br><br>
+				<button class="btn btn-primary" onclick="location.href='index.php?step=2&forceinstall=1'">Install</button>
+
+
+
+			</div>
+			<?php
+		} else {
+			header("Location: index.php?step=2"); // redirecting to step 2
+		}
+		break;
+
+
 }
 ?>
 </div>
