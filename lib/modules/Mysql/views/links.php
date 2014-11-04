@@ -37,7 +37,7 @@
 
 	if ( $chart->type == "Queries") {
 	?>
-		<strong>Mysql queries</strong><br>
+		<strong>Showing Mysql queries</strong><br>
 	<?php
 	}
 ?>
