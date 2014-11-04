@@ -63,7 +63,8 @@ if ( (float)SCRIPT_VERSION > (float)$version )
 //if its a upgrade jump to upgrade portion
 if ( $upgrade )
 {
-		$step = 4;
+		if ($step != 5)
+			$step = 4;
 }
 
 ?>
@@ -268,7 +269,7 @@ switch ( $step )
 		break;
 
 
-	case 4: // this is a upgrade
+	case 4: // this is a upgrade - for now we just clean up after us when we upgrade
 		if ( $settingsActive )
 		{
 			?>
@@ -278,13 +279,32 @@ switch ( $step )
 				<br><br>
 				Select if you want to upgrade now
 				<br><br>
-				<button class="btn btn-primary" onclick="location.href='public/index.php?check=1'">Upgrade</button>
+				<button class="btn btn-primary" onclick="location.href='index.php?step=5'">Upgrade</button>
 				<br><br>
 				or if you want to run the installer again
 				<br><br>
 				<button class="btn btn-primary" onclick="location.href='index.php?step=2&forceinstall=1'">Install</button>
 
 
+
+			</div>
+			<?php
+		} else {
+			header("Location: index.php?step=2"); // redirecting to step 2
+		}
+		break;
+
+	case 5: // this is a upgrade - for now we just clean up after us when we upgrade
+		if ( $settingsActive )
+		{
+			?>
+			<h4>Upgrade Complete</h4>
+			<div class="well">
+				<b>This appears to be a upgrade</b>
+				<br><br>
+				Go on to LoadAvg
+				<br><br>
+				<button class="btn btn-primary" onclick="location.href='public/index.php?check=1'">Continue</button>
 
 			</div>
 			<?php
