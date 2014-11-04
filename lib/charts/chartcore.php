@@ -65,13 +65,22 @@
 			var chart_data = new Array();
 			chart_data.push(d1);
 
-			//used for secondary overlaods
+			//used for primary overload
 			<?php if ( isset($stuff['chart']['chart_data_over']) ) { ?>
 				var d2 = {
 					label: 'Overload',
 					data: <?php echo $stuff['chart']['chart_data_over']; ?>
 				};
 				chart_data.push(d2);
+			<?php } ?>
+
+			//used for secondary overlaods
+			<?php if ( isset($stuff['chart']['chart_data_over_2']) ) { ?>
+				var d3 = {
+					label: 'Secondary Overload',
+					data: <?php echo $stuff['chart']['chart_data_over_2']; ?>
+				};
+				chart_data.push(d3);
 			<?php } ?>
 
 			// new swap code
@@ -85,22 +94,12 @@
 			<?php } 
 			?>
 
-
-			//used for secondary overlaods
-			<?php if ( isset($stuff['chart']['chart_data_over_2']) ) { ?>
-				var d3 = {
-					label: 'Secondary Overload',
-					data: <?php echo $stuff['chart']['chart_data_over_2']; ?>
-				};
-				chart_data.push(d3);
-			<?php } ?>
-
-
 		<?php } ?>
 
 
         // render the chart using the chart.js data
-        // until we can figure out how to render error message on top of chart we override the label  :)
+        // for error message until we can figure out how to render error message 
+        // on top of blank chart we override the label  :)
 
 		$(function () {
 			<?php if ( $i == 1) { ?>
@@ -126,105 +125,17 @@
 			<?php } ?>
 
 
-            // Now draw separate chart for mean value display stacked bar chart
-            // cool as we can also do pie charts etc using different flags
-
-			<?php 
-				if ( isset($stuff['chart']['mean']) ) {   
-			?>
-
-			    var options =  {
-			        grid: {
-			            show: true,
-			            color: "#efefef",
-			            axisMargin: 0,
-			            borderWidth: 1,
-			            hoverable: true,
-			            autoHighlight: true,
-			            borderColor: "#797979",
-			            backgroundColor : "#353535"
-			        },
-			        series: {
-			            bars: {
-			                show: true,
-			                fillColor: {colors:[{opacity: 1},{opacity: 1}]},
-			                align: "center"
-			            },
-			            color: "#26ADE4",
-			            stack: 0
-			        },
-			        width: 0.5,
-			        xaxis: {
-			        	show: false, 
-			        	min: 1
-			        },
-			        yaxis: {
-			        	show: false, 
-			        	max: <?php echo $stuff['chart']['ymax']; ?>, 
-			        	min: <?php echo $stuff['chart']['ymin'];?>, 
-			        	reserveSpace: false, 
-			        	labelWidth: 15
-			        },
-			        legend: { 
-			        	show: false 
-			        },
-					tooltip: true,
-
-					tooltipOpts: {
-
-						content: function(label, xval, yval, flotItem) {
-							return "Avg " + parseFloat(yval).toFixed(4);
-				    	},
-
-						shifts: {
-							x: 20,
-							y: -20
-						},
-						defaultTheme: false
-					}
-
-			     };
-			
-                 
-                 $("#minmax_<?php echo $chart->id; ?>").width(35).height(140);
-                 $.plot($("#minmax_<?php echo $chart->id; ?>"),[[[1, <?php echo $stuff['chart']['mean']; ?>]]],options);
-
-             <?php } ?>
 
 		})
 	})();
 	</script>
 
 
-	<?php
-	/*
-		echo 'have_swap :'; echo $have_swap; echo '<br>';
-		echo 'have over :'; echo $have_over; echo '<br>';
-	*/
-	?>
-
 	<div id="<?php echo $chart->id; ?>_legend" class="pull-right innerLR" style="right: 22px;"></div>
 	<div class="clearfix"></div>
 	<div id="<?php echo $chart->id; ?>" style="height: 160px;" class="chart-holder"></div>
 
 
-	<?php if ($logfileStatus) { // need to implement this method for overlay errors on charts ?>
-	<!--
-	
-	NOTE: Enable canvas: true, in chart js options
-	<script type="text/javascript">
-	var c=document.getElementsByTagName("canvas")[0];
-	var canvas=c.getContext("2d");
-	var cx = c.width / 2;
-	var text="Flot chart title";
-	canvas.font="bold 20px sans-serif";
-	canvas.textAlign = 'center';
-	canvas.fillText(text,cx,75);	
-	</script>
-
-	<div class="alert alert-danger">No logfile data to generate charts from for module <?php echo $module; ?></div>
-	-->
-	<?php } ?>
 
 
 

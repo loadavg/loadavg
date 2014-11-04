@@ -55,9 +55,7 @@ using code to manage accordion state is in common.js
 		<table border="0" width="100%" cellspacing="0" cellpadding="0">
 			<tr>	
 
-	        <!-- 
-	          Now we render the chart 
-	      	-->
+	        <!--  Now we render the chart -->
 
 	        <!-- this sections renders out chart left legend from .ini file -->
 
@@ -81,45 +79,35 @@ using code to manage accordion state is in common.js
 
 	        <!-- this sections renders main chart area -->
 
-			<!-- used to change wisth if we have the Avg chart on right or not -->
+			<!-- used to change  if we have the Avg chart on right or not -->
 			<td class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
 				
-       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
-       		     more than 1 in i means multiple charts in the segment so we include  js files just once
-       		-->
-			<?php if ( $i == 1) { ?>
-			<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
-			<?php }	?>
+	       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
+	       		     more than 1 in i means multiple charts in the segment so we include js files just once
+	       		-->
+				<?php if ( $i == 1) { ?>
+				<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+				<?php }	
 
-
-				<!-- no $stuff means no log data  -->
-				<?php if ( $stuff  ) {
-
-					//draw charts 
-					include( HOME_PATH . '/lib/chartcore.php');
-				
-				} else { ?>
-					<div class="alert alert-danger">No logfile data to generate charts from for module <?php echo $module; ?></div>
-				<?php } ?>
+				//draw chart
+				include( HOME_PATH . '/lib/charts/chartcore.php');
+				?>
 
 			</td>
 
-			<?php if ( isset($stuff['chart']['mean']) ) { ?>
-            <td class="span1 hidden-phone" style="height: 170px">
-                <div id="minmax_<?php echo $chart->id; ?>" style="width:35px;height:140px;top: 18px;right: 5px;"></div>
-                <div style="position: relative; top: 13px;font-size: 11px;left: 3px;">Avg</div>
-        	</td>
+			<?php 
+	        // Now draw separate chart for mean value display stacked bar chart
+	        // cool as we can also do pie charts etc using different flags
+			if ( isset($stuff['chart']['mean']) ) {  
 
-            <?php } // closes main if stuff at top ?> 
+				include( HOME_PATH . '/lib/charts/chartavg.php');
+			} 
+			?> 
 
 		</tr>
 	</table>
 
-
-
 	<?php } // closes main if chart at top ?>
-
-
 
 	</div> <!-- // Accordion end -->
 </div> <!-- // Accordion group -->

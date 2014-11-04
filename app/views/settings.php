@@ -205,6 +205,15 @@ if (isset($_POST['update_settings'])) {
 			</div>
 		</div>
 
+		<div class="row-fluid">
+			<div class="span3">
+				<strong>Days to remember me for (when active)</strong>
+			</div>
+			<div class="span9 right">
+				<input type="text" name="formsettings[rememberme_interval]" value="<?php echo $settings['rememberme_interval']; ?>" >
+			</div>
+		</div>
+
 	</div>
 
 

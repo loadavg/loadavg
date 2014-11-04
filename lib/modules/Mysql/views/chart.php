@@ -98,30 +98,31 @@
 			<!-- </div> -->
 			</td>
 
-			<td  class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT">
-
-				<!-- no $stuff means no log data  -->
-				<?php if ( $stuff  ) {
-
-					//draw charts 
-					include( HOME_PATH . '/lib/chartcore.php');
+			<!-- used to change  if we have the Avg chart on right or not -->
+			<td class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
 				
-				} else { ?>
-					<div class="alert alert-danger">No logfile data to generate charts from for module <?php echo $module; ?></div>
-				<?php } ?>
+	       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
+	       		     more than 1 in i means multiple charts in the segment so we include js files just once
+	       		-->
+				<?php if ( $i == 1) { ?>
+				<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+				<?php }	
 
+				//draw chart
+				include( HOME_PATH . '/lib/charts/chartcore.php');
+				?>
 
-			<!-- </div> -->
 			</td>
-			<?php if ( isset($stuff['chart']['mean']) ) { ?>
-            <!-- <div class="span1 hidden-phone"> -->
-            <td class="span1 hidden-phone" style="height: 170px">
-                <div id="minmax_<?php echo $chart->id; ?>" style="width:35px;height:140px;top: 18px;right: 5px;"></div>
-                <div style="position: relative; top: 13px;font-size: 11px;">Avg</div>
-            <!-- </div> -->
-        	</td>
-            <?php } ?>
-		<!-- </div> -->
+
+			<?php 
+	        // Now draw separate chart for mean value display stacked bar chart
+	        // cool as we can also do pie charts etc using different flags
+			if ( isset($stuff['chart']['mean']) ) {  
+
+				include( HOME_PATH . '/lib/charts/chartavg.php');
+			} 
+			?> 
+
 			</tr>
 		</table>
 		<?php } ?>
