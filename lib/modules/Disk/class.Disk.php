@@ -47,7 +47,6 @@ class Disk extends LoadAvg
 		$settings = LoadAvg::$_settings->$class;
 				
 		$drive = $settings['settings']['drive'];
-		//$drive="/";
 		
 		if (is_dir($drive)) {
 				
