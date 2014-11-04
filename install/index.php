@@ -63,8 +63,8 @@ if ( (float)SCRIPT_VERSION > (float)$version )
 //if its a upgrade jump to upgrade portion
 if ( $upgrade )
 {
-		if ($step != 5)
-			$step = 4;
+	if ($step != 5)
+		$step = 4;
 }
 
 ?>
@@ -91,7 +91,11 @@ switch ( $step )
 			</div>
 			<?php
 		} else {
-			header("Location: index.php?step=2<?php if ($forceInstall) echo '&forceinstall=1'; ?>"); // redirecting to step 2
+			$location = "Location: index.php?step=2";
+			if ($forceInstall) 
+				$location += "&forceinstall=1"; 
+			
+			header( $location ); // redirecting to step 2
 		}
 		break;
 
