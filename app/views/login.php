@@ -26,7 +26,7 @@ salt needs to be created at install time and stored in settings.ini
 <?php
 
 //see if we remember them and if so load values
-$loaduser = $loadpass = $remember = false;
+$loaduser = $remember = false;
 
 if (isset($_COOKIE['loadremember'])) 
 	$remember = true;

@@ -3,10 +3,6 @@ TODO
 clean up and test logUpdateCheck in class.loadavg
 
 
->> test update checker
-
-	public function checkForUpdate()
-
 >> API
 
 fix API to authentice when sending data ?
@@ -26,17 +22,6 @@ fix API to authentice when sending data ?
 	fix 'remember me' on login screen 
 	change email addess to email address or username
 	get rid of server name in title tag for login screen
-
->> apache issues
-	
-	fix legend needs truncating of data
-
-	fix bug when you turn apache on if server-data is no accessabel it breaks display ? shouldnt do this
-   	see chart.php line 131
-
-	// Now draw separate chart for mean value display stacked bar chart
-	// Dirty hack as mean = 0 is breaking charts 
-	// when apache has no log data in log file or log valueas are all set to zero
 
 
 >> module ui dividers
@@ -68,11 +53,3 @@ ExtendedStatus On
     Deny from all
     Allow from localhost
 </Location>
-
-
->> prefs
-
-  need to break into module snow getting too big
-  need to rewrite code as form sucks need propery ajax modular RT
-
-  fix check for udpates ? on even when off ?

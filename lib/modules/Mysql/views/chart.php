@@ -99,123 +99,17 @@
 			</td>
 
 			<td  class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT">
+
+				<!-- no $stuff means no log data  -->
+				<?php if ( $stuff  ) {
+
+					//draw charts 
+					include( HOME_PATH . '/lib/chartcore.php');
 				
-				<!-- no $stuff means no log files mate -->
-
-				<?php if ( $stuff ) { ?>
-				<script type="text/javascript">
-				(function () {
-					charts.<?php echo $chart->id; ?> = $.extend({}, charts.<?php echo $chart->chart_function; ?>);
-					
-					var d1 = {
-						label: '<?php echo $chart->label; ?>',
-						data: <?php echo $stuff['chart']['chart_data']; ?>,
-						ymin: '<?php echo $stuff["chart"]["ymin"]; ?>',
-						ymax: '<?php echo $stuff["chart"]["ymax"]; ?>'
-					};
-
-					<?php if ( !isset( $stuff['chart']['chart_data_over'] ) || $stuff['chart']['chart_data_over'] == null ) { ?>
-
-					var chart_data = d1;
-					
-					<?php } elseif (strlen($stuff['chart']['chart_data_over']) > 1) { ?>
-						
-					var chart_data = new Array();
-					
-					var d2 = {
-						label: 'Overload',
-						data: <?php echo $stuff['chart']['chart_data_over']; ?>
-					};
-					chart_data.push(d1);
-					chart_data.push(d2);
-					<?php } ?>
-
-					$(function () {
-
-
-
-
-							charts.<?php echo $chart->id; ?>.setData(chart_data);
-
-							<?php if ($logfileStatus == true) { 
-								$errorMessage = 'No logfile data to generate charts for module ' . $module . ' check your logger';
-								?>
-								charts.<?php echo $chart->id; ?>.setLabel("<?php echo $errorMessage; ?>");
-							<?php } ?>
-
-
-							charts.<?php echo $chart->id; ?>.init('<?php echo $chart->id; ?>');
-
-						
-							<?php 
-								if ( isset($stuff['chart']['mean']) ) {  
-    						?>
-
-                            // Separate chart for mean value display stacked bar chart
-                            var options =  {
-                                grid: {
-                                    show: true,
-                                    color: "#efefef",
-                                    axisMargin: 0,
-                                    borderWidth: 1,
-                                    hoverable: true,
-                                    autoHighlight: true,
-                                	borderColor: "#797979",
-                                	backgroundColor : "#353535"
-                                },
-                                series: {
-                                    bars: {
-                                        show: true, barWidth: 0.6,
-                                        fillColor: {colors:[{opacity: 1},{opacity: 1}]},
-                                        align: "center"
-                                    },
-                                    color: "#26ADE4",
-                                    stack: 0,
-                                },	
-	                            width: 0.5,
-	                            xaxis: {
-	                            	show: false, 
-	                            	min: 1
-	                            },		                                
-                            yaxis: {
-                            	show: false, 
-                            	max: <?php echo $stuff['chart']['ymax']; ?>, 
-                            	min: <?php echo $stuff['chart']['ymin'];?>, 
-                            	reserveSpace: false, 
-                            	labelWidth: 15
-                            },
-							tooltip: true,
-
-							tooltipOpts: {
-
-								content: function(label, xval, yval, flotItem) {
-									return "Avg " + parseFloat(yval).toFixed(4);
-						    	},
-
-								shifts: {
-									x: 20,
-									y: -20
-								},
-								defaultTheme: false
-							}
-
-	                     };
-	                     
-	                     $("#minmax_<?php echo $chart->id; ?>").width(35).height(140);
-	                     $.plot($("#minmax_<?php echo $chart->id; ?>"),[[[1, <?php echo $stuff['chart']['mean']; ?>]]],options);
-
-	                     <?php } ?>
-						
-					})
-				})();
-				</script>
-				<div id="<?php echo $chart->id; ?>_legend" class="pull-right innerLR" style="right: 23px;"></div>
-				<div class="clearfix"></div>
-				<div id="<?php echo $chart->id; ?>" style="height: 160px;"></div>
-
-				<?php } else { ?>
-				<div class="alert alert-danger">No logfile to display data from, for <?php echo ucwords($chart->type); ?> data interface <?php echo $interface; ?></div>
+				} else { ?>
+					<div class="alert alert-danger">No logfile data to generate charts from for module <?php echo $module; ?></div>
 				<?php } ?>
+
 
 			<!-- </div> -->
 			</td>
