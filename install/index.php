@@ -303,6 +303,17 @@ switch ( $step )
 				<b>This appears to be a upgrade</b>
 				<br><br>
 				Go on to LoadAvg
+
+
+				<?php
+				if ( isset($settings['version'])) 
+					$settings['version'] = SCRIPT_VERSION;
+
+				//var_dump($settings);
+				$loadavg->write_php_ini( $settings, $settings_file);
+				$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
+				?>
+
 				<br><br>
 				<button class="btn btn-primary" onclick="location.href='public/index.php?check=1'">Continue</button>
 
