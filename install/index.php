@@ -319,8 +319,7 @@ switch ( $step )
 				?>
 
 				<br><br>
-				<button class="btn btn-primary" onclick="location.href='public/index.php?check=1'">Continue</button>
-
+				<a class="btn btn-primary" href="<?php echo SCRIPT_ROOT ?>public/index.php?check=1">Continue</a>
 			</div>
 			<?php
 		} else {
