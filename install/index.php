@@ -94,7 +94,7 @@ switch ( $step )
 			$location = "Location: index.php?step=2";
 			if ($forceInstall) 
 				$location += "&forceinstall=1"; 
-			
+
 			header( $location ); // redirecting to step 2
 		}
 		break;
@@ -304,7 +304,7 @@ switch ( $step )
 			?>
 			<h4>Upgrade Complete</h4>
 			<div class="well">
-				<b>This appears to be a upgrade</b>
+				<b>The upgrade is now complete</b>
 				<br><br>
 				Go on to LoadAvg
 
