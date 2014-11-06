@@ -19,23 +19,8 @@
  */
 
 $error = '';
-$flooding = false;
 
-// anti flood protection for login form
-if(    isset($_SESSION['last_session_request']) &&  ($_SESSION['last_session_request'] > time() - 2)  ) {
-    // users will be redirected to this page if it makes requests faster than 2 seconds
-    //header("location: /flood.html");
-    $flooding = true;
-
-	$loadavg->logFlooding();
-
-	$error = 'Login flooding has been recorded';
-
-}
-
-$_SESSION['last_session_request'] = time();
-
-if (isset($_POST['login']) && !$flooding ) {
+if (isset($_POST['login'])  ) {
 	
 	if ( isset($_POST['username']) && isset($_POST['password']) ) {
 
@@ -189,8 +174,4 @@ if (isset($_POST['login']) && !$flooding ) {
 		
 		<div id="content">
 
-		<!--
-			really should have a error console that we create here but draw to in the footer for proper 
-			error reporting after the script has run
-		-->
-			<?php if (strlen($error)>0) { echo "<ul>" . $error . "</ul>"; }?>
+

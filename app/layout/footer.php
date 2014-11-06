@@ -101,7 +101,7 @@
 <?php
 //if they are flooding the login screen we sleep here
 if ($flooding) {
-
+ die;
     sleep(3);
 }
 ?>

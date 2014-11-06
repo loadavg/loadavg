@@ -34,10 +34,26 @@ if (isset($_COOKIE['loadremember']))
 if (isset($_COOKIE['loaduser'])) 
 	$loaduser = $_COOKIE['loaduser'];
 
+
+$flooding = false;
+
+// anti flood protection for login form
+if(    isset($_SESSION['last_session_request']) &&  ($_SESSION['last_session_request'] > time() - 2)  ) {
+    // users will be redirected to this page if it makes requests faster than 2 seconds
+    //header("location: /flood.html");
+    $flooding = true;
+
+	$loadavg->logFlooding();
+
+	$error = 'Login flooding has been recorded';
+
+}
+
+$_SESSION['last_session_request'] = time();
+
 ?>
 
 <div id="login">
-
 
 
 	<form class="form-signin" method="post" action="">
