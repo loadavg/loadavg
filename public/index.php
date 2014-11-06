@@ -79,6 +79,7 @@ $logdir = HOME_PATH . '/logs/';
 
 //check to see if ip is banned before going on
 $banned = false;
+$flooding = false;
 
 if ( isset($settings['ban_ip']) && $settings['ban_ip'] == "true" ) {
 
