@@ -141,7 +141,7 @@ class Server extends LoadAvg
 	* move into plugin
 	*/
 
-	public function getPartitionData( $df )
+	public function getPartitionData( )
 	{
 		try {
 
