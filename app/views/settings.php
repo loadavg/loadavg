@@ -48,6 +48,7 @@ if (isset($_POST['update_settings'])) {
 	$_POST['formsettings']['https'] = ( !isset($_POST['formsettings']['https']) ) ? "false" : "true";
 	$_POST['formsettings']['checkforupdates'] = ( !isset($_POST['formsettings']['checkforupdates']) ) ? "false" : "true";
 	$_POST['formsettings']['allow_anyone'] = ( !isset($_POST['formsettings']['allow_anyone']) ) ? "false" : "true";
+	$_POST['formsettings']['ban_ip'] = ( !isset($_POST['formsettings']['ban_ip']) ) ? "false" : "true";
 	$_POST['formsettings']['apiserver'] = ( !isset($_POST['formsettings']['apiserver']) ) ? "false" : "true";
 
 	// Loop throught settings
@@ -201,6 +202,17 @@ if (isset($_POST['update_settings'])) {
 			<div class="span8 right">
 				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
 					<input name="formsettings[allow_anyone]" type="checkbox" value="true" <?php if ( $settings['allow_anyone'] == "true" ) { ?>checked="checked"<?php } ?>>
+				</div>
+			</div>
+		</div>
+
+		<div class="row-fluid">
+			<div class="span4">
+				<strong>Ban blocked IP's</strong>
+			</div>
+			<div class="span8 right">
+				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
+					<input name="formsettings[ban_ip]" type="checkbox" value="true" <?php if ( $settings['ban_ip'] == "true" ) { ?>checked="checked"<?php } ?>>
 				</div>
 			</div>
 		</div>
