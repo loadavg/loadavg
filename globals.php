@@ -30,6 +30,12 @@ $ROOT_PATH = dirname ($host_url);
 if ( $ROOT_PATH != "/") $ROOT_PATH = $ROOT_PATH . "/";
 
 
+/* Set script version */
+
+$loadavg_version = "2.0";
+
+defined('SCRIPT_VERSION') || define('SCRIPT_VERSION', $loadavg_version );
+
 /* Set Application Globals */
 
 defined('SCRIPT_ROOT') || define('SCRIPT_ROOT', $ROOT_PATH );
