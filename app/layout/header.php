@@ -19,43 +19,48 @@
  */
 
 $error = '';
+$flooding = false;
 
-if (isset($_POST['login'])) {
+// anti flood protection for login form
+if(    isset($_SESSION['last_session_request']) &&  ($_SESSION['last_session_request'] > time() - 2)  ) {
+    // users will be redirected to this page if it makes requests faster than 2 seconds
+    //header("location: /flood.html");
+    $flooding = true;
 
-	//echo "login attempt<br>";
+	$loadavg->logFlooding();
 
+	$error = 'Login flooding has been recorded';
+
+}
+
+$_SESSION['last_session_request'] = time();
+
+if (isset($_POST['login']) && !$flooding ) {
+	
 	if ( isset($_POST['username']) && isset($_POST['password']) ) {
 
 		//echo "login with user and pass<br>";
-
 		$loadavg->logIn( $_POST['username'], $_POST['password']);
 
-		if ($loadavg->isLoggedIn()) header("Location: index.php");
+		if ($loadavg->isLoggedIn()) 
+			header("Location: index.php");
 
 	 	else {
-		
-			//echo "login attempt failed<br>";
 
 			if ( isset($_POST['username']) && isset($_POST['password']) ) {
 
-				//echo "login attempt had correct credentials<br>";
-
+				$error = "Incorrect credentials, please try again";
 			}
 
-			if (!isset($_POST['username'])) { echo "no user"; $error .= "<li>Username is mandatory!</li>"; }
-			if (!isset($_POST['password'])) { echo "no pass"; $error .= "<li>Password is mandatory!</li>"; }
+			if (!isset($_POST['username']) || (!$_POST['username'])  ) 
+				{ $error = "Username is mandatory"; }
+			
+			if (!isset($_POST['password']) || (!$_POST['password'])  ) 
+				{ $error .= "<br>Password is mandatory"; }
 
-			echo $error;
 		}
 	}
 }
-
-/*
-else
-{
-	echo "boogie you";
-}
-*/
 ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->

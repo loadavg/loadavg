@@ -37,6 +37,9 @@ if (isset($_COOKIE['loaduser']))
 ?>
 
 <div id="login">
+
+
+
 	<form class="form-signin" method="post" action="">
 		<input type="hidden" name="login" value="1">
 		<div class="widget widget-4">
@@ -44,6 +47,10 @@ if (isset($_COOKIE['loaduser']))
 				<h4 class="heading">Restricted area</h4>
 			</div>
 		</div>
+
+	<?php
+	if ($banned == false) {
+	?>
 		<h3 class="form-signin-heading"><i class="fa fa-unlock-alt"></i> Please sign in</h3>
 		<div class="uniformjs">
 
@@ -62,8 +69,28 @@ if (isset($_COOKIE['loaduser']))
 			</label>
 
 		</div>
+
 		<button class="btn btn-large btn-primary" type="submit">Sign in</button>
 
+	<?php
+	} else {
+	?>
+		<h3 class="form-signin-heading"><i class="fa fa-unlock-alt"></i> Your IP has been banned</h3>
+	<?php
+	}
 
+
+	?>
 	</form>
+
+		<!--
+			really should have a error console that we create here but draw to in the footer for proper 
+			error reporting after the script has run
+		-->
+		<center>
+			<?php if (strlen($error)>0) { echo  $error; }?>
+		</center>
+
+
 </div>
+

@@ -999,7 +999,70 @@ class LoadAvg
 
 	}
 
+	/**
+	 * checkIpBan
+	 *
+	 * Checks if the user is logged in and has SESSION started.
+	 *
+	 * @return boolean TRUE if is logged in and FALSE if not.
+	 */
 
+	public function checkIpBan()
+	{
+
+		$blacklist = APP_PATH . '/config/banned_ip.ini';
+
+		//get the ip address best we can
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+		    $ip = $_SERVER['HTTP_CLIENT_IP'];
+		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		} else {
+		    $ip = $_SERVER['REMOTE_ADDR'];
+		}
+
+
+		if ( file_exists( $blacklist )) {
+
+			$ip_array  = parse_ini_file($blacklist);
+			$ip_array = explode ( ',' , $ip_array['banned']);
+
+			if ( in_array($ip,$ip_array)) {
+				return true;
+				$this->logUpdateCheck( "BANNED LOGIN" . $ip );
+			} else {
+				return false;				
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * logFlooding
+	 *
+	 * Checks if the user is logged in and has SESSION started.
+	 *
+	 * @return boolean TRUE if is logged in and FALSE if not.
+	 */
+
+	public function logFlooding()
+	{
+
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+		    $ip = $_SERVER['HTTP_CLIENT_IP'];
+		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		} else {
+		    $ip = $_SERVER['REMOTE_ADDR'];
+		}
+
+	    $response = "Login flooding by ip:" . $ip;
+
+		$this->logUpdateCheck( $response );
+
+	}
+		
 	/**
 	 * getNetworkInteraces
 	 *

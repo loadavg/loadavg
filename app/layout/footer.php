@@ -97,6 +97,14 @@
 
 	<!-- Common script -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/demo/common.js"></script>
-	
+
+<?php
+//if they are flooding the login screen we sleep here
+if ($flooding) {
+
+    sleep(3);
+}
+?>
+
 </body>
 </html>

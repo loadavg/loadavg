@@ -77,21 +77,33 @@ $loaded = LoadAvg::$_settings->general['modules'];
 $logdir = HOME_PATH . '/logs/';
 
 
+//check to see if ip is banned before going on
+$banned = false;
+
+if ( isset($settings['ban_ip']) && $settings['ban_ip'] == "true" ) {
+
+	$banned = $loadavg->checkIpBan();
+
+	if ( $banned ) {
+		//clean up session
+		$loadavg->logOut();      
+	}
+}
+
 //used for remember me at login time
 //if no session exists check for cookies
-if (  !isset($_SESSION['logged_in']) || ($_SESSION['logged_in'] == false) )
+if (  (!isset($_SESSION['logged_in']) || ($_SESSION['logged_in'] == false)) && ($banned == false) )
 {
 	//if cookies are here and match log them in
 	if ($loadavg->checkCookies()) {
 		$_SESSION['logged_in'] = true;        
 	    header("Location: /index.php");
 	}
-
 }
 
 
 //security check for all access
-if ( isset($settings['allow_anyone']) && $settings['allow_anyone'] == "false" && !$loadavg->isLoggedIn() ) 
+if ( (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "false" && !$loadavg->isLoggedIn())  || ($banned == true)   ) 
 {
 	include( APP_PATH . '/views/login.php');
 } 
