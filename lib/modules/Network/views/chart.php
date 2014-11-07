@@ -15,6 +15,31 @@
 */
 ?>
 
+<?php
+
+	//if there is no logfile or error from the caller (stuff is false) 
+	//then we just build empty charts
+	if ( !isset($stuff) || $stuff == false || $logfileStatus == true ) {
+
+		$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
+
+		////////////////////////////////////////////////////////////////////////////
+		//this data can be created in charts.php really if $datastring is null ?
+		//or add a flag to the array for chartdata here...
+		$stuff['chart'] = array(
+			'chart_format' => 'line',
+			'ymin' => 0,
+			'ymax' => 1,
+			'xmin' => date("Y/m/d 00:00:01"),
+			'xmax' => date("Y/m/d 23:59:59"),
+			'mean' => 0,
+			'chart_data' => "[[0, '0.00']]"
+		);
+	
+	}
+
+?>
+
 <script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
 
 <!-- loop through each interface -->
