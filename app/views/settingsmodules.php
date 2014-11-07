@@ -88,10 +88,7 @@ if (isset($_POST['update_settings'])) {
 	///////////////////////////////////////////////////
 	//updates all the modules settings here
 
-	//these are dirty dirty hacks! until we can rewrite the settings using proper api
-	//$_POST['Disk_settings']['settings']['displaymode'] = ( !isset($_POST['Disk_settings']['settings']['displaymode']) ) ? "false" : "true";
-	//$_POST['Memory_settings']['settings']['displaymode'] = ( !isset($_POST['Memory_settings']['settings']['displaymode']) ) ? "false" : "true";
-	
+	//these are dirty dirty hacks! until we can rewrite the settings using proper api	
 	$_POST['Disk_settings']['settings']['display_limiting'] = ( !isset($_POST['Disk_settings']['settings']['display_limiting']) ) ? "false" : "true";
 	$_POST['Memory_settings']['settings']['display_limiting'] = ( !isset($_POST['Memory_settings']['settings']['display_limiting']) ) ? "false" : "true";
 	$_POST['Cpu_settings']['settings']['display_limiting'] = ( !isset($_POST['Cpu_settings']['settings']['display_limiting']) ) ? "false" : "true";
@@ -101,7 +98,7 @@ if (isset($_POST['update_settings'])) {
 
 	$_POST['Mysql_settings']['settings']['show_queries'] = ( !isset($_POST['Mysql_settings']['settings']['show_queries']) ) ? "false" : "true";
 
-	//echo '<pre>';var_dump($_POST);echo'</pre>';
+	echo '<pre>';var_dump($_POST);echo'</pre>';
 
 	$modules = LoadAvg::$_modules;
 
@@ -111,21 +108,19 @@ if (isset($_POST['update_settings'])) {
 
 		if (isset($_POST[$module . '_settings'])) {
 
-			//echo $moduleName;
-
 			$module_config_file = HOME_PATH . '/lib/modules/' . $module . '/' . strtolower( $module ) . '.ini';
 			
 			$module_config_ini = parse_ini_file( $module_config_file , true );
 
-			$replaced_settings = array_replace($module_config_ini, $_POST[$module . '_settings']);
-
-			//echo '<pre>';var_dump($_POST[$module . '_settings']);echo'</pre>';
-			//echo '<pre>';var_dump($replaced_settings);echo'</pre>';
+			//the array replace is deleting out missing data on posts
+			//when the data has not been modified
+			//$replaced_settings = array_replace($module_config_ini, $_POST[$module . '_settings']);
+  			$replaced_settings = LoadAvg::ini_merge ($module_config_ini, $_POST[$module . '_settings']);
 
 			LoadAvg::write_php_ini($replaced_settings, $module_config_file);
 
 			//why is this here ?
-			$fh = fopen($module_config_file, "a"); fwrite($fh, "\n"); fclose($fh);
+			//$fh = fopen($module_config_file, "a"); fwrite($fh, "\n"); fclose($fh);
 			
 		}
 
@@ -180,8 +175,6 @@ header('Location: '.$_SERVER['REQUEST_URI']);
       * this is where we loop through all the modules
       * and deal with their individual settings
 	-->
-
-
 
 	<div class="well">
 		<h4>Network interfaces</h4>
