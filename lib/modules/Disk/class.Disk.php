@@ -161,7 +161,10 @@ class Disk extends LoadAvg
 				//usage is used to calculate view perspectives
 				if (!$redline) {
 					$usage[] = ( $data[1] / 1048576 );
-					$percentage_used =  ( $data[1] / $data[2] ) * 100;
+					if ($data[2] > 0)
+						$percentage_used =  ( $data[1] / $data[2] ) * 100;
+					else
+						$percentage_used =  0;						
 				} else {
 					$percentage_used = 0;
 				}

@@ -153,8 +153,9 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 ?>
 
 
-<form action="" method="post">
+<form action="" method="post" autocomplete="off">
 	<input type="hidden" name="update_settings" value="1" />
+
 
 <div class="innerAll">
 	<!--
@@ -256,7 +257,17 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 	                        			<?php } else { ?>
 
 	                        				<div class="pull-right">
-	                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">
+	                        					
+	                        					<!-- dirty password hack -->
+
+	                        					<?php
+	                        					if (strpos($setting,'password') !== false) {
+	                        					?>
+	                        					<input type="password" autocomplete="off" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">
+	                        					<?php
+	                        					} else { ?>
+	                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">	                        					
+	                        					<?php } ?>
 	                        				</div>  
 
 	                        			<?php } ?>
