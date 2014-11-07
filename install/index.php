@@ -24,6 +24,8 @@ include 'class.LoadAvg.php'; // including Main Controller
 $loadavg = new LoadAvg(); // Initializing Main Controller
 $settings = LoadAvg::$_settings->general; // Default settings
 
+$flooding = false;
+
 // Including header view
 require_once APP_PATH . '/layout/header.php'; 
 
