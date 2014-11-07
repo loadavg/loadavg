@@ -907,7 +907,12 @@ class LoadAvg
 
 				if($_POST['remember-me']) {
 
-					$cookietime = time() + 86400; // 1 day
+					$cookie_time = self::$_settings->general['rememberme_interval'];
+
+					if ( $cookie_time <1 || !$cookie_time )
+						$cookie_time = 1;
+
+					$cookietime = time() + (86400 * $cookie_time); // 1 day
 
 					setcookie('loadremember', true, $cookietime);
 					setcookie('loaduser', $username, $cookietime);
