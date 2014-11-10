@@ -39,6 +39,15 @@ class Ssh extends LoadAvg
 	 *
 	 */
 
+	//need to save timestamp with offset
+	//so we can add support for journalctl 
+
+	//journalctl _COMM=sshd --since "10:00" --until "11:00"
+
+	//journalctl _COMM=sshd --since "previous" --until "current"
+
+	//nice!!
+
 	public function logData( $type = false )
 	{
 		$class = __CLASS__;
@@ -65,6 +74,7 @@ class Ssh extends LoadAvg
 		//grab net latest location and figure out elapsed
 		//zero out offset
         $sshdLogFile ['offset'] = 0;
+        $sshdLogFile ['timestamp'] = 0;
 
 		$sshlatestElapsed = 0;
 		$sshLatestLocation = dirname($logfile) . DIRECTORY_SEPARATOR . '_ssh_latest';
@@ -77,8 +87,10 @@ class Ssh extends LoadAvg
 		if (file_exists( $sshLatestLocation )) {
 			
 			//if we want to add more data to return string we can use eplode below
-			//$last = explode("|", file_get_contents(  $sshLatestLocation ) );
+			$last = explode("|", file_get_contents(  $sshLatestLocation ) );
+
 			$sshdLogFile['offset'] = file_get_contents(  $sshLatestLocation );
+			//$sshdLogFile['timestamp'] = file_get_contents(  $sshLatestLocation );
 
 	    	//echo 'STORED OFFSET  : ' . $sshdLogFile['offset']   . "\n";
 
@@ -218,7 +230,7 @@ class Ssh extends LoadAvg
             return false;
         }
 
-        
+        /*
         echo "\n";
         echo "------------------------------------- \n";
         echo 'INVALID USER:' . $logData['invalid_user'] . "\n" ;
@@ -227,7 +239,7 @@ class Ssh extends LoadAvg
         echo 'OFFSET      :' . $sshdLogFile['offset'] . "\n" ;
         echo "------------------------------------- \n";
         echo "\n";
-		
+		*/
 
         return true;
 

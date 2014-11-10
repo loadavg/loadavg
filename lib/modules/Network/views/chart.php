@@ -150,7 +150,7 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 	</div> <!-- // Accordion end -->
 	
 </div> <!-- // Accordion group -->
-<!--
+
 <div class="separator bottom"></div>
--->
+
 <?php } ?>

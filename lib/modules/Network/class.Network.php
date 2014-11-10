@@ -135,8 +135,6 @@ class Network extends LoadAvg
 
 			}
 
-
-			
 				//write out log data here
 				$this->safefilerewrite($logfile,$string,"a",true);
 
@@ -155,23 +153,78 @@ class Network extends LoadAvg
 		}
 	}
 
+	/**
+	 * getTransferRateData
+	 *
+	 * Gets transfer data from logfile, formats and parses it to pass it to the chart generating function
+	 *
+	 * @mode int processing mode, 1 is Transfer and 2 is Receive 
+	 * @return array $return data retrived from logfile
+	 *
+	 */
+
+
+	public function getTransferRateData()
+	{
+		$return = $this->getData(1);
+
+		return $return;
+	}
 
 	/**
 	 * getTransferRateData
 	 *
 	 * Gets transfer data from logfile, formats and parses it to pass it to the chart generating function
 	 *
+	 * @mode int processing mode, 1 is Transfer and 2 is Receive 
 	 * @return array $return data retrived from logfile
 	 *
 	 */
-	public function getTransferRateData()
+
+
+	public function getReceiveRateData()
+	{
+		$return = $this->getData(2);
+
+		return $return;
+	}
+
+
+	/**
+	 * getData
+	 *
+	 * Gets transfer data from logfile, formats and parses it to pass it to the chart generating function
+	 *
+	 * @mode int processing mode, 1 is Transfer and 2 is Receive 
+	 * @return array $return data retrived from logfile
+	 *
+	 */
+
+	public function getData( $mode = 1 )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 		$contents = null;
 
+		//set up data that is based on mode
+		switch ( $mode) {
+			case 1: 	$threshold = $settings['settings']['threshold_transfer'];		
+				        $limiting = $settings['settings']['transfer_limiting'];				
+				        $cutoff = $settings['settings']['transfer_cutoff'];			
+				        $chart_data_label = "Transmit";
+				        $chart_data_over_label = "Overload";
+						break;
+
+			case 2: 	$threshold = $settings['settings']['threshold_receive'];	
+				        $limiting = $settings['settings']['receive_limiting'];
+						$cutoff = $settings['settings']['receive_cutoff'];	
+				        $chart_data_label = "Receive";
+				        $chart_data_over_label = "Overload";											
+						break;
+		}
+
 		$replaceDate = self::$current_date;
-		
+
 		if ( LoadAvg::$period ) {
 			$dates = self::getDates();
 			foreach ( $dates as $date ) {
@@ -195,7 +248,8 @@ class Network extends LoadAvg
 
 			$dataArray = $dataArrayOver = array();
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
+			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+				$timestamps = array();
 
 			$chartArray = array();
 
@@ -208,36 +262,29 @@ class Network extends LoadAvg
 
 
 				// clean data for missing values
-				$redline = ($data[1] == "-1" ? true : false);
-
-				//if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")|| ($data[1] == "-1")  )
-				//	$data[1]=0;
+				$redline = ($data[$mode] == "-1" ? true : false);
 
 				// clean data for missing values
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") || (int)$data[1] < 0)
-					$data[1]=0;
+				if (  (!$data[$mode]) ||  ($data[$mode] == null) || ($data[$mode] == "") || (int)$data[$mode] < 0)
+					$data[$mode]=0;
 			
-				$net_rate = $data[1];
+				$net_rate = $data[$mode];
 
 				$timedata = (int)$data[0];
 				$time[$net_rate] = date("H:ia", $timedata);
 
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
+				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+					$timestamps[] = $data[0];
 			
 				$rate[] = $net_rate;
 
-				if ( $net_rate > $settings['settings']['threshold_transfer'] )
+				if ( $net_rate > $threshold )
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
 			
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
 			}
 
-			//$dataArray = substr($dataArray, 0, strlen($dataArray)-1);
-			//$dataArrayOver = substr($dataArrayOver, 0, strlen($dataArrayOver)-1);
-			//$dataArray .= "]";
-			//$dataArrayOver .= "]";
-		
 			$net_high= max($rate);
 			$net_high_time = $time[$net_high];
 
@@ -255,21 +302,20 @@ class Network extends LoadAvg
         	        	$net_estimate_units = "MB";
 	        	}
 
-
-			$displayMode =	$settings['settings']['transfer_limiting'];
+			$displayMode =	$limiting;
 
 			if ($displayMode == 'true' ) {
 				$ymin = 0;
 
 				//$ymax = 16;
-				$ymax =	(int)$settings['settings']['transfer_cutoff'];
+				$ymax =	(int)$cutoff;
 			} else {
 				$ymin = $net_low;
 				$ymax = $net_high;
 			}
 		
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				//$dataArray = substr($dataArray, 0, strlen($dataArray)-1);
+
 				end($timestamps);
 				$key = key($timestamps);
 				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
@@ -280,12 +326,7 @@ class Network extends LoadAvg
 				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++) {
 					$lastTimeString = $lastTimeString + 300;
 					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-
-					//$dataArray .= "[". ($lastTimeString*1000) .", 0],";
-					//var_dump($lastTimeString . " #------# " . date("d-m-Y H:i", $lastTimeString));
 				}
-				//$dataArray = substr($dataArray, 0, strlen($dataArray)-1);
-				//$dataArray .= "]";
 			}
 
 			$variables = array(
@@ -317,10 +358,10 @@ class Network extends LoadAvg
 				'mean' => $net_mean,
 
 				'chart_data' => $dataString,
-				'chart_data_label' => 'Transmit',
+				'chart_data_label' => $chart_data_label,
 
 				'chart_data_over' => $dataOverString,
-				'chart_data_over_label' => 'Overload'
+				'chart_data_over_label' => $chart_data_over_label
 			);
 
 			return $return;
@@ -329,150 +370,6 @@ class Network extends LoadAvg
 			return false;	
 		}
 
-	}
-
-	/**
-	 * getReceiveRateData
-	 *
-	 * Gets receive data from logfile, formats and parses it to pass it to the chart generating function
-	 *
-	 * @return array $return data retrived from logfile
-	 *
-	 */
-	public function getReceiveRateData()
-	{
-		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
-
-		$contents = null;
-
-		$replaceDate = self::$current_date;
-		
-		if ( LoadAvg::$period ) {
-			$dates = self::getDates();
-			foreach ( $dates as $date ) {
-				if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-					$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-					$replaceDate = $date;
-					if ( file_exists( $this->logfile ) ) {
-						$contents .= file_get_contents($this->logfile);
-					}
-				}
-			}
-		} else {
-			$contents = @file_get_contents($this->logfile);
-		}
-
-
-		if ( strlen( $contents ) > 1 ) {
-		
-			$contents = explode("\n", $contents);
-			$return = $usage = $args = array();
-			$dataArray = $dataArrayOver = array();
-		
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
-
-
-			$chartArray = array();
-
-			$this->getChartData ($chartArray, $contents);
-
-			$totalchartArray = (int)count($chartArray);
-
-			for ( $i = 0; $i < $totalchartArray; ++$i) {
-				$data = $chartArray[$i];
-
-				// clean data for missing values
-				$redline = ($data[2] == "-1" ? true : false);
-
-				if ( (int)$data[2] < 0 )
-					$data[2] = 0;
-
-				$net_rate = $data[2];
-
-				$timedata = (int)$data[0];
-				$time[$net_rate] = date("H:ia", $timedata);
-
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
-			
-				$rate[] = $net_rate;
-
-				if ( $net_rate > $settings['settings']['threshold_receive'] )
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
-			
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
-			}
-
-			$net_high= max($rate);
-			$net_high_time = $time[$net_high];
-
-			$net_low = min($rate);
-			$net_low_time = $time[$net_low];
-		
-			$net_latest = $rate[count($rate)-1];
-			$net_mean = number_format(array_sum($rate) / count($rate), 2);
-			$net_estimate = round($net_mean*60*60*24/1024);
-
-        	if ($net_estimate >= 1024) {
-            	$net_estimate = round($net_estimate/1024,1);
-                $net_estimate_units = "GB";
-	        } else {
-    	        $net_estimate_units = "MB";
-            }
-
-			$displayMode =	$settings['settings']['receive_limiting'];
-
-			if ($displayMode == 'true' ) {
-				$ymin = 0;
-				//$ymax = 16;
-				$ymax =	(int)$settings['settings']['receive_cutoff'];
-
-			} else {
-				$ymin = $net_low;
-				$ymax = $net_high;	
-			}		
-
-		
-			$variables = array(
-				'net_high' => $net_high,
-				'net_high_time' => $net_high_time,
-				'net_low' => $net_low,
-				'net_low_time' => $net_low_time,
-				'net_mean' => $net_mean,
-				'net_latest' => $net_latest,
-				'net_estimate' => $net_estimate,
-				'net_estimate_units' => $net_estimate_units
-			);
-		
-			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
-
-			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
-
-			ksort($dataArray);
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-
-			$dataString = "[" . implode(",", $dataArray) . "]";
-			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-
-			$return['chart'] = array(
-				'chart_format' => 'line',
-				'ymin' => $ymin,
-				'ymax' => $ymax,
-				'mean' => $net_mean,
-
-				'chart_data' => $dataString,
-				'chart_data_label' => 'Receive',
-
-				'chart_data_over' => $dataOverString,
-				'chart_data_over_label' => 'Overload'
-
-			);
-
-			return $return;
-		} else {
-
-			return false;
-		}
 	}
 
 	/**

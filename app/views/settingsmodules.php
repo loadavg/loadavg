@@ -236,8 +236,9 @@ header('Location: '.$_SERVER['REQUEST_URI']);
                 		?>
                 		<div class="well">
 
+                		<!--
             				<strong><?php echo $module; ?> module settings:</strong>
-
+						-->
 	                        <?php
 	                        foreach ($moduleSettings['settings'] as $setting => $value) {
 	                        	?>
