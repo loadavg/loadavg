@@ -242,7 +242,11 @@ class Apache extends LoadAvg
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $apache_mean,
 				'chart_data' => $dataString,
+				'chart_data_label' => 'CPU Usage',
+
 				'chart_data_over' => $dataOverString,
+				'chart_data_over_label' => 'Overload',
+
 				'overload' => $settings['settings']['overload']
 			);
 

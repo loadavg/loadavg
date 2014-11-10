@@ -230,9 +230,15 @@ class Cpu extends LoadAvg
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'mean' => $cpu_mean,
+				
 				'chart_data' => $dataString,
+				'chart_data_label' => 'CPU Load',
+
 				'chart_data_over' => $dataOverString,
-				'chart_data_over_2' => $dataOverString_2
+				'chart_data_over_label' => 'Overload',
+				
+				'chart_data_over_2' => $dataOverString_2,
+				'chart_data_over_2_label' => 'Secondary Overload'
 			);
 			return $return;
 		} else {

@@ -349,7 +349,7 @@ class Ssh extends LoadAvg
 				$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2]  ) ."]";
 				
 				// display data invalid user
-				$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3]  ) ."]";
+				$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3]  ) ."]";
 
 
 
@@ -396,8 +396,8 @@ class Ssh extends LoadAvg
 			//TODO need to get total memory here
 			//as memory can change dynamically in todays world!
 
-			$mem_total = $memorySize;
-			$mem_free = $mem_total - $mem_latest;
+			//$mem_total = $memorySize;
+			//$mem_free = $mem_total - $mem_latest;
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
@@ -415,24 +415,25 @@ class Ssh extends LoadAvg
 		
 			// values used to draw the legend
 			$variables = array(
-				'mem_high' => number_format($mem_high,0),
+				'mem_high' => $mem_high,
 				'mem_high_time' => $mem_high_time,
-				'mem_low' => number_format($mem_low,0),
+				'mem_low' => $mem_low,
 				'mem_low_time' => $mem_low_time,
-				'mem_mean' => number_format($mem_mean,0),
-				'mem_latest' => number_format($mem_latest,0),
-				'mem_total' => number_format($mem_total,0),
-				'mem_swap' => number_format($swap,0),
+				'mem_mean' => $mem_mean,
+				'mem_latest' => $mem_latest,
+				//'mem_total' => number_format($mem_total,0),
+				'mem_swap' => $swap
 			);
 		
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
 			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
+			if ( count($dataArrayOver_2) == 0 ) $dataArrayOver_2 = null;
 
 			ksort($dataArray);
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			if (!is_null($dataArraySwap)) ksort($dataArraySwap);
+			if (!is_null($dataArrayOver_2)) ksort($dataArrayOver_2);
 
 
 			// dataString is cleaned data used to draw the chart
@@ -441,7 +442,7 @@ class Ssh extends LoadAvg
 
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
+			$dataOverString_2 = is_null($dataArrayOver_2) ? null : "[" . implode(",", $dataArrayOver_2) . "]";
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
@@ -451,8 +452,14 @@ class Ssh extends LoadAvg
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $mem_mean,
 				'chart_data' => $dataString,
+				'chart_data_label' => 'Accepted',
+
 				'chart_data_over' => $dataOverString,
-				'chart_data_swap' => $dataSwapString,				// how is it used
+				'chart_data_over_label' => 'Failed',
+
+				'chart_data_over_2' => $dataOverString_2,
+				'chart_data_over_2_label' => 'Invalid User',
+
 				//'swap' => $swap,									// how is it used
 				//'swap_count' => $usageCount,						// how is it used
 				'overload' => $settings['settings']['overload']

@@ -25,13 +25,16 @@
 		<?php }?>
 
 		var d1 = {
-			label: '<?php echo $chart->label; ?>',
+			//label: '<?php echo $chart->label; ?>',
+			label: '<?php echo $stuff['chart']['chart_data_label']; ?>',
 			data: <?php echo $stuff['chart']['chart_data']; ?>,
 			ymin: <?php echo $stuff['chart']['ymin']; ?>,
 			ymax: <?php echo $stuff['chart']['ymax']; ?>
 		};
 
 		<?php //have_over means we have a primary overload
+		//chart_data_over
+		//chart_data_over
 		if ( !isset( $stuff['chart']['chart_data_over'] ) || $stuff['chart']['chart_data_over'] == null ) 
 			$have_over = false;
 		else
@@ -66,28 +69,36 @@
 			chart_data.push(d1);
 
 			//used for primary overload
+			//chart_data_over
 			<?php if ( isset($stuff['chart']['chart_data_over']) ) { ?>
+
 				var d2 = {
-					label: 'Overload',
+					//label: 'Overloader',
+					label: '<?php echo $stuff['chart']['chart_data_over_label']; ?>',
 					data: <?php echo $stuff['chart']['chart_data_over']; ?>
 				};
 				chart_data.push(d2);
+			
 			<?php } ?>
 
 			//used for secondary overlaods
+			//chart_data_over_2
 			<?php if ( isset($stuff['chart']['chart_data_over_2']) ) { ?>
 				var d3 = {
-					label: 'Secondary Overload',
+					//label: 'Secondary Overload',
+					label: '<?php echo $stuff['chart']['chart_data_over_2_label']; ?>',
 					data: <?php echo $stuff['chart']['chart_data_over_2']; ?>
 				};
 				chart_data.push(d3);
 			<?php } ?>
 
 			// new swap code
+			//chart_data_swap
 			<?php 
 			if ( isset($stuff['chart']['chart_data_swap']) ) { ?>
 				var d3 = {
-					label: 'Swap',
+					//label: 'Swap',
+					label: '<?php echo $stuff['chart']['chart_data_swap_label']; ?>',
 					data: <?php echo $stuff['chart']['chart_data_swap']; ?>
 				};
 				chart_data.push(d3);

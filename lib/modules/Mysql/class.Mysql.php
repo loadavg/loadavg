@@ -337,6 +337,24 @@ class Mysql extends LoadAvg
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
 			//$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
 
+			//label with $useData
+			//1 == Transmit
+			//2 == Receive
+			//3 == Queries
+
+			$theLabel = "";
+			switch ( $useData) {
+				case 1: 	$theLabel = "Transmit";						
+							break;
+
+				case 2: 	$theLabel = "Receive";						
+							break;
+
+				case 3: 	$theLabel = "Queries";						
+							break;
+			}
+
+
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'ymin' => $ymin,
@@ -345,7 +363,11 @@ class Mysql extends LoadAvg
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $mysql_mean,
 				'chart_data' => $dataString,
+				'chart_data_label' => $theLabel,
+
 				'chart_data_over' => $dataOverString,
+				'chart_data_over_label' => 'Overload',
+
 				'overload' => $settings['settings']['overload']
 			);
 

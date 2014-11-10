@@ -323,11 +323,15 @@ class Memory extends LoadAvg
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $mem_mean,
-				'chart_data' => $dataString,
+				'chart_data' => $dataString,  
+				'chart_data_label' => 'Memory Usage',
+
 				'chart_data_over' => $dataOverString,
+				'chart_data_over_label' => 'Overload',
+				
 				'chart_data_swap' => $dataSwapString,				// how is it used
-				//'swap' => $swap,									// how is it used
-				//'swap_count' => $usageCount,						// how is it used
+				'chart_data_swap_label' => 'Swap',
+				
 				'overload' => $settings['settings']['overload']
 			);
 

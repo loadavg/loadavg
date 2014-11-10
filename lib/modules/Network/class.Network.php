@@ -315,41 +315,18 @@ class Network extends LoadAvg
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'mean' => $net_mean,
+
 				'chart_data' => $dataString,
-				'chart_data_over' => $dataOverString
+				'chart_data_label' => 'Transmit',
+
+				'chart_data_over' => $dataOverString,
+				'chart_data_over_label' => 'Overload'
 			);
 
 			return $return;
 		} else {
-			//means there was no chart data sent over to chart
-			//so just return legend and null data back over
 
-			//really should just return null and if null then charts.php does its thing
-			//but.. legend is from return value below so need to send that or charts look wacky
-
-			$return = $this->parseInfo($settings['info']['line'], null, __CLASS__);
-
-			////////////////////////////////////////////////////////////////////////////
-			//this data can be created in charts.php really if $datastring is null ?
-			//or adda  flag to the array for chartdata here...
-
-			$dataString =   "[[0, '0.00']]";
-
-			$return['chart'] = array(
-				'chart_format' => 'line',
-				'ymin' => 0,
-				'ymax' => 1,
-				'xmin' => date("Y/m/d 00:00:01"),
-				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => 0,
-				'chart_data' => $dataString
-				/*
-				'chart_data_over' => null,
-				'overload' => false
-				*/
-			);
-
-			return $return;	
+			return false;	
 		}
 
 	}
@@ -482,41 +459,19 @@ class Network extends LoadAvg
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'mean' => $net_mean,
+
 				'chart_data' => $dataString,
-				'chart_data_over' => $dataOverString
+				'chart_data_label' => 'Receive',
+
+				'chart_data_over' => $dataOverString,
+				'chart_data_over_label' => 'Overload'
+
 			);
 
 			return $return;
 		} else {
-			//means there was no chart data sent over to chart
-			//so just return legend and null data back over
 
-			//really should just return null and if null then charts.php does its thing
-			//but.. legend is from return value below so need to send that or charts look wacky
-
-			$return = $this->parseInfo($settings['info']['line'], null, __CLASS__);
-
-			////////////////////////////////////////////////////////////////////////////
-			//this data can be created in charts.php really if $datastring is null ?
-			//or adda  flag to the array for chartdata here...
-
-			$dataString =   "[[0, '0.00']]";
-
-			$return['chart'] = array(
-				'chart_format' => 'line',
-				'ymin' => 0,
-				'ymax' => 1,
-				'xmin' => date("Y/m/d 00:00:01"),
-				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => 0,
-				'chart_data' => $dataString
-				/*
-				'chart_data_over' => null,
-				'overload' => false
-				*/
-			);
-
-			return $return;
+			return false;
 		}
 	}
 
