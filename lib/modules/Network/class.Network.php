@@ -219,7 +219,9 @@ class Network extends LoadAvg
 			
 				$net_rate = $data[1];
 
-				$time[$net_rate] = date("H:ia", $data[0]);
+				$timedata = (int)$data[0];
+				$time[$net_rate] = date("H:ia", $timedata);
+
 
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
 			
@@ -411,7 +413,8 @@ class Network extends LoadAvg
 
 				$net_rate = $data[2];
 
-				$time[$net_rate] = date("H:ia", $data[0]);
+				$timedata = (int)$data[0];
+				$time[$net_rate] = date("H:ia", $timedata);
 
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
 			

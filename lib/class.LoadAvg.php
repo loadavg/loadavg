@@ -1218,22 +1218,50 @@ class LoadAvg
 	 *
 	 */
 
+
 	public function checkForUpdate()
 	{
+
+		$linuxname = "";
+
+		//check that this works with get as its long...
+		/*
+		<?php
+		print_r(posix_uname());
+		?>
+
+		Should print something like:
+
+		Array
+		(
+		    [sysname] => Linux
+		    [nodename] => vaio
+		    [release] => 2.6.15-1-686
+		    [version] => #2 Tue Jan 10 22:48:31 UTC 2006
+		    [machine] => i686
+		)
+		*/
+		
+		foreach(posix_uname() AS $key=>$value) {
+    		$linuxname .= $value ." ";
+		}		
+
 
 		if ( !isset($_SESSION['download_url'])) {
 			if ( ini_get("allow_url_fopen") == 1) {
 
-				#$response = file_get_contents("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
-				// $response = json_decode($response);
+				$response = file_get_contents("http://updates.loadavg.com/version.php?"
+					. "ip=" . $_SERVER['SERVER_ADDR'] 
+					. "&version=" . self::$_settings->general['version'] 
+					. "&site_url=" . self::$_settings->general['title']  
+					. "&phpv=" . phpversion()  					 
+					. "&osv=" . $linuxname  					 
+					. "&key=1");
 
-				$response = file_get_contents("http://updates.loadavg.com/version.php?site_url=" 
-					. $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
+				// $response = json_decode($response);
 
 				//log the action locally
 				$this->logUpdateCheck( $response );
-
-				//var_dump("http://updates.loadavg.com/version.php?site_url=" . $_SERVER['SERVER_ADDR']  . "&ip=" . $_SERVER['SERVER_ADDR'] . "&version=" . self::$_settings->general['version'] . "&key=1");
 
 				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
 

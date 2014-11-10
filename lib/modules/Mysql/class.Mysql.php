@@ -112,6 +112,12 @@ class Mysql extends LoadAvg
 			
 			$last = explode("|", file_get_contents(  $mysqlLatestLocation ) );
 
+			if (  ( !isset($last[1]) || !$last[1]) ||  ($last[1] == null) || ($last[1] == "")   )
+				$last[1]=0;
+
+			if (  ( !isset($last[2]) || !$last[2]) ||  ($last[2] == null) || ($last[2] == "")   )
+				$last[2]=0;
+
 			$mysqllatestElapsed =  ( time() - filemtime($mysqlLatestLocation));
 
 			//if its a new logfile check to see if there is previous netlatest data
@@ -265,8 +271,9 @@ class Mysql extends LoadAvg
 				if (!$redline) {
 					$usage[] = ( $data[$useData] / $divisor );
 				}
-			
-				$time[( $data[$useData] / $divisor )] = date("H:ia", $data[0]);
+
+				$timedata = (int)$data[0];
+				$time[( $data[$useData] / $divisor )] = date("H:ia", $timedata);
 
 				$usageCount[] = ($data[0]*1000);
 

@@ -169,18 +169,13 @@ class Disk extends LoadAvg
 					$percentage_used = 0;
 				}
 
-				$time[( $data[1] / 1048576 )] = date("H:ia", $data[0]);
-
+				$timedata = (int)$data[0];
+				$time[( $data[1] / 1048576 )] = date("H:ia", $timedata);
 
 				$usageCount[] = ($data[0]*1000);
 
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
 					$timestamps[] = $data[0];
-
-
-
-
-
 
 				if ($displayMode == 'true' ) {
 					// display data using MB

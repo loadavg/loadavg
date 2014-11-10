@@ -171,7 +171,8 @@ class Apache extends LoadAvg
 				if (!$redline) 
 					$usage[] = ( $data[1] );
 
-				$time[( $data[1]  )] = date("H:ia", $data[0]);
+				$timedata = (int)$data[0];
+				$time[( $data[1]  )] = date("H:ia", $timedata); //////// remove long here to fix bug
 
 				$usageCount[] = ($data[0]*1000);
 

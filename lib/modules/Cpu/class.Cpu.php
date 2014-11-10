@@ -152,7 +152,8 @@ class Cpu extends LoadAvg
 				if (!$redline)
 					$usage[$switch][] = $data[$switch];
 
-				$time[$switch][$data[$switch]] = date("H:ia", $data[0]);
+				$timedata = (int)$data[0];
+				$time[$switch][$data[$switch]] = date("H:ia", $timedata);
 
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 

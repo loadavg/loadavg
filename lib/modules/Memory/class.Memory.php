@@ -181,8 +181,8 @@ class Memory extends LoadAvg
 					$percentage_used = 0;
 				}
 			
-
-				$time[( $data[1] / 1024 )] = date("H:ia", $data[0]);
+				$timedata = (int)$data[0];
+				$time[( $data[1] / 1024 )] = date("H:ia", $timedata);
 
 				$usageCount[] = ($data[0]*1000);
 
