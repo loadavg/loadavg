@@ -301,22 +301,8 @@ class Ssh extends LoadAvg
 			$this->getChartData ($chartArray, $contents);
 
 			$totalchartArray = (int)count($chartArray);
-
-			//need to get disk size in order to process data properly
-			//is it better before loop or in loop
-			//what happens if you resize disk on the fly ? in loop would be better
-			//$memorySize = 0;
-
-			//need to start logging total memory
-			//what happens if this is -1 ???
-			//$memorySize = $chartArray[$totalchartArray-1][3] / 1024;
-
-			// get from settings here for module
-			// true - show MB
-			// false - show percentage
 				
 			//data[0] = time
-
 			//data[1] = accepted 
 			//data[2] = failed_pass
 			//data[3] = invalid_user
@@ -329,6 +315,7 @@ class Ssh extends LoadAvg
 				//echo '<pre>DATA: ' . print_r($data) .  "</pre>";
 
 				// clean data for missing values and cleanup
+				//make this a function 
 				$redline = ($data[1] == "-1" ? true : false);
 
 				if ($redline) {
@@ -363,53 +350,21 @@ class Ssh extends LoadAvg
 				// display data invalid user
 				$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3]  ) ."]";
 
-
-
-				/*
-				if ( $percentage_used > $settings['settings']['overload'] )
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
-
-				//swapping
-				if ( isset($data[2])  ) {
-					$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2]  ) ."]";
-					$swap[] = ( $data[2]  );
-
-				}
-				*/
-
-
 			}
-
-			//echo $percentage_used; die;
-
-			//end($swap);
-			//$swapKey = key($swap);
-			//$swap = $swap[$swapKey];
 
 
 			$mem_high = max($usage);
 			$mem_low  = min($usage); 
 			$mem_mean = array_sum($usage) / count($usage);
 
-			//if  ( $swap > 1 ) {
-			//	$ymax = $mem_high*1.05;
-			//	$ymin = $swap/2;
-			//}
-			//else {
-				$ymax = $mem_high;
-				$ymin = $mem_low;
-			//}
+			//really needs to be max across data 1, data 2 and data 3
+			$ymax = $mem_high;
+			$ymin = $mem_low;
 
 			
 			$mem_high_time = $time[max($usage)];
 			$mem_low_time = $time[min($usage)];
 			$mem_latest = ( ( $usage[count($usage)-1]  )  )    ;		
-
-			//TODO need to get total memory here
-			//as memory can change dynamically in todays world!
-
-			//$mem_total = $memorySize;
-			//$mem_free = $mem_total - $mem_latest;
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
@@ -433,7 +388,6 @@ class Ssh extends LoadAvg
 				'mem_low_time' => $mem_low_time,
 				'mem_mean' => $mem_mean,
 				'mem_latest' => $mem_latest,
-				//'mem_total' => number_format($mem_total,0),
 				'mem_swap' => $swap
 			);
 		
@@ -447,11 +401,6 @@ class Ssh extends LoadAvg
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
 			if (!is_null($dataArrayOver_2)) ksort($dataArrayOver_2);
 
-
-			// dataString is cleaned data used to draw the chart
-			// dataSwapString is the swap usage
-			// dataOverString is if we are in overload
-
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
 			$dataOverString_2 = is_null($dataArrayOver_2) ? null : "[" . implode(",", $dataArrayOver_2) . "]";
@@ -463,17 +412,15 @@ class Ssh extends LoadAvg
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $mem_mean,
-				'chart_data' => $dataString,
-				'chart_data_label' => 'Accepted',
+				'dataset_1' => $dataString,
+				'dataset_1_label' => 'Accepted',
 
-				'chart_data_over' => $dataOverString,
-				'chart_data_over_label' => 'Failed',
+				'dataset_2' => $dataOverString,
+				'dataset_2_label' => 'Failed',
 
-				'chart_data_over_2' => $dataOverString_2,
-				'chart_data_over_2_label' => 'Invalid User',
+				'dataset_3' => $dataOverString_2,
+				'dataset_3_label' => 'Invalid User',
 
-				//'swap' => $swap,									// how is it used
-				//'swap_count' => $usageCount,						// how is it used
 				'overload' => $settings['settings']['overload']
 			);
 

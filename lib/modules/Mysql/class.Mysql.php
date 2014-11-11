@@ -200,7 +200,25 @@ class Mysql extends LoadAvg
 		$contents = null;
 
 		$replaceDate = self::$current_date;
-		
+
+
+		//mode specific data is set up here
+		//1 == Transmit
+		//2 == Receive
+		//3 == Queries
+
+		$theLabel = "";
+		switch ( $useData) {
+			case 1: 	$theLabel = "Transmit";						
+						break;
+
+			case 2: 	$theLabel = "Receive";						
+						break;
+
+			case 3: 	$theLabel = "Queries";						
+						break;
+		}
+
 		if ($logfileStatus == false ) {
 		
 			if ( LoadAvg::$period ) {
@@ -251,14 +269,14 @@ class Mysql extends LoadAvg
 				// clean data for missing values
 				$redline = ($data[1] == "-1" ? true : false);
 
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "") || ($data[1] == "-1")  )
+				if ($redline) {
 					$data[1]=0.0;
-
-				if (  ($data[2] == "-1")  ) 
 					$data[2]=0.0;
-
-				if (  ($data[3] == "-1")  )
 					$data[3]=0.0;
+				}
+
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
+					$data[1]=0.0;
 
 				//when showing send and receive its bytes to MB
 				//when showing queries, mode 3, its 1 to 1
@@ -330,30 +348,10 @@ class Mysql extends LoadAvg
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
 
 			// dataString is cleaned data used to draw the chart
-			// dataSwapString is the swap usage
 			// dataOverString is if we are in overload
 
 			$dataString = "[" . implode(",", $dataArray) . "]";
 			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			//$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
-
-			//label with $useData
-			//1 == Transmit
-			//2 == Receive
-			//3 == Queries
-
-			$theLabel = "";
-			switch ( $useData) {
-				case 1: 	$theLabel = "Transmit";						
-							break;
-
-				case 2: 	$theLabel = "Receive";						
-							break;
-
-				case 3: 	$theLabel = "Queries";						
-							break;
-			}
-
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
@@ -362,11 +360,11 @@ class Mysql extends LoadAvg
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $mysql_mean,
-				'chart_data' => $dataString,
-				'chart_data_label' => $theLabel,
+				'dataset_1' => $dataString,
+				'dataset_1_label' => $theLabel,
 
-				'chart_data_over' => $dataOverString,
-				'chart_data_over_label' => 'Overload',
+				'dataset_2' => $dataOverString,
+				'dataset_2_label' => 'Overload',
 
 				'overload' => $settings['settings']['overload']
 			);

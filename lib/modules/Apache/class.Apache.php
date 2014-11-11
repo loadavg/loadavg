@@ -163,7 +163,13 @@ class Apache extends LoadAvg
 				// clean data for missing values
 				$redline = ($data[1] == "-1" ? true : false);
 
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")|| ($data[1] == "-1")  )
+				if ($redline) {
+					$data[1]=0.0;
+					$data[2]=0.0;
+					$data[3]=0.0;
+				}
+
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
@@ -241,11 +247,11 @@ class Apache extends LoadAvg
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $apache_mean,
-				'chart_data' => $dataString,
-				'chart_data_label' => 'CPU Usage',
+				'dataset_1' => $dataString,
+				'dataset_1_label' => 'CPU Usage',
 
-				'chart_data_over' => $dataOverString,
-				'chart_data_over_label' => 'Overload',
+				'dataset_2' => $dataOverString,
+				'dataset_2_label' => 'Overload',
 
 				'overload' => $settings['settings']['overload']
 			);
@@ -257,6 +263,7 @@ class Apache extends LoadAvg
 			return false;
 		}
 	}
+
 
 
 	

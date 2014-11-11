@@ -154,17 +154,25 @@ class Disk extends LoadAvg
 				// clean data for missing values
 				$redline = ($data[1] == "-1" ? true : false);
 
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")|| ($data[1] == "-1")  )
+				if ($redline) {
+					$data[1]=0.0;
+					$data[2]=0.0;
+					$data[3]=0.0;
+				}
+
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
 				//usage is used to calculate view perspectives
 				if (!$redline) {
 					$usage[] = ( $data[1] / 1048576 );
+
 					if ($data[2] > 0)
 						$percentage_used =  ( $data[1] / $data[2] ) * 100;
 					else
 						$percentage_used =  0;						
+				
 				} else {
 					$percentage_used = 0;
 				}
@@ -272,11 +280,11 @@ class Disk extends LoadAvg
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $disk_mean,
-				'chart_data' => $dataString,
-				'chart_data_label' => 'Disk Usage',
+				'dataset_1' => $dataString,
+				'dataset_1_label' => 'Disk Usage',
 
-				'chart_data_over' => $dataOverString,
-				'chart_data_over_label' => 'Overload',
+				'dataset_2' => $dataOverString,
+				'dataset_2_label' => 'Overload',
 				
 				'overload' => $settings['settings']['overload']
 			);
@@ -288,6 +296,7 @@ class Disk extends LoadAvg
 			return false;
 		}
 	}
+
 
 	/**
 	 * genChart

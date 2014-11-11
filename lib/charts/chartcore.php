@@ -26,22 +26,29 @@
 
 		var d1 = {
 			//label: '<?php echo $chart->label; ?>',
-			label: '<?php echo $stuff['chart']['chart_data_label']; ?>',
-			data: <?php echo $stuff['chart']['chart_data']; ?>,
+			label: '<?php echo $stuff['chart']['dataset_1_label']; ?>',
+			data: <?php echo $stuff['chart']['dataset_1']; ?>,
 			ymin: <?php echo $stuff['chart']['ymin']; ?>,
 			ymax: <?php echo $stuff['chart']['ymax']; ?>
 		};
 
-		<?php //have_over means we have a primary overload
+		<?php 
+
+
+		//we either have over or we have swap - need to fix this really
+		//as swap is over in charting engine
+		//swap should be just aanother dataset rendered differently ?
+		//but we have scenarios when there is dataset 1 and 2 or 1 and 2 and 3 but not 1 and 3 ?
+
+		//have_over means we have a primary overload
 		//chart_data_over
-		//chart_data_over
-		if ( !isset( $stuff['chart']['chart_data_over'] ) || $stuff['chart']['chart_data_over'] == null ) 
+		if ( !isset( $stuff['chart']['dataset_2'] ) || $stuff['chart']['dataset_2'] == null ) 
 			$have_over = false;
 		else
 			$have_over = true;
 		
 
-		if ( !isset( $stuff['chart']['chart_data_swap'] ) || $stuff['chart']['chart_data_swap'] == null ) 
+		if ( !isset( $stuff['chart']['dataset_4'] ) || $stuff['chart']['dataset_4'] == null ) 
 			$have_swap = false;
 		else
 			$have_swap = true;		
@@ -50,10 +57,8 @@
 		// we work when there is overload and no swap
 		// but die when there is swap and no overloard!
 
-		//if ( !isset( $stuff['chart']['chart_data_over'] ) || $stuff['chart']['chart_data_over'] == null ) { ?>
 		<?php
 		if ( !$have_over && !$have_swap  ) { 
-		//if ( !$have_over  ) { 
 			?>
 
 			var chart_data = d1;
@@ -69,37 +74,33 @@
 			chart_data.push(d1);
 
 			//used for primary overload
-			//chart_data_over
-			<?php if ( isset($stuff['chart']['chart_data_over']) ) { ?>
+			<?php if ( isset($stuff['chart']['dataset_2']) ) { ?>
 
 				var d2 = {
-					//label: 'Overloader',
-					label: '<?php echo $stuff['chart']['chart_data_over_label']; ?>',
-					data: <?php echo $stuff['chart']['chart_data_over']; ?>
+					label: '<?php echo $stuff['chart']['dataset_2_label']; ?>',
+					data: <?php echo $stuff['chart']['dataset_2']; ?>
 				};
 				chart_data.push(d2);
 			
 			<?php } ?>
 
 			//used for secondary overlaods
-			//chart_data_over_2
-			<?php if ( isset($stuff['chart']['chart_data_over_2']) ) { ?>
+			<?php if ( isset($stuff['chart']['dataset_3']) ) { ?>
 				var d3 = {
-					//label: 'Secondary Overload',
-					label: '<?php echo $stuff['chart']['chart_data_over_2_label']; ?>',
-					data: <?php echo $stuff['chart']['chart_data_over_2']; ?>
+					label: '<?php echo $stuff['chart']['dataset_3_label']; ?>',
+					data: <?php echo $stuff['chart']['dataset_3']; ?>
 				};
 				chart_data.push(d3);
 			<?php } ?>
 
+			//d3 is shareds! we need to have a data type instead ?
+			//or have d4 for swap
 			// new swap code
-			//chart_data_swap
 			<?php 
-			if ( isset($stuff['chart']['chart_data_swap']) ) { ?>
+			if ( isset($stuff['chart']['dataset_4']) ) { ?>
 				var d3 = {
-					//label: 'Swap',
-					label: '<?php echo $stuff['chart']['chart_data_swap_label']; ?>',
-					data: <?php echo $stuff['chart']['chart_data_swap']; ?>
+					label: '<?php echo $stuff['chart']['dataset_4_label']; ?>',
+					data: <?php echo $stuff['chart']['dataset_4']; ?>
 				};
 				chart_data.push(d3);
 			<?php } 

@@ -357,11 +357,11 @@ class Network extends LoadAvg
 				'ymax' => $ymax,
 				'mean' => $net_mean,
 
-				'chart_data' => $dataString,
-				'chart_data_label' => $chart_data_label,
+				'dataset_1' => $dataString,
+				'dataset_1_label' => $chart_data_label,
 
-				'chart_data_over' => $dataOverString,
-				'chart_data_over_label' => $chart_data_over_label
+				'dataset_2' => $dataOverString,
+				'dataset_2_label' => $chart_data_over_label
 			);
 
 			return $return;

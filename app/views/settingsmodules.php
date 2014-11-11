@@ -167,6 +167,11 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 
 	</div>
 
+	<div class="separator bottom"></div>
+
+    <div class="panel">
+        	<input type="submit" class="btn btn-primary" value="Save Settings">
+    </div>
 
 	<div class="separator bottom"></div>
 
@@ -258,17 +263,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 	                        			<?php } else { ?>
 
 	                        				<div class="pull-right">
-	                        					
-	                        					<!-- dirty password hack -->
-
-	                        					<?php
-	                        					if (strpos($setting,'password') !== false) {
-	                        					?>
-	                        					<input type="password" autocomplete="off" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">
-	                        					<?php
-	                        					} else { ?>
 	                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">	                        					
-	                        					<?php } ?>
 	                        				</div>  
 
 	                        			<?php } ?>

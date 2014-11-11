@@ -143,8 +143,13 @@ class Cpu extends LoadAvg
 				// clean data for missing values
 				$redline = ($data[1] == "-1" ? true : false);
 
-				//if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")|| ($data[1] == "-1")  )
+				if ($redline) {
+					$data[1]=0.0;
+					$data[2]=0.0;
+					$data[3]=0.0;
+				}
+
+				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
@@ -231,14 +236,14 @@ class Cpu extends LoadAvg
 				'ymax' => $ymax,
 				'mean' => $cpu_mean,
 				
-				'chart_data' => $dataString,
-				'chart_data_label' => 'CPU Load',
+				'dataset_1' => $dataString,
+				'dataset_1_label' => 'CPU Load',
 
-				'chart_data_over' => $dataOverString,
-				'chart_data_over_label' => 'Overload',
+				'dataset_2' => $dataOverString,
+				'dataset_2_label' => 'Overload',
 				
-				'chart_data_over_2' => $dataOverString_2,
-				'chart_data_over_2_label' => 'Secondary Overload'
+				'dataset_3' => $dataOverString_2,
+				'dataset_3_label' => 'Secondary Overload'
 			);
 			return $return;
 		} else {
