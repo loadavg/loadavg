@@ -152,6 +152,7 @@ class Disk extends LoadAvg
 				//$diskSize = $data[2] / 1048576;
 
 				// clean data for missing values
+				/*
 				$redline = ($data[1] == "-1" ? true : false);
 
 				if ($redline) {
@@ -160,9 +161,13 @@ class Disk extends LoadAvg
 					$data[3]=0.0;
 				}
 
+				*/
+				// clean data for missing values
+				$redline = ($this->checkRedline($data));
+
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
-
+				
 				//used to filter out redline data from usage data as it skews it
 				//usage is used to calculate view perspectives
 				if (!$redline) {

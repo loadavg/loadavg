@@ -141,6 +141,7 @@ class Cpu extends LoadAvg
 				$data = $chartArray[$i];
 
 				// clean data for missing values
+				/*
 				$redline = ($data[1] == "-1" ? true : false);
 
 				if ($redline) {
@@ -148,6 +149,10 @@ class Cpu extends LoadAvg
 					$data[2]=0.0;
 					$data[3]=0.0;
 				}
+				*/
+				
+				// clean data for missing values
+				$redline = ($this->checkRedline($data));
 
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;

@@ -440,6 +440,25 @@ class LoadAvg
 		}
 	}
 
+
+	function checkRedline (array &$data) 
+	{
+
+		// clean data for missing values
+		$redline = ($data[1] == "-1" ? true : false);
+
+		if ($redline) {
+			$data[1]=0.0;
+			$data[2]=0.0;
+			$data[3]=0.0;
+		}
+
+		//echo '<pre>'; print_r ($data); echo '</pre>';
+
+		return $redline;
+
+	}
+
 	/*
 	 * build the chart data array here and patch to check for downtime
 	 * as current charts connect last point to next point
