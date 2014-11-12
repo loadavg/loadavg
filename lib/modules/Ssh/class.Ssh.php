@@ -206,6 +206,11 @@ class Ssh extends LoadAvg
 
                         if(preg_match("/Accepted password/", $line)) 
                             $logData['accepted'] += 1;
+
+                        if(preg_match("/Accepted publickey/", $line)) 
+                            $logData['accepted'] += 1;
+                  
+                        
                     }
                 }
                 // Sleep for 1 microsecond (so that we don't take all CPU resources 
