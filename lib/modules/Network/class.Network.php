@@ -45,14 +45,22 @@ class Network extends LoadAvg
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
+		//need to collect data from multiple interfaces here
+		$apiString = "";
+
 		foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
 
+		//echo 'NET: ' . $interface . "\n" ;
+
 		//skip disabled interfaces - should be and / or not and ?
+			
 		if (  !( isset(LoadAvg::$_settings->general['network_interface'][$interface]) 
 			&& LoadAvg::$_settings->general['network_interface'][$interface] == "true" ) )
 			continue;
 
 			$logfile = sprintf($this->logfile, date('Y-m-d'), $interface);
+
+			//echo 'PROCESSING:' . $logfile . "\n";
 
 			$netdev = file_get_contents('/proc/net/dev');
 			$pattern = "/^.*\b($interface)\b.*$/mi";
@@ -144,13 +152,19 @@ class Network extends LoadAvg
 
 				$this->safefilerewrite($fh,$last_string,"w",true);
 
-				//this kills the loop when more than one interface is present
-				if ( $type == "api")
-					return $string;
+				//figure out how to send back data for multiple interfaces here
+				if ($apiString == "")
+					$apiString = $string;
 				else
-					return true;
+					$apiString += "|" . $string;
 
 		}
+
+		if ( $type == "api")
+			return $string;
+		else
+			return true;
+
 	}
 
 	/**
