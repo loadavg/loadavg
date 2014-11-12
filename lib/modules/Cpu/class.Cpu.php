@@ -121,7 +121,7 @@ class Cpu extends LoadAvg
 			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataRedline = array();
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				echo "24 hour";
+				//echo "24 hour";
 				$timestamps = array();
 			}
 			/*
@@ -199,7 +199,7 @@ class Cpu extends LoadAvg
 				$key = key($timestamps);
 				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
 
-				echo 'endtimne: ' . $endTime;
+				//echo 'endtimne: ' . $endTime;
 
 				$lastTimeString = $timestamps[$key];
 				$difference = ( $endTime - $lastTimeString );
