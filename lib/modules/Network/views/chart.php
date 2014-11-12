@@ -15,6 +15,73 @@
 */
 ?>
 
+
+
+<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+
+<!-- loop through each interface -->
+
+<?php
+
+$i = 0; 
+
+foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) { 
+
+	$i++;
+
+	//skip disabled interfaces
+	if (  !( isset(LoadAvg::$_settings->general['network_interface'][$interface]) 
+		&& LoadAvg::$_settings->general['network_interface'][$interface] == "true" ) )
+		continue;
+
+?>
+
+
+<!-- draw charts for each interface -->
+
+<div class="widget" data-toggle="collapse-widget" data-collapse-closed="false">
+	<div class="widget-head"><h4 class="heading"><strong>Network</strong> Interface: <?php echo $interface; ?></h4></div>
+	<div class="widget-body collapse in" style="height: auto;">
+		<?php
+		$j = 0;
+
+		/* draw charts for each subchart as per args will be Transmit and receive */
+		foreach ( $charts['args'] as $chart ) {
+			$j++;
+			$chart = json_decode($chart);
+
+			// note that this will probably need to be fixed for PERIODS
+			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date, $interface);
+
+			$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
+
+			// find out main function from module args that generates chart data
+			// in this module its getData above
+			$caller = $chart->function;
+
+			//check if function takes settings via GET url_args 
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+
+			if ( file_exists( $this->logfile )) {
+				$i++;				
+				$logfileStatus = false;
+
+				//call modules main function and pass over functionSettings
+				if ($functionSettings) {
+					$stuff = $this->$caller( $logfileStatus, $functionSettings );
+				} else {
+					$stuff = $this->$caller( $logfileStatus );
+				}
+
+			} else {
+				//no log file so draw empty charts
+				$i++;				
+				$logfileStatus = true;
+			}
+
+			?>
+
+
 <?php
 
 	//if there is no logfile or error from the caller (stuff is false) 
@@ -36,63 +103,13 @@
 			'dataset_1_label' => "No Data",
 			'dataset_1' => "[[0, '0.00']]"
 		);
+
+
 	
 	}
 
 ?>
 
-<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
-
-<!-- loop through each interface -->
-
-<?php
-
-$i = 0; 
-
-foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) { 
-
-	$i++;
-
-	//skip disabled interfaces
-	if (  !( isset(LoadAvg::$_settings->general['network_interface'][$interface]) 
-		&& LoadAvg::$_settings->general['network_interface'][$interface] == "true" ) )
-		continue;
-
-?>
-
-<!-- draw charts for each interface -->
-
-<div class="widget" data-toggle="collapse-widget" data-collapse-closed="false">
-	<div class="widget-head"><h4 class="heading"><strong>Network</strong> Interface: <?php echo $interface; ?></h4></div>
-	<div class="widget-body collapse in" style="height: auto;">
-		<?php
-		$j = 0;
-
-		/* draw charts for each subchart as per args will be Transmit and receive */
-
-		foreach ( $charts['args'] as $chart ) {
-			$j++;
-			$chart = json_decode($chart);
-		
-			//echo '<pre>CHART</pre>';
-			//echo '<pre>';var_dump($chart);echo'</pre>';
-			//echo $chart->type;
-
-			// note that this will probably need to be fixed for PERIODS
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date, $interface);
-
-			if ( file_exists( $this->logfile )) {
-				$logfileStatus = false;
-			} else {				
-				$logfileStatus = true;
-			}
-
-			$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
-
-			$caller = $chart->function;
-			$stuff = $this->$caller();
-
-			?>
 
 		<!-- <div class="row-fluid"> -->
 		<table border="0" width="100%" cellspacing="0" cellpadding="0">

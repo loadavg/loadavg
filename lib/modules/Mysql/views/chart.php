@@ -3,7 +3,7 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Network charts derived from views/chart.php
+* MySQL charts derived from views/chart.php
 * 
 * @version SVN: $Id$
 * @link https://github.com/loadavg/loadavg
@@ -15,37 +15,15 @@
 */
 ?>
 
-<?php
 
-	//if there is no logfile or error from the caller (stuff is false) 
-	//then we just build empty charts
-	if ( !isset($stuff) || $stuff == false || $logfileStatus == true ) {
-
-		$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
-
-		////////////////////////////////////////////////////////////////////////////
-		//this data can be created in charts.php really if $datastring is null ?
-		//or add a flag to the array for chartdata here...
-		$stuff['chart'] = array(
-			'chart_format' => 'line',
-			'ymin' => 0,
-			'ymax' => 1,
-			'xmin' => date("Y/m/d 00:00:01"),
-			'xmax' => date("Y/m/d 23:59:59"),
-			'mean' => 0,
-			'dataset_1_label' => "No Data",
-			'dataset_1' => "[[0, '0.00']]"
-		);
-	
-	}
-
-?>
 
 <script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
 
 <!-- draw charts for each interface -->
 
 <div class="widget" data-toggle="collapse-widget" data-collapse-closed="false">
+	
+
 	<div class="widget-head"><h4 class="heading"><strong>MySql Usage</strong></h4></div>
 	<div class="widget-body collapse in" style="height: auto;">
 		<?php
@@ -60,14 +38,8 @@
 			$j++;
 
 			//this is to switch between differet chart modes
-			//we can clean this up later on
-
 			//if set to show queries skip charts 1 and 2
-			if ( ( $showqueries == "true" ) && ( $j == 1 || $j == 2) )
-				continue;
-
-			//if set to not show queries skip chart 3
-			if ( $showqueries == "false" && $j == 3)
+			if ( ( ( $showqueries == "true" ) && ( $j == 1 || $j == 2) ) || ( $showqueries == "false" && $j == 3) )
 				continue;
 
 			$chart = json_decode($chart);
@@ -100,6 +72,34 @@
 			}
 
 			?>
+
+
+<?php
+
+	//if there is no logfile or error from the caller (stuff is false) 
+	//then we just build empty charts
+	if ( !isset($stuff) || $stuff == false || $logfileStatus == true ) {
+
+		$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
+
+		////////////////////////////////////////////////////////////////////////////
+		//this data can be created in charts.php really if $datastring is null ?
+		//or add a flag to the array for chartdata here...
+		$stuff['chart'] = array(
+			'chart_format' => 'line',
+			'ymin' => 0,
+			'ymax' => 1,
+			'xmin' => date("Y/m/d 00:00:01"),
+			'xmax' => date("Y/m/d 23:59:59"),
+			'mean' => 0,
+			'dataset_1_label' => "No Data",
+			'dataset_1' => "[[0, '0.00']]"
+		);
+	
+	}
+
+?>
+
 
 		<!-- <div class="row-fluid"> -->
 		<table border="0" width="100%" cellspacing="0" cellpadding="0">
