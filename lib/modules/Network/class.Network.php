@@ -264,6 +264,7 @@ class Network extends LoadAvg
 				// clean data for missing values
 				$redline = ($data[$mode] == "-1" ? true : false);
 
+
 				// clean data for missing values
 				if (  (!$data[$mode]) ||  ($data[$mode] == null) || ($data[$mode] == "") || (int)$data[$mode] < 0)
 					$data[$mode]=0;

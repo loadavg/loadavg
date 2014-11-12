@@ -148,7 +148,8 @@ class Apache extends LoadAvg
 			$usageCount = array();
 			$dataArray = $dataArrayOver = array();
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
+			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+				$timestamps = array();
 
 			$chartArray = array();
 
@@ -159,17 +160,6 @@ class Apache extends LoadAvg
 			// main loop to build the chart data
 			for ( $i = 0; $i < $totalchartArray; ++$i) {	
 				$data = $chartArray[$i];
-
-				// clean data for missing values
-				/*
-				$redline = ($data[1] == "-1" ? true : false);
-
-				if ($redline) {
-					$data[1]=0.0;
-					$data[2]=0.0;
-					$data[3]=0.0;
-				}
-				*/
 
 				// clean data for missing values
 				$redline = ($this->checkRedline($data));

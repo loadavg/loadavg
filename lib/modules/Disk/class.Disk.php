@@ -152,17 +152,6 @@ class Disk extends LoadAvg
 				//$diskSize = $data[2] / 1048576;
 
 				// clean data for missing values
-				/*
-				$redline = ($data[1] == "-1" ? true : false);
-
-				if ($redline) {
-					$data[1]=0.0;
-					$data[2]=0.0;
-					$data[3]=0.0;
-				}
-
-				*/
-				// clean data for missing values
 				$redline = ($this->checkRedline($data));
 
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )

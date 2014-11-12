@@ -258,24 +258,8 @@ class Mysql extends LoadAvg
 
 			//$displayMode =	$settings['settings']['display_limiting'];
 
-			//data[0] = time
-			//data[1] = received
-			//data[2] = sent
-			//data[3] = queries
-
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
-
-				// clean data for missing values
-				/*
-				$redline = ($data[1] == "-1" ? true : false);
-
-				if ($redline) {
-					$data[1]=0.0;
-					$data[2]=0.0;
-					$data[3]=0.0;
-				}
-				*/
 
 				//check for redline
 				$redline = ($this->checkRedline($data));

@@ -120,8 +120,10 @@ class Cpu extends LoadAvg
 
 			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataRedline = array();
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
-
+			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
+				echo "24 hour";
+				$timestamps = array();
+			}
 			/*
 			 * build the chartArray array here and patch to check for downtime
 			 */
@@ -139,17 +141,6 @@ class Cpu extends LoadAvg
 			for ( $i = 0; $i < $totalchartArray; ++$i) {	
 
 				$data = $chartArray[$i];
-
-				// clean data for missing values
-				/*
-				$redline = ($data[1] == "-1" ? true : false);
-
-				if ($redline) {
-					$data[1]=0.0;
-					$data[2]=0.0;
-					$data[3]=0.0;
-				}
-				*/
 				
 				// clean data for missing values
 				$redline = ($this->checkRedline($data));
@@ -158,7 +149,6 @@ class Cpu extends LoadAvg
 					$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
-				//this is used for cpu only to switch between 1 min 5 min and 15 min load
 				if (!$redline)
 					$usage[$switch][] = $data[$switch];
 
@@ -167,7 +157,9 @@ class Cpu extends LoadAvg
 
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps[] = $data[0];
+				//for 24 hou charts
+				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+					$timestamps[] = $data[0];
 		
 				if ( $data[$switch] > $settings['settings']['overload_1'] )
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
@@ -198,10 +190,17 @@ class Cpu extends LoadAvg
 				$ymax = $cpu_high;
 			}
 
+			/////////////////////////////////////////////////////////////
+			//what exactly does this do ?
+			//disabling it does nothing 
+
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
 				$key = key($timestamps);
 				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
+
+				echo 'endtimne: ' . $endTime;
+
 				$lastTimeString = $timestamps[$key];
 				$difference = ( $endTime - $lastTimeString );
 				$loops = ( $difference / 300 );
@@ -231,9 +230,10 @@ class Cpu extends LoadAvg
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
 			if (!is_null($dataArrayOver_2)) ksort($dataArrayOver_2);
 
-			$dataString = "[" . implode(",", $dataArray) . "]";
-			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataOverString_2 = is_null($dataArrayOver_2) ? null : "[" . implode(",", $dataArrayOver_2) . "]";
+
+			$dataString[0] = "[" . implode(",", $dataArray) . "]";
+			$dataString[1] = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
+			$dataString[2] = is_null($dataArrayOver_2) ? null : "[" . implode(",", $dataArrayOver_2) . "]";
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
@@ -241,15 +241,16 @@ class Cpu extends LoadAvg
 				'ymax' => $ymax,
 				'mean' => $cpu_mean,
 				
-				'dataset_1' => $dataString,
+				'dataset_1' => $dataString[0],
 				'dataset_1_label' => 'CPU Load',
 
-				'dataset_2' => $dataOverString,
+				'dataset_2' => $dataString[1],
 				'dataset_2_label' => 'Overload',
 				
-				'dataset_3' => $dataOverString_2,
+				'dataset_3' => $dataString[2],
 				'dataset_3_label' => 'Secondary Overload'
 			);
+
 			return $return;
 		} else {
 
