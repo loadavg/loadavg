@@ -198,18 +198,24 @@ class Ssh extends LoadAvg
                     // We check only lines with "sshd"
                     if(preg_match("/sshd/", $line)) {
 
+                    	//failed passwords
                         if(preg_match("/Failed password/", $line)) 
                             $logData['failed_pass'] += 1;
 
+                        //invalid users
                         if(preg_match("/Invalid user/", $line)) 
                             $logData['invalid_user'] += 1;
 
+                        if(preg_match("/ROOT LOGIN REFUSED/", $line)) 
+                            $logData['invalid_user'] += 1;
+
+                        //accepted password issues
                         if(preg_match("/Accepted password/", $line)) 
                             $logData['accepted'] += 1;
 
                         if(preg_match("/Accepted publickey/", $line)) 
                             $logData['accepted'] += 1;
-                  
+
                         
                     }
                 }
