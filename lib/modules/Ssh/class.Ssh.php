@@ -363,6 +363,9 @@ class Ssh extends LoadAvg
 
 			}
 
+			//need totoals for
+			// accepted, failed and user
+			//not high and low ?
 
 			$mem_high = max($usage);
 			$mem_low  = min($usage); 
