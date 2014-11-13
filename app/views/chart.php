@@ -101,7 +101,19 @@ using code to manage accordion state is in common.js
 	        // cool as we can also do pie charts etc using different flags
 			if ( isset($stuff['chart']['mean']) ) {  
 
-				include( HOME_PATH . '/lib/charts/chartavg.php');
+				$chartMode = $stuff['chart']['chart_avg'];
+
+				switch ( $chartMode) {
+
+					case "avg": 	include( HOME_PATH . '/lib/charts/chartavg.php');				
+									break;
+
+					case "stack": 	include( HOME_PATH . '/lib/charts/chartstack.php');				
+									break;
+
+					default: 		include( HOME_PATH . '/lib/charts/chartavg.php');				
+									break;				}
+
 			} 
 			?> 
 
