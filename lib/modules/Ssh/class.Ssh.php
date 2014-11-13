@@ -439,7 +439,7 @@ class Ssh extends LoadAvg
 
 			$ssh_latest_login = 	$mem_latest;		
 
-			$ssh_mean = $ssh_accept;
+			$ssh_mean = true;
 
 			$variables = array(
 				'ssh_accept' => $ssh_accept,
@@ -451,6 +451,9 @@ class Ssh extends LoadAvg
 				'ssh_latest_login' => $ssh_latest_login
 			);
 
+			// stack data is
+			// max sorted totals for each of the 3 categories
+			// max of all 3
 
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
@@ -468,13 +471,14 @@ class Ssh extends LoadAvg
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
-				'chart_avg' => 'stack',
 				
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => $ssh_mean,
+
+				'mean' => $ssh_mean,   //this has to be on to draw sidebars need to fix this!
+
 				'dataset_1' => $dataString,
 				'dataset_1_label' => $theLabel,
 
@@ -484,8 +488,17 @@ class Ssh extends LoadAvg
 				'dataset_3' => $dataOverString_2,
 				'dataset_3_label' => 'Invalid User',
 
-				'overload' => $settings['settings']['overload']
+				'overload' => $settings['settings']['overload'],
+
+				'chart_avg' => 'stack',
+
+				//really need to send sorted array with labels for stacking
+				'variables' => $variables
+
+
 			);
+
+
 
 			return $return;	
 		} else {

@@ -86,6 +86,7 @@
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/jquery.flot.js" type="text/javascript"></script>
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/jquery.flot.time.js" type="text/javascript"></script>
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/plugins/tooltip/jquery.flot.tooltip.min.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/plugins/tooltip/jquery.flot.stack.min.js"></script>
 
 	<!-- Bootstrap Script -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/js/bootstrap.min.js"></script>

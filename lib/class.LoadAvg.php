@@ -550,7 +550,7 @@ class LoadAvg
 	/**
 	 * parseInfo
 	 *
-	 * Parses ini file data for a module
+	 * Parses ini file data for a module into lines of text for legend display
 	 *
 	 * @param array $info array with info lines from the classes INI file
 	 * @param array $variables variables to format lines
