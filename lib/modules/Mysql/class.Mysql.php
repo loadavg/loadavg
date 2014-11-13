@@ -349,6 +349,7 @@ class Mysql extends LoadAvg
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $mysql_mean,
+				'avg' => "stack",
 				'dataset_1' => $dataString,
 				'dataset_1_label' => $theLabel,
 

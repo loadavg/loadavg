@@ -237,6 +237,8 @@ class Cpu extends LoadAvg
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
+				'chart_avg' => 'avg',
+
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'mean' => $cpu_mean,

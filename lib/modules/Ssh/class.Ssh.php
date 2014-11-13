@@ -267,7 +267,7 @@ class Ssh extends LoadAvg
 	 */
 
 
-	public function getUsageData( $logfileStatus)
+	public function getUsageData( $logfileStatus, $switch = 1)
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
@@ -275,7 +275,30 @@ class Ssh extends LoadAvg
 		$contents = null;
 
 		$replaceDate = self::$current_date;
-		
+
+		//based on display mode here bossy
+		//and switch so we need switch
+		$displayMode =	$settings['settings']['display_limiting'];
+
+		//mode specific data is set up here
+		//1 == Accepted
+		//2 == Failed
+		//3 == Invalid
+
+		$theLabel = "";
+		switch ( $switch) {
+			case 1: 	$theLabel = "Accepted";						
+						break;
+
+			case 2: 	$theLabel = "Failed";						
+						break;
+
+			case 3: 	$theLabel = "Invalid";						
+						break;
+		}
+
+		$ssh_accept = $ssh_failed = $ssh_invalid = 0;
+
 		if ($logfileStatus == false ) {
 		
 			if ( LoadAvg::$period ) {
@@ -318,31 +341,22 @@ class Ssh extends LoadAvg
 			//data[2] = failed_pass
 			//data[3] = invalid_user
 
-			//$displayMode =	$settings['settings']['display_limiting'];
 
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
 
-				//echo '<pre>DATA: ' . print_r($data) .  "</pre>";
+				// clean data for missing values
+				$redline = ($this->checkRedline($data));
 
-				// clean data for missing values and cleanup
-				//make this a function 
-				$redline = ($data[1] == "-1" ? true : false);
-
-				if ($redline) {
-					$data[1]=0.0;
-					$data[2]=0.0;
-					$data[3]=0.0;
-				}
-
-				//clean main dataset
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
-				if (!$redline) 
-					$usage[] = ( $data[1]  );
-				
+				if (!$redline) {
+					$usage[1][] = ( $data[1]  );
+					$usage[2][] = ( $data[2]  );
+					$usage[3][] = ( $data[3]  );
+				}
 			
 				$timedata = (int)$data[0];
 				$time[( $data[1]  )] = date("H:ia", $timedata);
@@ -352,33 +366,60 @@ class Ssh extends LoadAvg
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
 					$timestamps[] = $data[0];
 
-				// display data accepted
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
-				
-				// display data failed
-				$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2]  ) ."]";
-				
-				// display data invalid user
-				$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3]  ) ."]";
 
+				$ssh_accept += $data[1];
+				$ssh_failed += $data[2];
+				$ssh_invalid += $data[3];
+
+				//dirty hack here as we arent using switch across the board
+				//rather using switch mode 1 as a default
+				if ($displayMode == "true") {
+
+					// display data accepted
+					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$switch]  ) ."]";
+				
+
+				} else {
+
+					// display data accepted
+					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
+					
+					// display data failed
+					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2]  ) ."]";
+					
+					// display data invalid user
+					$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3]  ) ."]";					
+				}
 			}
 
 			//need totoals for
 			// accepted, failed and user
 			//not high and low ?
+			if ($displayMode == "true") {
+				$mem_high = max($usage[$switch]);
+			}
+			else
+				$mem_high = max( (max($usage[1])) , (max($usage[2])), (max($usage[3])) );
 
-			$mem_high = max($usage);
-			$mem_low  = min($usage); 
-			$mem_mean = array_sum($usage) / count($usage);
+			//needs to be across all ?
+			$mem_high_time = $time[max($usage[$switch])];
+
+			$mem_low  = 0; 
+			
+			//echo 'high: ' . $mem_high . 'low: ' . $mem_low ;
+
+			//$mem_mean = array_sum($usage) / count($usage);
 
 			//really needs to be max across data 1, data 2 and data 3
 			$ymax = $mem_high;
 			$ymin = $mem_low;
-
 			
-			$mem_high_time = $time[max($usage)];
-			$mem_low_time = $time[min($usage)];
-			$mem_latest = ( ( $usage[count($usage)-1]  )  )    ;		
+			$mem_low_time = $time[min($usage[1])];
+
+
+
+			$mem_latest = ( ( $usage[1][count($usage)-1]  )  )    ;		
+
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
@@ -395,16 +436,22 @@ class Ssh extends LoadAvg
 			}
 		
 			// values used to draw the legend
+
+			$ssh_latest_login = 	$mem_latest;		
+
+			$ssh_mean = $ssh_accept;
+
 			$variables = array(
-				'mem_high' => $mem_high,
-				'mem_high_time' => $mem_high_time,
-				'mem_low' => $mem_low,
-				'mem_low_time' => $mem_low_time,
-				'mem_mean' => $mem_mean,
-				'mem_latest' => $mem_latest,
-				'mem_swap' => $swap
+				'ssh_accept' => $ssh_accept,
+				'ssh_accept_high_time' => $ssh_accept_high_time,
+				'ssh_failed' => $ssh_failed,
+				'ssh_failed_high_time' => $ssh_failed_high_time,
+				'ssh_invalid' => $ssh_invalid,
+				'ssh_invalid_high_time' => $ssh_invalid_high_time,
+				'ssh_latest_login' => $ssh_latest_login
 			);
-		
+
+
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
@@ -421,13 +468,15 @@ class Ssh extends LoadAvg
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
+				'chart_avg' => 'stack',
+				
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => $mem_mean,
+				'mean' => $ssh_mean,
 				'dataset_1' => $dataString,
-				'dataset_1_label' => 'Accepted',
+				'dataset_1_label' => $theLabel,
 
 				'dataset_2' => $dataOverString,
 				'dataset_2_label' => 'Failed',
@@ -474,7 +523,7 @@ class Ssh extends LoadAvg
 			$caller = $chart->function;
 
 			//check if function takes settings via GET url_args 
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '1' );
 
 			if ( file_exists( $this->logfile )) {
 				$i++;				
