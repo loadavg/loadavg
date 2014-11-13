@@ -437,7 +437,10 @@ class Ssh extends LoadAvg
 		
 			// values used to draw the legend
 
-			$ssh_latest_login = 	$mem_latest;		
+			//$ssh_latest_login = 	$mem_latest;	
+			//WRONG!!!!	
+			$ssh_latest_login  = ( $time[$usage[1][count($usage)-1]] )    ;		
+		
 
 			$ssh_mean = true;
 
