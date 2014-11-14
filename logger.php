@@ -95,7 +95,7 @@ if (!$testmode) {
 
 				//we can add 3 different modes to caller
 				//log - log data
-				//api - send back for api
+				//api - send back for api only no logging
 				//logapi - log and send back for api
 				$logMode = "api";
 
@@ -103,10 +103,23 @@ if (!$testmode) {
 				if ( $api ) {
 					$responseData = $class->$caller($logMode);
 
-					$data = explode("|", $responseData); // parsing response data
-					$timestamp = $data[0];
+					if (is_array($responseData))
+					{
+						$timestamp = "";
+						$dataInterface = "";
 
-					$response[$module] = array("data" => $responseData, "timestamp" => $timestamp); // Populating response array
+						foreach ($responseData as $interface => $value) {
+						    //echo 'INT: ' . $interface . ' VAL: ' . $value . "\n";
+							$data = explode("|", $value); // parsing response data
+							$dataInterface[$interface] = array("data" => $value, "timestamp" => $data[0]);
+						}
+						$response[$module] = $dataInterface;
+
+					} else {
+						$data = explode("|", $responseData); // parsing response data
+						$timestamp = $data[0];
+						$response[$module] = array("data" => $responseData, "timestamp" => $timestamp); // Populating response array
+					}
 				}
 				else
 					$class->$caller(); 
@@ -122,6 +135,7 @@ if (!$testmode) {
 
 	// Send data to API server
 	if ( $api ) {
+		//print_r($response) ;
 		$apistatus = $loadavg->sendApiData($response);
 	 }
 

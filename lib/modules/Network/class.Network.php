@@ -153,15 +153,18 @@ class Network extends LoadAvg
 				$this->safefilerewrite($fh,$last_string,"w",true);
 
 				//figure out how to send back data for multiple interfaces here
+				//echo "STRING:" . $string;
+
+				$apiString[$interface] = $string;
+/*
 				if ($apiString == "")
-					$apiString = $string;
 				else
 					$apiString += "|" . $string;
-
+*/
 		}
 
 		if ( $type == "api")
-			return $string;
+			return $apiString;
 		else
 			return true;
 

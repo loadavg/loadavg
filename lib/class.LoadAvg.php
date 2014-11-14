@@ -786,6 +786,7 @@ class LoadAvg
 
 		// for debugging
 		//var_dump($data); //exit;
+		//echo 'DEBUG: ' .  json_encode($data);
 
 		$url = self::$_settings->general['api']['url'];
 
