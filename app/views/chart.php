@@ -101,7 +101,9 @@ using code to manage accordion state is in common.js
 	        // cool as we can also do pie charts etc using different flags
 			if ( isset($stuff['chart']['mean']) ) {  
 
-				$chartMode = $stuff['chart']['chart_avg'];
+				//$chartMode = $stuff['chart']['chart_avg'];
+
+				$chartMode = (isset($stuff['chart']['chart_avg']) ? $stuff['chart']['chart_avg'] : null);
 
 				switch ( $chartMode) {
 

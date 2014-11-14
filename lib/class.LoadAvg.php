@@ -360,6 +360,7 @@ class LoadAvg
 
 	public function checkInstaller() {
 
+
 		$install_loc = HOME_PATH . "/install/index.php";
 
 		if ( file_exists($install_loc) )
