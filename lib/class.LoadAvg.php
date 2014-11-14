@@ -379,8 +379,10 @@ class LoadAvg
 
 		$install_loc = HOME_PATH . "/install/index.php";
 
-		if ( file_exists($install_loc) )
+		if ( file_exists($install_loc) ) {
+			ob_end_clean();
             header("Location: ../install/index.php");
+		}
 	}
 
 
