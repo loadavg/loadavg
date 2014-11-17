@@ -629,8 +629,10 @@ class LoadAvg
 
 	    //we should use this instead
 	    //LoadAvg::safefilerewrite($file, implode("\r\n", $res));
+	    $header = "; <?php exit(); __halt_compiler(); ?>";
 
 	    if ($fp = fopen($file, 'w') ) {
+	    	fwrite($fp, $header));	    	
 	    	fwrite($fp, implode("\r\n", $res));
 	    	fclose($fp);
 	    }
