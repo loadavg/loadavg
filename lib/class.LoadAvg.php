@@ -75,7 +75,8 @@ class LoadAvg
 		}
 
 		if (is_dir(HOME_PATH . '/lib/modules/')) {
-			foreach (glob(HOME_PATH . "/lib/modules/*/*.php") as $filename) {
+
+			foreach (glob(HOME_PATH . "/lib/modules/*/class.*.php") as $filename) {
 				$filename = explode(".", basename($filename));
 				self::$_modules[$filename[1]] = strtolower($filename[1]);
 			}
