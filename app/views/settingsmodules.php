@@ -108,7 +108,7 @@ if (isset($_POST['update_settings'])) {
 
 		if (isset($_POST[$module . '_settings'])) {
 
-			$module_config_file = HOME_PATH . '/lib/modules/' . $module . '/' . strtolower( $module ) . '.ini';
+			$module_config_file = HOME_PATH . '/lib/modules/' . $module . '/' . strtolower( $module ) . '.ini.php';
 			
 			$module_config_ini = parse_ini_file( $module_config_file , true );
 

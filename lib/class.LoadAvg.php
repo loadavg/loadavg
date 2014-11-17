@@ -53,7 +53,7 @@ class LoadAvg
 	{
 
 		date_default_timezone_set("UTC");
-		self::$settings_ini = "settings.ini";
+		self::$settings_ini = "settings.ini.php";
 
 		$this->setSettings('general',
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
@@ -397,7 +397,7 @@ class LoadAvg
 	public function cleanUpInstaller() {
 
 		//location of core settings
-		$settings_file = APP_PATH . '/config/settings.ini';
+		$settings_file = APP_PATH . '/config/settings.ini.php';
 
 		//see if we can write to settings file
 		if ( $this->checkWritePermissions( $settings_file ) ) 
@@ -663,7 +663,7 @@ class LoadAvg
 	public static function write_module_ini($newsettings, $module_name)
 	{
 
-		$module_config_file = HOME_PATH . '/lib/modules/' . $module_name . '/' . strtolower( $module_name ) . '.ini';
+		$module_config_file = HOME_PATH . '/lib/modules/' . $module_name . '/' . strtolower( $module_name ) . '.ini.php';
 
 		//$this->write_php_ini($newsettings, $module_config_file);
 		self::write_php_ini($newsettings, $module_config_file);

@@ -26,7 +26,7 @@ class Ssh extends LoadAvg
 	 */
 	public function __construct()
 	{
-		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini', true));
+		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
 	}
 
 	/**
@@ -402,7 +402,12 @@ class Ssh extends LoadAvg
 				$mem_high = max( (max($usage[1])) , (max($usage[2])), (max($usage[3])) );
 
 			//needs to be across all ?
-			$mem_high_time = $time[max($usage[$switch])];
+			$ssh_accept_high_time = $time[max($usage[$switch])];
+
+			$ssh_accept_high_time = 0;
+			$ssh_failed_high_time = 0;
+			$ssh_invalid_high_time = 0;
+
 
 			$mem_low  = 0; 
 			

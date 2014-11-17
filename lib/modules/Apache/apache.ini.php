@@ -1,3 +1,4 @@
+; <?php exit(); __halt_compiler(); ?>
 [module]
 name = "Httpd Apache Usage"
 description = "This module is used to display and log Apache usage data."

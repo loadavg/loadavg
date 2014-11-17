@@ -1,3 +1,4 @@
+; <?php exit(); __halt_compiler(); ?>
 [module]
 name = "SSH Usage"
 description = "This module is used to display and log SSH usage data."

@@ -26,7 +26,7 @@ class Memory extends LoadAvg
 	 */
 	public function __construct()
 	{
-		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini', true));
+		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
 	}
 
 	/**

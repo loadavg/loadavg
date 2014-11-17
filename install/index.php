@@ -30,7 +30,7 @@ $flooding = false;
 require_once APP_PATH . '/layout/header.php'; 
 
 //check for settings
-$settings_file = APP_PATH . '/config/settings.ini'; // path to settings INI file
+$settings_file = APP_PATH . '/config/settings.ini.php'; // path to settings INI file
 
 //read some system data
 $settingsActive = $loadavg->checkWritePermissions( $settings_file );

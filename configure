@@ -35,8 +35,8 @@ else
         echo ""
         chmod 0777 app/
         chmod 0777 app/config/
-        chmod 0777 app/config/settings.ini
-        chmod 0777 lib/modules/*/*.ini
+        chmod 0777 app/config/settings.ini.php
+        chmod 0777 lib/modules/*/*.ini.php
         chmod 0777 install
         chmod 0777 install/index.php
         echo -n "[+] Checking for /logs folder ... "
