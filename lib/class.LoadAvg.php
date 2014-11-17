@@ -632,7 +632,7 @@ class LoadAvg
 	    $header = "; <?php exit(); __halt_compiler(); ?>";
 
 	    if ($fp = fopen($file, 'w') ) {
-	    	fwrite($fp, $header));	    	
+	    	fwrite($fp, $header);	    	
 	    	fwrite($fp, implode("\r\n", $res));
 	    	fclose($fp);
 	    }
