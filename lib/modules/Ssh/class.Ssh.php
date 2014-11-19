@@ -326,7 +326,7 @@ class Ssh extends LoadAvg
 
 			$swap = array();
 			$usageCount = array();
-			$dataArray = $dataArrayOver = $dataArrayOver2 = $dataArraySwap = array();
+			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataArraySwap = array();
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
