@@ -1,3 +1,4 @@
+<?php 
 // *************************************************************************
 // This file is part of LoadAvg, the server monitoring & analytics platform
 // http://www.loadavg.com
@@ -18,6 +19,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 // *************************************************************************
+?>
 
 <?php
 /**
@@ -51,3 +53,5 @@ if ( $settings['https'] == "true" && !isset($_SERVER["HTTPS"])) {
 } else {
 	header("Location: public/");
 }
+?>
+
