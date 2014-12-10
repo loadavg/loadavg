@@ -24,7 +24,7 @@ fix API to authentice when sending data ?
 	$loadavg->rebuildLogs();
 
 
-
+moving
 
 /*  //CODE to get variables out of javascript 
     $todayminval = '<script type="text/javascript">document.write(today_min);</script>';
