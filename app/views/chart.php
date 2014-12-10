@@ -22,36 +22,31 @@
 	if ( !isset($stuff) || $stuff == false || $logfileStatus == true ) {
 
 		$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
-
-		////////////////////////////////////////////////////////////////////////////
-		//this data can be created in charts.php really if $datastring is null ?
-		//or add a flag to the array for chartdata here...
-		$stuff['chart'] = array(
-			'chart_format' => 'line',
-			'ymin' => 0,
-			'ymax' => 1,
-			'xmin' => date("Y/m/d 00:00:01"),
-			'xmax' => date("Y/m/d 23:59:59"),
-			'mean' => 0,
-			'dataset_1_label' => "No Data",
-			'dataset_1' => "[[0, '0.00']]"
-		);
-	
+		$stuff['chart'] = $this->getEmptyChart();
 	}
+	
+	//read status of accordions from cookies so we can paint screen accordingly
+	$moduleCollapse = $moduleCollapseStatus =  "";
+	
+	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+
 
 ?>
 
-<!--
-accordion widgets are built using this code here 
-NEED HELP setting up remember status of accordions on page reload using cookies
-using code to manage accordion state is in common.js
--->
+<div class="accordion" id="accordion<?php echo $module;?>"  data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
+  	<div class="accordion-group">
 
-<div class="widget" data-toggle="collapse-widget" data-collapse-closed="false" data-target="#accordion<?php echo $module; ?>">
+	<?php if ( $chart ) {    // what happens if not chart here ??? ?>
 
-	<?php if ( $chart ) { ?>
-	<div class="widget-head"><h4 class="heading"><?php echo $chart->label; ?></h4></div>
-	<div class="widget-body in collapse" style="height: auto;">
+		<div class="accordion-heading"> 
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $module; ?>" href="#category<?php echo $module; ?>">
+				<strong><?php echo $chart->label; ?></strong>				
+			</a>
+		</div>
+
+
+	<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
+	<div class="accordion-inner">
 
 		<table border="0" width="100%" cellspacing="0" cellpadding="0">
 			<tr>	
@@ -124,7 +119,12 @@ using code to manage accordion state is in common.js
 
 	<?php } // closes main if chart at top ?>
 
-	</div> <!-- // Accordion end -->
-</div> <!-- // Accordion group -->
+		</div> <!-- // Accordion inner end -->
+
+		</div> <!-- // Accordion category end -->
+
+	</div> <!-- // Accordion group end -->
+	
+</div> <!-- // Accordion end -->
 
 <div class="separator bottom"></div>

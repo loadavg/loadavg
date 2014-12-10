@@ -102,17 +102,33 @@ if (isset($_POST['login'])  ) {
 		$min = $_GET['logdate'];
 		$max = $_GET['logdate'];
 	}
+	
 	if (isset($_GET['minDate']) && !empty($_GET['minDate']) && isset($_GET['maxDate']) && !empty($_GET['maxDate']))
 	{
 		$min = $_GET['minDate'];
 		$max = $_GET['maxDate'];
 	}
+
 	$min = strtotime($min);
 	$max = strtotime($max);
 	?>
+
 	var today_min = <?php echo mktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;
 	var today_max = <?php echo mktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
+
+	//fix for min range only (to current)
+
+	//fix for 6 and 12 hours need to grab data from log file before
+
+	//$nextWeek = time() + ( 24 * 60 * 60);
+    // 24 hours; 60 mins; 60 secs
+
+	//get current time if we want end time to be current time
+	//today_max =  <?php echo (   time()  *1000); ?>;
+	//today_min =  today_max - (3600 * 6 * 1000);
+
 	</script>
+
 </head>
 <body>
 	

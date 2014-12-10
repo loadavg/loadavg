@@ -50,7 +50,19 @@ class Cpu extends LoadAvg
 
 		$timestamp = time();
 
-		$load = exec("cat /proc/loadavg | awk -F' ' '{print $1\"|\"$2\"|\"$3}'");
+		$load = null;
+
+		//use the php function if its there
+		if (!function_exists('sys_getloadavg')) {
+		   		$load = exec("cat /proc/loadavg | awk -F' ' '{print $1\"|\"$2\"|\"$3}'");
+		} else {
+			$phpload=sys_getloadavg();
+			$load=$phpload[0] . "|" . $phpload[1] . "|" . $phpload[2];
+		}
+
+		//if we want fancy formatting in logs we can always format them like this
+	 	//$number = number_format((float)$number, 2, '.', '');
+
 		$string = $timestamp . '|' . $load . "\n";
 
 		//we can also add a switch to feed live data to server with no local logging
@@ -66,8 +78,6 @@ class Cpu extends LoadAvg
 
 
 	}
-
-
 
 	/**
 	 * getData
@@ -120,16 +130,22 @@ class Cpu extends LoadAvg
 
 			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataRedline = array();
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				//echo "24 hour";
+			$chartType = LoadAvg::$_settings->general['chart_type'];
+
+			/*
+			if ( $chartType == "24" ) {
 				$timestamps = array();
-			}
+			} 
+			*/
+			
 			/*
 			 * build the chartArray array here and patch to check for downtime
 			 */
 
 			$chartArray = array();
-			$this->getChartData ($chartArray, $contents);
+
+			//pass chart type to get data for 6, 12 or 24 hours
+			$this->getChartData ($chartArray, $contents, $chartType );
 
 			$totalchartArray = (int)count($chartArray);
 
@@ -152,14 +168,16 @@ class Cpu extends LoadAvg
 				if (!$redline)
 					$usage[$switch][] = $data[$switch];
 
+				//time data
 				$timedata = (int)$data[0];
 				$time[$switch][$data[$switch]] = date("H:ia", $timedata);
 
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
+				//for 24 hour charts
+				//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+				//	$timestamps[] = $data[0];
 
-				//for 24 hou charts
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
+				//chart arrays
+				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 		
 				if ( $data[$switch] > $settings['settings']['overload_1'] )
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
@@ -193,23 +211,36 @@ class Cpu extends LoadAvg
 			/////////////////////////////////////////////////////////////
 			//what exactly does this do ?
 			//disabling it does nothing 
+			//300 is logger interval of 5 minutes
+			//i beleive this adds a padding to the end of the array based on time left to fill array
+			//but since charts are rendered chronologically left to right
+			//this is no longer needed and is dead code
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
+/*
+				//get key for last timestamp here
 				end($timestamps);
 				$key = key($timestamps);
+				
 				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-
-				//echo 'endtimne: ' . $endTime;
+				//echo 'endtime: ' . $endTime;
 
 				$lastTimeString = $timestamps[$key];
+				//echo 'lastTimeString: ' . $lastTimeString;
+
 				$difference = ( $endTime - $lastTimeString );
+				//echo 'difference: ' . $difference;
+				
 				$loops = ( $difference / 300 );
+				//echo 'loops: ' . $loops;
+
 
 				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++) {
 					$lastTimeString = $lastTimeString + 300;
 					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
 				}
-			}
+*/
+			} 		
 
 			$variables = array(
     	        'cpu_high' => number_format($cpu_high,3),
@@ -227,11 +258,13 @@ class Cpu extends LoadAvg
 			if ( count($dataArrayOver_2) == 0 ) $dataArrayOver_2 = null;
 
 			ksort($dataArray);
+
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
 			if (!is_null($dataArrayOver_2)) ksort($dataArrayOver_2);
 
 
 			$dataString[0] = "[" . implode(",", $dataArray) . "]";
+
 			$dataString[1] = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
 			$dataString[2] = is_null($dataArrayOver_2) ? null : "[" . implode(",", $dataArrayOver_2) . "]";
 
@@ -298,7 +331,8 @@ class Cpu extends LoadAvg
 			$caller = $chart->function;
 
 			//check if function takes settings via GET url_args 
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) 
+				? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
 			if ( file_exists( $this->logfile )) {
 				$i++;				

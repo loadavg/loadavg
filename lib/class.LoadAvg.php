@@ -445,6 +445,69 @@ class LoadAvg
 	}
 
 
+	//used to get status of accordions - collapsed or visable
+	//from the loadUI cookie
+	//using code to manage accordion state is in common.js
+
+	public function getUIcookie ( &$data1,  &$data2, $module) 
+	{
+
+		$myCookie = $_COOKIE["loadUIcookie"];
+		$cookie = stripslashes($myCookie);
+
+		$savedCardArray = json_decode($cookie, true);
+
+		//these are the values we need to grab
+		$data1 = "accordion-body collapse in";
+		$data2 = "true";
+
+		foreach ($savedCardArray as &$value) {
+
+			$myval = explode("=", $value);
+
+			if ($module == $myval[0]) {
+
+				if ($myval[1] == "true") {
+					$data1 = "accordion-body collapse in";
+				    $data2 = "true";
+				}
+				else {
+					$data1 = "accordion-body collapse";
+				    $data2 = "false";
+				   }
+			}
+
+		}
+
+
+
+	}
+
+	//parses /proc/stat and returns line $theLine
+
+	public function getProcStats (array &$data, $theLine = 0) 
+	{
+
+        //we grab data from proc/stat in one pass as it changes as you read it
+  		$stats = file('/proc/stat'); 
+
+  		//if array is emoty we didnt work
+		if($stats === array())
+        	return false;
+
+        //echo 'STATS:' . $stats[1];
+
+        //grab cpu data
+		$data = explode(" ", preg_replace("!cpu +!", "", $stats[$theLine])); 
+
+       return true; 
+
+	}
+
+
+
+
+
 	function checkRedline (array &$data) 
 	{
 
@@ -471,15 +534,18 @@ class LoadAvg
 	 *
 	 * send over chartData and contents
 	 * return data in chartData
+	 * dataset lets you grab the last N hours of the chart if you want a subset
+	   can be expanded on to get a subset with starttime / endtime 
 	 */
 
 
-	function getChartData (array &$chartData, array &$contents, $interval = 400) 
+	function getChartData (array &$chartData, array &$contents,  $dataSet = 24 ) 
 	{				
 		// this is based on logger interval of 5, 5 min = 300 aprox we add 100 to be safe
 		//$interval = 360;  // 5 minutes is 300 seconds + slippage of 20% aprox 
 		
 		$interval = $this->getLoggerInterval();
+
 
 		if (!$interval)
 			$interval = 360; //default interval of 5 min
@@ -489,10 +555,33 @@ class LoadAvg
 		$patch = $chartData = array();
 		$numPatches = 0;
 
+
+		//trim the dataset if we are only reading 6 or 12 hours of info
+		//revise for 6 and 12 hour charts
+		if ( $dataSet == 6 || $dataSet == 12 )
+		{
+			$totalContents= (int)count( $contents );
+			//echo 'TOTAL ' . $totalContents;
+
+			//logger is 5 min
+			//so 60 / 5 = 12 datasets we need for 1 hour
+			//need to revise if logger is a different time
+
+			$dataNeeded = 12 * $dataSet; 
+
+			$contents = array_slice($contents, ($totalContents - $dataNeeded) );     
+		}
+
+
 		$totalContents= (int)count( $contents );
+
+
 
 		//for ( $i = 0; $i < $totalContents-1; $i++) {
 		for ( $i = 0; $i < $totalContents-1; ++$i) {
+
+			//used to pull a section of charts
+			//if ($i == 20) break;
 
 			$data = explode("|", $contents[$i]);
 			$nextData = explode("|", $contents[$i+1]);
@@ -550,6 +639,30 @@ class LoadAvg
 		//echo "PATCHARRAYPATCHED: " . count( $chartData ) . "<br>";
 }
 
+	/**
+	 * getEmptyChart
+	 *
+	 * Returns data used to chart a empty chart for when there is no chart data
+	 *
+	 * @param array $emptyChart array with empty chart data
+	 */
+
+	public function getEmptyChart( )
+	{
+		$emptyChart = array(
+			'chart_format' => 'line',
+			'ymin' => 0,
+			'ymax' => 1,
+			'xmin' => date("Y/m/d 00:00:01"),
+			'xmax' => date("Y/m/d 23:59:59"),
+			'mean' => 0,
+			'dataset_1_label' => "No Data",
+			'dataset_1' => "[[0, '0.00']]"
+		);
+
+		return $emptyChart;
+	}
+
 
 	/**
 	 * parseInfo
@@ -565,6 +678,7 @@ class LoadAvg
 	public function parseInfo( $info, $variables, $class )
 	{
 		$return = array();
+		
 		foreach ( $info as $line ) {
 			$line = json_decode($line);
 

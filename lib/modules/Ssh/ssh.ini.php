@@ -20,4 +20,4 @@ line[] = '{"format":"Last login: (%s)","args":"ssh_latest_login"}'
 [settings]
 overload = 10
 log_location = "/var/log/secure"
-display_limiting = "true"
+display_limiting = "false"

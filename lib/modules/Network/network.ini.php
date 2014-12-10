@@ -19,9 +19,9 @@ line[] = '{"format":"Mean: %s KB/s","args":"net_mean"}'
 line[] = '{"format":"Latest: %s KB/s","args":"net_latest"}'
 line[] = '{"format":"Todays estimate: %s %s","args":"net_estimate|net_estimate_units"}'
 [settings]
-threshold_transfer = 50
+threshold_transfer = 15
 threshold_receive = 15
 transfer_cutoff = 16
 receive_cutoff = 16
 receive_limiting = "true"
-transfer_limiting = "true"
+transfer_limiting = "false"

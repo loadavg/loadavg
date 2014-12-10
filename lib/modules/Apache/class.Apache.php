@@ -140,7 +140,8 @@ class Apache extends LoadAvg
 			$contents = 0;
 		}
 
-		if ( strlen($contents) > 1 ) {
+		if (isset($contents{1})) {
+//		if ( strlen($contents) > 1 ) {
 			
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
@@ -148,12 +149,14 @@ class Apache extends LoadAvg
 			$usageCount = array();
 			$dataArray = $dataArrayOver = array();
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-				$timestamps = array();
+			//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+			//	$timestamps = array();
+
+			$chartType = LoadAvg::$_settings->general['chart_type'];
 
 			$chartArray = array();
 
-			$this->getChartData ($chartArray, $contents);
+			$this->getChartData ($chartArray, $contents, $chartType);
 
 			$totalchartArray = (int)count($chartArray);
 
@@ -201,7 +204,7 @@ class Apache extends LoadAvg
 			$apache_latest = ( ( $usage[count($usage)-1]  )    )    ;		
 
 
-
+/*
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
 				end($timestamps);
 				$key = key($timestamps);
@@ -215,7 +218,7 @@ class Apache extends LoadAvg
 					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
 				}
 			}
-		
+*/		
 			$variables = array(
 				'apache_high' => number_format($apache_high,4),
 				'apache_high_time' => $apache_high_time,

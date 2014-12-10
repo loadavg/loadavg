@@ -16,6 +16,11 @@
 
 <?php $server = LoadAvg::$_classes['Server']; ?>
 
+<!--
+widget stytles can be found here but need cleaning up
+http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
+-->
+
 <div class="well lh70-style">
     <b>Server Data</b>
     <div class="pull-right">
@@ -27,6 +32,32 @@
 	<!--
 	<h3>Server Data</h3>
 	-->
+
+
+
+
+
+
+<div class="accordion" id="accordion2">
+  	<div class="accordion-group">
+		<div class="accordion-heading">
+			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+				Active Item
+			</a>
+		</div>
+		<div id="collapseTwo" class="accordion-body collapse in">
+			...
+		</div>
+	</div>
+</div>
+
+
+
+
+
+
+
+
 	<div class="row-fluid">
 		<div class="span6">
 			<div class="widget widget-4">

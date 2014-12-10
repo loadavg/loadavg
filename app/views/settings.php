@@ -168,8 +168,9 @@ if (isset($_POST['update_settings'])) {
 			</div>
 			<div class="span9 right">
 				<select name="formsettings[chart_type]">
-					<option value="1" <?php if ( $settings['chart_type'] == "1" ) { ?>selected="selected"<?php } ?>>Hourly</option>
 					<option value="24" <?php if ( $settings['chart_type'] == "24" ) { ?>selected="selected"<?php } ?>>All day</option>
+					<option value="12" <?php if ( $settings['chart_type'] == "12" ) { ?>selected="selected"<?php } ?>>12 Hour</option>
+					<option value="6" <?php if ( $settings['chart_type'] == "16" ) { ?>selected="selected"<?php } ?>>6 Hour</option>
 				</select>
 			</div>
 		</div>

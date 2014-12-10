@@ -240,19 +240,25 @@ class Mysql extends LoadAvg
 			$contents = 0;
 		}
 
-		if ( strlen($contents) > 1 ) {
+//		if ( strlen($contents) > 1 ) {
+		if (isset($contents{1})) {
+
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
 			$swap = array();
 			$usageCount = array();
+			
 			$dataArray = $dataArrayOver = $dataArraySwap = array();
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
+			$chartType = LoadAvg::$_settings->general['chart_type'];
+
+			//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+			//	$timestamps = array();
 
 			$chartArray = array();
 
-			$this->getChartData ($chartArray, $contents);
+			$this->getChartData ($chartArray, $contents, $chartType );
 
 			$totalchartArray = (int)count($chartArray);
 
@@ -284,8 +290,8 @@ class Mysql extends LoadAvg
 
 				$usageCount[] = ($data[0]*1000);
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
+				//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+				//	$timestamps[] = $data[0];
 
 				// received
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$useData] / $divisor ) ."]";
@@ -303,20 +309,6 @@ class Mysql extends LoadAvg
 			$mysql_low_time = $time[min($usage)];
 			$mysql_latest = ( ( $usage[count($usage)-1]  )  )    ;		
 
-
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				end($timestamps);
-				$key = key($timestamps);
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-				$lastTimeString = $timestamps[$key];
-				$difference = ( $endTime - $lastTimeString );
-				$loops = ( $difference / 300 );
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++ ) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-				}
-			}
 		
 			// values used to draw the legend
 			$variables = array(
@@ -340,7 +332,7 @@ class Mysql extends LoadAvg
 			// dataOverString is if we are in overload
 
 			$dataString = "[" . implode(",", $dataArray) . "]";
-			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
+			//$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
@@ -350,13 +342,14 @@ class Mysql extends LoadAvg
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $mysql_mean,
 				'avg' => "stack",
+
 				'dataset_1' => $dataString,
-				'dataset_1_label' => $theLabel,
+				'dataset_1_label' => $theLabel
 
-				'dataset_2' => $dataOverString,
-				'dataset_2_label' => 'Overload',
+				//'dataset_2' => $dataOverString,
+				//'dataset_2_label' => 'Overload',
 
-				'overload' => $settings['settings']['overload']
+				//'overload' => $settings['settings']['overload']
 			);
 
 			return $return;	

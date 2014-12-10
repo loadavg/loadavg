@@ -22,5 +22,5 @@ line[] = '{"format":"Latest: %s MB","args":"mysql_latest"}'
 overload = 2048
 mysqlserver = "localhost"
 mysqluser = "root"
-mysqlpassword = "root"
+mysqlpassword = "vision7"
 show_queries = "true"

@@ -122,11 +122,14 @@ class Disk extends LoadAvg
 			$usageCount = array();
 			$dataArray = $dataArrayOver = $dataArraySwap = array();
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
+			$chartType = LoadAvg::$_settings->general['chart_type'];
+
+			//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+			//	$timestamps = array();
 
 			$chartArray = array();
 
-			$this->getChartData ($chartArray, $contents);
+			$this->getChartData ($chartArray, $contents, $chartType);
 
 			$totalchartArray = (int)count($chartArray);
 
@@ -233,6 +236,7 @@ class Disk extends LoadAvg
 			$disk_free = $disk_total - $disk_latest;
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
+				/*
 				end($timestamps);
 				$key = key($timestamps);
 				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
@@ -244,6 +248,7 @@ class Disk extends LoadAvg
 					$lastTimeString = $lastTimeString + 300;
 					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
 				}
+				*/
 			}
 		
 			$variables = array(

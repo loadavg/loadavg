@@ -130,11 +130,14 @@ class Memory extends LoadAvg
 			$usageCount = array();
 			$dataArray = $dataArrayOver = $dataArraySwap = array();
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
+			//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+			//	$timestamps = array();
 
 			$chartArray = array();
 
-			$this->getChartData ($chartArray, $contents);
+			$chartType = LoadAvg::$_settings->general['chart_type'];
+
+			$this->getChartData ($chartArray, $contents, $chartType);
 
 			$totalchartArray = (int)count($chartArray);
 
@@ -278,6 +281,7 @@ class Memory extends LoadAvg
 			$mem_free = $mem_total - $mem_latest;
 
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
+				/*
 				end($timestamps);
 				$key = key($timestamps);
 				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
@@ -289,6 +293,7 @@ class Memory extends LoadAvg
 					$lastTimeString = $lastTimeString + 300;
 					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
 				}
+				*/
 			}
 		
 			// values used to draw the legend

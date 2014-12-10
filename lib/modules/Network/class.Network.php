@@ -257,30 +257,32 @@ class Network extends LoadAvg
 			$contents = @file_get_contents($this->logfile);
 		}
 		
-
-		if ( strlen($contents) > 1 ) {
+		if (isset($contents{1})) {
+	//	if ( strlen($contents) > 1 ) {
 
 			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
 			$dataArray = $dataArrayOver = array();
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-				$timestamps = array();
+			$chartType = LoadAvg::$_settings->general['chart_type'];
+
+
+			//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
+			//	$timestamps = array();
 
 			$chartArray = array();
 
-			$this->getChartData ($chartArray, $contents);
+			$this->getChartData ($chartArray, $contents, $chartType);
 
 			$totalchartArray = (int)count($chartArray);
 
-			for ( $i = 0; $i < $totalchartArray; ++$i) {				
-				$data = $chartArray[$i];
+			for ( $i = 0; $i < $totalchartArray; ++$i) {		
 
+				$data = $chartArray[$i];
 
 				// clean data for missing values
 				$redline = ($data[$mode] == "-1" ? true : false);
-
 
 				// clean data for missing values
 				if (  (!$data[$mode]) ||  ($data[$mode] == null) || ($data[$mode] == "") || (int)$data[$mode] < 0)
@@ -290,7 +292,6 @@ class Network extends LoadAvg
 
 				$timedata = (int)$data[0];
 				$time[$net_rate] = date("H:ia", $timedata);
-
 
 				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
 					$timestamps[] = $data[0];
@@ -333,7 +334,7 @@ class Network extends LoadAvg
 			}
 		
 			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-
+/*
 				end($timestamps);
 				$key = key($timestamps);
 				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
@@ -345,6 +346,7 @@ class Network extends LoadAvg
 					$lastTimeString = $lastTimeString + 300;
 					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
 				}
+*/
 			}
 
 			$variables = array(
