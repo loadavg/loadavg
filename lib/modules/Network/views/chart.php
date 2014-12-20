@@ -64,8 +64,13 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 			$j++;
 			$chart = json_decode($chart);
 
-			// note that this will probably need to be fixed for PERIODS
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date, $interface);
+
+			//get data range we are looking at - need to do some validation in this routine
+			$dateRange = $this->getDateRange();
+
+			//get the log file NAME or names when there is a range
+			//returns multiple files when multiple log files
+			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module, $interface );
 
 			$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
 
@@ -76,34 +81,35 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 			//check if function takes settings via GET url_args 
 			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
-			if ( file_exists( $this->logfile )) {
+			if (!empty($this->logfile)) {
+
+			//if ( file_exists( $this->logfile[0][0] )) {
 				$i++;				
-				$logfileStatus = false;
+				$logfileStatus = true;
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
+					$stuff = $this->$caller( $functionSettings );
 				} else {
-					$stuff = $this->$caller( $logfileStatus );
+					$stuff = $this->$caller( );
 				}
 
 			} else {
+
 				//no log file so draw empty charts
 				$i++;				
-				$logfileStatus = true;
+				$logfileStatus = false;
+
 			}
 
 			?>
 
 
 
-
-
-
 			<?php
 			//if there is no logfile or error from the caller (stuff is false) 
 			//then we just build empty charts
-			if ( !isset($stuff) || $stuff == false || $logfileStatus == true ) {
+			if ( !isset($stuff) || $stuff == false || $logfileStatus == false ) {
 
 				$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
 

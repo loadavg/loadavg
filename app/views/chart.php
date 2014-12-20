@@ -19,7 +19,7 @@
 
 	//if there is no logfile or error from the caller (stuff is false) 
 	//then we just build empty charts
-	if ( !isset($stuff) || $stuff == false || $logfileStatus == true ) {
+	if ( !isset($stuff) || $stuff == false || $logfileStatus == false ) {
 
 		$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
 		$stuff['chart'] = $this->getEmptyChart();

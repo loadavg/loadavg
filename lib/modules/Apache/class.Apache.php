@@ -110,47 +110,25 @@ class Apache extends LoadAvg
 	 *
 	 */
 
-	public function getUsageData( $logfileStatus )
+	public function getUsageData( )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-		$contents = null;
+		//grab the log file data needed for the charts
+		$contents = array();
+		//$contents = LoadAvg::parseLogFileData($this->logfile);
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 
-		$replaceDate = self::$current_date;
-			
-		if ($logfileStatus == false ) {
+		//contents is now an array!!! not a string
+		// is this really faster than strlen ?
 		
-			if ( LoadAvg::$period ) {
-				$dates = self::getDates();
-				foreach ( $dates as $date ) {
-					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-						$replaceDate = $date;
-						if ( file_exists( $this->logfile ) )
-							$contents .= file_get_contents($this->logfile);
-					}
-				}
-			} else {
-				$contents = file_get_contents($this->logfile);
-			}
-
-		} else {
-
-			$contents = 0;
-		}
-
-		if (isset($contents{1})) {
-//		if ( strlen($contents) > 1 ) {
+		if (!empty($contents) && $logStatus) {
 			
-			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
 			$usageCount = array();
 			$dataArray = $dataArrayOver = array();
-
-			//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-			//	$timestamps = array();
 
 			$chartType = LoadAvg::$_settings->general['chart_type'];
 
@@ -203,22 +181,7 @@ class Apache extends LoadAvg
 
 			$apache_latest = ( ( $usage[count($usage)-1]  )    )    ;		
 
-
-/*
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				end($timestamps);
-				$key = key($timestamps);
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-				$lastTimeString = $timestamps[$key];
-				$difference = ( $endTime - $lastTimeString );
-				$loops = ( $difference / 300 );
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++ ) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-				}
-			}
-*/		
+		
 			$variables = array(
 				'apache_high' => number_format($apache_high,4),
 				'apache_high_time' => $apache_high_time,
@@ -286,8 +249,12 @@ class Apache extends LoadAvg
 		foreach ( $charts['args'] as $chart ) {
 			$chart = json_decode($chart);
 
-			//grab the log file for current date (current date can be overriden to show other dates)
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
+			//get data range we are looking at - need to do some validation in this routine
+			$dateRange = $this->getDateRange();
+
+			//get the log file NAME or names when there is a range
+			//returns multiple files when multiple log files
+			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
 
 			// find out main function from module args that generates chart data
 			// in this module its getData above
@@ -296,21 +263,24 @@ class Apache extends LoadAvg
 			//check if function takes settings via GET url_args 
 			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
-			if ( file_exists( $this->logfile )) {
+			if (!empty($this->logfile)) {
+			//if ( file_exists( $this->logfile[0][0] )) {
 				$i++;				
-				$logfileStatus = false;
+				$logfileStatus = true;
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
+					$stuff = $this->$caller( $functionSettings );
 				} else {
-					$stuff = $this->$caller( $logfileStatus );
+					$stuff = $this->$caller( );
 				}
 
 			} else {
+
 				//no log file so draw empty charts
 				$i++;				
-				$logfileStatus = true;
+				$logfileStatus = false;
+
 			}
 
 			//now draw chart to screen

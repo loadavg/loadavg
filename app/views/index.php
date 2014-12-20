@@ -106,12 +106,13 @@
 
             $i = 0;
 
+            //tabbed modules have more than 1 chart in them
             if (isset($moduleSettings['module']['tabbed']) && $moduleSettings['module']['tabbed'] == "true") {
                 if ($i == 1) break;
 
                 //echo 'NESTEDCHARTS:';
                 $class->genChart( $moduleSettings, $logdir );
-                $i++; //will this ever be hit ? as i = 1 breaks things
+                $i++; //will this ever be hit ? as i = 1 breaks things - yes its mean to only include genChart once
             } else {
                 //echo 'CORECHART:';
                 $class->genChart( $moduleSettings, $logdir );

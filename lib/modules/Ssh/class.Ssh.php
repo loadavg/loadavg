@@ -267,18 +267,16 @@ class Ssh extends LoadAvg
 	 */
 
 
-	public function getUsageData( $logfileStatus, $switch = 1)
+	public function getUsageData( $switch = 1)
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
+			
+		//grab the log file data needed for the charts
+		$contents = array();
+		//$contents = LoadAvg::parseLogFileData($this->logfile);
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 
-		$contents = null;
-
-		$replaceDate = self::$current_date;
-
-		//based on display mode here bossy
-		//and switch so we need switch
-		$displayMode =	$settings['settings']['display_limiting'];
 
 		//mode specific data is set up here
 		//1 == Accepted
@@ -299,36 +297,18 @@ class Ssh extends LoadAvg
 
 		$ssh_accept = $ssh_failed = $ssh_invalid = 0;
 
-		if ($logfileStatus == false ) {
+
+
+		//contents is now an array!!! not a string
+		// is this really faster than strlen ?
 		
-			if ( LoadAvg::$period ) {
-				$dates = self::getDates();
-				foreach ( $dates as $date ) {
-					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-						$replaceDate = $date;
-						if ( file_exists( $this->logfile ) )
-							$contents .= file_get_contents($this->logfile);
-					}
-				}
-			} else {
-				$contents = file_get_contents($this->logfile);
-			}
+		if (!empty($contents) && $logStatus) {
 
-		} else {
-
-			$contents = 0;
-		}
-
-		if ( strlen($contents) > 1 ) {
-			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
 			$swap = array();
 			$usageCount = array();
 			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataArraySwap = array();
-
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
 
 			$chartArray = array();
 
@@ -340,6 +320,9 @@ class Ssh extends LoadAvg
 			//data[1] = accepted 
 			//data[2] = failed_pass
 			//data[3] = invalid_user
+			
+			//based on display mode here bossy
+			$displayMode =	$settings['settings']['display_limiting'];
 
 
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
@@ -421,24 +404,8 @@ class Ssh extends LoadAvg
 			
 			$mem_low_time = $time[min($usage[1])];
 
-
-
 			$mem_latest = ( ( $usage[1][count($usage)-1]  )  )    ;		
 
-
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				end($timestamps);
-				$key = key($timestamps);
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-				$lastTimeString = $timestamps[$key];
-				$difference = ( $endTime - $lastTimeString );
-				$loops = ( $difference / 300 );
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++ ) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-				}
-			}
 		
 			// values used to draw the legend
 
@@ -526,46 +493,74 @@ class Ssh extends LoadAvg
 	 *
 	 */
 
+	/*
+	$stuff is array of:
 
-	public function genChart($moduleSettings, $logdir)
+		$info 
+			$line -> array of legend items
+
+		$chart -> 	chart data such as 
+					ymin, ymax, chart settings and main chart data array
+	*/
+
+	public function genChart($moduleSettings)
 	{
+
+		//get chart settings for module
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
 		$module = __CLASS__;
+
+		//this loop is for modules that have multiple charts in them - like mysql and network
 		$i = 0;
 		foreach ( $charts['args'] as $chart ) {
 			$chart = json_decode($chart);
 
 			//grab the log file for current date (current date can be overriden to show other dates)
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
+			//problem when overiding dates with new format ? why ?
+			//$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
+
+			//get data range we are looking at - need to do some validation in this routine
+			$dateRange = $this->getDateRange();
+
+			//get the log file NAME or names when there is a range
+			//returns multiple files when multiple log files
+			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
+
 
 			// find out main function from module args that generates chart data
-			// in this module its getData above
+			// in this module its getUSageData above
 			$caller = $chart->function;
 
 			//check if function takes settings via GET url_args 
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '1' );
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) 
+				? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
-			if ( file_exists( $this->logfile )) {
+			//need to update for when more than 1 logfile ?
+			//cant do file exists here
+			if (!empty($this->logfile)) {
+
+			//if ( file_exists( $this->logfile[0][0] )) {
 				$i++;				
-				$logfileStatus = false;
+				$logfileStatus = true;
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
+					$stuff = $this->$caller( $functionSettings );
 				} else {
-					$stuff = $this->$caller( $logfileStatus );
+					$stuff = $this->$caller(  );
 				}
 
 			} else {
 				//no log file so draw empty charts
 				$i++;				
-				$logfileStatus = true;
+				$logfileStatus = false;
 			}
 
 			//now draw chart to screen
 			include APP_PATH . '/views/chart.php';
 		}
 	}
+
 }
 

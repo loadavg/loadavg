@@ -74,7 +74,7 @@ $loadavg->setStartTime(); // Setting page load start time
 $loaded = LoadAvg::$_settings->general['modules']; 
 
 //grab the log diretory
-$logdir = HOME_PATH . '/logs/';
+$logdir = LOG_PATH;
 
 
 //check to see if ip is banned before going on

@@ -194,28 +194,7 @@ class Processor extends LoadAvg
 
 	}
 
-/*
-	//this was added to main loadavg class
 
-	public function getProcStats (array &$data, $theLine = 0) 
-	{
-
-        //we grab data from proc/stat in one pass as it changes as you read it
-  		$stats = file('/proc/stat'); 
-
-  		//if array is emoty we didnt work
-		if($stats === array())
-        	return false;
-
-        //echo 'STATS:' . $stats[1];
-
-        //grab cpu data
-		$data = explode(" ", preg_replace("!cpu +!", "", $stats[$theLine])); 
-
-       return true; 
-
-	}
-*/
 
 	/**
 	 * getData
@@ -230,7 +209,7 @@ class Processor extends LoadAvg
 	//switch needs to pull chart data for selected processor
 	//with default being summary data
 
-	public function getUsageData( $logfileStatus, $switch ) 
+	public function getUsageData(  $switch ) 
 	{
 
 		//hard coded for testing to fir data value - 
@@ -248,45 +227,21 @@ class Processor extends LoadAvg
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-		$contents = null;
-	
-		$replaceDate = self::$current_date;
+		//grab the log file data needed for the charts
+		$contents = array();
+		//$contents = LoadAvg::parseLogFileData($this->logfile);
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 		
-		if ($logfileStatus == false ) {
-		
-			if ( LoadAvg::$period ) {
-				$dates = self::getDates();
-				foreach ( $dates as $date ) {
-					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-						$replaceDate = $date;
-						if ( file_exists( $this->logfile ) )
-							$contents .= file_get_contents($this->logfile);
-					}
-				}
-			} else {
-				$contents = file_get_contents($this->logfile);
-			}
 
-		} else {
-
-			$contents = 0;
-		}
-
-
+		//contents is now an array!!! not a string
 		// is this really faster than strlen ?
-		if (isset($contents{1})) {
-		//if ( strlen($contents) > 1 ) {
+		
+		if (!empty($contents) && $logStatus) {
 
-			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
 			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataRedline = array();
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				//echo "24 hour";
-				$timestamps = array();
-			}
 			/*
 			 * build the chartArray array here and patch to check for downtime
 			 */
@@ -365,28 +320,6 @@ class Processor extends LoadAvg
 				$ymax = $processor_high;
 			}
 
-			/////////////////////////////////////////////////////////////
-			//what exactly does this do ?
-			//disabling it does nothing 
-
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				/*
-				end($timestamps);
-				$key = key($timestamps);
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-
-				//echo 'endtimne: ' . $endTime;
-
-				$lastTimeString = $timestamps[$key];
-				$difference = ( $endTime - $lastTimeString );
-				$loops = ( $difference / 300 );
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-				}
-				*/
-			}
 
 			$variables = array(
     	        'processor_high' => number_format($processor_high,3),

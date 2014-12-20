@@ -79,6 +79,7 @@ class Cpu extends LoadAvg
 
 	}
 
+
 	/**
 	 * getData
 	 *
@@ -89,54 +90,29 @@ class Cpu extends LoadAvg
 	 *
 	 */
 
-	public function getUsageData( $logfileStatus, $switch ) 
+	public function getUsageData( $switch ) 
 	{
 
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
-
-		$contents = null;
-	
-		$replaceDate = self::$current_date;
-		
-		if ($logfileStatus == false ) {
-		
-			if ( LoadAvg::$period ) {
-				$dates = self::getDates();
-				foreach ( $dates as $date ) {
-					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-						$replaceDate = $date;
-						if ( file_exists( $this->logfile ) )
-							$contents .= file_get_contents($this->logfile);
-					}
-				}
-			} else {
-				$contents = file_get_contents($this->logfile);
-			}
-
-		} else {
-
-			$contents = 0;
-		}
+			
+		//grab the log file data needed for the charts
+		$contents = array();
+		//$contents = LoadAvg::parseLogFileData($this->logfile);
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 
 
+		//contents is now an array!!! not a string
 		// is this really faster than strlen ?
-		if (isset($contents{1})) {
-		//if ( strlen($contents) > 1 ) {
+		
+		if (!empty($contents) && $logStatus) {
 
-			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
 			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataRedline = array();
 
 			$chartType = LoadAvg::$_settings->general['chart_type'];
 
-			/*
-			if ( $chartType == "24" ) {
-				$timestamps = array();
-			} 
-			*/
 			
 			/*
 			 * build the chartArray array here and patch to check for downtime
@@ -145,6 +121,7 @@ class Cpu extends LoadAvg
 			$chartArray = array();
 
 			//pass chart type to get data for 6, 12 or 24 hours
+			//$this->getChartData ($chartArray, $contents, $chartType );
 			$this->getChartData ($chartArray, $contents, $chartType );
 
 			$totalchartArray = (int)count($chartArray);
@@ -207,43 +184,10 @@ class Cpu extends LoadAvg
 				$ymin = $cpu_low;
 				$ymax = $cpu_high;
 			}
-
-			/////////////////////////////////////////////////////////////
-			//what exactly does this do ?
-			//disabling it does nothing 
-			//300 is logger interval of 5 minutes
-			//i beleive this adds a padding to the end of the array based on time left to fill array
-			//but since charts are rendered chronologically left to right
-			//this is no longer needed and is dead code
-
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-/*
-				//get key for last timestamp here
-				end($timestamps);
-				$key = key($timestamps);
-				
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-				//echo 'endtime: ' . $endTime;
-
-				$lastTimeString = $timestamps[$key];
-				//echo 'lastTimeString: ' . $lastTimeString;
-
-				$difference = ( $endTime - $lastTimeString );
-				//echo 'difference: ' . $difference;
-				
-				$loops = ( $difference / 300 );
-				//echo 'loops: ' . $loops;
-
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-				}
-*/
-			} 		
+		
 
 			$variables = array(
-    	        'cpu_high' => number_format($cpu_high,3),
+    	        'cpu_high' => number_format((double)$cpu_high,3),
                 'cpu_high_time' => $cpu_high_time,
                 'cpu_low' => number_format($cpu_low,3),
                 'cpu_low_time' => $cpu_low_time,
@@ -293,7 +237,6 @@ class Cpu extends LoadAvg
 		}
 	}
 
-
 	/**
 	 * genChart
 	 *
@@ -314,45 +257,63 @@ class Cpu extends LoadAvg
 					ymin, ymax, chart settings and main chart data array
 	*/
 
-	public function genChart($moduleSettings, $logdir)
+	public function genChart($moduleSettings)
 	{
+
+		//get chart settings for module
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
 		$module = __CLASS__;
+
+		//this loop is for modules that have multiple charts in them - like mysql and network
 		$i = 0;
 		foreach ( $charts['args'] as $chart ) {
 			$chart = json_decode($chart);
 
 			//grab the log file for current date (current date can be overriden to show other dates)
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
+			//problem when overiding dates with new format ? why ?
+			//$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
+
+			//get data range we are looking at - need to do some validation in this routine
+			$dateRange = $this->getDateRange();
+
+			//get the log file NAME or names when there is a range
+			//returns multiple files when multiple log files
+			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
+
 
 			// find out main function from module args that generates chart data
-			// in this module its getData above
+			// in this module its getUSageData above
 			$caller = $chart->function;
 
 			//check if function takes settings via GET url_args 
 			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) 
 				? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
-			if ( file_exists( $this->logfile )) {
+			//need to update for when more than 1 logfile ?
+			//cant do file exists here
+			if (!empty($this->logfile)) {
+
+			//if ( file_exists( $this->logfile[0][0] )) {
 				$i++;				
-				$logfileStatus = false;
+				$logfileStatus = true;
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
+					$stuff = $this->$caller( $functionSettings );
 				} else {
-					$stuff = $this->$caller( $logfileStatus );
+					$stuff = $this->$caller(  );
 				}
 
 			} else {
 				//no log file so draw empty charts
 				$i++;				
-				$logfileStatus = true;
+				$logfileStatus = false;
 			}
 
 			//now draw chart to screen
 			include APP_PATH . '/views/chart.php';
 		}
 	}
+
 }

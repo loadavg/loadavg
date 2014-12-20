@@ -61,11 +61,8 @@ class Mysql extends LoadAvg
 		} 
 
 		$query1 = mysqli_query($connection, "SHOW GLOBAL STATUS LIKE 'Bytes_received'") ;
-
 		$query2 = mysqli_query($connection, "SHOW GLOBAL STATUS LIKE 'Bytes_sent'") ;
-
 		$query3 = mysqli_query($connection, "SHOW GLOBAL STATUS LIKE 'Queries'") ;
-
 
 		//write the results
 		$row = mysqli_fetch_array($query1);
@@ -192,15 +189,16 @@ class Mysql extends LoadAvg
 	 *
 	 */
 	
-	public function getData( $logfileStatus, $useData = 1)
+	public function getData( $useData = 1)
 	{
+
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-		$contents = null;
-
-		$replaceDate = self::$current_date;
-
+		//grab the log file data needed for the charts
+		$contents = array();
+		//$contents = LoadAvg::parseLogFileData($this->logfile);
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 
 		//mode specific data is set up here
 		//1 == Transmit
@@ -219,31 +217,12 @@ class Mysql extends LoadAvg
 						break;
 		}
 
-		if ($logfileStatus == false ) {
+
+		//contents is now an array!!! not a string
+		// is this really faster than strlen ?
 		
-			if ( LoadAvg::$period ) {
-				$dates = self::getDates();
-				foreach ( $dates as $date ) {
-					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-						$replaceDate = $date;
-						if ( file_exists( $this->logfile ) )
-							$contents .= file_get_contents($this->logfile);
-					}
-				}
-			} else {
-				$contents = file_get_contents($this->logfile);
-			}
+		if (!empty($contents) && $logStatus) {
 
-		} else {
-
-			$contents = 0;
-		}
-
-//		if ( strlen($contents) > 1 ) {
-		if (isset($contents{1})) {
-
-			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
 			$swap = array();
@@ -369,9 +348,9 @@ class Mysql extends LoadAvg
 	 *
 	 */
 	
-	public function getTransferData( $logfileStatus )
+	public function getTransferData(  )
 	{
-		$returnStatus = $this->getData( $logfileStatus, 1 );
+		$returnStatus = $this->getData(  1 );
 		
 		return $returnStatus;	
 	}
@@ -386,9 +365,9 @@ class Mysql extends LoadAvg
 	 *
 	 */
 	
-	public function getReceiveData( $logfileStatus)
+	public function getReceiveData( )
 	{
-		$returnStatus = $this->getData( $logfileStatus, 2 );
+		$returnStatus = $this->getData(  2 );
 		
 		return $returnStatus;			
 	}
@@ -402,9 +381,9 @@ class Mysql extends LoadAvg
 	 *
 	 */
 	
-	public function getQueryData( $logfileStatus)
+	public function getQueryData( )
 	{
-		$returnStatus = $this->getData( $logfileStatus, 3 );
+		$returnStatus = $this->getData( 3 );
 		
 		return $returnStatus;			
 	}

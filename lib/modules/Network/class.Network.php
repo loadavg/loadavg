@@ -219,9 +219,16 @@ class Network extends LoadAvg
 
 	public function getData( $mode = 1 )
 	{
+		$logfileStatus = true;
+
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
-		$contents = null;
+
+		//grab the log file data needed for the charts
+		$contents = array();
+		//$contents = LoadAvg::parseLogFileData($this->logfile);
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
+
 
 		//set up data that is based on mode
 		switch ( $mode) {
@@ -240,27 +247,11 @@ class Network extends LoadAvg
 						break;
 		}
 
-		$replaceDate = self::$current_date;
+		//contents is now an array!!! not a string
+		// is this really faster than strlen ?
 
-		if ( LoadAvg::$period ) {
-			$dates = self::getDates();
-			foreach ( $dates as $date ) {
-				if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-					$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-					$replaceDate = $date;
-					if ( file_exists( $this->logfile ) ) {
-						$contents .= file_get_contents($this->logfile);
-					}
-				}
-			}
-		} else {
-			$contents = @file_get_contents($this->logfile);
-		}
-		
-		if (isset($contents{1})) {
-	//	if ( strlen($contents) > 1 ) {
+		if (!empty($contents) && $logStatus) {
 
-			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
 			$dataArray = $dataArrayOver = array();
@@ -333,22 +324,6 @@ class Network extends LoadAvg
 				$ymax = $net_high;
 			}
 		
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-/*
-				end($timestamps);
-				$key = key($timestamps);
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-				$lastTimeString = $timestamps[$key];
-				$difference = ( $endTime - $lastTimeString );
-				$loops = ( $difference / 300 );
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-				}
-*/
-			}
-
 			$variables = array(
 				'net_high' => $net_high,
 				'net_high_time' => $net_high_time,

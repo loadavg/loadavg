@@ -65,7 +65,8 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 		$j = 0;
 
 		//show or skip last chart
-		$showqueries = $moduleSettings['settings']['show_queries'];
+		//$showqueries = null;
+		//$showqueries = $moduleSettings['settings']['show_queries'];
 
 		/* draw charts for each subchart as per args will be Transmit and receive */
 
@@ -78,43 +79,43 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 
 			//this is to switch between differet chart modes
 			//if set to show queries skip charts 1 and 2
-			if ( ( ( $showqueries == "true" ) && ( $j == 1 || $j == 2) ) || ( $showqueries == "false" && $j == 3) )
-				continue;
+			//if ( ( ( $showqueries == "true" ) && ( $j == 1 || $j == 2) ) || ( $showqueries == "false" && $j == 3) )
+			//	continue;
 
 			$chart = json_decode($chart);
 
-			// note that this will probably need to be fixed for PERIODS
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
+			//get data range we are looking at - need to do some validation in this routine
+			$dateRange = $this->getDateRange();
+
+			//get the log file NAME or names when there is a range
+			//returns multiple files when multiple log files
+			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
 
 			// find out main function from module args that generates chart data
 			// in this module its getData above
 			$caller = $chart->function;
 
-			//check if function takes settings via GET url_args and if so set up defualt
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) 
-				? $_GET[$moduleSettings['module']['url_args']] : '1' );
+			//check if function takes settings via GET url_args 
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
-			//echo 'FS: ' . $functionSettings;
-
-			if ( file_exists( $this->logfile )) {
+			if (!empty($this->logfile)) {
+			//if ( file_exists( $this->logfile[0][0] )) {
 				$i++;				
-				$logfileStatus = false;
+				$logfileStatus = true;
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-								//echo 'YES: ' . $functionSettings;
-
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
+					$stuff = $this->$caller( $functionSettings );
 				} else {
-								//echo 'NO: ' . $functionSettings;
-
-					$stuff = $this->$caller( $logfileStatus );
+					$stuff = $this->$caller(  );
 				}
 
 			} else {
+
 				//no log file so draw empty charts
 				$i++;				
-				$logfileStatus = true;
+				$logfileStatus = false;
+
 			}
 
 			?>
@@ -122,27 +123,14 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 
 		<?php
 
-		//if there is no logfile or error from the caller (stuff is false) 
-		//then we just build empty charts
-		if ( !isset($stuff) || $stuff == false || $logfileStatus == true ) {
+			//if there is no logfile or error from the caller (stuff is false) 
+			//then we just build empty charts
+			if ( !isset($stuff) || $stuff == false || $logfileStatus == false ) {
 
-			$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
+				$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
 
-			////////////////////////////////////////////////////////////////////////////
-			//this data can be created in charts.php really if $datastring is null ?
-			//or add a flag to the array for chartdata here...
-			$stuff['chart'] = array(
-				'chart_format' => 'line',
-				'ymin' => 0,
-				'ymax' => 1,
-				'xmin' => date("Y/m/d 00:00:01"),
-				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => 0,
-				'dataset_1_label' => "No Data",
-				'dataset_1' => "[[0, '0.00']]"
-			);
-		
-		}
+				$stuff['chart'] = $this->getEmptyChart();
+			}
 
 		?>
 

@@ -23,5 +23,5 @@ threshold_transfer = 15
 threshold_receive = 15
 transfer_cutoff = 16
 receive_cutoff = 16
-receive_limiting = "true"
+receive_limiting = "false"
 transfer_limiting = "false"

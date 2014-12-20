@@ -75,6 +75,9 @@ class Disk extends LoadAvg
 			return true;		
 	}
 
+
+
+
 	/**
 	 * getDiskUsageData
 	 *
@@ -84,39 +87,40 @@ class Disk extends LoadAvg
 	 *
 	 */
 	
-	public function getUsageData( $logfileStatus )
+	public function getUsageData(  )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-		$contents = null;
+		//grab the log file data needed for the charts
+		$contents = array();
 
-		$replaceDate = self::$current_date;
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
+
+
+			/*
+			for collectd data is as follows...
+			 0 - timestamp
+			 1 - free
+			 2 - reserved
+			 3 - used
+
+			$used =  2 + 3;
+			$space = 1 + 2 + 3;
 			
-		if ($logfileStatus == false ) {
-		
-			if ( LoadAvg::$period ) {
-				$dates = self::getDates();
-				foreach ( $dates as $date ) {
-					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-						$replaceDate = $date;
-						if ( file_exists( $this->logfile ) )
-							$contents .= file_get_contents($this->logfile);
-					}
-				}
-			} else {
-				$contents = file_get_contents($this->logfile);
-			}
+			*/
 
-		} else {
+			/*
+			for loadavg is
+			 0 - timestamp
+			 1 - used
+			 2 - space
+			 3 - swap not used any more
+			*/
 
-			$contents = 0;
-		}
+		//contents is now an array!!! not a string		
+		if (!empty($contents) && $logStatus) {
 
-		if ( strlen($contents) > 1 ) {
-			
-			$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
 			$usageCount = array();
@@ -129,7 +133,8 @@ class Disk extends LoadAvg
 
 			$chartArray = array();
 
-			$this->getChartData ($chartArray, $contents, $chartType);
+			//dont eed to pass logger here any more...
+			$this->getChartData ($chartArray, $contents, $chartType );
 
 			$totalchartArray = (int)count($chartArray);
 
@@ -137,7 +142,17 @@ class Disk extends LoadAvg
 			//is it better before loop or in loop
 			//what happens if you resize disk on the fly ? in loop would be better
 			$diskSize = 0;
-			$diskSize = $chartArray[$totalchartArray-1][2] / 1048576;
+
+			//map the collectd disk size to our disk size here
+			if ( LOGGER == "collectd")
+			{	
+				$diskSize = ( 	$chartArray[$totalchartArray-1][1] + 
+								$chartArray[$totalchartArray-1][2] + 
+								$chartArray[$totalchartArray-1][3] ) / 1048576;
+			} else {
+
+				$diskSize = $chartArray[$totalchartArray-1][2] / 1048576;
+			}
 
 			// get from settings here for module
 			// true - show MB
@@ -156,6 +171,18 @@ class Disk extends LoadAvg
 
 				// clean data for missing values
 				$redline = ($this->checkRedline($data));
+
+				//map the collectd data to our data here
+				if ( LOGGER == "collectd")
+				{
+
+					$used =  $data[2] + $data[3]; 
+					$space = $data[1] + $data[2] + $data[3];
+
+					$data[1] = $used;
+					$data[2] = $space;
+
+				}
 
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
@@ -234,22 +261,6 @@ class Disk extends LoadAvg
 
 			$disk_total = $diskSize;
 			$disk_free = $disk_total - $disk_latest;
-
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				/*
-				end($timestamps);
-				$key = key($timestamps);
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-				$lastTimeString = $timestamps[$key];
-				$difference = ( $endTime - $lastTimeString );
-				$loops = ( $difference / 300 );
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++ ) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-				}
-				*/
-			}
 		
 			$variables = array(
 				'disk_high' => number_format($disk_high,2),
@@ -298,7 +309,6 @@ class Disk extends LoadAvg
 		}
 	}
 
-
 	/**
 	 * genChart
 	 *
@@ -318,8 +328,12 @@ class Disk extends LoadAvg
 		foreach ( $charts['args'] as $chart ) {
 			$chart = json_decode($chart);
 
-			//grab the log file for current date (current date can be overriden to show other dates)
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
+			//get data range we are looking at - need to do some validation in this routine
+			$dateRange = $this->getDateRange();
+
+			//get the log file NAME or names when there is a range
+			//returns multiple files when multiple log files
+			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
 
 			// find out main function from module args that generates chart data
 			// in this module its getData above
@@ -328,21 +342,23 @@ class Disk extends LoadAvg
 			//check if function takes settings via GET url_args 
 			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
-			if ( file_exists( $this->logfile )) {
+			if (!empty($this->logfile)) {
+			//if ( file_exists( $this->logfile[0][0] )) {
 				$i++;				
-				$logfileStatus = false;
+				$logfileStatus = true;
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
+					$stuff = $this->$caller(  $functionSettings );
 				} else {
-					$stuff = $this->$caller( $logfileStatus );
+					$stuff = $this->$caller(  );
 				}
 
 			} else {
+
 				//no log file so draw empty charts
 				$i++;				
-				$logfileStatus = true;
+				$logfileStatus = false;
 
 			}
 
@@ -350,4 +366,5 @@ class Disk extends LoadAvg
 			include APP_PATH . '/views/chart.php';
 		}
 	}
+
 }

@@ -22,3 +22,5 @@ line[] = '{"format":"Free: %s MB","args":"disk_free"}'
 overload = 90
 drive = "/"
 display_limiting = "false"
+[collectd]
+args[] = '{"name":"df-root","functions":["df_complex-free","df_complex-reserved","df_complex-used"]}'

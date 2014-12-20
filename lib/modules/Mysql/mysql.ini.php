@@ -23,4 +23,4 @@ overload = 2048
 mysqlserver = "localhost"
 mysqluser = "root"
 mysqlpassword = "vision7"
-show_queries = "true"
+show_queries = "false"

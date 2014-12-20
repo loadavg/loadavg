@@ -446,13 +446,9 @@ class LoadAvg
 	}
 
 
-	/**
-	 * getUIcookie
-	 *
-	 * used to get status of accordions - collapsed or visable from the loadUI cookie
-	 * using code to manage accordion state is in common.js
-	 *
-	 */
+	//used to get status of accordions - collapsed or visable
+	//from the loadUI cookie
+	//using code to manage accordion state is in common.js
 
 	public function getUIcookie ( &$data1,  &$data2, $module) 
 	{
@@ -488,13 +484,7 @@ class LoadAvg
 
 	}
 
-	/**
-	 * getProcStats
-	 *
-	 * parses /proc/stat and returns line $theLine
-	 * move this out into functions really
-	 *
-	 */
+	//parses /proc/stat and returns line $theLine
 
 	public function getProcStats (array &$data, $theLine = 0) 
 	{
@@ -516,13 +506,7 @@ class LoadAvg
 	}
 
 
-	/**
-	 * checkRedline
-	 *
-	 * checks for redline in array in charting modules
-	 * move this out into functions really
-	 *
-	 */
+
 
 
 	function checkRedline (array &$data) 
@@ -543,13 +527,7 @@ class LoadAvg
 
 	}
 
-	/**
-	 * getDateRange
-	 *
-	 * gets the current data or date range and returns to module
-	 * will return date range or current date if no range
-	 *
-	 */
+
 
 	public function getDateRange ()
 	{
@@ -583,13 +561,6 @@ class LoadAvg
 	}
 
 
-	/**
-	 * getLogFile
-	 *
-	 * gets log file name or multiple log file names for a range of dates depending on logger
-	 * and retunrs to module in a array to parse later on
-	 *
-	 */
 
 	public function getLogFile( $moduleTemplate, $dateRange, $moduleName, $interface = null  )
 	{
@@ -662,14 +633,10 @@ class LoadAvg
 		}			
 	}
 
-	/**
-	 * parseLogFileData
-	 *
-	 * returns data from inside log file in array
-	 * if $data is array then grabs multiple files of data - needed when log data is
-	 * split acorss mutiple files
-	 *
-	 */
+
+
+	//returns data fro inside log file in array
+	//if $data is array then grabs multiple files of data
 
 	public function parseLogFileData( $data, &$newDataArray  )
 	{
@@ -682,12 +649,19 @@ class LoadAvg
 		$contents = "";
 		$loop = 0;
 
+		//echo '<pre>contents:<br>';
+		//print_r($data);
+		//echo '</pre>';
+
 		//loops through each DAY of data as per the depth of the array
 		$singleloop = false;
 
 		foreach ($data as $dataKey => $dataData) {
 	    	
-	    	//for single log files no problem just read it in
+	    	//for multi dimensional arrays means many log files
+	    	//how do we send this to be parsed ?
+	    	//if dataData[0] alone then no problem ?
+
 			if  ( count($dataData) == 1) {
 
 				if ( file_exists( $dataData[0] )) {
@@ -711,11 +685,11 @@ class LoadAvg
 
 			}
 
-			//if there are multiple log files parse it in using
-			//getDimensionalLogFileData function below
+			//if there are multiple log files parse them in using
+			//getLogFileData function below
 			if  ( count($dataData) > 1) {
 
-				$contents = $this->getDimensionalLogFileData($dataData);
+				$contents = $this->getLogFileData($dataData);
 				$DataArray = array_merge($newDataArray, $contents);
 				$newDataArray = $DataArray;
 
@@ -727,18 +701,17 @@ class LoadAvg
 	}
 
 
-	/**
-	 * getDimensionalLogFileData
-	 *
-	 * used when there are multiple log files making up a data point
-	 *
-	 */
 
-	public function getDimensionalLogFileData( $data  )
+	public function getLogFileData( $data  )
 	{
+
+		//echo 'starting';
 
 		//we need to loop through data and build conetnts array which is exploded array
 		//of data files read from disk!
+
+		//note delimeter is always comma here
+		//as currently this is only for collectd csv files
 
 		$loop = 0;
 		$arraysize = 0;
@@ -754,17 +727,16 @@ class LoadAvg
 			}
 		}
 
+		//echo 'arraysize : ' . $arraysize . '<br>';
+
 		//now we loop through mycontents and build thenew array
 		$thenewarray = null;
-
-		//note delimeter is always comma here as currently this is only for collectd csv files
-		$delimiter = ",";
 
 		for ($dataloop = 0; $dataloop < $arraysize; $dataloop++) {
 
 			$loop = 0;
 			foreach ($mycontents[$dataloop] as &$value) {
-				$thedata = explode($delimiter , $value);
+				$thedata = explode("," , $value);
 
 				//for first data set grab timestamp
 				if ($dataloop==0)
@@ -774,38 +746,49 @@ class LoadAvg
 				$thenewarray[$dataloop+1][$loop] = isset($thedata[1]) ? $thedata[1] : null;
 			    $loop++;
 			}
-			unset($value); // break the reference with the last element
+		} 
+
+		//clean the arrays here - maybe overkill as we stick up array below
+		//removes csv header and removes footer
+
+		//will do this after stitiching up below to save on operations
+		for ($dataloop = 0; $dataloop <= $arraysize; $dataloop++) {
+
+			array_shift($thenewarray[$dataloop]);
+
+			//really need to do for all not for the one...
+			if ( end($thenewarray[$dataloop]) == null || end($thenewarray[$dataloop]) == "" )
+				array_pop($thenewarray[$dataloop]);
 
 		} 
 
 
 		//////////////////////////////////////////////////////
-		//now build data  - stich it up
-
+		//now build data in our format - stich it up
+		//need to do generic format and move orderig to module to deal with
+		
 		$finaldata = "";
 		$loop = 0;
 		foreach ($thenewarray[0] as &$value) {
+			//if ($loop==0) continue;
 
-			$dataString = "";
-			for ($dataloop = 0; $dataloop <= $arraysize; $dataloop++) {
-				$dataString .= $thenewarray[$dataloop][$loop] . ",";
-			}
-			
-			//need to kill the last "," here as its not needed ?
-			$dataString = substr($dataString, 0, -1);
-			$finaldata[$loop] = $dataString;
+			$timestamp = $thenewarray[0][$loop];			
+			$usedBytes = $thenewarray[2][$loop] + $thenewarray[3][$loop];
+			$spaceBytes = $thenewarray[1][$loop] + $thenewarray[2][$loop] + $thenewarray[3][$loop];
+
+			$finaldata[$loop] = $timestamp . "," . $usedBytes . "," . $spaceBytes . "," . "0.0";
 
 		    $loop++;
-
 		}
-		unset($value); 
+		unset($value); // break the reference with the last element
 
-		//clean final array of dead data values as csv files have headers
-		array_shift($finaldata);
+		//array_pop($finaldata);
 
-		//collectd csv files also have a empty last row so kill that
-		if ( end($finaldata) == null || end($finaldata) == "" )
-				array_pop($finaldata);
+		//echo '<pre>';
+		//var_dump($finaldata);
+		//echo '</pre>';
+		//$contents = $finaldata;
+
 
 		return $finaldata;		
 		

@@ -14,7 +14,7 @@
 * later.
 */
 
-ini_set('display_errors', 'Off');
+ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
 
@@ -26,7 +26,8 @@ $current_filename = $slash[count($slash) - 1];
 $host_url = str_replace($current_filename, "", getenv("SCRIPT_NAME"));
 $ROOT_PATH = dirname ($host_url);
 
-//add trailing slash
+//add trailing slash..
+//need to check also if it dont end in a / ?
 if ( $ROOT_PATH != "/") $ROOT_PATH = $ROOT_PATH . "/";
 
 
@@ -44,6 +45,18 @@ defined('HOME_PATH') || define('HOME_PATH', realpath(dirname(__FILE__) ));
 
 /* Application PATH */
 defined('APP_PATH') || define('APP_PATH', realpath(dirname(__FILE__) . '/app'));
+
+/* log PATH */
+defined('LOGGER') || define('LOGGER',  'loadavg' );
+defined('LOG_PATH') || define('LOG_PATH',  HOME_PATH . '/logs/' );
+
+/* for collectd support  */
+//defined('LOGGER') || define('LOGGER',  'collectd' );
+//defined('COLLECTD_PATH') || define('COLLECTD_PATH',  '/var/lib/collectd/csv/localhost/' );
+
+
+
+
 
 // Add lib/ to include_path
 set_include_path(implode(PATH_SEPARATOR, array(
