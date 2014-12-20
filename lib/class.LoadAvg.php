@@ -825,10 +825,13 @@ class LoadAvg
 	   can be expanded on to get a subset with starttime / endtime 
 	 */
 
+//parses contents
+//returns in chartData
 
 	function getChartData (array &$chartData, array &$contents,  $dataSet = 24 ) 
 	{				
-		
+
+
 		//delimiter is based on logger type 
 		$delimiter = "";
 		switch ( LOGGER ) {
@@ -869,71 +872,84 @@ class LoadAvg
 
 			$dataNeeded = 12 * $dataSet; 
 
+			//TODO: only trim if there is more than we need...
 			$contents = array_slice($contents, ($totalContents - $dataNeeded) );     
 		}
 
-
+		//get size of array for parsig
 		$totalContents= (int)count( $contents );
 
 
+		//if there is only one item in data set then we just chart it
+		if ($totalContents == 1) {
 
-		//for ( $i = 0; $i < $totalContents-1; $i++) {
-		for ( $i = 0; $i < $totalContents-1; ++$i) {
+			$data = explode($delimiter, $contents[0]);
+			$chartData[0] = $data;
 
-			//used to pull a section of charts
-			//if ($i == 20) break;
+		} else {
 
-			$data = explode($delimiter, $contents[$i]);
-			$nextData = explode($delimiter, $contents[$i+1]);
 
-			//load chartData
-			$chartData[$i] = $data;
-			
-			//difference in timestamps
-			$difference = $nextData[0] - $data[0];
+			//if there is more than one item in dataset then we can check for downtime between points
+			//subtract one from totalContents as arrays start at 0 not 1
 
-			/*
-			 * check if difference is more than logging interval and patch
-			 * we patch for time between last data (system went down) and next data (system came up)
-			 * need to check if we need the nextData patch as well ie if system came up within 
-			 * the next interval time
-			 * 
-			 * for local data we dont check the first value in the data set
-			 */
-			if ($i > 0) {
+			for ( $i = 0; $i <= $totalContents-1; ++$i) {
 
-				if ( $difference >= $interval ) {
+				//used to pull a section of charts for data set zooming 
+				//if ($i == 20) break;
 
-					//echo 'patch difference:' . $difference;
+				$data = explode($delimiter, $contents[$i]);
+				$chartData[$i] = $data;
 
-					$patch[$numPatches] = array(  ($data[0]+$interval), "-1", "-1", "-1", $i);
-					$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "-1", "-1", "-1", $i);
 
-					$numPatches += 2;
-				}	
+				/*
+				 * check if difference is more than logging interval and patch
+				 * we patch for time between last data (system went down) and next data (system came up)
+				 * need to check if we need the nextData patch as well ie if system came up within 
+				 * the next interval time
+				 * 
+				 * for local data we dont check the first value in the data set
+				 */
+				if ($i > 0 && $i < $totalContents-1 ) {
+
+				//dont do this for last value in dataset! as it can have no difference
+				$nextData = explode($delimiter, $contents[$i+1]);
+				
+				//difference in timestamps
+				$difference = $nextData[0] - $data[0];
+
+					if ( $difference >= $interval ) {
+
+						//echo 'patch difference:' . $difference;
+
+						$patch[$numPatches] = array(  ($data[0]+$interval), "-1", "-1", "-1", $i);
+						$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "-1", "-1", "-1", $i);
+
+						$numPatches += 2;
+					}	
+				}
 			}
+
 		}
 		
 		//iterates through the patcharray and patches dataset
 		//by adding patch points
 		$totalPatch= (int)count( $patch );
-
 		//echo "PATCHCOUNT: " . $totalPatch . "<br>";
 
-		for ( $i = 0; $i < $totalPatch ; ++$i) {
-				
-				$patch_time = ( ($patch[$i][4]) + $i );
-				
-				// this unset should work to drop recorded patch time ? 
-				// but messes up sizeof patcharray				
-				$thepatch[0] = array ( $patch[$i][0] , $patch[$i][1] , $patch[$i][2] , $patch[$i][3] );
+		if ($totalPatch >0) {
 
-				//print_r ($thepatch); echo "<br>";
+			for ( $i = 0; $i < $totalPatch ; ++$i) {
+					
+					$patch_time = ( ($patch[$i][4]) + $i );
+					
+					// this unset should work to drop recorded patch time ? 
+					// but messes up sizeof patcharray				
+					$thepatch[0] = array ( $patch[$i][0] , $patch[$i][1] , $patch[$i][2] , $patch[$i][3] );
 
-				array_splice( $chartData, $patch_time, 0, $thepatch );
+					array_splice( $chartData, $patch_time, 0, $thepatch );
+	        		//echo "PATCHED: " . $patch_time . " count: " . count( $chartData ) . "<br>";
 
-        		//echo "PATCHED: " . $patch_time . " count: " . count( $chartData ) . "<br>";
-
+			}
 		}
 
 		//echo "PATCHARRAYPATCHED: " . count( $chartData ) . "<br>";

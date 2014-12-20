@@ -97,7 +97,6 @@ class Disk extends LoadAvg
 
 		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 
-
 			/*
 			for collectd data is as follows...
 			 0 - timestamp
@@ -134,6 +133,7 @@ class Disk extends LoadAvg
 			$chartArray = array();
 
 			//dont eed to pass logger here any more...
+			//this kills data if data is just one valie why ?
 			$this->getChartData ($chartArray, $contents, $chartType );
 
 			$totalchartArray = (int)count($chartArray);
@@ -144,6 +144,7 @@ class Disk extends LoadAvg
 			$diskSize = 0;
 
 			//map the collectd disk size to our disk size here
+			//subtract 1 from size of array as a array first value is 0 but gives count of 1
 			if ( LOGGER == "collectd")
 			{	
 				$diskSize = ( 	$chartArray[$totalchartArray-1][1] + 

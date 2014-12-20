@@ -129,6 +129,12 @@ if (isset($_POST['login'])  ) {
 
 	</script>
 
+	<!-- force a refreash every 5 minutes need to set up settings for this make it optional 
+		 only do this if day is today as otherwise we dont need to refreash
+	-->
+
+	<meta http-equiv="refresh" content="300">
+
 </head>
 <body>
 	
