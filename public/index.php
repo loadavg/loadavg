@@ -47,6 +47,8 @@ if ( isset( $_GET['check'] ) )
 
 /* 
  * Grab the current period if a period has been selected
+ * TODO: if min date and no max date then set mac date to todays date
+ * max date alone does nothing...
  */
 
 if ( 

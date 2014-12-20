@@ -551,6 +551,8 @@ class LoadAvg
 	 *
 	 */
 
+	//TODO: update this to work with collectd dates
+	
 	public function getDateRange ()
 	{
 
@@ -911,11 +913,11 @@ class LoadAvg
 				 */
 				if ($i > 0 && $i < $totalContents-1 ) {
 
-				//dont do this for last value in dataset! as it can have no difference
-				$nextData = explode($delimiter, $contents[$i+1]);
-				
-				//difference in timestamps
-				$difference = $nextData[0] - $data[0];
+					//dont do this for last value in dataset! as it can have no difference
+					$nextData = explode($delimiter, $contents[$i+1]);
+					
+					//difference in timestamps
+					$difference = $nextData[0] - $data[0];
 
 					if ( $difference >= $interval ) {
 

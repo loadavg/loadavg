@@ -56,7 +56,6 @@
                         <select name="logdate" onchange="this.submit()" style="width: 110px;height: 28px;">
                         <?php
 
-
                         $dates = LoadAvg::getDates();
 
                         $date_counter = 1;

@@ -129,15 +129,31 @@ if (isset($_POST['login'])  ) {
 
 	</script>
 
-	<!-- force a refreash every 5 minutes need to set up settings for this make it optional 
-		 only do this if day is today as otherwise we dont need to refreash
-	-->
+	<!-- force a refreash every (logger = 5 default) minutes to update charts 
+	     need to set up settings for this make it optional 
+		 only do this if day is today as otherwise we dont need to refreash for ranges
 
-	<meta http-equiv="refresh" content="300">
+		 problem with below is when you choose today from log menu then logdate is also set
+		 need to fix that in form not here
+	-->
+	<?php
+	if ( (!isset($_GET['minDate'])) || (!isset($_GET['maxDate'])) || (!isset($_GET['logdate'])) ) 
+	{ ?>
+		<meta http-equiv="refresh" content="300">
+	<?php
+	}
+	?>
+	
 
 </head>
 <body>
-	
+
+<?php
+
+		if ( LoadAvg::$period ) { echo 'PERIOD'; die; }
+
+?>
+
 	<!-- Start Content -->
 	<div class="container fixed">
 		
