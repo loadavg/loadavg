@@ -127,13 +127,9 @@ class Disk extends LoadAvg
 
 			$chartType = LoadAvg::$_settings->general['chart_type'];
 
-			//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-			//	$timestamps = array();
-
 			$chartArray = array();
 
-			//dont eed to pass logger here any more...
-			//this kills data if data is just one valie why ?
+			//get log data in array for charting
 			$this->getChartData ($chartArray, $contents, $chartType );
 
 			$totalchartArray = (int)count($chartArray);
@@ -154,6 +150,9 @@ class Disk extends LoadAvg
 
 				$diskSize = $chartArray[$totalchartArray-1][2] / 1048576;
 			}
+
+			echo 'diskSize' . $diskSize . '<br>';
+			//print_r($chartArray);
 
 			// get from settings here for module
 			// true - show MB
@@ -181,7 +180,7 @@ class Disk extends LoadAvg
 					$space = $data[1] + $data[2] + $data[3];
 
 					$data[1] = $used;
-					$data[2] = $space;
+					$data[2] = $space; //ignored as computed above one time... not per dataset
 
 				}
 
@@ -344,7 +343,7 @@ class Disk extends LoadAvg
 			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
 			if (!empty($this->logfile)) {
-			//if ( file_exists( $this->logfile[0][0] )) {
+
 				$i++;				
 				$logfileStatus = true;
 

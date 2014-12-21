@@ -47,7 +47,7 @@ class Memory extends LoadAvg
 		$timestamp = time();
 
 		/* 
-			need to optimize by grab this data directly from /proc/meminfo in a single call
+			grab this data directly from /proc/meminfo in a single call
 			egrep --color 'Mem|Cache|Swap' /proc/meminfo
 		*/
 		
@@ -60,15 +60,6 @@ class Memory extends LoadAvg
 		$totalswap = $sysmemory[2];
 		$freeswap = $sysmemory[3];
 		$swap = $totalswap - $freeswap;
-
-
-		/*
-		old way of getting memory usage
-
-		$memory = exec("free -o | grep Mem | awk -F' ' '{print $3}'");
-		$totalmemory = exec("free -o | grep Mem | awk -F' ' '{print $2}'");
-		$swap = exec("free -o | grep Swap | awk -F' ' '{print $3}'");
-		*/
 	    
 	    $string = $timestamp . '|' . $memory . '|' . $swap . '|' . $totalmemory . "\n";
 
@@ -103,65 +94,95 @@ class Memory extends LoadAvg
 		//$contents = LoadAvg::parseLogFileData($this->logfile);
 		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 
+			/*
+			for collectd data is as follows...
+	     	 0 - timestamp 
+	     	 1 - buffered
+	     	 2 - cached
+	     	 3 - used
+	     	 4 - free
+
+			$memory =  1 + 2 + 3;
+			$totalmemory = 1 + 2 + 3 + 4;
+			
+			*/
+
+			/*
+			for loadavg is
+			 0 - timestamp
+			 1 - memory
+			 2 - swap
+			 3 - totalmemory
+			*/
+
 		//contents is now an array!!! not a string
 		// is this really faster than strlen ?
 		
 		if (!empty($contents) && $logStatus) {
 
-			//$contents = explode("\n", $contents);
 			$return = $usage = $args = array();
 
 			$swap = array();
 			$usageCount = array();
 			$dataArray = $dataArrayOver = $dataArraySwap = array();
 
-			//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-			//	$timestamps = array();
+			$chartType = LoadAvg::$_settings->general['chart_type'];
 
 			$chartArray = array();
 
-			$chartType = LoadAvg::$_settings->general['chart_type'];
-
+			//get log data in array for charting
 			$this->getChartData ($chartArray, $contents, $chartType);
+
 
 			$totalchartArray = (int)count($chartArray);
 
-			//need to get disk size in order to process data properly
+			//need to get memory size in order to process data properly
 			//is it better before loop or in loop
 			//what happens if you resize disk on the fly ? in loop would be better
 			$memorySize = 0;
 
+			//map the collectd disk size to our disk size here
+			//subtract 1 from size of array as a array first value is 0 but gives count of 1
+			if ( LOGGER == "collectd")
+			{	
+				$memorySize = ( $chartArray[$totalchartArray-1][1] + 
+								$chartArray[$totalchartArray-1][2] + 
+								$chartArray[$totalchartArray-1][3] ) / 1024;
+			} else {
+
+				$memorySize = $chartArray[$totalchartArray-1][3] / 1024;
+			}
+
+			echo 'memorySize' . $memorySize . '<br>';
+
 			//need to start logging total memory
-			//what happens if this is -1 ???
-			$memorySize = $chartArray[$totalchartArray-1][3] / 1024;
 
 			// get from settings here for module
 			// true - show MB
 			// false - show percentage
-				
-			//data[0] = time
-			//data[1] = mem used
-			//data[2] = swap
-			//data[3] = total mem
 
 			$displayMode =	$settings['settings']['display_limiting'];
 
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
-
-				// clean data for missing values
-				/*
-				$redline = ($data[1] == "-1" ? true : false);
-
-				if ($redline) {
-					$data[1]=0.0;
-					$data[2]=0.0;
-					$data[3]=0.0;
-				}
-*/
 				
 				//check for redline
-				$redline = ($this->checkRedline($data));
+				$redline = ($this->checkRedline($data,4));
+
+				//map the collectd data to our data here
+				if ( LOGGER == "collectd")
+				{
+
+					$dmemory =  $data[1] + $data[2] + $data[3]; 
+
+					$dtotalmemory = $data[1] + $data[2] + $data[3] + $data[4];
+
+					$data[1] = $dmemory;
+					$data[2] = 0;  //used for swap in loadavgd... not used in collectd
+					$data[3] = $dtotalmemory;
+
+				}
+
 
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
@@ -357,10 +378,6 @@ class Memory extends LoadAvg
 		foreach ( $charts['args'] as $chart ) {
 			$chart = json_decode($chart);
 
-			//grab the log file for current date (current date can be overriden to show other dates)
-			//problem when overiding dates with new format ? why ?
-			//$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
-
 			//get data range we are looking at - need to do some validation in this routine
 			$dateRange = $this->getDateRange();
 
@@ -368,10 +385,10 @@ class Memory extends LoadAvg
 			//returns multiple files when multiple log files
 			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
 
-
 			// find out main function from module args that generates chart data
-			// in this module its getUSageData above
+			// in this module its getData above
 			$caller = $chart->function;
+
 
 			//check if function takes settings via GET url_args 
 			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) 
@@ -381,7 +398,6 @@ class Memory extends LoadAvg
 			//cant do file exists here
 			if (!empty($this->logfile)) {
 
-			//if ( file_exists( $this->logfile[0][0] )) {
 				$i++;				
 				$logfileStatus = true;
 

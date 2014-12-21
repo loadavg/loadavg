@@ -21,3 +21,5 @@ line[] = '{"format":"Latest: %s MB","args":"mem_latest"}'
 [settings]
 overload = 90
 display_limiting = "false"
+[collectd]
+args[] = '{"name":"memory","functions":["memory-buffered","memory-cached","memory-used","memory-free"]}'

@@ -519,28 +519,30 @@ class LoadAvg
 	/**
 	 * checkRedline
 	 *
-	 * checks for redline in array in charting modules
-	 * move this out into functions really
+	 * checks for redline in data point sent over via charting modules
+	 * and if it exists sets it to a null (0.0) data value for the chart
 	 *
 	 */
 
 
-	function checkRedline (array &$data) 
+	function checkRedline (array &$data, $depth = 3 ) 
 	{
+		// check if its a readline and if so clean data and set back to 0
+		// gotta be a better way of doing this really but it works
 
-		// clean data for missing values
 		$redline = ($data[1] == "-1" ? true : false);
 
 		if ($redline) {
-			$data[1]=0.0;
-			$data[2]=0.0;
-			$data[3]=0.0;
+
+			//echo '<pre>PRE REDLINE '; print_r ($data); echo '</pre>';
+			for ($x = 1; $x <= $depth; $x++) {
+				$data[$x]=0.0;
+			} 
+			//echo '<pre>POST REDLINE '; print_r ($data); echo '</pre>';
+
 		}
 
-		//echo '<pre>'; print_r ($data); echo '</pre>';
-
 		return $redline;
-
 	}
 
 	/**
@@ -552,7 +554,7 @@ class LoadAvg
 	 */
 
 	//TODO: update this to work with collectd dates
-	
+
 	public function getDateRange ()
 	{
 
@@ -560,7 +562,6 @@ class LoadAvg
 
 		//dates of all the log files in logs folder
 		$dates = self::getDates();
-
 		$dateArray = array();
 
 		//$period is set when we are pulling a range of data
@@ -580,7 +581,6 @@ class LoadAvg
 		{
 			$dateArray[0] = $currentDate;
 		}
-
 		return $dateArray;
 	}
 
@@ -595,7 +595,6 @@ class LoadAvg
 
 	public function getLogFile( $moduleTemplate, $dateRange, $moduleName, $interface = null  )
 	{
-
 		//needs error checking here to return null arrays when no log file present
 		$logString = null;
 
@@ -649,6 +648,9 @@ class LoadAvg
 
 					$logFile = COLLECTD_PATH . $moduleTemplate . "/" . $moduleFunction . "-" . $date;
 					
+					//show the log files we have read in
+					//echo 'LOG: ' . $logFile . '<br>';
+
 					if ( file_exists( $logFile )) {
 						$logString[$loop][$loop2] = $logFile;
 						$foundData = true;
@@ -805,9 +807,10 @@ class LoadAvg
 		//clean final array of dead data values as csv files have headers
 		array_shift($finaldata);
 
+
 		//collectd csv files also have a empty last row so kill that
-		if ( end($finaldata) == null || end($finaldata) == "" )
-				array_pop($finaldata);
+		//if ( end($finaldata) == null || end($finaldata) == "" )
+		array_pop($finaldata);
 
 		return $finaldata;		
 		
@@ -833,7 +836,6 @@ class LoadAvg
 	function getChartData (array &$chartData, array &$contents,  $dataSet = 24 ) 
 	{				
 
-
 		//delimiter is based on logger type 
 		$delimiter = "";
 		switch ( LOGGER ) {
@@ -858,8 +860,6 @@ class LoadAvg
 			$interval = $interval * 1.2; //add 20% to interval for system lag
 
 		$patch = $chartData = array();
-		$numPatches = 0;
-
 
 		//trim the dataset if we are only reading 6 or 12 hours of info
 		//revise for 6 and 12 hour charts
@@ -878,11 +878,14 @@ class LoadAvg
 			$contents = array_slice($contents, ($totalContents - $dataNeeded) );     
 		}
 
-		//get size of array for parsig
+		//contents is a array of strings for the dataset/logfile
+		//now we explode each value in each line of the array into datapoints in chartData 
+		//and send it back home as a array!
+
+		//get size of array for parsing
 		$totalContents= (int)count( $contents );
 
-
-		//if there is only one item in data set then we just chart it
+		//if there is only one item in data set then we just chart it and return
 		if ($totalContents == 1) {
 
 			$data = explode($delimiter, $contents[0]);
@@ -890,30 +893,30 @@ class LoadAvg
 
 		} else {
 
-
-			//if there is more than one item in dataset then we can check for downtime between points
 			//subtract one from totalContents as arrays start at 0 not 1
+			$numPatches = 0;
 
 			for ( $i = 0; $i <= $totalContents-1; ++$i) {
-
-				//used to pull a section of charts for data set zooming 
-				//if ($i == 20) break;
 
 				$data = explode($delimiter, $contents[$i]);
 				$chartData[$i] = $data;
 
-
 				/*
-				 * check if difference is more than logging interval and patch
+				 * if there is more than one item in dataset then we can check for downtime between points
+				 * and patch the dataset so they render ok
+				 * this is becuase when rendering we connect lines in the chart (prev to next)
+				 * and so downtime comes across as span not a null or 0
+				 *
+				 * check if difference is more than logging interval and patch for when server is offline
 				 * we patch for time between last data (system went down) and next data (system came up)
 				 * need to check if we need the nextData patch as well ie if system came up within 
 				 * the next interval time
 				 * 
-				 * for local data we dont check the first value in the data set
+				 * for local data we dont check the first value in the data set as if its there it means it was up
 				 */
 				if ($i > 0 && $i < $totalContents-1 ) {
 
-					//dont do this for last value in dataset! as it can have no difference
+					//dont do this for last value in dataset! as it will have no difference
 					$nextData = explode($delimiter, $contents[$i+1]);
 					
 					//difference in timestamps
@@ -923,8 +926,9 @@ class LoadAvg
 
 						//echo 'patch difference:' . $difference;
 
-						$patch[$numPatches] = array(  ($data[0]+$interval), "-1", "-1", "-1", $i);
-						$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "-1", "-1", "-1", $i);
+						//patches are spans ie fall between datapoints so have start and end
+						$patch[$numPatches] = array(  ($data[0]+$interval), "-1", $i);
+						$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "-1", $i);
 
 						$numPatches += 2;
 					}	
@@ -933,8 +937,8 @@ class LoadAvg
 
 		}
 		
-		//iterates through the patcharray and patches dataset
-		//by adding patch points
+		//if there are patches to be applied, we iterate through the patcharray and patch the dataset
+		//by adding patch spans to it
 		$totalPatch= (int)count( $patch );
 		//echo "PATCHCOUNT: " . $totalPatch . "<br>";
 
@@ -942,11 +946,9 @@ class LoadAvg
 
 			for ( $i = 0; $i < $totalPatch ; ++$i) {
 					
-					$patch_time = ( ($patch[$i][4]) + $i );
+					$patch_time = ( ($patch[$i][2]) + $i );
 					
-					// this unset should work to drop recorded patch time ? 
-					// but messes up sizeof patcharray				
-					$thepatch[0] = array ( $patch[$i][0] , $patch[$i][1] , $patch[$i][2] , $patch[$i][3] );
+					$thepatch[0] = array ( $patch[$i][0] , $patch[$i][1]   );
 
 					array_splice( $chartData, $patch_time, 0, $thepatch );
 	        		//echo "PATCHED: " . $patch_time . " count: " . count( $chartData ) . "<br>";
@@ -955,6 +957,8 @@ class LoadAvg
 		}
 
 		//echo "PATCHARRAYPATCHED: " . count( $chartData ) . "<br>";
+
+
 }
 
 	/**
