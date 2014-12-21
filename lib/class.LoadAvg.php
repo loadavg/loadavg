@@ -671,7 +671,7 @@ class LoadAvg
 	 *
 	 * returns data from inside log file in array
 	 * if $data is array then grabs multiple files of data - needed when log data is
-	 * split acorss mutiple files
+	 * split across mutiple files
 	 *
 	 */
 
@@ -685,84 +685,87 @@ class LoadAvg
 		//loop through all data files and add them up here
 		$contents = "";
 		$loop = 0;
+		
+		//data is a array of log files to parse
+		//here we loop through each DAY of data as per the depth of the array
+		//and parse it into the newDataArray
 
-		//loops through each DAY of data as per the depth of the array
-		$singleloop = false;
+		//echo 'startingloop';
 
-		foreach ($data as $dataKey => $dataData) {
-	    	
-	    	//for single log files no problem just read it in
-			if  ( count($dataData) == 1) {
+		foreach ($data as $dataKey => $logFileArray) {
+	   
+	   		//used to show log files that are being parsed
+	    	//var_dump($logFileArray);
 
-				if ( file_exists( $dataData[0] )) {
+			$contents = $this->getLogFileDataFromDisk($logFileArray);
 
-					$contents = file_get_contents($dataData[0]);
-					$contents = explode("\n", $contents);
-
-					//used just for collectd to clean top of datasets where descriptions are
-					if (LOGGER == "collectd"){
-						array_shift($contents);
-					}
-
-					//if last value is null or empty or ???? delete it
-					if ( end($contents) == null || end($contents) == "" )
-						array_pop($contents);
-
-					$DataArray = array_merge($newDataArray, $contents);
-					$newDataArray = $DataArray;
-
-				}
-
-			}
-
-			//if there are multiple log files parse it in using
-			//getDimensionalLogFileData function below
-			if  ( count($dataData) > 1) {
-
-				$contents = $this->getDimensionalLogFileData($dataData);
-				$DataArray = array_merge($newDataArray, $contents);
-				$newDataArray = $DataArray;
-
-			}
-
+			$newDataArray = array_merge($newDataArray, $contents);
+				
+			//var_dump($newDataArray);
 		}
 
+		//echo 'endingloop';
+
 		return true;
+
 	}
 
 
 	/**
-	 * getDimensionalLogFileData
+	 * getLogFileDataFromDisk
 	 *
+	 * $logFileArray is a array of log files to parse
 	 * used when there are multiple log files making up a data point
 	 *
 	 */
 
-	public function getDimensionalLogFileData( $data  )
+	public function getLogFileDataFromDisk( $logFileArray  )
 	{
 
-		//we need to loop through data and build conetnts array which is exploded array
-		//of data files read from disk!
+		//first we need to loop through log file and build mycontents array which is newline exploded 
+		//array of data sets from each log file read from disk!
 
-		$loop = 0;
 		$arraysize = 0;
-		foreach ($data as $dataKey => $dataData) {
+		foreach ($logFileArray as $dataKey => $logFile) {
 
-			if ( file_exists( $dataData )) {
+			if ( file_exists( $logFile )) {
 
-				$mycontents[$loop] = file_get_contents($dataData);
-				$mycontents[$loop] = explode("\n", $mycontents[$loop]);
+				$mycontents[$arraysize] = file_get_contents($logFile);
+				$mycontents[$arraysize] = explode("\n", $mycontents[$arraysize]);
 
-				$loop++;
+				//used just for collectd to clean top of datasets where descriptions are
+				if (LOGGER == "collectd"){
+					array_shift($mycontents[$arraysize]);
+				}
+
+				//if last value is null or empty or ???? delete it
+				if ( end($mycontents[$arraysize]) == null || end($mycontents[$arraysize]) == "" )
+					array_pop($mycontents[$arraysize]);
+
 				$arraysize++;
 			}
 		}
 
-		//now we loop through mycontents and build thenew array
-		$thenewarray = null;
 
-		//note delimeter is always comma here as currently this is only for collectd csv files
-		$delimiter = ",";
+		//if its just a single log file we can return it now
+		if ($arraysize == 1)
+			return $mycontents[0];
+
+
+		//however if arraysize is > 1 then it means we have a multiple log files
+		//and so need to read in all parts, parse to arrays and then merge them togeather
+		//into a single array as loadavg charts work with a single array log data only!
+		//currently a bit of a mission! 
+
+		//fist we have to loop through each data set in each log file 
+		//as per the depth of the array (number of files) parse it and then
+		//stitch it back up into the newDataArray
+
+		//now we loop through mycontents and build thenew array
+		$thenewarray = array();
+
+		//delimiter is based on logger type 
+		$delimiter = $this->getDelimiter();
 
 		for ($dataloop = 0; $dataloop < $arraysize; $dataloop++) {
 
@@ -779,12 +782,11 @@ class LoadAvg
 			    $loop++;
 			}
 			unset($value); // break the reference with the last element
-
 		} 
 
 
 		//////////////////////////////////////////////////////
-		//now build data  - stich it up
+		//now rebuild data  - stich it up
 
 		$finaldata = "";
 		$loop = 0;
@@ -800,17 +802,8 @@ class LoadAvg
 			$finaldata[$loop] = $dataString;
 
 		    $loop++;
-
 		}
 		unset($value); 
-
-		//clean final array of dead data values as csv files have headers
-		array_shift($finaldata);
-
-
-		//collectd csv files also have a empty last row so kill that
-		//if ( end($finaldata) == null || end($finaldata) == "" )
-		array_pop($finaldata);
 
 		return $finaldata;		
 		
@@ -833,22 +826,13 @@ class LoadAvg
 //parses contents
 //returns in chartData
 
+
+
 	function getChartData (array &$chartData, array &$contents,  $dataSet = 24 ) 
 	{				
 
 		//delimiter is based on logger type 
-		$delimiter = "";
-		switch ( LOGGER ) {
-
-			case "collectd": 	$delimiter = ",";				
-								break;
-
-			case "loadavg": 	$delimiter = "|";				
-								break;
-
-			default: 			$delimiter = "|";				
-								break;				
-		}
+		$delimiter = $this->getDelimiter();
 
 		// this is based on logger interval of 5, 5 min = 300 aprox we add 100 to be safe
 		//$interval = 360;  // 5 minutes is 300 seconds + slippage of 20% aprox 
@@ -868,11 +852,11 @@ class LoadAvg
 			$totalContents= (int)count( $contents );
 			//echo 'TOTAL ' . $totalContents;
 
-			//logger is 5 min
-			//so 60 / 5 = 12 datasets we need for 1 hour
-			//need to revise if logger is a different time
+			//logger is every 5 min then $this->getLoggerInterval() / 60 = 5;
+			//so 300 / 60 = 5 min; 60 / 5 = 12 datasets per hour
+			$dataFrame = 60 / ($this->getLoggerInterval() / 60);  
 
-			$dataNeeded = 12 * $dataSet; 
+			$dataNeeded = $dataFrame * $dataSet; 
 
 			//TODO: only trim if there is more than we need...
 			$contents = array_slice($contents, ($totalContents - $dataNeeded) );     
@@ -960,6 +944,34 @@ class LoadAvg
 
 
 }
+
+	/**
+	 * getDelimiter
+	 *
+	 * Returns delimiter used for parsing log files
+	 *
+	 * LOGGER is globla defined in globals.php
+	 */
+
+	public function getDelimiter ( ) 
+	{
+		$delimiter = "";
+		switch ( LOGGER ) {
+
+			case "collectd": 	$delimiter = ",";				
+								break;
+
+			case "loadavg": 	$delimiter = "|";				
+								break;
+
+			default: 			$delimiter = "|";				
+								break;				
+		}
+
+		return $delimiter;
+
+	}
+
 
 	/**
 	 * getEmptyChart

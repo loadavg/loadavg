@@ -98,9 +98,7 @@ class Cpu extends LoadAvg
 			
 		//grab the log file data needed for the charts
 		$contents = array();
-		//$contents = LoadAvg::parseLogFileData($this->logfile);
 		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
-
 
 		//contents is now an array!!! not a string
 		// is this really faster than strlen ?
@@ -112,18 +110,14 @@ class Cpu extends LoadAvg
 			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataRedline = array();
 
 			$chartType = LoadAvg::$_settings->general['chart_type'];
-
 			
 			/*
-			 * build the chartArray array here and patch to check for downtime
+			 * build the chartArray array here 
 			 */
 
+			//pass chart type to get data as array for 6, 12 or 24 hours
 			$chartArray = array();
-
-			//pass chart type to get data for 6, 12 or 24 hours
-			//$this->getChartData ($chartArray, $contents, $chartType );
 			$this->getChartData ($chartArray, $contents, $chartType );
-
 			$totalchartArray = (int)count($chartArray);
 
 			//used to limit display data from being sqewed by overloads

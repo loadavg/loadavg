@@ -153,8 +153,6 @@ class Memory extends LoadAvg
 				$memorySize = $chartArray[$totalchartArray-1][3] / 1024;
 			}
 
-			echo 'memorySize' . $memorySize . '<br>';
-
 			//need to start logging total memory
 
 			// get from settings here for module

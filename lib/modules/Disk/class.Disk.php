@@ -151,9 +151,6 @@ class Disk extends LoadAvg
 				$diskSize = $chartArray[$totalchartArray-1][2] / 1048576;
 			}
 
-			echo 'diskSize' . $diskSize . '<br>';
-			//print_r($chartArray);
-
 			// get from settings here for module
 			// true - show MB
 			// false - show percentage

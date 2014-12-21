@@ -21,6 +21,6 @@ line[] = '{"format":"Latest: %s","args":"cpu_latest"}'
 overload_1 = 0.2
 overload_2 = 0.3
 display_cutoff = 0.3
-display_limiting = "false"
+display_limiting = "true"
 [collectd]
 args[] = '{"name":"load","functions":["load"]}'
