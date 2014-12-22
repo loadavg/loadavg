@@ -494,7 +494,7 @@ class Ssh extends LoadAvg
 	 */
 
 	/*
-	$stuff is array of:
+	$chartData is array of:
 
 		$info 
 			$line -> array of legend items
@@ -546,9 +546,9 @@ class Ssh extends LoadAvg
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $functionSettings );
+					$chartData = $this->$caller( $functionSettings );
 				} else {
-					$stuff = $this->$caller(  );
+					$chartData = $this->$caller(  );
 				}
 
 			} else {

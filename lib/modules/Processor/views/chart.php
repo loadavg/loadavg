@@ -105,9 +105,9 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $functionSettings );
+					$chartData = $this->$caller( $functionSettings );
 				} else {
-					$stuff = $this->$caller(  );
+					$chartData = $this->$caller(  );
 				}
 
 			} else {
@@ -123,13 +123,13 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 
 		<?php
 
-			//if there is no logfile or error from the caller (stuff is false) 
+			//if there is no logfile or error from the caller (chartData is false) 
 			//then we just build empty charts
-			if ( !isset($stuff) || $stuff == false || $logfileStatus == false ) {
+			if ( !isset($chartData) || $chartData == false || $logfileStatus == false ) {
 
-				$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
+				$chartData = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
 
-				$stuff['chart'] = $this->getEmptyChart();
+				$chartData['chart'] = $this->getEmptyChart();
 			}
 
 		?>
@@ -140,10 +140,10 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 			<tr>
 				<!-- <div class="span3 right"> -->
 				<td width="26%" align="right" style="padding-right: 15px">
-					<?php if ( $stuff ) { ?>
+					<?php if ( $chartData ) { ?>
 					<ul class="unstyled">
 						<?php
-						foreach ($stuff['info']['line'] as $line) {
+						foreach ($chartData['info']['line'] as $line) {
 							switch ($line['type']) {
 								case "file":
 									echo '<li>'; include $line['file']; echo '</li>';
@@ -159,7 +159,7 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 				</td>
 
 				<!-- used to change  if we have the Avg chart on right or not -->
-				<td class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
+				<td class="<?php echo ( isset( $chartData['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
 					
 		       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
 		       		     more than 1 in i means multiple charts in the segment so we include js files just once
@@ -177,7 +177,7 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 				<?php 
 		        // Now draw separate chart for mean value display stacked bar chart
 		        // cool as we can also do pie charts etc using different flags
-				if ( isset($stuff['chart']['mean']) ) {  
+				if ( isset($chartData['chart']['mean']) ) {  
 
 					include( HOME_PATH . '/lib/charts/chartavg.php');
 				} 

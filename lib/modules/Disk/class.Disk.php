@@ -125,12 +125,10 @@ class Disk extends LoadAvg
 			$usageCount = array();
 			$dataArray = $dataArrayOver = $dataArraySwap = array();
 
-			$chartType = LoadAvg::$_settings->general['chart_type'];
-
 			$chartArray = array();
 
 			//get log data in array for charting
-			$this->getChartData ($chartArray, $contents, $chartType );
+			$this->getChartData ($chartArray, $contents );
 
 			$totalchartArray = (int)count($chartArray);
 
@@ -346,9 +344,9 @@ class Disk extends LoadAvg
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller(  $functionSettings );
+					$chartData = $this->$caller(  $functionSettings );
 				} else {
-					$stuff = $this->$caller(  );
+					$chartData = $this->$caller(  );
 				}
 
 			} else {

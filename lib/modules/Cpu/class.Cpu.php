@@ -95,36 +95,45 @@ class Cpu extends LoadAvg
 
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
-			
-		//grab the log file data needed for the charts
+
+		//define some core variables here
+		$dataArray = $dataRedline = $usage = array();
+		$dataArrayOver = $dataArrayOver_2 = array();
+
+		//display switch used to switch between view modes - data or percentage
+		$displayMode =	$settings['settings']['display_limiting'];	
+
+		/*
+		 * grab the log file data needed for the charts as array of strings
+		 * takes logfiles(s) and gives us back contents
+		 */
+
 		$contents = array();
-		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
+		$logStatus = $this->parseLogFileData($this->logfile, $contents);
 
-		//contents is now an array!!! not a string
-		// is this really faster than strlen ?
-		
-		if (!empty($contents) && $logStatus) {
+		/*
+		 * build the chartArray array here as array of arrays needed for charting
+		 * takes in contents and gives us back chartArray
+		 */
 
-			$return = $usage = $args = array();
+		$chartArray = array();
+		$totalchartArray = 0;
 
-			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataRedline = array();
+		if ($logStatus) {
 
-			$chartType = LoadAvg::$_settings->general['chart_type'];
-			
-			/*
-			 * build the chartArray array here 
-			 */
-
-			//pass chart type to get data as array for 6, 12 or 24 hours
-			$chartArray = array();
-			$this->getChartData ($chartArray, $contents, $chartType );
+			//takes the log file and parses it into chartable data 
+			$this->getChartData ($chartArray, $contents );
 			$totalchartArray = (int)count($chartArray);
+		}
 
-			//used to limit display data from being sqewed by overloads
-			$displayMode =	$settings['settings']['display_limiting'];
+		/*
+		 * now we loop through the dataset and build the chart
+		 * uses chartArray which contains the dataset to be charted
+		 */
 
+		if ( $totalchartArray > 0 ) {
 
-			//for ( $i = 0; $i < $totalchartArray; $i++) {	
+			//the main chart loop is here
 			for ( $i = 0; $i < $totalchartArray; ++$i) {	
 
 				$data = $chartArray[$i];
@@ -143,31 +152,29 @@ class Cpu extends LoadAvg
 				$timedata = (int)$data[0];
 				$time[$switch][$data[$switch]] = date("H:ia", $timedata);
 
-				//for 24 hour charts
-				//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-				//	$timestamps[] = $data[0];
-
 				//chart arrays
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 		
-				if ( $data[$switch] > $settings['settings']['overload_1'] )
+				if ( $data[$switch] >= $settings['settings']['overload_1'] )
 					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 		
-				if ( $data[$switch] > $settings['settings']['overload_2'] )
+				if ( $data[$switch] >= $settings['settings']['overload_2'] )
 					$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 
 			}
 
-
+			/*
+			 * now we collect data used to build the chart legend 
+			 * 
+			 */
+		
 			$cpu_high = max($usage[$switch]);
 			$cpu_high_time = $time[$switch][$cpu_high];
 
 			$cpu_low = min($usage[$switch]);
 			$cpu_low_time = $time[$switch][$cpu_low];
 		
-			//$cpu_mean = (float)number_format(array_sum($usage[$switch]) / count($usage[$switch]), 3);
 			$cpu_mean = array_sum($usage[$switch]) / count($usage[$switch]) ;
-			
 			$cpu_latest = $usage[$switch][count($usage[$switch])-1];
 
 			if ($displayMode == 'true' )
@@ -189,6 +196,13 @@ class Cpu extends LoadAvg
                 'cpu_latest' => number_format($cpu_latest,3)
             );
 
+			/*
+			 * all data to be charted is now cooalated into $return
+			 * and is returned to be charted
+			 * 
+			 */
+
+			$return  = array();
 
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
@@ -207,24 +221,25 @@ class Cpu extends LoadAvg
 			$dataString[2] = is_null($dataArrayOver_2) ? null : "[" . implode(",", $dataArrayOver_2) . "]";
 
 			$return['chart'] = array(
-				'chart_format' => 'line',
-				'chart_avg' => 'avg',
+				'chart_format' 	  => 'line',
+				'chart_avg' 	  => 'avg',
 
-				'ymin' => $ymin,
-				'ymax' => $ymax,
-				'mean' => $cpu_mean,
+				'ymin' 			  => $ymin,
+				'ymax' 			  => $ymax,
+				'mean' 			  => $cpu_mean,
 				
-				'dataset_1' => $dataString[0],
+				'dataset_1' 	  => $dataString[0],
 				'dataset_1_label' => 'CPU Load',
 
-				'dataset_2' => $dataString[1],
+				'dataset_2' 	  => $dataString[1],
 				'dataset_2_label' => 'Overload',
 				
-				'dataset_3' => $dataString[2],
+				'dataset_3' 	  => $dataString[2],
 				'dataset_3_label' => 'Secondary Overload'
 			);
 
 			return $return;
+
 		} else {
 
 			return false;
@@ -242,7 +257,7 @@ class Cpu extends LoadAvg
 	 */
 
 	/*
-	$stuff is array of:
+	$chartData is array of:
 
 		$info 
 			$line -> array of legend items
@@ -256,12 +271,12 @@ class Cpu extends LoadAvg
 
 		//get chart settings for module
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
-
 		$module = __CLASS__;
 
 		//this loop is for modules that have multiple charts in them - like mysql and network
 		$i = 0;
 		foreach ( $charts['args'] as $chart ) {
+
 			$chart = json_decode($chart);
 
 			//grab the log file for current date (current date can be overriden to show other dates)
@@ -272,7 +287,7 @@ class Cpu extends LoadAvg
 			$dateRange = $this->getDateRange();
 
 			//get the log file NAME or names when there is a range
-			//returns multiple files when multiple log files
+			//returns multiple files when multiple files make up a log file
 			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
 
 
@@ -285,7 +300,6 @@ class Cpu extends LoadAvg
 				? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
 			//need to update for when more than 1 logfile ?
-			//cant do file exists here
 			if (!empty($this->logfile)) {
 
 			//if ( file_exists( $this->logfile[0][0] )) {
@@ -294,9 +308,9 @@ class Cpu extends LoadAvg
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $functionSettings );
+					$chartData = $this->$caller( $functionSettings );
 				} else {
-					$stuff = $this->$caller(  );
+					$chartData = $this->$caller(  );
 				}
 
 			} else {

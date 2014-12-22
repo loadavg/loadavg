@@ -126,12 +126,11 @@ class Memory extends LoadAvg
 			$usageCount = array();
 			$dataArray = $dataArrayOver = $dataArraySwap = array();
 
-			$chartType = LoadAvg::$_settings->general['chart_type'];
 
 			$chartArray = array();
 
 			//get log data in array for charting
-			$this->getChartData ($chartArray, $contents, $chartType);
+			$this->getChartData ($chartArray, $contents );
 
 
 			$totalchartArray = (int)count($chartArray);
@@ -353,15 +352,6 @@ class Memory extends LoadAvg
 	 *
 	 */
 
-	/*
-	$stuff is array of:
-
-		$info 
-			$line -> array of legend items
-
-		$chart -> 	chart data such as 
-					ymin, ymax, chart settings and main chart data array
-	*/
 
 	public function genChart($moduleSettings)
 	{
@@ -401,9 +391,9 @@ class Memory extends LoadAvg
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $functionSettings );
+					$chartData = $this->$caller( $functionSettings );
 				} else {
-					$stuff = $this->$caller( );
+					$chartData = $this->$caller( );
 				}
 
 			} else {

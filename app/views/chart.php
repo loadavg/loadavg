@@ -19,10 +19,10 @@
 
 	//if there is no logfile or error from the caller (stuff is false) 
 	//then we just build empty charts
-	if ( !isset($stuff) || $stuff == false || $logfileStatus == false ) {
+	if ( !isset($chartData) || $chartData == false || $logfileStatus == false ) {
 
-		$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
-		$stuff['chart'] = $this->getEmptyChart();
+		$chartData = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
+		$chartData['chart'] = $this->getEmptyChart();
 	}
 	
 	//read status of accordions from cookies so we can paint screen accordingly
@@ -56,10 +56,10 @@
 	        <!-- this sections renders out chart left legend from .ini file -->
 
 			<td width="26%" align="right" style="padding-right: 15px;">
-				<?php if ( $stuff ) { ?>				
+				<?php if ( $chartData ) { ?>				
 				<ul class="unstyled">
 					<?php
-					foreach ($stuff['info']['line'] as $line) {
+					foreach ($chartData['info']['line'] as $line) {
 						switch ($line['type']) {
 							case "file":
 								echo '<li>'; include $line['file']; echo '</li>';
@@ -76,7 +76,7 @@
 	        <!-- this sections renders main chart area -->
 
 			<!-- used to change  if we have the Avg chart on right or not -->
-			<td class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
+			<td class="<?php echo ( isset( $chartData['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
 				
 	       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
 	       		     more than 1 in i means multiple charts in the segment so we include js files just once
@@ -94,11 +94,11 @@
 			<?php 
 	        // Now draw separate chart for mean value display stacked bar chart
 	        // cool as we can also do pie charts etc using different flags
-			if ( isset($stuff['chart']['mean']) ) {  
+			if ( isset($chartData['chart']['mean']) ) {  
 
-				//$chartMode = $stuff['chart']['chart_avg'];
+				//$chartMode = $chartData['chart']['chart_avg'];
 
-				$chartMode = (isset($stuff['chart']['chart_avg']) ? $stuff['chart']['chart_avg'] : null);
+				$chartMode = (isset($chartData['chart']['chart_avg']) ? $chartData['chart']['chart_avg'] : null);
 
 				switch ( $chartMode) {
 

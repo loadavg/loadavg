@@ -34,31 +34,31 @@
 
 			//primary dataset includes ymin and ymax - should separate this
 			<?php 
-			if ( isset($stuff['chart']['dataset_1']) ) { ?>
+			if ( isset($chartData['chart']['dataset_1']) ) { ?>
 				 d1 = {
-					label: '<?php echo $stuff['chart']['dataset_1_label']; ?>',
-					data: <?php echo $stuff['chart']['dataset_1']; ?>,
-					ymin: <?php echo $stuff['chart']['ymin']; ?>,
-					ymax: <?php echo $stuff['chart']['ymax']; ?>
+					label: '<?php echo $chartData['chart']['dataset_1_label']; ?>',
+					data: <?php echo $chartData['chart']['dataset_1']; ?>,
+					ymin: <?php echo $chartData['chart']['ymin']; ?>,
+					ymax: <?php echo $chartData['chart']['ymax']; ?>
 				};
 				chart_data.push(d1);
 			<?php } ?>
 
 			//used for primary overload
 			<?php 
-			if ( isset($stuff['chart']['dataset_2']) ) { ?>
+			if ( isset($chartData['chart']['dataset_2']) ) { ?>
 				 d2 = {
-					label: '<?php echo $stuff['chart']['dataset_2_label']; ?>',
-					data: <?php echo $stuff['chart']['dataset_2']; ?>
+					label: '<?php echo $chartData['chart']['dataset_2_label']; ?>',
+					data: <?php echo $chartData['chart']['dataset_2']; ?>
 				};
 				chart_data.push(d2);
 			<?php } ?>
 
 			//used for secondary overlaods
-			<?php if ( isset($stuff['chart']['dataset_3']) ) { ?>
+			<?php if ( isset($chartData['chart']['dataset_3']) ) { ?>
 				 d3 = {
-					label: '<?php echo $stuff['chart']['dataset_3_label']; ?>',
-					data: <?php echo $stuff['chart']['dataset_3']; ?>
+					label: '<?php echo $chartData['chart']['dataset_3_label']; ?>',
+					data: <?php echo $chartData['chart']['dataset_3']; ?>
 				};
 				chart_data.push(d3);
 			<?php } ?>
@@ -66,10 +66,10 @@
 			//d3 is shareds! we need to have d4 for swap moving ahead
 			// new swap code
 			<?php 
-			if ( isset($stuff['chart']['dataset_4']) ) { ?>
+			if ( isset($chartData['chart']['dataset_4']) ) { ?>
 				 d4 = {
-					label: '<?php echo $stuff['chart']['dataset_4_label']; ?>',
-					data: <?php echo $stuff['chart']['dataset_4']; ?>
+					label: '<?php echo $chartData['chart']['dataset_4_label']; ?>',
+					data: <?php echo $chartData['chart']['dataset_4']; ?>
 				};
 				chart_data.push(d4);
 			<?php } ?>

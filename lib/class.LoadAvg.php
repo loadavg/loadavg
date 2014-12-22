@@ -215,44 +215,6 @@ class LoadAvg
 
 	}
 
-	/**
-	 * genChart - move from modules into core ASAP
-	 *
-	 * Function witch passes the data formatted for the chart view
-	 *
-	 * @param array @moduleSettings settings of the module
-	 * @param string @logdir path to logfiles folder
-	 *
-	 */
-	
-	/*
-	public function genChart($moduleSettings, $logdir)
-	{
-
-		$charts = $moduleSettings['chart'];
-		$module = __CLASS__;
-		$i = 0;
-		foreach ( $charts['args'] as $chart ) {
-			$chart = json_decode($chart);
-
-			//grab the log file and date
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
-			
-			if ( file_exists( $this->logfile )) {
-				$i++;				
-
-				$caller = $chart->function;
-				$stuff = $this->$caller( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
-				$logfileStatus = false;
-				
-			} else {
-				$logfileStatus = true;
-			}
-			
-			include APP_PATH . '/views/chart.php';
-		}
-	}
-	*/
 
 /*
  * used to test if log files are being created by logger
@@ -626,7 +588,17 @@ class LoadAvg
 		if ( LOGGER == "collectd" ) {
 
         	//this is only if we are in collectd mode
-			$collectdArgs = $moduleSettings['collectd']['args']; 
+			$collectdArgs = "";
+
+			if (isset ($moduleSettings['collectd']) )
+			{
+				$collectdArgs = $moduleSettings['collectd']['args']; 
+			} else {
+				//we have no collectd support
+				return null;
+			}
+
+			//parse data
 			$collectd = json_decode($collectdArgs[0]);
 
 			//note that this may change!!!
@@ -670,8 +642,8 @@ class LoadAvg
 	 * parseLogFileData
 	 *
 	 * returns data from inside log file in array
-	 * if $data is array then grabs multiple files of data - needed when log data is
-	 * split across mutiple files
+	 * if $data is array then grabs multiple files of data and
+	 * uses array_merge when log files are across multiple days / ranges
 	 *
 	 */
 
@@ -682,30 +654,31 @@ class LoadAvg
 		if ( !$data || $data == null || !isset($data) )
 			return false;
 
-		//loop through all data files and add them up here
+		//loop through all data files and add them up here		
+		//data is a array of log files to parse, the depth being used for multiple days
+		//for eg when we have a date range
+		//log file data is then read from disk and parsed into newDataArray
+
 		$contents = "";
 		$loop = 0;
-		
-		//data is a array of log files to parse
-		//here we loop through each DAY of data as per the depth of the array
-		//and parse it into the newDataArray
 
-		//echo 'startingloop';
+	   	//used to show log files that are being parsed
+	    //var_dump($data);
 
 		foreach ($data as $dataKey => $logFileArray) {
 	   
-	   		//used to show log files that are being parsed
-	    	//var_dump($logFileArray);
-
+	   		//now grab data from disk
 			$contents = $this->getLogFileDataFromDisk($logFileArray);
 
+			//merge results sequentially when more than one file is read in
 			$newDataArray = array_merge($newDataArray, $contents);
-				
-			//var_dump($newDataArray);
 		}
 
-		//echo 'endingloop';
+			//echo '<pre>';
+			//print_r ($newDataArray);
+			//echo '</pre>';
 
+		//TODO: what if getLogFileDataFromDisk was false ? need to return false here
 		return true;
 
 	}
@@ -714,8 +687,9 @@ class LoadAvg
 	/**
 	 * getLogFileDataFromDisk
 	 *
-	 * $logFileArray is a array of log files to parse
-	 * used when there are multiple log files making up a data point
+	 * $logFileArray is a array of log files to parse 
+	 * for a simple individual log file its a array of 1
+	 * for more complex log files that are split across separate files its a array of > 1
 	 *
 	 */
 
@@ -746,31 +720,48 @@ class LoadAvg
 			}
 		}
 
-
 		//if its just a single log file we can return it now
-		if ($arraysize == 1)
+		//otherwise parse it and then return it
+		if ($arraysize == 1) {
 			return $mycontents[0];
+		} else {
 
+			$finaldata = $this->parseComplexLogFiles( $mycontents, $arraysize  );
+			return $finaldata;		
+		}
+	}
 
-		//however if arraysize is > 1 then it means we have a multiple log files
-		//and so need to read in all parts, parse to arrays and then merge them togeather
-		//into a single array as loadavg charts work with a single array log data only!
-		//currently a bit of a mission! 
+	/**
+	 * parseComplexLogFiles
+	 *
+	 * when dealing with complex log files ie log data split across multiple files
+	 * we need to read in all parts, parse to arrays and then merge them togeather
+	 * into a single array as loadavg charts work with a single array of log data only!
+	 * currently a bit of a mission! 
+	 *
+	 */
+
+	public function parseComplexLogFiles( $mycontents, $arraysize  )
+	{
 
 		//fist we have to loop through each data set in each log file 
 		//as per the depth of the array (number of files) parse it and then
 		//stitch it back up into the newDataArray
 
-		//now we loop through mycontents and build thenew array
+		//now we loop through multiple mycontents array break out data values
 		$thenewarray = array();
 
 		//delimiter is based on logger type 
 		$delimiter = $this->getDelimiter();
 
+		//main loop is number of datasets to me merged togeather
 		for ($dataloop = 0; $dataloop < $arraysize; $dataloop++) {
+		$finaldata = "";
 
+			//this builds the array 
 			$loop = 0;
 			foreach ($mycontents[$dataloop] as &$value) {
+
 				$thedata = explode($delimiter , $value);
 
 				//for first data set grab timestamp
@@ -779,16 +770,16 @@ class LoadAvg
 				
 				//all other data sets its the 2nd value
 				$thenewarray[$dataloop+1][$loop] = isset($thedata[1]) ? $thedata[1] : null;
+
 			    $loop++;
 			}
-			unset($value); // break the reference with the last element
+			unset($value); 
+
 		} 
 
 
-		//////////////////////////////////////////////////////
-		//now rebuild data  - stich it up
 
-		$finaldata = "";
+		//now rebuild data into $thenewarray as a single array -  stitch it back up
 		$loop = 0;
 		foreach ($thenewarray[0] as &$value) {
 
@@ -811,6 +802,8 @@ class LoadAvg
 
 
 
+
+
 	/*
 	 * build the chart data array here and patch to check for downtime
 	 * as current charts connect last point to next point
@@ -828,8 +821,13 @@ class LoadAvg
 
 
 
-	function getChartData (array &$chartData, array &$contents,  $dataSet = 24 ) 
+	function getChartData (array &$chartData, array &$contents ) 
 	{				
+
+
+		//select 6,12 or 24 hour charts
+		$dataSet = LoadAvg::$_settings->general['chart_type'];
+		//echo 'dataSet ' . $dataSet  .  '<br>';
 
 		//delimiter is based on logger type 
 		$delimiter = $this->getDelimiter();

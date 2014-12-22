@@ -22,14 +22,14 @@
 			(function () {
 
 			    var myData = [
-			        { color:'#8ec657', data: [ [1,    <?php  echo $stuff['chart']['variables']['ssh_accept'];  ?>   ] ]},
-			        { color:'#c65757', data: [ [1,    <?php  echo $stuff['chart']['variables']['ssh_failed'];  ?>   ] ]},
-			        { color:'#ebc824', data: [ [1,    <?php  echo $stuff['chart']['variables']['ssh_invalid'];  ?>   ] ]}
+			        { color:'#8ec657', data: [ [1,    <?php  echo $chartData['chart']['variables']['ssh_accept'];  ?>   ] ]},
+			        { color:'#c65757', data: [ [1,    <?php  echo $chartData['chart']['variables']['ssh_failed'];  ?>   ] ]},
+			        { color:'#ebc824', data: [ [1,    <?php  echo $chartData['chart']['variables']['ssh_invalid'];  ?>   ] ]}
 			    ];
 
-			    var myTotal = 	<?php  echo $stuff['chart']['variables']['ssh_accept'];  ?> +
-			    				<?php  echo $stuff['chart']['variables']['ssh_failed'];  ?> +
-			    				<?php  echo $stuff['chart']['variables']['ssh_invalid'];  ?>;
+			    var myTotal = 	<?php  echo $chartData['chart']['variables']['ssh_accept'];  ?> +
+			    				<?php  echo $chartData['chart']['variables']['ssh_failed'];  ?> +
+			    				<?php  echo $chartData['chart']['variables']['ssh_invalid'];  ?>;
 
 			    var options =  {
 

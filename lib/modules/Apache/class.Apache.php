@@ -270,17 +270,15 @@ class Apache extends LoadAvg
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$stuff = $this->$caller( $functionSettings );
+					$chartData = $this->$caller( $functionSettings );
 				} else {
-					$stuff = $this->$caller( );
+					$chartData = $this->$caller( );
 				}
 
 			} else {
-
 				//no log file so draw empty charts
 				$i++;				
 				$logfileStatus = false;
-
 			}
 
 			//now draw chart to screen
