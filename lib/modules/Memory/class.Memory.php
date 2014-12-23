@@ -122,12 +122,13 @@ class Memory extends LoadAvg
 		if ( LOGGER == "collectd")
 		{
 
-			$used =  $data[2] + $data[3]; 
-			$space = $data[1] + $data[2] + $data[3];
+			$dmemory =  $data[1] + $data[2] + $data[3]; 
 
-			$data[1] = $used;
-			$data[2] = $space; //ignored as computed above one time... not per dataset
+			$dtotalmemory = $data[1] + $data[2] + $data[3] + $data[4];
 
+			$data[1] = $dmemory;
+			$data[2] = 0;  //used for swap in loadavgd... not used in collectd
+			$data[3] = $dtotalmemory;
 		}
 	}
 
@@ -147,14 +148,24 @@ class Memory extends LoadAvg
 		$settings = LoadAvg::$_settings->$class;
 
 		//define some core variables here
-		$dataArray = $dataRedline = $usage = array();
-		$dataArrayOver = $dataArrayOver_2 = array();
-		$dataArraySwap = array();
-
+		$dataArray = $dataArrayLabel = array();
+		$dataRedline = $usage = array();
+		$swap = array();
+		
 		//display switch used to switch between view modes - data or percentage
 		// true - show MB
 		// false - show percentage
 		$displayMode =	$settings['settings']['display_limiting'];	
+
+		//define datasets
+		$dataArrayLabel[0] = 'Memory Usage';
+		$dataArrayLabel[1] = 'Overload';
+		$dataArrayLabel[2] = 'Swap';
+
+		/*
+		 * grab the log file data needed for the charts as array of strings
+		 * takes logfiles(s) and gives us back contents
+		 */
 
 		$contents = array();
 		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
@@ -191,20 +202,8 @@ class Memory extends LoadAvg
 				//check for redline
 				$redline = ($this->checkRedline($data,4));
 
-				//map the collectd data to our data here
-				if ( LOGGER == "collectd")
-				{
-
-					$dmemory =  $data[1] + $data[2] + $data[3]; 
-
-					$dtotalmemory = $data[1] + $data[2] + $data[3] + $data[4];
-
-					$data[1] = $dmemory;
-					$data[2] = 0;  //used for swap in loadavgd... not used in collectd
-					$data[3] = $dtotalmemory;
-
-				}
-
+				//remap data if it needs mapping based on different loggers
+				$this->reMapData($data);
 
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
@@ -222,29 +221,26 @@ class Memory extends LoadAvg
 
 				$usageCount[] = ($data[0]*1000);
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
-
 				if ($displayMode == 'true' ) {
 					// display data using MB
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
 					if ( $percentage_used > $settings['settings']['overload'] )
-						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
 					//swapping
 					if ( isset($data[2])  ) {
-						$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
+						$dataArray[2][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
 						$swap[] = ( $data[2] / 1024 );
 
 					}
 
 				} else {
 					// display data using percentage
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 
 					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 
 					//swapping
 					if ( isset($data[2])  ) {
@@ -254,24 +250,21 @@ class Memory extends LoadAvg
 						else
 							$swap_percentage = 0;
 						
-						$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". $swap_percentage ."]";
+						$dataArray[2][$data[0]] = "[". ($data[0]*1000) .", ". $swap_percentage ."]";
 						$swap[] = $swap_percentage;
 					}
-
 				}
-
 			}
-
-			//echo $percentage_used; die;
-
-			end($swap);
-			$swapKey = key($swap);
-			$swap = $swap[$swapKey];
 
 			/*
 			 * now we collect data used to build the chart legend 
 			 * 
 			 */
+
+			//echo $percentage_used; die;
+			end($swap);
+			$swapKey = key($swap);
+			$swap = $swap[$swapKey];
 
 			if ($displayMode == 'true' )
 			{
@@ -335,21 +328,11 @@ class Memory extends LoadAvg
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
+			//parse, clean and sort data
+			$depth=3; //number of datasets
+			$this->buildChartDataset($dataArray,$depth);
 
-			ksort($dataArray);
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			if (!is_null($dataArraySwap)) ksort($dataArraySwap);
-
-
-			// dataString is cleaned data used to draw the chart
-			// dataSwapString is the swap usage
-			// dataOverString is if we are in overload
-
-			$dataString = "[" . implode(",", $dataArray) . "]";
-			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
-
+			//build chart object
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'chart_avg' => 'avg',
@@ -359,14 +342,15 @@ class Memory extends LoadAvg
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $mem_mean,
-				'dataset_1' => $dataString,  
-				'dataset_1_label' => 'Memory Usage',
 
-				'dataset_2' => $dataOverString,
-				'dataset_2_label' => 'Overload',
+				'dataset_1' 	  => $dataArray[0],  
+				'dataset_1_label' => $dataArrayLabel[0],
+
+				'dataset_2' 	  => $dataArray[1],
+				'dataset_2_label' => $dataArrayLabel[1],
 				
-				'dataset_4' => $dataSwapString,				// how is it used
-				'dataset_4_label' => 'Swap',
+				'dataset_4' 	  => $dataArray[2],				// how is it used
+				'dataset_4_label' => $dataArrayLabel[2],
 				
 				'overload' => $settings['settings']['overload']
 			);

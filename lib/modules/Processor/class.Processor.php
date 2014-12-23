@@ -208,33 +208,39 @@ class Processor extends LoadAvg
 
 	//switch needs to pull chart data for selected processor
 	//with default being summary data
+	
+	//switch can be hard coded for testing to fir data value - 
+	//$switch = 1;
 
+	//chart should be 1+2+3+(4-1+2+3)
+	/*
+	$switch['user'] = 1
+	$switch['nice'] = 2
+	$switch['sys']  = 3
+	$switch['idle'] = 4
+	$switch['other'] = 5
+		*/
 	public function getUsageData(  $switch ) 
 	{
-
-		//hard coded for testing to fir data value - 
-		//$switch = 1;
-
-		//chart should be 1+2+3+(4-1+2+3)
-		/*
-		$switch['user'] = 1
-		$switch['nice'] = 2
-		$switch['sys']  = 3
-		$switch['idle'] = 4
-		$switch['other'] = 5
-		*/
 
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
 		//define some core variables here
-		$dataArray = $dataRedline = $usage = array();
-		$dataArrayOver = $dataArrayOver_2 = array();
-		$dataArraySwap = array();
+		$dataArray = $dataArrayLabel = array();
+		$dataRedline = $usage = array();
+
+		//$dataArray = $dataRedline = $usage = array();
+		//$dataArrayOver = $dataArrayOver_2 = array();
+		//$dataArraySwap = array();
 
 		//used to limit display data from being sqewed by overloads
 		$displayMode =	$settings['settings']['display_limiting'];
 
+		//define datasets
+		$dataArrayLabel[0] = 'User';
+		$dataArrayLabel[1] = 'Nice';
+		$dataArrayLabel[2] = 'System';
 
 		/*
 		 * grab the log file data needed for the charts as array of strings
@@ -290,11 +296,11 @@ class Processor extends LoadAvg
 				$time[$switch][$data[$switch]] = date("H:ia", $timedata);
 
 				//we have 3 datasets to plot
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[1] ."']";
+				$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", '". $data[1] ."']";
 		
-				$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $data[2] ."']";
+				$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", '". $data[2] ."']";
 		
-				$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", '". $data[3] ."']";
+				$dataArray[2][$data[0]] = "[". ($data[0]*1000) .", '". $data[3] ."']";
 
 			}
 
@@ -344,19 +350,11 @@ class Processor extends LoadAvg
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if ( count($dataArrayOver) == 0 ) $dataArrayOver = null;
-			if ( count($dataArrayOver_2) == 0 ) $dataArrayOver_2 = null;
+			//parse, clean and sort data
+			$depth=3; //number of datasets
+			$this->buildChartDataset($dataArray,$depth);
 
-			//now sort arrays
-			ksort($dataArray);
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			if (!is_null($dataArrayOver_2)) ksort($dataArrayOver_2);
-
-
-			$dataString[0] = "[" . implode(",", $dataArray) . "]";
-			$dataString[1] = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataString[2] = is_null($dataArrayOver_2) ? null : "[" . implode(",", $dataArrayOver_2) . "]";
-
+			//build chart object			
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'chart_avg' => 'avg',
@@ -365,14 +363,14 @@ class Processor extends LoadAvg
 				'ymax' => $ymax,
 				'mean' => $processor_mean,
 				
-				'dataset_1' => $dataString[0],
-				'dataset_1_label' => 'User',
+				'dataset_1' 	  => $dataArray[0],
+				'dataset_1_label' => $dataArrayLabel[0],
 
-				'dataset_2' => $dataString[1],
-				'dataset_2_label' => 'Nice',
+				'dataset_2' 	  => $dataArray[1],
+				'dataset_2_label' => $dataArrayLabel[1],
 				
-				'dataset_3' => $dataString[2],
-				'dataset_3_label' => 'System'
+				'dataset_3' 	  => $dataArray[2],
+				'dataset_3_label' => $dataArrayLabel[2]
 			);
 
 			return $return;

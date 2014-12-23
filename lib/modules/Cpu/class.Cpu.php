@@ -92,16 +92,21 @@ class Cpu extends LoadAvg
 
 	public function getUsageData( $switch ) 
 	{
-
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
 		//define some core variables here
-		$dataArray = $dataRedline = $usage = array();
-		$dataArrayOver = $dataArrayOver_2 = array();
+		$dataArray = $dataArrayLabel = array();
+		$dataRedline = $usage = array();
 
 		//display switch used to switch between view modes - data or percentage
+		//switches between fixed and fitted view modes
 		$displayMode =	$settings['settings']['display_limiting'];	
+
+		//define datasets
+		$dataArrayLabel[0] = 'CPU Load';
+		$dataArrayLabel[1] = 'Overload';
+		$dataArrayLabel[2] = 'Secondary Overload';
 
 		/*
 		 * grab the log file data needed for the charts as array of strings
@@ -152,13 +157,13 @@ class Cpu extends LoadAvg
 				$time[$switch][$data[$switch]] = date("H:ia", $timedata);
 
 				//chart arrays
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
+				$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 		
 				if ( $data[$switch] >= $settings['settings']['overload_1'] )
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
+					$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 		
 				if ( $data[$switch] >= $settings['settings']['overload_2'] )
-					$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
+					$dataArray[2][$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 
 			}
 
@@ -201,25 +206,16 @@ class Cpu extends LoadAvg
 			 * 
 			 */
 
+			//parse, clean and sort dataArray to necesary depth
+			$depth=3; //number of datasets
+			$this->buildChartDataset($dataArray,$depth);
+
 			$return  = array();
 
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if ( count($dataArrayOver) == 0 ) $dataArrayOver = null;
-			if ( count($dataArrayOver_2) == 0 ) $dataArrayOver_2 = null;
-
-			ksort($dataArray);
-
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			if (!is_null($dataArrayOver_2)) ksort($dataArrayOver_2);
-
-
-			$dataString[0] = "[" . implode(",", $dataArray) . "]";
-
-			$dataString[1] = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataString[2] = is_null($dataArrayOver_2) ? null : "[" . implode(",", $dataArrayOver_2) . "]";
-
+			//build chart object
 			$return['chart'] = array(
 				'chart_format' 	  => 'line',
 				'chart_avg' 	  => 'avg',
@@ -228,14 +224,14 @@ class Cpu extends LoadAvg
 				'ymax' 			  => $ymax,
 				'mean' 			  => $cpu_mean,
 				
-				'dataset_1' 	  => $dataString[0],
-				'dataset_1_label' => 'CPU Load',
+				'dataset_1' 	  => $dataArray[0],
+				'dataset_1_label' => $dataArrayLabel[0],
 
-				'dataset_2' 	  => $dataString[1],
-				'dataset_2_label' => 'Overload',
+				'dataset_2' 	  => $dataArray[1],
+				'dataset_2_label' => $dataArrayLabel[1],
 				
-				'dataset_3' 	  => $dataString[2],
-				'dataset_3_label' => 'Secondary Overload'
+				'dataset_3' 	  => $dataArray[2],
+				'dataset_3_label' => $dataArrayLabel[2]
 			);
 
 			return $return;

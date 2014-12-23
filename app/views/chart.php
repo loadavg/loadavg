@@ -76,7 +76,7 @@
 	        <!-- this sections renders main chart area -->
 
 			<!-- used to change  if we have the Avg chart on right or not -->
-			<td class="<?php echo ( isset( $chartData['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
+			<td class="<?php echo ( isset( $chartData['chart']['chart_avg'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
 				
 	       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
 	       		     more than 1 in i means multiple charts in the segment so we include js files just once
@@ -94,7 +94,7 @@
 			<?php 
 	        // Now draw separate chart for mean value display stacked bar chart
 	        // cool as we can also do pie charts etc using different flags
-			if ( isset($chartData['chart']['mean']) ) {  
+			if ( isset($chartData['chart']['chart_avg']) ) {  
 
 				//$chartMode = $chartData['chart']['chart_avg'];
 

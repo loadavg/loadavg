@@ -230,11 +230,13 @@ class Mysql extends LoadAvg
 
 		//define some core variables here
 		$dataArray = $dataRedline = $usage = array();
-		$dataArrayOver = $dataArrayOver_2 = array();
 		$dataArraySwap = array();
 
 		//display switch used to switch between view modes - data or percentage
 		//$displayMode =	$settings['settings']['display_limiting'];	
+
+		//mode specific data is set up here
+		$dataArrayLabel[0] = $this->getChartLabel($switch);
 
 		/*
 		 * grab the log file data needed for the charts as array of strings
@@ -264,10 +266,7 @@ class Mysql extends LoadAvg
 		 * uses chartArray which contains the dataset to be charted
 		 */
 
-		 if ( $totalchartArray > 0 ) {
-
-			//mode specific data is set up here
-			$theLabel = $this->getChartLabel($switch); 
+		 if ( $totalchartArray > 0 ) { 
 
 			// main loop to build the chart data
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
@@ -296,11 +295,8 @@ class Mysql extends LoadAvg
 
 				$usageCount[] = ($data[0]*1000);
 
-				//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-				//	$timestamps[] = $data[0];
-
 				// received
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$switch] / $divisor ) ."]";
+				$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$switch] / $divisor ) ."]";
 
 			}
 
@@ -342,16 +338,9 @@ class Mysql extends LoadAvg
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
-
-			ksort($dataArray);
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-
-			// dataString is cleaned data used to draw the chart
-			// dataOverString is if we are in overload
-
-			$dataString = "[" . implode(",", $dataArray) . "]";
-			//$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
+			//parse, clean and sort data
+			$depth=1; //number of datasets
+			$this->buildChartDataset($dataArray,$depth);
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
@@ -362,11 +351,8 @@ class Mysql extends LoadAvg
 				'mean' => $mysql_mean,
 				'avg' => "stack",
 
-				'dataset_1' => $dataString,
-				'dataset_1_label' => $theLabel
-
-				//'dataset_2' => $dataOverString,
-				//'dataset_2_label' => 'Overload',
+				'dataset_1' 	  => $dataArray[0],
+				'dataset_1_label' => $dataArrayLabel[0]
 
 				//'overload' => $settings['settings']['overload']
 			);

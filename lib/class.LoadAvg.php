@@ -777,8 +777,6 @@ class LoadAvg
 
 		} 
 
-
-
 		//now rebuild data into $thenewarray as a single array -  stitch it back up
 		$loop = 0;
 		foreach ($thenewarray[0] as &$value) {
@@ -800,10 +798,6 @@ class LoadAvg
 		
 	}
 
-
-
-
-
 	/*
 	 * build the chart data array here and patch to check for downtime
 	 * as current charts connect last point to next point
@@ -818,8 +812,6 @@ class LoadAvg
 
 //parses contents
 //returns in chartData
-
-
 
 	function getChartData (array &$chartData, array &$contents ) 
 	{				
@@ -934,14 +926,36 @@ class LoadAvg
 
 					array_splice( $chartData, $patch_time, 0, $thepatch );
 	        		//echo "PATCHED: " . $patch_time . " count: " . count( $chartData ) . "<br>";
-
 			}
 		}
-
 		//echo "PATCHARRAYPATCHED: " . count( $chartData ) . "<br>";
+	}
 
 
-}
+	/**
+	 * buildChartDataset
+	 *
+	 * Takes array of filan chart data, sorts and prepares it for
+	 * flot to render to screen
+	 */
+
+	public function buildChartDataset ( &$dataArray, $depth ) 
+	{
+
+		for ( $loop =0; $loop < $depth; $loop ++)
+		{
+			if ( !isset($dataArray[$loop]) || count($dataArray[$loop]) == 0) 
+			{ 
+				$dataArray[$loop] = null; 
+			}
+			else 
+			{
+				ksort($dataArray[$loop]);
+				$dataArray[$loop] = "[" . implode(",", $dataArray[$loop]) . "]";
+			}
+		}
+	}
+
 
 	/**
 	 * getDelimiter
@@ -983,6 +997,7 @@ class LoadAvg
 	{
 		$emptyChart = array(
 			'chart_format' => 'line',
+			'chart_avg' => 'avg',
 			'ymin' => 0,
 			'ymax' => 1,
 			'xmin' => date("Y/m/d 00:00:01"),

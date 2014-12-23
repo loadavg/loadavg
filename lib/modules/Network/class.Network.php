@@ -224,24 +224,26 @@ class Network extends LoadAvg
 		$settings = LoadAvg::$_settings->$class;
 
 		//define some core variables here
-		$dataArray = $dataRedline = $usage = array();
-		$dataArrayOver = $dataArrayOver_2 = array();
-		$dataArraySwap = array();
+		$dataArray = $dataArrayLabel = array();
+		$dataRedline = $usage = array();
+
+		//$dataArrayOver = $dataArrayOver_2 = array();
+		//$dataArraySwap = array();
 
 		//display switch used to switch between view modes 
 		switch ( $mode) {
 			case 1: 	$threshold = $settings['settings']['threshold_transfer'];		
 				        $limiting = $settings['settings']['transfer_limiting'];				
 				        $cutoff = $settings['settings']['transfer_cutoff'];			
-				        $chart_data_label = "Transmit";
-				        $chart_data_over_label = "Overload";
+				        $dataArrayLabel[0] = "Transmit";
+				        $dataArrayLabel[1] = "Overload";
 						break;
 
 			case 2: 	$threshold = $settings['settings']['threshold_receive'];	
 				        $limiting = $settings['settings']['receive_limiting'];
 						$cutoff = $settings['settings']['receive_cutoff'];	
-				        $chart_data_label = "Receive";
-				        $chart_data_over_label = "Overload";											
+				        $dataArrayLabel[0] = "Receive";
+				        $dataArrayLabel[1] = "Overload";											
 						break;
 		}
 		$displayMode =	$limiting;
@@ -292,16 +294,14 @@ class Network extends LoadAvg
 
 				$timedata = (int)$data[0];
 				$time[$net_rate] = date("H:ia", $timedata);
-
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
 			
 				$rate[] = $net_rate;
 
+				$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
+
 				if ( $net_rate > $threshold )
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
+					$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
 			
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
 			}
 
 
@@ -360,29 +360,26 @@ class Network extends LoadAvg
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
+			//parse, clean and sort data
+			$depth=3; //number of datasets
+			$this->buildChartDataset($dataArray,$depth);
 
-			ksort($dataArray);
-
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-
-			$dataString = "[" . implode(",", $dataArray) . "]";
-			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-
+			//build chart object
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'mean' => $net_mean,
 
-				'dataset_1' => $dataString,
-				'dataset_1_label' => $chart_data_label,
+				'dataset_1' 	  => $dataArray[0],
+				'dataset_1_label' => $dataArrayLabel[0],
 
-				'dataset_2' => $dataOverString,
-				'dataset_2_label' => $chart_data_over_label
+				'dataset_2' 	  => $dataArray[1],
+				'dataset_2_label' => $dataArrayLabel[1]
 			);
 
 			return $return;
+			
 		} else {
 
 			return false;	

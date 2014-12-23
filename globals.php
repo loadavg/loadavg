@@ -33,7 +33,7 @@ if ( $ROOT_PATH != "/") $ROOT_PATH = $ROOT_PATH . "/";
 
 /* Set script version */
 
-$loadavg_version = "2.0";
+$loadavg_version = "2.1";
 
 defined('SCRIPT_VERSION') || define('SCRIPT_VERSION', $loadavg_version );
 

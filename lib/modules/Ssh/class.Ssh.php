@@ -306,12 +306,16 @@ class Ssh extends LoadAvg
 		$settings = LoadAvg::$_settings->$class;
 
 		//define some core variables here
-		$dataArray = $dataRedline = $usage = array();
-		$dataArrayOver = $dataArrayOver_2 = array();
-		$dataArraySwap = array();
+		$dataArray = $dataArrayLabel = array();
+		$dataRedline = $usage = array();
 
 		//display switch used to switch between view modes - data or percentage
 		$displayMode =	$settings['settings']['display_limiting'];
+
+		//define datasets
+		$dataArrayLabel[0] = $this->getChartLabel($switch); 
+		$dataArrayLabel[1] = 'Failed';
+		$dataArrayLabel[2] = 'Invalid User';
 
 		/*
 		 * grab the log file data needed for the charts as array of strings
@@ -343,11 +347,6 @@ class Ssh extends LoadAvg
 		 */
 		
 		 if ( $totalchartArray > 0 ) {
-
-			$theLabel = $this->getChartLabel($switch); 
-
-			//setup local variables
-			$ssh_accept = $ssh_failed = $ssh_invalid = 0;
 			
 			// main loop to build the chart data			
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
@@ -371,28 +370,24 @@ class Ssh extends LoadAvg
 
 				$usageCount[] = ($data[0]*1000);
 
-				$ssh_accept += $data[1];
-				$ssh_failed += $data[2];
-				$ssh_invalid += $data[3];
-
 				//dirty hack here as we arent using switch across the board
 				//rather using switch mode 1 as a default
 				if ($displayMode == "true") {
 
 					// display data accepted
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$switch]  ) ."]";
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$switch]  ) ."]";
 				
 
 				} else {
 
 					// display data accepted
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
 					
 					// display data failed
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2]  ) ."]";
+					$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2]  ) ."]";
 					
 					// display data invalid user
-					$dataArrayOver_2[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3]  ) ."]";					
+					$dataArray[2][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[3]  ) ."]";					
 				}
 			}
 
@@ -401,47 +396,28 @@ class Ssh extends LoadAvg
 			 * 
 			 */
 
-			//need totoals for
-			// accepted, failed and user
-			//not high and low ?
+			$ssh_accept = array_sum($usage[1]);			
+			$ssh_failed = array_sum($usage[2]);
+			$ssh_invalid = array_sum($usage[3]);
+
+			//set zoom based on all data or some data
 			if ($displayMode == "true") {
-				$mem_high = max($usage[$switch]);
+				$ssh_high = max($usage[$switch]);
 			}
 			else
-				$mem_high = max( (max($usage[1])) , (max($usage[2])), (max($usage[3])) );
-
-			//needs to be across all ?
-			$ssh_accept_high_time = $time[max($usage[$switch])];
-
-			$ssh_accept_high_time = 0;
-			$ssh_failed_high_time = 0;
-			$ssh_invalid_high_time = 0;
-
-			$mem_low  = 0; 
+				$ssh_high = max( (max($usage[1])) , (max($usage[2])), (max($usage[3])) );
 
 			//really needs to be max across data 1, data 2 and data 3
-			$ymax = $mem_high;
-			$ymin = $mem_low;
+			$ymax = $ssh_high;
+			$ymin = 0;
 			
-			$mem_low_time = $time[min($usage[1])];
-			$mem_latest = ( ( $usage[1][count($usage)-1]  )  )    ;		
-
-		
-			// values used to draw the legend
-
-			//WRONG!!!!	
+			//gets last accepted login
 			$ssh_latest_login  = ( $time[$usage[1][count($usage)-1]] )    ;		
 		
-
-			$ssh_mean = true;
-
 			$variables = array(
-				'ssh_accept' => $ssh_accept,
-				'ssh_accept_high_time' => $ssh_accept_high_time,
-				'ssh_failed' => $ssh_failed,
-				'ssh_failed_high_time' => $ssh_failed_high_time,
-				'ssh_invalid' => $ssh_invalid,
-				'ssh_invalid_high_time' => $ssh_invalid_high_time,
+				'ssh_accept' 	=> $ssh_accept,
+				'ssh_failed' 	=> $ssh_failed,
+				'ssh_invalid' 	=> $ssh_invalid,
 				'ssh_latest_login' => $ssh_latest_login
 			);
 
@@ -456,17 +432,11 @@ class Ssh extends LoadAvg
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
-			if ( count($dataArrayOver_2) == 0 ) $dataArrayOver_2 = null;
+			//parse, clean and sort data
+			$depth=3; //number of datasets
+			$this->buildChartDataset($dataArray,$depth);
 
-			ksort($dataArray);
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			if (!is_null($dataArrayOver_2)) ksort($dataArrayOver_2);
-
-			$dataString = "[" . implode(",", $dataArray) . "]";
-			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataOverString_2 = is_null($dataArrayOver_2) ? null : "[" . implode(",", $dataArrayOver_2) . "]";
-
+			//build chart object
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				
@@ -475,16 +445,14 @@ class Ssh extends LoadAvg
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 
-				'mean' => $ssh_mean,   //this has to be on to draw sidebars need to fix this!
+				'dataset_1' 	  => $dataArray[0],
+				'dataset_1_label' => $dataArrayLabel[0],
 
-				'dataset_1' => $dataString,
-				'dataset_1_label' => $theLabel,
+				'dataset_2' 	  => $dataArray[1],
+				'dataset_2_label' => $dataArrayLabel[1],
 
-				'dataset_2' => $dataOverString,
-				'dataset_2_label' => 'Failed',
-
-				'dataset_3' => $dataOverString_2,
-				'dataset_3_label' => 'Invalid User',
+				'dataset_3' 	  => $dataArray[2],
+				'dataset_3_label' => $dataArrayLabel[2],
 
 				'overload' => $settings['settings']['overload'],
 

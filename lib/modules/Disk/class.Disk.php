@@ -36,9 +36,7 @@ class Disk extends LoadAvg
 	 *
 	 * @param string $type type of logging default set to normal but it can be API too.
 	 * @return string $string if type is API returns data as string
-	 *
-	 * NEED TO START LOGGING SWAP AS WELL
-	 *
+	 *	 *
 	 */
 
 	public function logData( $type = false )
@@ -59,12 +57,7 @@ class Disk extends LoadAvg
 			//$percentBytes = $freeBytes ? round($freeBytes / $totalBytes, 2) * 100 : 0;
 		}
 
-		//get disk space used for swap here
-		exec("free -o | grep Swap | awk -F' ' '{print $3}'", $swapBytes);
-
-		$swapBytes = implode(chr(26), $swapBytes);
-
-	    $string = time() . '|' . $usedBytes  . '|' . $spaceBytes . '|' . $swapBytes . "\n";
+	    $string = time() . '|' . $usedBytes  . '|' . $spaceBytes . "\n";
 		
 		$filename = sprintf($this->logfile, date('Y-m-d'));
 		$this->safefilerewrite($filename,$string,"a",true);
@@ -152,15 +145,18 @@ class Disk extends LoadAvg
 		$settings = LoadAvg::$_settings->$class;
 
 		//define some core variables here
-		$dataArray = $dataRedline = $usage = array();
-		$dataArrayOver = $dataArrayOver_2 = array();
-		$dataArraySwap = array();
+		$dataArray = $dataArrayLabel = array();
+		$dataRedline = $usage = array();
 
 		//display switch used to switch between view modes - data or percentage
 		// true - show MB
 		// false - show percentage
 		$displayMode =	$settings['settings']['display_limiting'];	
-		
+
+		//define datasets
+		$dataArrayLabel[0] = 'Disk Usage';
+		$dataArrayLabel[1] = 'Overload';
+
 		/*
 		 * grab the log file data needed for the charts as array of strings
 		 * takes logfiles(s) and gives us back contents
@@ -208,7 +204,6 @@ class Disk extends LoadAvg
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
 				
-				//used to filter out redline data from usage data as it skews it
 				//usage is used to calculate view perspectives
 				if (!$redline) {
 					$usage[] = ( $data[1] / 1048576 );
@@ -227,22 +222,19 @@ class Disk extends LoadAvg
 
 				$usageCount[] = ($data[0]*1000);
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
-
 				if ($displayMode == 'true' ) {
 					// display data using MB
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
 
 					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
+						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
 
 				} else {
 					// display data using percentage
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 
 					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 				}
 			}
 
@@ -304,18 +296,15 @@ class Disk extends LoadAvg
 			 */
 
 			$return  = array();
-			
+
 			// get legend layout from ini file		
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
+			//parse, clean and sort data
+			$depth=2; //number of datasets
+			$this->buildChartDataset($dataArray,$depth);
 
-			ksort($dataArray);
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-
-			$dataString = "[" . implode(",", $dataArray) . "]";
-			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-
+			//build chart object			
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'chart_avg' => 'avg',
@@ -325,11 +314,12 @@ class Disk extends LoadAvg
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $disk_mean,
-				'dataset_1' => $dataString,
-				'dataset_1_label' => 'Disk Usage',
 
-				'dataset_2' => $dataOverString,
-				'dataset_2_label' => 'Overload',
+				'dataset_1' 	  => $dataArray[0],
+				'dataset_1_label' => $dataArrayLabel[0],
+
+				'dataset_2' 	  => $dataArray[1],
+				'dataset_2_label' => $dataArrayLabel[1],
 				
 				'overload' => $settings['settings']['overload']
 			);

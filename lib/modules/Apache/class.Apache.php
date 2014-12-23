@@ -115,28 +115,45 @@ class Apache extends LoadAvg
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-		//grab the log file data needed for the charts
+		//define some core variables here
+		$dataArray = null;
+		$dataRedline = $usage = array();
+
+		//display switch used to switch between view modes - data or percentage
+		// true - show MB
+		// false - show percentage
+		$displayMode =	$settings['settings']['display_limiting'];	
+
+		/*
+		 * grab the log file data needed for the charts as array of strings
+		 * takes logfiles(s) and gives us back contents
+		 */
+
 		$contents = array();
-		//$contents = LoadAvg::parseLogFileData($this->logfile);
 		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 
-		//contents is now an array!!! not a string
-		// is this really faster than strlen ?
-		
-		if (!empty($contents) && $logStatus) {
-			
-			$return = $usage = $args = array();
+		/*
+		 * build the chartArray array here as array of arrays needed for charting
+		 * takes in contents and gives us back chartArray
+		 */
 
-			$usageCount = array();
-			$dataArray = $dataArrayOver = array();
+		$chartArray = array();
+		$totalchartArray = 0;
 
-			$chartType = LoadAvg::$_settings->general['chart_type'];
+		if ($logStatus) {
 
-			$chartArray = array();
-
-			$this->getChartData ($chartArray, $contents, $chartType);
-
+			//takes the log file and parses it into chartable data 
+			$this->getChartData ($chartArray, $contents );
 			$totalchartArray = (int)count($chartArray);
+		}
+
+		
+		/*
+		 * now we loop through the dataset and build the chart
+		 * uses chartArray which contains the dataset to be charted
+		 */
+
+		if ( $totalchartArray > 0 ) {
 
 			// main loop to build the chart data
 			for ( $i = 0; $i < $totalchartArray; ++$i) {	
@@ -158,16 +175,18 @@ class Apache extends LoadAvg
 
 				$usageCount[] = ($data[0]*1000);
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
-
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] ) ."]";
+				$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] ) ."]";
 
 				if ( (float) $data[1] > $settings['settings']['overload'])
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
+					$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
 
 			}
-			
+
+			/*
+			 * now we collect data used to build the chart legend 
+			 * 
+			 */
+
 			$apache_high = max($usage);
 			$apache_low  = min($usage); 
 			$apache_mean = array_sum($usage) / count($usage);
@@ -190,28 +209,37 @@ class Apache extends LoadAvg
 				'apache_mean' => number_format($apache_mean,4),
 				'apache_latest' => number_format($apache_latest,4),
 			);
-		
+
+			/*
+			 * all data to be charted is now cooalated into $return
+			 * and is returned to be charted
+			 * 
+			 */
+
+			$return  = array();
+
+			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
+			//parse, clean and sort data
+			$depth=2; //number of datasets
+			$this->buildChartDataset($dataArray,$depth);
 
-			ksort($dataArray);
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-
-			$dataString = "[" . implode(",", $dataArray) . "]";
-			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-
+			//build chart object
 			$return['chart'] = array(
 				'chart_format' => 'line',
+				'chart_avg' => 'avg',
+
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $apache_mean,
-				'dataset_1' => $dataString,
+
+				'dataset_1' => $dataArray[0],
 				'dataset_1_label' => 'CPU Usage',
 
-				'dataset_2' => $dataOverString,
+				'dataset_2' => $dataArray[1],
 				'dataset_2_label' => 'Overload',
 
 				'overload' => $settings['settings']['overload']
