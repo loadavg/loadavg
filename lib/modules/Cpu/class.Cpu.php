@@ -133,9 +133,8 @@ class Cpu extends LoadAvg
 
 		if ( $totalchartArray > 0 ) {
 
-			//the main chart loop is here
+			// main loop to build the chart data
 			for ( $i = 0; $i < $totalchartArray; ++$i) {	
-
 				$data = $chartArray[$i];
 				
 				// clean data for missing values
@@ -204,6 +203,7 @@ class Cpu extends LoadAvg
 
 			$return  = array();
 
+			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
 			if ( count($dataArrayOver) == 0 ) $dataArrayOver = null;

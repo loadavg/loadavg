@@ -257,26 +257,14 @@ class Ssh extends LoadAvg
 	}
 
 	/**
-	 * getData
+	 * getChartLabel
 	 *
-	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
-	 *
-	 * @param string $switch with switch data to populate return array
-	 * @return array $return data retrived from logfile
+	 * Gets label for chart based on mode
 	 *
 	 */
-
-
-	public function getUsageData( $switch = 1)
+	
+	public function getChartLabel( $switch  )
 	{
-		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
-			
-		//grab the log file data needed for the charts
-		$contents = array();
-		//$contents = LoadAvg::parseLogFileData($this->logfile);
-		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
-
 
 		//mode specific data is set up here
 		//1 == Accepted
@@ -295,36 +283,73 @@ class Ssh extends LoadAvg
 						break;
 		}
 
-		$ssh_accept = $ssh_failed = $ssh_invalid = 0;
+		return $theLabel;
+
+	}
 
 
+	/**
+	 * getData
+	 *
+	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
+	 *
+	 * @param string $switch with switch data to populate return array
+	 * @return array $return data retrived from logfile
+	 *
+	 */
 
-		//contents is now an array!!! not a string
-		// is this really faster than strlen ?
-		
-		if (!empty($contents) && $logStatus) {
 
-			$return = $usage = $args = array();
+	public function getUsageData( $switch = 1)
+	{
 
-			$swap = array();
-			$usageCount = array();
-			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataArraySwap = array();
+		$class = __CLASS__;
+		$settings = LoadAvg::$_settings->$class;
 
-			$chartArray = array();
+		//define some core variables here
+		$dataArray = $dataRedline = $usage = array();
+		$dataArrayOver = $dataArrayOver_2 = array();
+		$dataArraySwap = array();
 
-			$this->getChartData ($chartArray, $contents);
+		//display switch used to switch between view modes - data or percentage
+		$displayMode =	$settings['settings']['display_limiting'];
 
+		/*
+		 * grab the log file data needed for the charts as array of strings
+		 * takes logfiles(s) and gives us back contents
+		 */	
+
+		$contents = array();
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
+
+		/*
+		 * build the chartArray array here as array of arrays needed for charting
+		 * takes in contents and gives us back chartArray
+		 */
+
+		$chartArray = array();
+		$totalchartArray = 0;
+
+		if ($logStatus) {
+
+			//takes the log file and parses it into chartable data 
+			$this->getChartData ($chartArray, $contents );
 			$totalchartArray = (int)count($chartArray);
-				
-			//data[0] = time
-			//data[1] = accepted 
-			//data[2] = failed_pass
-			//data[3] = invalid_user
+		}
+
+
+		/*
+		 * now we loop through the dataset and build the chart
+		 * uses chartArray which contains the dataset to be charted
+		 */
+		
+		 if ( $totalchartArray > 0 ) {
+
+			$theLabel = $this->getChartLabel($switch); 
+
+			//setup local variables
+			$ssh_accept = $ssh_failed = $ssh_invalid = 0;
 			
-			//based on display mode here bossy
-			$displayMode =	$settings['settings']['display_limiting'];
-
-
+			// main loop to build the chart data			
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
 
@@ -345,10 +370,6 @@ class Ssh extends LoadAvg
 				$time[( $data[1]  )] = date("H:ia", $timedata);
 
 				$usageCount[] = ($data[0]*1000);
-
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
-
 
 				$ssh_accept += $data[1];
 				$ssh_failed += $data[2];
@@ -375,6 +396,11 @@ class Ssh extends LoadAvg
 				}
 			}
 
+			/*
+			 * now we collect data used to build the chart legend 
+			 * 
+			 */
+
 			//need totoals for
 			// accepted, failed and user
 			//not high and low ?
@@ -391,25 +417,18 @@ class Ssh extends LoadAvg
 			$ssh_failed_high_time = 0;
 			$ssh_invalid_high_time = 0;
 
-
 			$mem_low  = 0; 
-			
-			//echo 'high: ' . $mem_high . 'low: ' . $mem_low ;
-
-			//$mem_mean = array_sum($usage) / count($usage);
 
 			//really needs to be max across data 1, data 2 and data 3
 			$ymax = $mem_high;
 			$ymin = $mem_low;
 			
 			$mem_low_time = $time[min($usage[1])];
-
 			$mem_latest = ( ( $usage[1][count($usage)-1]  )  )    ;		
 
 		
 			// values used to draw the legend
 
-			//$ssh_latest_login = 	$mem_latest;	
 			//WRONG!!!!	
 			$ssh_latest_login  = ( $time[$usage[1][count($usage)-1]] )    ;		
 		
@@ -426,9 +445,13 @@ class Ssh extends LoadAvg
 				'ssh_latest_login' => $ssh_latest_login
 			);
 
-			// stack data is
-			// max sorted totals for each of the 3 categories
-			// max of all 3
+			 /*
+			 * all data to be charted is now cooalated into $return
+			 * and is returned to be charted
+			 * 
+			 */
+
+			$return  = array();
 
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);

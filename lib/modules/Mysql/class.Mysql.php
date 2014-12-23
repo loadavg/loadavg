@@ -179,26 +179,17 @@ class Mysql extends LoadAvg
 
 	}
 
-
 	/**
-	 * getData
+	 * getChartLabel
 	 *
-	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
+	 * Gets label for chart based on mode
 	 *
-	 * @return array $return data retrived from logfile
+	 * @return the disk size
 	 *
 	 */
 	
-	public function getData( $useData = 1)
+	public function getChartLabel( $switch  )
 	{
-
-		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
-
-		//grab the log file data needed for the charts
-		$contents = array();
-		//$contents = LoadAvg::parseLogFileData($this->logfile);
-		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 
 		//mode specific data is set up here
 		//1 == Transmit
@@ -206,7 +197,7 @@ class Mysql extends LoadAvg
 		//3 == Queries
 
 		$theLabel = "";
-		switch ( $useData) {
+		switch ( $switch) {
 			case 1: 	$theLabel = "Transmit";						
 						break;
 
@@ -217,32 +208,68 @@ class Mysql extends LoadAvg
 						break;
 		}
 
+		return $theLabel;
 
-		//contents is now an array!!! not a string
-		// is this really faster than strlen ?
-		
-		if (!empty($contents) && $logStatus) {
+	}
 
-			$return = $usage = $args = array();
 
-			$swap = array();
-			$usageCount = array();
-			
-			$dataArray = $dataArrayOver = $dataArraySwap = array();
+	/**
+	 * getData
+	 *
+	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
+	 *
+	 * @return array $return data retrived from logfile
+	 *
+	 */
+	
+	public function getData( $switch = 1)
+	{
 
-			$chartType = LoadAvg::$_settings->general['chart_type'];
+		$class = __CLASS__;
+		$settings = LoadAvg::$_settings->$class;
 
-			//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-			//	$timestamps = array();
+		//define some core variables here
+		$dataArray = $dataRedline = $usage = array();
+		$dataArrayOver = $dataArrayOver_2 = array();
+		$dataArraySwap = array();
 
-			$chartArray = array();
+		//display switch used to switch between view modes - data or percentage
+		//$displayMode =	$settings['settings']['display_limiting'];	
 
-			$this->getChartData ($chartArray, $contents, $chartType );
+		/*
+		 * grab the log file data needed for the charts as array of strings
+		 * takes logfiles(s) and gives us back contents
+		 */	
 
+		$contents = array();
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
+
+		/*
+		 * build the chartArray array here as array of arrays needed for charting
+		 * takes in contents and gives us back chartArray
+		 */
+
+		$chartArray = array();
+		$totalchartArray = 0;
+
+		if ($logStatus) {
+
+			//takes the log file and parses it into chartable data 
+			$this->getChartData ($chartArray, $contents );
 			$totalchartArray = (int)count($chartArray);
+		}
 
-			//$displayMode =	$settings['settings']['display_limiting'];
+		/*
+		 * now we loop through the dataset and build the chart
+		 * uses chartArray which contains the dataset to be charted
+		 */
 
+		 if ( $totalchartArray > 0 ) {
+
+			//mode specific data is set up here
+			$theLabel = $this->getChartLabel($switch); 
+
+			// main loop to build the chart data
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
 
@@ -254,18 +281,18 @@ class Mysql extends LoadAvg
 
 				//when showing send and receive its bytes to MB
 				//when showing queries, mode 3, its 1 to 1
-				if ($useData == 3)
+				if ($switch == 3)
 					$divisor = 1;
 				else
 					$divisor = 1024;
 
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {
-					$usage[] = ( $data[$useData] / $divisor );
+					$usage[] = ( $data[$switch] / $divisor );
 				}
 
 				$timedata = (int)$data[0];
-				$time[( $data[$useData] / $divisor )] = date("H:ia", $timedata);
+				$time[( $data[$switch] / $divisor )] = date("H:ia", $timedata);
 
 				$usageCount[] = ($data[0]*1000);
 
@@ -273,10 +300,15 @@ class Mysql extends LoadAvg
 				//	$timestamps[] = $data[0];
 
 				// received
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$useData] / $divisor ) ."]";
+				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[$switch] / $divisor ) ."]";
 
 			}
-			
+
+			/*
+			 * now we collect data used to build the chart legend 
+			 * 
+			 */
+
 			$mysql_high = max($usage);
 			$mysql_low  = min($usage); 
 			$mysql_mean = array_sum($usage) / count($usage);
@@ -299,6 +331,14 @@ class Mysql extends LoadAvg
 				'mysql_latest' => number_format($mysql_latest,0),
 			);
 		
+			 /*
+			 * all data to be charted is now cooalated into $return
+			 * and is returned to be charted
+			 * 
+			 */
+
+			$return  = array();
+
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 

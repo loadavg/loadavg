@@ -227,37 +227,46 @@ class Processor extends LoadAvg
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-		//grab the log file data needed for the charts
+		//define some core variables here
+		$dataArray = $dataRedline = $usage = array();
+		$dataArrayOver = $dataArrayOver_2 = array();
+		$dataArraySwap = array();
+
+		//used to limit display data from being sqewed by overloads
+		$displayMode =	$settings['settings']['display_limiting'];
+
+
+		/*
+		 * grab the log file data needed for the charts as array of strings
+		 * takes logfiles(s) and gives us back contents
+		 */	
+
 		$contents = array();
-		//$contents = LoadAvg::parseLogFileData($this->logfile);
 		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
-		
 
-		//contents is now an array!!! not a string
-		// is this really faster than strlen ?
-		
-		if (!empty($contents) && $logStatus) {
+		/*
+		 * build the chartArray array here as array of arrays needed for charting
+		 * takes in contents and gives us back chartArray
+		 */
 
-			$return = $usage = $args = array();
+		$chartArray = array();
+		$totalchartArray = 0;
 
-			$dataArray = $dataArrayOver = $dataArrayOver_2 = $dataRedline = array();
+		if ($logStatus) {
 
-			/*
-			 * build the chartArray array here and patch to check for downtime
-			 */
-
-			$chartArray = array();
-			$this->getChartData ($chartArray, $contents);
-
+			//takes the log file and parses it into chartable data 
+			$this->getChartData ($chartArray, $contents );
 			$totalchartArray = (int)count($chartArray);
+		}
 
-			//used to limit display data from being sqewed by overloads
-			$displayMode =	$settings['settings']['display_limiting'];
+		/*
+		 * now we loop through the dataset and build the chart
+		 * uses chartArray which contains the dataset to be charted
+		 */
+		
+		if ( $totalchartArray > 0 ) {
 
-
-			//for ( $i = 0; $i < $totalchartArray; $i++) {	
 			for ( $i = 0; $i < $totalchartArray; ++$i) {	
-
 				$data = $chartArray[$i];
 				
 				// clean data for missing values
@@ -277,18 +286,8 @@ class Processor extends LoadAvg
 					//$usage[$switch][] = $data[$switch];
 				}
 
-
-
-
 				$timedata = (int)$data[0];
-
 				$time[$switch][$data[$switch]] = date("H:ia", $timedata);
-
-				//for 24 hou charts
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
-
-
 
 				//we have 3 datasets to plot
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $data[1] ."']";
@@ -299,6 +298,10 @@ class Processor extends LoadAvg
 
 			}
 
+			/*
+			 * now we collect data used to build the chart legend 
+			 * 
+			 */
 
 			$processor_high = max($usage[$switch]);
 			$processor_high_time = $time[$switch][$processor_high];
@@ -330,12 +333,21 @@ class Processor extends LoadAvg
                 'processor_latest' => number_format($processor_latest,3)
             );
 
+			 /*
+			 * all data to be charted is now cooalated into $return
+			 * and is returned to be charted
+			 * 
+			 */
 
+			$return  = array();
+
+			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
 			if ( count($dataArrayOver) == 0 ) $dataArrayOver = null;
 			if ( count($dataArrayOver_2) == 0 ) $dataArrayOver_2 = null;
 
+			//now sort arrays
 			ksort($dataArray);
 			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
 			if (!is_null($dataArrayOver_2)) ksort($dataArrayOver_2);

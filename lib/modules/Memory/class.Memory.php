@@ -75,65 +75,16 @@ class Memory extends LoadAvg
 	}
 
 	/**
-	 * getMemoryUsageData
+	 * getDiskSize
 	 *
-	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
+	 * Gets size of disk based on logger and offsets
 	 *
-	 * @return array $return data retrived from logfile
+	 * @return the disk size
 	 *
 	 */
 	
-	public function getUsageData( )
+	public function getMemorySize( $chartArray, $totalchartArray  )
 	{
-		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
-
-		//grab the log file data needed for the charts
-		$contents = array();
-
-		//$contents = LoadAvg::parseLogFileData($this->logfile);
-		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
-
-			/*
-			for collectd data is as follows...
-	     	 0 - timestamp 
-	     	 1 - buffered
-	     	 2 - cached
-	     	 3 - used
-	     	 4 - free
-
-			$memory =  1 + 2 + 3;
-			$totalmemory = 1 + 2 + 3 + 4;
-			
-			*/
-
-			/*
-			for loadavg is
-			 0 - timestamp
-			 1 - memory
-			 2 - swap
-			 3 - totalmemory
-			*/
-
-		//contents is now an array!!! not a string
-		// is this really faster than strlen ?
-		
-		if (!empty($contents) && $logStatus) {
-
-			$return = $usage = $args = array();
-
-			$swap = array();
-			$usageCount = array();
-			$dataArray = $dataArrayOver = $dataArraySwap = array();
-
-
-			$chartArray = array();
-
-			//get log data in array for charting
-			$this->getChartData ($chartArray, $contents );
-
-
-			$totalchartArray = (int)count($chartArray);
 
 			//need to get memory size in order to process data properly
 			//is it better before loop or in loop
@@ -152,14 +103,88 @@ class Memory extends LoadAvg
 				$memorySize = $chartArray[$totalchartArray-1][3] / 1024;
 			}
 
-			//need to start logging total memory
+			return $memorySize;
 
-			// get from settings here for module
-			// true - show MB
-			// false - show percentage
+	}
 
-			$displayMode =	$settings['settings']['display_limiting'];
+	/**
+	 * reMapData
+	 *
+	 * remap data based on loogger
+	 *
+	 * @data sent over by caller
+	 * @return none
+	 *
+	 */
+	
+	public function reMapData( &$data )
+	{
+		if ( LOGGER == "collectd")
+		{
 
+			$used =  $data[2] + $data[3]; 
+			$space = $data[1] + $data[2] + $data[3];
+
+			$data[1] = $used;
+			$data[2] = $space; //ignored as computed above one time... not per dataset
+
+		}
+	}
+
+
+	/**
+	 * getMemoryUsageData
+	 *
+	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
+	 *
+	 * @return array $return data retrived from logfile
+	 *
+	 */
+	
+	public function getUsageData( )
+	{
+		$class = __CLASS__;
+		$settings = LoadAvg::$_settings->$class;
+
+		//define some core variables here
+		$dataArray = $dataRedline = $usage = array();
+		$dataArrayOver = $dataArrayOver_2 = array();
+		$dataArraySwap = array();
+
+		//display switch used to switch between view modes - data or percentage
+		// true - show MB
+		// false - show percentage
+		$displayMode =	$settings['settings']['display_limiting'];	
+
+		$contents = array();
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
+
+		/*
+		 * build the chartArray array here as array of arrays needed for charting
+		 * takes in contents and gives us back chartArray
+		 */
+
+		$chartArray = array();
+		$totalchartArray = 0;
+
+		if ($logStatus) {
+
+			//takes the log file and parses it into chartable data 
+			$this->getChartData ($chartArray, $contents );
+			$totalchartArray = (int)count($chartArray);
+		}
+
+		/*
+		 * now we loop through the dataset and build the chart
+		 * uses chartArray which contains the dataset to be charted
+		 */
+
+		if ( $totalchartArray > 0 ) {
+
+			//get the size of memory we are charting
+			$memorySize = $this->getMemorySize($chartArray, $totalchartArray);
+
+			// main loop to build the chart data
 			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
 				
@@ -243,9 +268,12 @@ class Memory extends LoadAvg
 			$swapKey = key($swap);
 			$swap = $swap[$swapKey];
 
-			//check for displaymode as we show data in MB or %
-			if ($displayMode == 'true' )
+			/*
+			 * now we collect data used to build the chart legend 
+			 * 
+			 */
 
+			if ($displayMode == 'true' )
 			{
 				$mem_high = max($usage);
 				$mem_low  = min($usage); 
@@ -296,6 +324,14 @@ class Memory extends LoadAvg
 				'mem_swap' => number_format($swap,2),
 			);
 		
+			/*
+			 * all data to be charted is now cooalated into $return
+			 * and is returned to be charted
+			 * 
+			 */
+
+			$return  = array();
+
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 

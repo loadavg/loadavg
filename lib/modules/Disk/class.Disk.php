@@ -76,7 +76,66 @@ class Disk extends LoadAvg
 	}
 
 
+	/**
+	 * getDiskSize
+	 *
+	 * Gets size of disk based on logger and offsets
+	 *
+	 * @return the disk size
+	 *
+	 */
+	
+	public function getDiskSize( $chartArray, $totalchartArray  )
+	{
 
+			//need to get disk size in order to process data properly
+			//is it better before loop or in loop
+			//what happens if you resize disk on the fly ? in loop would be better
+			$diskSize = 0;
+
+			//map the collectd disk size to our disk size here
+			//subtract 1 from size of array as a array first value is 0 but gives count of 1
+
+			//set the disk size - bad way to do this in the loop !
+			//but we read this data from the drive logs
+			//$diskSize = $data[2] / 1048576;
+			if ( LOGGER == "collectd")
+			{	
+				$diskSize = ( 	$chartArray[$totalchartArray-1][1] + 
+								$chartArray[$totalchartArray-1][2] + 
+								$chartArray[$totalchartArray-1][3] ) / 1048576;
+			} else {
+
+				$diskSize = $chartArray[$totalchartArray-1][2] / 1048576;
+			}
+
+			return $diskSize;
+
+	}
+
+	/**
+	 * reMapData
+	 *
+	 * remap data based on loogger
+	 *
+	 * @data sent over by caller
+	 * @return none
+	 *
+	 */
+	
+	public function reMapData( &$data )
+	{
+		if ( LOGGER == "collectd")
+		{
+
+			$used =  $data[2] + $data[3]; 
+			$space = $data[1] + $data[2] + $data[3];
+
+			$data[1] = $used;
+			$data[2] = $space; //ignored as computed above one time... not per dataset
+
+		}
+	}
 
 	/**
 	 * getDiskUsageData
@@ -92,92 +151,59 @@ class Disk extends LoadAvg
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-		//grab the log file data needed for the charts
-		$contents = array();
+		//define some core variables here
+		$dataArray = $dataRedline = $usage = array();
+		$dataArrayOver = $dataArrayOver_2 = array();
+		$dataArraySwap = array();
 
+		//display switch used to switch between view modes - data or percentage
+		// true - show MB
+		// false - show percentage
+		$displayMode =	$settings['settings']['display_limiting'];	
+		
+		/*
+		 * grab the log file data needed for the charts as array of strings
+		 * takes logfiles(s) and gives us back contents
+		 */		
+
+		$contents = array();
 		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 
-			/*
-			for collectd data is as follows...
-			 0 - timestamp
-			 1 - free
-			 2 - reserved
-			 3 - used
+		/*
+		 * build the chartArray array here as array of arrays needed for charting
+		 * takes in contents and gives us back chartArray
+		 */
 
-			$used =  2 + 3;
-			$space = 1 + 2 + 3;
-			
-			*/
+		$chartArray = array();
+		$totalchartArray = 0;
 
-			/*
-			for loadavg is
-			 0 - timestamp
-			 1 - used
-			 2 - space
-			 3 - swap not used any more
-			*/
+		if ($logStatus) {
 
-		//contents is now an array!!! not a string		
-		if (!empty($contents) && $logStatus) {
-
-			$return = $usage = $args = array();
-
-			$usageCount = array();
-			$dataArray = $dataArrayOver = $dataArraySwap = array();
-
-			$chartArray = array();
-
-			//get log data in array for charting
+			//takes the log file and parses it into chartable data 
 			$this->getChartData ($chartArray, $contents );
-
 			$totalchartArray = (int)count($chartArray);
+		}
 
-			//need to get disk size in order to process data properly
-			//is it better before loop or in loop
-			//what happens if you resize disk on the fly ? in loop would be better
-			$diskSize = 0;
+		/*
+		 * now we loop through the dataset and build the chart
+		 * uses chartArray which contains the dataset to be charted
+		 */
 
-			//map the collectd disk size to our disk size here
-			//subtract 1 from size of array as a array first value is 0 but gives count of 1
-			if ( LOGGER == "collectd")
-			{	
-				$diskSize = ( 	$chartArray[$totalchartArray-1][1] + 
-								$chartArray[$totalchartArray-1][2] + 
-								$chartArray[$totalchartArray-1][3] ) / 1048576;
-			} else {
+		if ( $totalchartArray > 0 ) {
 
-				$diskSize = $chartArray[$totalchartArray-1][2] / 1048576;
-			}
-
-			// get from settings here for module
-			// true - show MB
-			// false - show percentage
-			$displayMode =	$settings['settings']['display_limiting'];
+			//get the size of the disk we are charting
+			$diskSize = $this->getDiskSize($chartArray, $totalchartArray);
 
 
 			// main loop to build the chart data
-
 			for ( $i = 0; $i < $totalchartArray; ++$i) {	
 				$data = $chartArray[$i];
-
-				//set the disk size - bad way to do this in the loop !
-				//but we read this data from the drive logs
-				//$diskSize = $data[2] / 1048576;
 
 				// clean data for missing values
 				$redline = ($this->checkRedline($data));
 
-				//map the collectd data to our data here
-				if ( LOGGER == "collectd")
-				{
-
-					$used =  $data[2] + $data[3]; 
-					$space = $data[1] + $data[2] + $data[3];
-
-					$data[1] = $used;
-					$data[2] = $space; //ignored as computed above one time... not per dataset
-
-				}
+				//remap data if it needs mapping based on different loggers
+				$this->reMapData($data);
 
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
@@ -224,9 +250,12 @@ class Disk extends LoadAvg
 			//echo '<pre>PRESETTINGS</pre>';
 			//echo '<pre>';var_dump($usage);echo'</pre>';
 
-			//check for displaymode as we show data in MB or %
-			if ($displayMode == 'true' )
+			/*
+			 * now we collect data used to build the chart legend 
+			 * 
+			 */
 
+			if ($displayMode == 'true' )
 			{
 				$disk_high = max($usage);
 				$disk_low  = min($usage); 
@@ -248,7 +277,7 @@ class Disk extends LoadAvg
 				$ymax = 100;
 
 			}
-				
+
 			$disk_high_time = $time[max($usage)];
 			$disk_low_time = $time[min($usage)];
 
@@ -267,7 +296,16 @@ class Disk extends LoadAvg
 				'disk_free' => number_format($disk_free,1),
 				'disk_latest' => number_format($disk_latest,1),
 			);
-		
+
+			/*
+			 * all data to be charted is now cooalated into $return
+			 * and is returned to be charted
+			 * 
+			 */
+
+			$return  = array();
+			
+			// get legend layout from ini file		
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
 			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }

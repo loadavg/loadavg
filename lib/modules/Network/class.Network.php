@@ -219,18 +219,16 @@ class Network extends LoadAvg
 
 	public function getData( $mode = 1 )
 	{
-		$logfileStatus = true;
 
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 
-		//grab the log file data needed for the charts
-		$contents = array();
-		//$contents = LoadAvg::parseLogFileData($this->logfile);
-		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
+		//define some core variables here
+		$dataArray = $dataRedline = $usage = array();
+		$dataArrayOver = $dataArrayOver_2 = array();
+		$dataArraySwap = array();
 
-
-		//set up data that is based on mode
+		//display switch used to switch between view modes 
 		switch ( $mode) {
 			case 1: 	$threshold = $settings['settings']['threshold_transfer'];		
 				        $limiting = $settings['settings']['transfer_limiting'];				
@@ -246,34 +244,45 @@ class Network extends LoadAvg
 				        $chart_data_over_label = "Overload";											
 						break;
 		}
-
-		//contents is now an array!!! not a string
-		// is this really faster than strlen ?
-
-		if (!empty($contents) && $logStatus) {
-
-			$return = $usage = $args = array();
-
-			$dataArray = $dataArrayOver = array();
-
-			$chartType = LoadAvg::$_settings->general['chart_type'];
+		$displayMode =	$limiting;
 
 
-			//if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-			//	$timestamps = array();
+		/*
+		 * grab the log file data needed for the charts as array of strings
+		 * takes logfiles(s) and gives us back contents
+		 */	
 
-			$chartArray = array();
+		$contents = array();
+		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
 
-			$this->getChartData ($chartArray, $contents, $chartType);
+		/*
+		 * build the chartArray array here as array of arrays needed for charting
+		 * takes in contents and gives us back chartArray
+		 */
 
+		$chartArray = array();
+		$totalchartArray = 0;
+
+		if ($logStatus) {
+
+			//takes the log file and parses it into chartable data 
+			$this->getChartData ($chartArray, $contents );
 			$totalchartArray = (int)count($chartArray);
+		}
 
+		/*
+		 * now we loop through the dataset and build the chart
+		 * uses chartArray which contains the dataset to be charted
+		 */
+
+		if ( $totalchartArray > 0 ) {
+
+			// main loop to build the chart data
 			for ( $i = 0; $i < $totalchartArray; ++$i) {		
-
 				$data = $chartArray[$i];
 
-				// clean data for missing values
-				$redline = ($data[$mode] == "-1" ? true : false);
+				//check for redline
+				$redline = ($this->checkRedline($data));
 
 				// clean data for missing values
 				if (  (!$data[$mode]) ||  ($data[$mode] == null) || ($data[$mode] == "") || (int)$data[$mode] < 0)
@@ -295,6 +304,12 @@ class Network extends LoadAvg
 				$dataArray[$data[0]] = "[". ($data[0]*1000) .", '". $net_rate ."']";
 			}
 
+
+			/*
+			 * now we collect data used to build the chart legend 
+			 * 
+			 */
+
 			$net_high= max($rate);
 			$net_high_time = $time[$net_high];
 
@@ -305,14 +320,13 @@ class Network extends LoadAvg
 			$net_mean = number_format(array_sum($rate) / count($rate), 2);
 
 			$net_estimate = round($net_mean*60*60*24/1024);
-		        if ($net_estimate >= 1024) {
-        		        $net_estimate = round($net_estimate/1024,1);
-                		$net_estimate_units = "GB";
-		        } else {
-        	        	$net_estimate_units = "MB";
-	        	}
 
-			$displayMode =	$limiting;
+	        if ($net_estimate >= 1024) {
+    		        $net_estimate = round($net_estimate/1024,1);
+            		$net_estimate_units = "GB";
+	        } else {
+    	        	$net_estimate_units = "MB";
+        	}
 
 			if ($displayMode == 'true' ) {
 				$ymin = 0;
@@ -334,7 +348,16 @@ class Network extends LoadAvg
 				'net_estimate' => $net_estimate,
 				'net_estimate_units' => $net_estimate_units
 			);
-		
+
+			 /*
+			 * all data to be charted is now cooalated into $return
+			 * and is returned to be charted
+			 * 
+			 */
+
+			$return  = array();
+
+			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
 			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
