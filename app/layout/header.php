@@ -54,9 +54,9 @@ if (isset($_POST['login'])  ) {
 <!--[if gt IE 8]><!--> <html> <!--<![endif]-->
 <head>
 	<!--
-	<title><?php echo 'LoadAvg ' . sprintf($settings['title'], $settings['version'], ''); ?></title>
+	<title><?php echo 'LoadAvg ' . sprintf($settings['settings']['title'], $settings['settings']['version'], ''); ?></title>
 	-->
-	<title><?php echo 'Server ' . $settings['title'] . ' | LoadAvg ' . $settings['version']; ?></title>
+	<title><?php echo 'Server ' . $settings['settings']['title'] . ' | LoadAvg ' . $settings['settings']['version']; ?></title>
 	
 	<!-- Meta -->
 	<meta charset="UTF-8" />
@@ -136,11 +136,17 @@ if (isset($_POST['login'])  ) {
 		 problem with below is when you choose today from log menu then logdate is also set
 		 need to fix that in form not here
 	-->
+
 	<?php
 	if ( (!isset($_GET['minDate'])) || (!isset($_GET['maxDate'])) || (!isset($_GET['logdate'])) ) 
-	{ ?>
+	{ 
+		//if (    ($settings['settings']['title'] == "true") )
+		if (   (isset($settings['settings']['title']))  && ($settings['settings']['title'] == "true") )
+		{
+		?>
 		<meta http-equiv="refresh" content="300">
-	<?php
+		<?php
+		}
 	}
 	?>
 	
@@ -161,7 +167,7 @@ if (isset($_POST['login'])  ) {
 			
 			<a href="index.php" class="appbrand"><img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;"><span>LoadAvg<span>Advanced Server Analytics</span></span></a>
 			
-			<?php if ($loadavg->isLoggedIn() || (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "true")) { ?>
+			<?php if ($loadavg->isLoggedIn() || (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true")) { ?>
 
 			<ul class="topnav pull-right">
 				<li<?php if (isset($_GET['page']) && $_GET['page'] == '') : ?> class="active"<?php endif; ?>><a href="index.php"><i class="fa fa-bar-chart-o"></i> Charts</a></li>
@@ -175,7 +181,7 @@ if (isset($_POST['login'])  ) {
 				<li class="account <?php if (isset($_GET['page']) && $_GET['page'] == 'settings') : ?> active<?php endif; ?>">
 					<a data-toggle="dropdown" href="" class="logout"><span class="hidden-phone text">
 
-					<?php echo (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "true" ) ? 'Settings' : 'Settings' /* $settings['username']; */ ?></span> 
+					<?php echo (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true" ) ? 'Settings' : 'Settings' /* $settings['username']; */ ?></span> 
 						<i class="fa fa-unlock-alt"></i></a>
 					
 					<ul class="dropdown-menu pull-right">

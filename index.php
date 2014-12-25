@@ -46,7 +46,7 @@ $loadavg = new LoadAvg();
 $settings = LoadAvg::$_settings->general;
 
 /* Force https when in https mode */
-if ( $settings['https'] == "true" && !isset($_SERVER["HTTPS"])) {
+if ( $settings['settings']['https'] == "true" && !isset($_SERVER["HTTPS"])) {
 	header("Location: https://" . $_SERVER['SERVER_NAME'] .$_SERVER['REQUEST_URI']);
 } else {
 	header("Location: public/");

@@ -59,7 +59,7 @@ class LoadAvg
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
-		date_default_timezone_set(self::$_settings->general['timezone']);
+		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
 
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
 
@@ -67,8 +67,11 @@ class LoadAvg
 		foreach ( self::$_settings->general['modules'] as $key => &$value ) {
 			if ( $value == "true" ) {
 				try {
-					require_once $key . DIRECTORY_SEPARATOR . 'class.' . $key . '.php';
-					self::$_classes[$key] = new $key;
+					$loadModule = $key . DIRECTORY_SEPARATOR . 'class.' . $key . '.php';
+					//if ( file_exists( $loadModule ) ) {
+						require_once $loadModule;
+						self::$_classes[$key] = new $key;
+					//}
 				} catch (Exception $e) {
 					throw Exception( $e->getMessage() );
 				}
@@ -111,10 +114,10 @@ class LoadAvg
 	{
 
 		//only does it if DIR is empty ?
-		if ( $this->is_dir_empty(HOME_PATH . '/' . self::$_settings->general['logs_dir']) ) {
+		if ( $this->is_dir_empty(HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir']) ) {
 
 			$loaded = self::$_settings->general['modules'];
-			$logdir = HOME_PATH . '/' . self::$_settings->general['logs_dir'];
+			$logdir = HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir'];
 
 			$test_nested = false;
 
@@ -818,7 +821,7 @@ class LoadAvg
 
 
 		//select 6,12 or 24 hour charts
-		$dataSet = LoadAvg::$_settings->general['chart_type'];
+		$dataSet = LoadAvg::$_settings->general['settings']['chart_type'];
 		//echo 'dataSet ' . $dataSet  .  '<br>';
 
 		//delimiter is based on logger type 
@@ -1222,7 +1225,7 @@ class LoadAvg
 	public function getLoggerInterval( ) 
 	{
 
-		$interval = LoadAvg::$_settings->general['logger_interval'];
+		$interval = LoadAvg::$_settings->general['settings']['logger_interval'];
 
 		if  ( $interval ) {
 

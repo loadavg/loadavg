@@ -44,7 +44,7 @@ if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'time'))   ) {
 //check for api server data transfer
 $api = false;
 
-if (LoadAvg::$_settings->general['apiserver'] == "true") {
+if (LoadAvg::$_settings->general['settings']['apiserver'] == "true") {
 	$api = true; 
 }
 
@@ -53,7 +53,7 @@ $response = array();
 
 // Delete old log files
 // should we execute this every time ?
-$fromDate = strtotime("-". LoadAvg::$_settings->general['daystokeep'] ." days 00:00:00");
+$fromDate = strtotime("-". LoadAvg::$_settings->general['settings']['daystokeep'] ." days 00:00:00");
 $dates = $loadavg->getDates();
 foreach ( $dates as $date ) {
 	$date = strtotime($date);

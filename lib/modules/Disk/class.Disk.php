@@ -173,9 +173,8 @@ class Disk extends LoadAvg
 		$chartArray = array();
 		$totalchartArray = 0;
 
+		//takes the log file and parses it into chartable data 
 		if ($logStatus) {
-
-			//takes the log file and parses it into chartable data 
 			$this->getChartData ($chartArray, $contents );
 			$totalchartArray = (int)count($chartArray);
 		}

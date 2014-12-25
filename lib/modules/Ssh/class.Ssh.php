@@ -411,9 +411,17 @@ class Ssh extends LoadAvg
 			$ymax = $ssh_high;
 			$ymin = 0;
 			
-			//gets last accepted login
-			$ssh_latest_login  = ( $time[$usage[1][count($usage)-1]] )    ;		
-		
+
+			//need to really clean up this module!
+			//as when no attemtps to access ssh logs time still has data ?
+
+			//we can only do this if there is more than 1 in usage array?
+			if (count ($time) > 1)
+				$ssh_latest_login  = (    $time[   $usage[1][count($usage)-1]  ]    )    ;		
+			else
+				$ssh_latest_login  = (    $time[  $usage[1][1]  ]   )    ;		
+
+
 			$variables = array(
 				'ssh_accept' 	=> $ssh_accept,
 				'ssh_failed' 	=> $ssh_failed,

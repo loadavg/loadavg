@@ -44,7 +44,7 @@
                 <div class="control-group margin-none">
                     <label class="control-label"><b>Period:</b></label>
                     <div class="controls">
-                        <input type="hidden" id="minDateValue" value="<?php echo date("Y-m-d", strtotime("-". LoadAvg::$_settings->general['daystokeep'] ." days 00:00:00")); ?>">
+                        <input type="hidden" id="minDateValue" value="<?php echo date("Y-m-d", strtotime("-". LoadAvg::$_settings->general['settings']['daystokeep'] ." days 00:00:00")); ?>">
                         <input type="hidden" id="maxDateValue" value="<?php echo date("Y-m-d"); ?>">
                         
                         <input type="text" id="minDate" name="minDate" value="<?php echo (isset($_GET['minDate']) && !empty($_GET['minDate'])) ? $_GET['minDate'] : ''; ?>" placeholder="Period from" style="width: 70px;height: 18px;">

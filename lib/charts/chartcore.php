@@ -89,7 +89,7 @@
 
 
 				<?php 
-				$chartType = LoadAvg::$_settings->general['chart_type'];
+				$chartType = LoadAvg::$_settings->general['settings']['chart_type'];
 				$changeRange = false;				
 				//uses current time needs to use time of last log file entry ?
 				if ( $chartType == "6" || $chartType == "12" ) {
