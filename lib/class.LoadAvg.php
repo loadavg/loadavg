@@ -422,15 +422,24 @@ class LoadAvg
 	public function getUIcookie ( &$data1,  &$data2, $module) 
 	{
 
-		$myCookie = $_COOKIE["loadUIcookie"];
+		//these are the default values 
+		$data1 = "accordion-body collapse in";
+		$data2 = "true";
+
+		//if cookie exist greb it here
+		//if not we return default values above
+		if (isset($_COOKIE["loadUIcookie"]))
+			$myCookie = $_COOKIE["loadUIcookie"];
+		else
+			return false;
+		
 		$cookie = stripslashes($myCookie);
 
 		$savedCardArray = json_decode($cookie, true);
 
-		//these are the values we need to grab
-		$data1 = "accordion-body collapse in";
-		$data2 = "true";
 
+
+		//now loop thorugh cookies
 		foreach ($savedCardArray as &$value) {
 
 			$myval = explode("=", $value);
