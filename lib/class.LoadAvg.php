@@ -60,18 +60,13 @@ class LoadAvg
 		);
 
 		//check for old log files here....
-		if (      !isset( $_settings->general['settings'])     ) {
+		if ( !isset( self::$_settings->general['settings']) ) {
 
 			//for legacy 2.0 upgrade support
 			$this->upgradeSettings();
-
-			$this->setSettings('general',
-				parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
-			);
-
 		}
 
-
+		//get the date and timezone
 		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
 
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
@@ -124,7 +119,6 @@ class LoadAvg
 
 		if ( file_exists( $settingsFileLocation )) {
 
-
 			$settingsFile = file_get_contents($settingsFileLocation);
 			$settingsFile = explode("\n", $settingsFile);
 
@@ -132,15 +126,16 @@ class LoadAvg
 			$inserted = "[settings]";
 			array_splice( $settingsFile, 1, 0, $inserted ); // splice in at position 3
 
-
 			//now wite settings back out
-		    $header = "; <?php exit(); __halt_compiler(); ?>\n";
-
 		    if ($fp = fopen($settingsFileLocation, 'w') ) {
-		    	fwrite($fp, $header);	    	
 		    	fwrite($fp, implode("\n", $settingsFile));
 		    	fclose($fp);
 		    }
+
+			//reload settings now
+			$this->setSettings('general',
+				parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
+			);		    
 		}
 
 	}
