@@ -1,3 +1,5 @@
+; <?php exit(); __halt_compiler(); ?>
+[settings]
 version = "2.0"
 extensions_dir = "modules/"
 logs_dir = "logs/"
@@ -12,16 +14,19 @@ https = "false"
 checkforupdates = "false"
 apiserver = "false"
 logger_interval = '5'
+rememberme_interval = '5'
+ban_ip = "true"
 [api]
 url = ""
 key = ""
-username = ""
-server = ""
+server_token = ""
 [network_interface]
 [modules]
-Apache = "false"
 Cpu = "true"
-Disk = "true"
 Memory = "true"
+Disk = "true"
+Apache = "false"
+Mysql = "false"
 Network = "true"
 Server = "true"
+Ssh = "false"

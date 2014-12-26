@@ -1,4 +1,5 @@
 ; <?php exit(); __halt_compiler(); ?>
+[settings]
 version = "2.0"
 extensions_dir = "modules/"
 logs_dir = "logs/"
