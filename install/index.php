@@ -50,8 +50,8 @@ if ( isset($_GET['forceinstall']))
 	$forceInstall = true;
 
 //see if we can get the version number
-if ( isset($settings['version'])) 
-	$version = $settings['version']; 
+if ( isset($settings['settings']['version'])) 
+	$version = $settings['settings']['version']; 
 
 //if script is newer than stored version its a upgrade
 $upgrade = false;
@@ -86,7 +86,7 @@ switch ( $step )
 			<div class="well">
 				<b>There is a problem with your permissions</b>
 				
-				<p>In order to properly install LoadAvg <?php echo $settings['version']; ?> on your server you need to give the script write permissions to some file(s)</p>
+				<p>In order to properly install LoadAvg <?php echo $settings['settings']['version']; ?> on your server you need to give the script write permissions to some file(s)</p>
 				<p>Please run <span class="badge badge-info">chmod 777 configure</span> and then <span class="badge badge-info">./configure</span> from the console. And click the <b>Retry</b> button</p>
 
 				<button class="btn btn-primary" onclick="location.reload();">Retry</button>
@@ -119,10 +119,10 @@ switch ( $step )
 					<div class="controls">
 					<?php  
 						// Get hostname for default site name
-						$settings['title']=gethostname(); 
+						$settings['settings']['title']=gethostname(); 
 					?>
 
-						<input type="text" id="inputSiteName" name="title" value="<?php echo $settings['title']; ?>" placeholder="Site name">
+						<input type="text" id="inputSiteName" name="title" value="<?php echo $settings['settings']['title']; ?>" placeholder="Site name">
 						<span class="help-block">Set the server name</span>
 					</div>
 				</div>
@@ -189,20 +189,20 @@ switch ( $step )
 		if ( $settingsActive ) {
 			$errorMsg = '';
 
-			$settings['title'] = ( isset( $_GET['title'] ) && !empty( $_GET['title'] ) ) ? $_GET['title'] : $errorMsg .= '<li>Title not set!</li>';
-			$settings['username'] = ( isset( $_GET['username'] ) && !empty( $_GET['username'] ) ) ? $_GET['username'] : $errorMsg .= '<li>Username not set!</li>';
-			$settings['password'] = ( isset( $_GET['password'] ) && !empty( $_GET['password'] ) ) ? $_GET['password'] : $errorMsg .= '<li>Password not set!</li>';
-			$settings['checkforupdates'] = ( isset( $_GET['checkforupdates'] ) && !empty( $_GET['checkforupdates'] ) ) ? "true" : "false";
-			$settings['https'] = ( isset( $_GET['https'] ) && !empty( $_GET['https'] ) ) ? "true" : "false";
+			$settings['settings']['title'] = ( isset( $_GET['title'] ) && !empty( $_GET['title'] ) ) ? $_GET['title'] : $errorMsg .= '<li>Title not set!</li>';
+			$settings['settings']['username'] = ( isset( $_GET['username'] ) && !empty( $_GET['username'] ) ) ? $_GET['username'] : $errorMsg .= '<li>Username not set!</li>';
+			$settings['settings']['password'] = ( isset( $_GET['password'] ) && !empty( $_GET['password'] ) ) ? $_GET['password'] : $errorMsg .= '<li>Password not set!</li>';
+			$settings['settings']['checkforupdates'] = ( isset( $_GET['checkforupdates'] ) && !empty( $_GET['checkforupdates'] ) ) ? "true" : "false";
+			$settings['settings']['https'] = ( isset( $_GET['https'] ) && !empty( $_GET['https'] ) ) ? "true" : "false";
 			$password2 = ( isset( $_GET['password2'] ) && !empty( $_GET['password2'] ) ) ? $_GET['password2'] : $errorMsg .= '<li>Re-typed password not set!</li>';
 
 			$settings['network_interface'] = array();
 			
-			$match = ( $settings['password'] == $password2 ) ? true : $errorMsg .= '<li>Passwords do not match!</li>';
-			$settings['password'] = md5($settings['password']);
+			$match = ( $settings['settings']['password'] == $password2 ) ? true : $errorMsg .= '<li>Passwords do not match!</li>';
+			$settings['settings']['password'] = md5($settings['settings']['password']);
 
 			if (ini_get('date.timezone')) {
-		    	$settings['timezone']=ini_get('date.timezone'); 
+		    	$settings['settings']['timezone']=ini_get('date.timezone'); 
 			}
 			?>
 
@@ -230,7 +230,7 @@ switch ( $step )
 					$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
 					?>
 
-					<b>Thank you for installing LoadAvg <?php echo $settings['version']; ?></b>
+					<b>Thank you for installing LoadAvg <?php echo $settings['settings']['version']; ?></b>
 					<br><br>
 					<p>
 					LoadAvg records log data at the system level. For it to function correctly 
@@ -312,8 +312,8 @@ switch ( $step )
 
 
 				<?php
-				if ( isset($settings['version'])) 
-					$settings['version'] = SCRIPT_VERSION;
+				if ( isset($settings['settings']['version'])) 
+					$settings['settings']['version'] = SCRIPT_VERSION;
 
 				//var_dump($settings);
 				$loadavg->write_php_ini( $settings, $settings_file);
