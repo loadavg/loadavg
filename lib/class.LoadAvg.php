@@ -192,7 +192,7 @@ class LoadAvg
 
 			$loaded = self::$_settings->general['modules'];
 
-			$logdir = HOME_PATH . '/' . self::$_settings->general['logs_dir'];
+			$logdir = HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir'];
 
 			// Check for each module we have loaded
 			foreach ( $loaded as $module => $value ) {
@@ -229,7 +229,7 @@ class LoadAvg
 	{
 
 			$loaded = self::$_settings->general['modules'];
-			$logdir = HOME_PATH . '/' . self::$_settings->general['logs_dir'];
+			$logdir = HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir'];
 
 			$test_worked = false;
 			$test_nested = false;
@@ -1386,11 +1386,11 @@ class LoadAvg
 	{
 		if ( isset($username) && isset($password) ) 
 		{
-			if ($username == LoadAvg::$_settings->general['username'] && md5($password) == LoadAvg::$_settings->general['password']) 
+			if ($username == LoadAvg::$_settings->general['settings']['username'] && md5($password) == LoadAvg::$_settings->general['settings']['password']) 
 			{
 				$_SESSION['logged_in'] = true;
 
-				if (isset(self::$_settings->general['checkforupdates'])) 
+				if (isset(self::$_settings->general['settings']['checkforupdates'])) 
 				{
 					//check for updates at login
 					$this->checkForUpdate();
@@ -1399,7 +1399,7 @@ class LoadAvg
 
 				if($_POST['remember-me']) {
 
-					$cookie_time = self::$_settings->general['rememberme_interval'];
+					$cookie_time = self::$_settings->general['settings']['rememberme_interval'];
 
 					if ( $cookie_time <1 || !$cookie_time )
 						$cookie_time = 1;
@@ -1485,8 +1485,8 @@ class LoadAvg
 
 			echo 'found cookies';
 
-			if (         $_COOKIE['loaduser'] == LoadAvg::$_settings->general['username'] 
-		          &&     $_COOKIE['loadpass'] == LoadAvg::$_settings->general['password'] ) 
+			if (         $_COOKIE['loaduser'] == LoadAvg::$_settings->general['settings']['username'] 
+		          &&     $_COOKIE['loadpass'] == LoadAvg::$_settings->general['settings']['password'] ) 
 			{
 				return true;        
 			} 
@@ -1782,8 +1782,8 @@ public function getLinuxDistro()
 				//replace me with curl please!!!
 				$response = file_get_contents("http://updates.loadavg.com/version.php?"
 					. "ip=" . $_SERVER['SERVER_ADDR'] 
-					. "&version=" . self::$_settings->general['version'] 
-					. "&site_url=" . self::$_settings->general['title']  
+					. "&version=" . self::$_settings->general['settings']['version'] 
+					. "&site_url=" . self::$_settings->general['settings']['title']  
 					. "&phpv=" . phpversion()  					 
 					. "&osv=" . $linuxname  					 
 					. "&key=1");
@@ -1795,7 +1795,7 @@ public function getLinuxDistro()
 
 				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
 
-				if ( $response > self::$_settings->general['version'] ) {
+				if ( $response > self::$_settings->general['settings']['version'] ) {
 				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
 				}
 			}

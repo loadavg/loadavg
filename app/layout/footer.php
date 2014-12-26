@@ -50,7 +50,7 @@
 
 			<div class="well lh70-style-top margin-none center footer">
 			<center>
-				<a href="http://www.loadavg.com/">LoadAVG v <?php echo $settings['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
+				<a href="http://www.loadavg.com/">LoadAVG v <?php echo $settings['settings']['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
 				For comments and suggestions please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
 			</center>
 			</div>

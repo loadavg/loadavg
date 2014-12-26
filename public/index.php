@@ -106,7 +106,7 @@ if (  (!isset($_SESSION['logged_in']) || ($_SESSION['logged_in'] == false)) && (
 
 
 //security check for all access
-if ( (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "false" && !$loadavg->isLoggedIn())  || ($banned == true)   ) 
+if ( (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "false" && !$loadavg->isLoggedIn())  || ($banned == true)   ) 
 {
 	include( APP_PATH . '/views/login.php');
 } 
