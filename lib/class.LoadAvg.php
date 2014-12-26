@@ -17,7 +17,10 @@ class LoadAvg
 {
 	public static $_settings; // storing standard settings and/or loaded modules settings
 	public static $_classes; // storing loaded modules classes
-	public static $_modules; // storing loaded modules
+
+	public static $_modules; // storing and managing modules
+	public static $_plugins; // storing and managing plugins
+
 	public static $current_date; // current date
 	private static $_timezones; // Cache of timezones
 
@@ -71,39 +74,89 @@ class LoadAvg
 
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
 
+
+		//generate list of all modules
+		$this->generateModuleList('modules');
+
+		//load all charting modules that are enabled
+		$this->loadModules('modules');
+
+		//generate list of all plugins
+		$this->generateModuleList('plugins');
+
+		//load all charting modules that are enabled
+		$this->loadModules('plugins');
+
+
+	}
+
+
+	/**
+	 * upgradeSettings
+	 *
+	 * upgrades from legacy 2.0 version to 2.1 can be depreciated late on
+	 *
+	 * @param string $dir path to directory
+	 */
+
+	private function loadModules( $mode) {
+
 		//loads modules code
-		foreach ( self::$_settings->general['modules'] as $key => &$value ) {
+		//echo '<pre>';
+
+		//if module is true in settings.ini file then we load it in 
+		foreach ( self::$_settings->general[$mode] as $key => &$value ) {
+
+			//echo 'VALUE: ' . $value . '   ' . 'KEY: ' . $key . '<br>';
+
 			if ( $value == "true" ) {
 				try {
 					$loadModule = $key . DIRECTORY_SEPARATOR . 'class.' . $key . '.php';
-					//if ( file_exists( $loadModule ) ) {
-						require_once $loadModule;
-						self::$_classes[$key] = new $key;
-					//}
+
+					//this doesnt work as its defined as in the path... set in globals
+					//maybe we should change this to not be relative ?
+					require_once $loadModule;
+					self::$_classes[$key] = new $key;
+
 				} catch (Exception $e) {
 					throw Exception( $e->getMessage() );
 				}
 			}
+
 		}
 
-		if (is_dir(HOME_PATH . '/lib/modules/')) {
-
-			foreach (glob(HOME_PATH . "/lib/modules/*/class.*.php") as $filename) {
-				$filename = explode(".", basename($filename));
-				self::$_modules[$filename[1]] = strtolower($filename[1]);
-			}
-		}
-
-		if (is_dir(HOME_PATH . '/lib/pages/')) {
-
-			foreach (glob(HOME_PATH . "/lib/modules/*/class.*.php") as $filename) {
-				$filename = explode(".", basename($filename));
-				self::$_modules[$filename[1]] = strtolower($filename[1]);
-			}
-		}
-
+		//var_dump(self::$_classes);
+		//echo '</pre>';
 
 	}
+
+
+	private function generateModuleList( $mode) {
+
+		//loads modules code
+		//echo '<pre>';
+
+		//loads in all modules names
+		//so users can turn them on and off !
+
+		//if (is_dir(HOME_PATH . '/lib/' . $mode . '/')) {
+		if (is_dir(HOME_PATH . '/lib/' . $mode . '/')) {
+
+			//foreach (glob(HOME_PATH . "/lib/' . $mode . '/*/class.*.php") as $filename) {
+
+			$searchpath = HOME_PATH . '/lib/' . $mode . '/*/class.*.php';
+
+			foreach (glob($searchpath) as $filename) {
+				$filename = explode(".", basename($filename));
+				self::$_modules[$filename[1]] = strtolower($filename[1]);
+			}
+		}
+		
+		//var_dump(self::$_modules);
+		//echo '</pre>';
+
+	}
+
 
 	/**
 	 * upgradeSettings
