@@ -24,6 +24,7 @@ include 'class.LoadAvg.php'; // including Main Controller
 $loadavg = new LoadAvg(); // Initializing Main Controller
 $settings = LoadAvg::$_settings->general; // Default settings
 
+
 $flooding = false;
 
 // Including header view
@@ -42,7 +43,6 @@ if ( isset($_GET['step']) )
 	$step = $_GET['step']; // if step argument exists set the step
 
 //if (isset($_GET['step'])) ? $step=1; : $step = $_GET['step'];
-
 
 //forceinstall is used to force a install when script has detected an upgrade
 $forceInstall = false;
