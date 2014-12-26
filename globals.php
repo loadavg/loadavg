@@ -58,6 +58,7 @@ defined('COLLECTD_PATH') || define('COLLECTD_PATH',  '/var/lib/collectd/csv/loca
 set_include_path(implode(PATH_SEPARATOR, array(
     realpath(APP_PATH . '/../lib'),
     realpath(APP_PATH . '/../lib/modules'),
+    realpath(APP_PATH . '/../lib/pluginsmod'),
     get_include_path(),
 )));
 

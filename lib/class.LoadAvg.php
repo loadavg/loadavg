@@ -76,16 +76,18 @@ class LoadAvg
 
 
 		//generate list of all modules
-		$this->generateModuleList('modules');
+		$this->generatePluginList('modules');
 
 		//load all charting modules that are enabled
-		$this->loadModules('modules');
+		$this->loadPlugins('modules');
+
+
 
 		//generate list of all plugins
-		$this->generateModuleList('plugins');
+		$this->generatePluginList('pluginsmod');
 
 		//load all charting modules that are enabled
-		$this->loadModules('plugins');
+		$this->loadPlugins('pluginsmod');
 
 
 	}
@@ -99,7 +101,7 @@ class LoadAvg
 	 * @param string $dir path to directory
 	 */
 
-	private function loadModules( $mode) {
+	private function loadPlugins( $mode) {
 
 		//loads modules code
 		//echo '<pre>';
@@ -130,8 +132,14 @@ class LoadAvg
 
 	}
 
+	/**
+	 * generatePluginList
+	 *
+	 * searches plugins directory for all plugins and adds them to list _plugins
+	 *
+	 */
 
-	private function generateModuleList( $mode) {
+	private function generatePluginList( $mode) {
 
 		//loads modules code
 		//echo '<pre>';
@@ -148,11 +156,11 @@ class LoadAvg
 
 			foreach (glob($searchpath) as $filename) {
 				$filename = explode(".", basename($filename));
-				self::$_modules[$filename[1]] = strtolower($filename[1]);
+				self::$_plugins[$filename[1]] = strtolower($filename[1]);
 			}
 		}
 		
-		//var_dump(self::$_modules);
+		//var_dump(self::$_plugins);
 		//echo '</pre>';
 
 	}
