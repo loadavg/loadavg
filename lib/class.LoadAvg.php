@@ -59,6 +59,19 @@ class LoadAvg
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
+		//check for old log files here....
+		if (      !isset( $_settings->general['settings'])     ) {
+
+			//for legacy 2.0 upgrade support
+			$this->upgradeSettings();
+
+			$this->setSettings('general',
+				parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
+			);
+
+		}
+
+
 		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
 
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
@@ -86,7 +99,52 @@ class LoadAvg
 			}
 		}
 
+		if (is_dir(HOME_PATH . '/lib/pages/')) {
+
+			foreach (glob(HOME_PATH . "/lib/modules/*/class.*.php") as $filename) {
+				$filename = explode(".", basename($filename));
+				self::$_modules[$filename[1]] = strtolower($filename[1]);
+			}
+		}
+
+
 	}
+
+	/**
+	 * upgradeSettings
+	 *
+	 * upgrades from legacy 2.0 version to 2.1 can be depreciated late on
+	 *
+	 * @param string $dir path to directory
+	 */
+
+	private function upgradeSettings() {
+
+		$settingsFileLocation = APP_PATH . '/config/' . self::$settings_ini;
+
+		if ( file_exists( $settingsFileLocation )) {
+
+
+			$settingsFile = file_get_contents($settingsFileLocation);
+			$settingsFile = explode("\n", $settingsFile);
+
+			//insert settings moduel header
+			$inserted = "[settings]";
+			array_splice( $settingsFile, 1, 0, $inserted ); // splice in at position 3
+
+
+			//now wite settings back out
+		    $header = "; <?php exit(); __halt_compiler(); ?>\n";
+
+		    if ($fp = fopen($settingsFileLocation, 'w') ) {
+		    	fwrite($fp, $header);	    	
+		    	fwrite($fp, implode("\n", $settingsFile));
+		    	fclose($fp);
+		    }
+		}
+
+	}
+
 
 	/**
 	 * is_dir_empty
