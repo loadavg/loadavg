@@ -3,7 +3,7 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Memory Module for LoadAvg
+* Swap Module for LoadAvg
 * 
 * @version SVN: $Id$
 * @link https://github.com/loadavg/loadavg
@@ -17,7 +17,7 @@
 
 
 
-class Disk extends Charts
+class Swap extends Charts
 {
 	public $logfile; // Stores the logfile name & path
 

@@ -34,8 +34,9 @@
 		$links = "?";
 	}
 */
-	$links = LoadAvg::getRangeLinks();
 
+	//get date range links for header here
+	$links = LoadAvg::getRangeLinks();	
 
 	//get settings for this module
 	$modSettings = LoadAvg::$_settings->$module;
@@ -44,9 +45,9 @@
 	$thedata = $modSettings['settings']['display_limiting'];
 
 	//if we are changing mode
-	if  ( isset($_GET['memorymode']) || !empty($_GET['memorymode']))  {
+	if  ( isset($_GET['diskmode']) || !empty($_GET['diskmode']))  {
 
-		$newmode = $_GET['memorymode'];
+		$newmode = $_GET['diskmode'];
 
 		switch ( $newmode) {
 			case "true": 	$mydata['settings']['display_limiting'] = "true";
@@ -65,13 +66,13 @@
 
 		//if not build the links
 		switch ( $thedata) {
-			case "true": $links = $links . "memorymode=false"; break;
-			case "false": $links = $links . "memorymode=true"; break;
+			case "true": $links = $links . "diskmode=false"; break;
+			case "false": $links = $links . "diskmode=true"; break;
 		}
 	}
 
 
 ?>
 
-<strong>Memory usage in</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'MB' : '%'; ?></a>
+<strong>Disk usage in</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'MB' : '%'; ?></a>
 

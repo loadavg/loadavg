@@ -83,7 +83,7 @@ class Memory extends Charts
 	 *
 	 */
 	
-	public function getMemorySize( $chartArray, $totalchartArray  )
+	public function getMemorySize( $chartArray, $sizeofChartArray  )
 	{
 
 			//need to get memory size in order to process data properly
@@ -95,12 +95,12 @@ class Memory extends Charts
 			//subtract 1 from size of array as a array first value is 0 but gives count of 1
 			if ( LOGGER == "collectd")
 			{	
-				$memorySize = ( $chartArray[$totalchartArray-1][1] + 
-								$chartArray[$totalchartArray-1][2] + 
-								$chartArray[$totalchartArray-1][3] ) / 1024;
+				$memorySize = ( $chartArray[$sizeofChartArray-1][1] + 
+								$chartArray[$sizeofChartArray-1][2] + 
+								$chartArray[$sizeofChartArray-1][3] ) / 1024;
 			} else {
 
-				$memorySize = $chartArray[$totalchartArray-1][3] / 1024;
+				$memorySize = $chartArray[$sizeofChartArray-1][3] / 1024;
 			}
 
 			return $memorySize;
@@ -176,13 +176,13 @@ class Memory extends Charts
 		 */
 
 		$chartArray = array();
-		$totalchartArray = 0;
+		$sizeofChartArray = 0;
 
 		if ($logStatus) {
 
 			//takes the log file and parses it into chartable data 
 			$this->getChartData ($chartArray, $contents );
-			$totalchartArray = (int)count($chartArray);
+			$sizeofChartArray = (int)count($chartArray);
 		}
 
 		/*
@@ -190,13 +190,13 @@ class Memory extends Charts
 		 * uses chartArray which contains the dataset to be charted
 		 */
 
-		if ( $totalchartArray > 0 ) {
+		if ( $sizeofChartArray > 0 ) {
 
 			//get the size of memory we are charting
-			$memorySize = $this->getMemorySize($chartArray, $totalchartArray);
+			$memorySize = $this->getMemorySize($chartArray, $sizeofChartArray);
 
 			// main loop to build the chart data
-			for ( $i = 0; $i < $totalchartArray; ++$i) {				
+			for ( $i = 0; $i < $sizeofChartArray; ++$i) {				
 				$data = $chartArray[$i];
 				
 				//check for redline

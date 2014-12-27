@@ -311,8 +311,8 @@ class Charts extends LoadAvg
 	   can be expanded on to get a subset with starttime / endtime 
 	 */
 
-//parses contents
-//returns in chartData
+	//parses contents
+	//returns in chartData
 
 	function getChartData (array &$chartData, array &$contents ) 
 	{				

@@ -141,7 +141,7 @@ if (isset($_POST['login'])  ) {
 	if ( (!isset($_GET['minDate'])) || (!isset($_GET['maxDate'])) || (!isset($_GET['logdate'])) ) 
 	{ 
 		//if (    ($settings['settings']['title'] == "true") )
-		if (   (isset($settings['settings']['title']))  && ($settings['settings']['title'] == "true") )
+		if (   (isset($settings['settings']['auto_refreash']))  && ($settings['settings']['auto_refreash'] == "true") )
 		{
 		?>
 		<meta http-equiv="refresh" content="300">

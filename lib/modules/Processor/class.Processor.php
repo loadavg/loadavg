@@ -256,13 +256,13 @@ class Processor extends Charts
 		 */
 
 		$chartArray = array();
-		$totalchartArray = 0;
+		$sizeofChartArray = 0;
 
 		if ($logStatus) {
 
 			//takes the log file and parses it into chartable data 
 			$this->getChartData ($chartArray, $contents );
-			$totalchartArray = (int)count($chartArray);
+			$sizeofChartArray = (int)count($chartArray);
 		}
 
 		/*
@@ -270,9 +270,9 @@ class Processor extends Charts
 		 * uses chartArray which contains the dataset to be charted
 		 */
 		
-		if ( $totalchartArray > 0 ) {
+		if ( $sizeofChartArray > 0 ) {
 
-			for ( $i = 0; $i < $totalchartArray; ++$i) {	
+			for ( $i = 0; $i < $sizeofChartArray; ++$i) {	
 				$data = $chartArray[$i];
 				
 				// clean data for missing values

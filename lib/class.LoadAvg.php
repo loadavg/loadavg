@@ -651,6 +651,34 @@ class LoadAvg
 		return $dateArray;
 	}
 
+	/**
+	 * getRangeLinks
+	 *
+	 * builds links for header when ranges are used to pass them around
+	 */
+
+	public function getRangeLinks ()
+	{
+
+		$links = "";
+
+		if (
+			(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
+			(isset($_GET['maxDate']) && !empty($_GET['maxDate'])) &&
+			(isset($_GET['logdate']) && !empty($_GET['logdate']))
+			) {
+			$links = "?minDate=" . $_GET['minDate'] . "&maxDate=" . $_GET['maxDate'] . "&logdate=" . $_GET['logdate'] ."&";
+		} elseif (
+			(isset($_GET['logdate']) && !empty($_GET['logdate']))
+			) {
+			$links = "?logdate=" . $_GET['logdate'] . "&";
+		} else {
+			$links = "?";
+		}
+
+		return $links;
+
+	}
 
 
 	/**

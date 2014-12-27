@@ -28,6 +28,7 @@ switch ( ( isset($_GET['load']) || !empty($_GET['load'])) ? $_GET['load'] : '2' 
 		$load_mode = "5 min"; $load = 2; break;
 }
 
+/*
 if (
 	(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
 	(isset($_GET['maxDate']) && !empty($_GET['maxDate'])) &&
@@ -41,15 +42,18 @@ if (
 } else {
 	$links = "?";
 }
+*/
+	//get date range links for header here
+	$links = LoadAvg::getRangeLinks();
 
-	$displaylinks = $links;
+	//$displaylinks = $links;
 
 
 	//get settings for this module
-	$cpuSettings = LoadAvg::$_settings->$module;
+	$modSettings = LoadAvg::$_settings->$module;
 
 	//get the display_limiting setting from the settings subsection for this module
-	$thedata = $cpuSettings['settings']['display_limiting'];
+	$thedata = $modSettings['settings']['display_limiting'];
 
 
 	//if we are changing mode
@@ -59,23 +63,23 @@ if (
 
 		switch ( $newmode) {
 			case "true": 	$mydata['settings']['display_limiting'] = "true";
-						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
+						$mergedsettings = LoadAvg::ini_merge ($modSettings, $mydata);
 						LoadAvg::write_module_ini($mergedsettings, $module);
-						header("Location: " . $displaylinks);						
+						header("Location: " . $links);						
 						break;
 
 			case "false": 	$mydata['settings']['display_limiting'] = "false";
-						$mergedsettings = LoadAvg::ini_merge ($cpuSettings, $mydata);
+						$mergedsettings = LoadAvg::ini_merge ($modSettings, $mydata);
 						LoadAvg::write_module_ini($mergedsettings, $module);
-						header("Location: " . $displaylinks);						
+						header("Location: " . $links);						
 						break;
 		}		
 	} else {
 
 		//if not build the links
 		switch ( $thedata) {
-			case "true": $displaylinks = $displaylinks . "loadmode=false"; break;
-			case "false": $displaylinks = $displaylinks . "loadmode=true"; break;
+			case "true": $links = $links . "loadmode=false"; break;
+			case "false": $links = $links . "loadmode=true"; break;
 		}
 	}
 
@@ -95,7 +99,7 @@ if (
 
 <?php
 
-// need to add links to displaylinks when both are used!
+// need to add links to $links when both are used!
 
 ?>
-<strong>Data display</strong> <a href="<?php echo $displaylinks; ?>"><?php echo ($thedata == 'true') ? 'fixed' : 'fitted'; ?></a>
+<strong>Data display</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'fixed' : 'fitted'; ?></a>

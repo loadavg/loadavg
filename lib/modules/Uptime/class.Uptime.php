@@ -3,7 +3,7 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Memory Module for LoadAvg
+* Swap Module for LoadAvg
 * 
 * @version SVN: $Id$
 * @link https://github.com/loadavg/loadavg
@@ -17,7 +17,7 @@
 
 
 
-class Disk extends Charts
+class Uptime extends Charts
 {
 	public $logfile; // Stores the logfile name & path
 
@@ -189,12 +189,13 @@ class Disk extends Charts
 
 		if ( $sizeofChartArray > 0 ) {
 
-			//get the size of the disk we are charting
+			//get the size of the disk we are charting - need to calculate percentages
 			$diskSize = $this->getDiskSize($chartArray, $sizeofChartArray);
 
 
 			// main loop to build the chart data
 			for ( $i = 0; $i < $sizeofChartArray; ++$i) {	
+				
 				$data = $chartArray[$i];
 
 				// clean data for missing values
