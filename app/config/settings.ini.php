@@ -28,5 +28,6 @@ Disk = "true"
 Apache = "false"
 Mysql = "false"
 Network = "true"
-Server = "true"
 Ssh = "false"
+[plugins]
+Server = "true"
