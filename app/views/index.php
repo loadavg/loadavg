@@ -16,9 +16,6 @@
 
 <?php if ($loadavg->isLoggedIn()) { 
 
-//if (!isset($_GET['page'])) {
-//    $_SET['page'] = '';
-//}
     ?>
 
 <table class="well lh70 lh70-style" width="100%" border="0" cellspacing="1" cellpadding="3">
@@ -92,31 +89,37 @@
 } 
 ?>
 
-<div class="innerAll">
-    <?php
-    foreach ( $loaded as $module => $value ) { // looping through all the modules in the settings.ini file
-        if ( $value === "false" ) continue; // if modules is disabled ... moving on.
+    <!--
+        We render all the chart modules here
+    -->
 
-        $moduleSettings = LoadAvg::$_settings->$module; // if module is enabled ... get his settings
-        
-        if ( $moduleSettings['module']['logable'] == "true" ) { // if module has loggable enabled it has a chart
+    <div class="innerAll">
+
+        <?php
+        foreach ( $loaded as $module => $value ) { // looping through all the modules in the settings.ini file
+            if ( $value === "false" ) continue; // if modules is disabled ... moving on.
+
+            $moduleSettings = LoadAvg::$_settings->$module; // if module is enabled ... get his settings
             
-            $class = LoadAvg::$_classes[$module];
+            if ( $moduleSettings['module']['logable'] == "true" ) { // if module has loggable enabled it has a chart
+                
+                $class = LoadAvg::$_classes[$module];
 
-            $i = 0;
+                $i = 0;
 
-            //tabbed modules have more than 1 chart in them
-            if (isset($moduleSettings['module']['tabbed']) && $moduleSettings['module']['tabbed'] == "true") {
-                if ($i == 1) break;
+                //tabbed modules have more than 1 chart in them
+                if (isset($moduleSettings['module']['tabbed']) && $moduleSettings['module']['tabbed'] == "true") {
+                    if ($i == 1) break;
 
-                //echo 'NESTEDCHARTS:';
-                $class->genChart( $moduleSettings, $logdir );
-                $i++; //will this ever be hit ? as i = 1 breaks things - yes its mean to only include genChart once
-            } else {
-                //echo 'CORECHART:';
-                $class->genChart( $moduleSettings, $logdir );
+                    //echo 'NESTEDCHARTS:';
+                    $class->genChart( $moduleSettings, $logdir );
+                    $i++; //will this ever be hit ? as i = 1 breaks things - yes its mean to only include genChart once
+                } else {
+                    //echo 'CORECHART:';
+                    $class->genChart( $moduleSettings, $logdir );
+                }
             }
         }
-    }
-    ?>
-</div>
+        ?>
+
+    </div>

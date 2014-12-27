@@ -156,7 +156,13 @@ class LoadAvg
 
 			foreach (glob($searchpath) as $filename) {
 				$filename = explode(".", basename($filename));
-				self::$_modules[$filename[1]] = strtolower($filename[1]);
+
+				if ($mode == 'modules')
+					self::$_modules[$filename[1]] = strtolower($filename[1]);
+
+				if ($mode == 'plugins')
+					self::$_plugins[$filename[1]] = $filename[1];
+
 			}
 		}
 		

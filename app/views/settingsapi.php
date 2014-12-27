@@ -87,7 +87,7 @@ if (isset($_POST['update_settings'])) {
   			</div>
   			<div class="span9 right">
   				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-  					<input name="formsettings[apiserver]" type="checkbox" value="true" <?php if ( $settings['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
+  					<input name="formsettings[settings][apiserver]" type="checkbox" value="true" <?php if ( $settings['settings']['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
   				</div>
   			</div>
   		</div>
@@ -120,7 +120,7 @@ if (isset($_POST['update_settings'])) {
       </div>
 
 
-      <?php if ( $settings['apiserver'] == "false" ) { ?>
+      <?php if ( $settings['settings']['apiserver'] == "false" ) { ?>
       <div class="row-fluid">
         <div class="center">
           <br>

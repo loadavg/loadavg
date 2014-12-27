@@ -27,6 +27,8 @@ $loadavg = new LoadAvg();
 //grab core settings
 $settings = LoadAvg::$_settings->general;
 
+//get plugins
+$plugins = LoadAvg::$_plugins; 
 
 
 //draw the header
@@ -112,12 +114,30 @@ if ( (isset($settings['settings']['allow_anyone']) && $settings['settings']['all
 } 
 else 
 {
-	//draw current page
-	if (isset($_GET['page']) && file_exists( APP_PATH . '/views/' . $_GET['page'] . '.php' ) ) 
+
+	//first lets see if a name has been set...
+	$pageName = "";
+
+	if ( isset($_GET['page']) && ($_GET['page'] != "") ) 
+		$pageName = $_GET['page'];
+
+
+	//first check to see if its a plugin
+	if (in_array($pageName, $plugins)) 
+    {
+    	echo 'PLUGIN: ' . $_GET['page'] . '<br>';
+		require_once PLUGIN_PATH .  $pageName  . '/' . $pageName . '.php';
+    }
+
+	//if not check to see if its a view page
+	else if ( file_exists( APP_PATH . '/views/' . $pageName . '.php' ) ) 
 	{
-		require_once APP_PATH . '/views/' . $_GET['page'] . '.php';
+		//echo 'PAGE: ' . $pageName . '<br>';
+		require_once APP_PATH . '/views/' . $pageName . '.php';
 	} 
-	else 
+
+	//if not draw default index page
+	else
 	{
 		//if page doesnt exist redirect to index, can be modified to a page not found if need be
 		require_once APP_PATH . '/views/index.php';
