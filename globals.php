@@ -46,6 +46,9 @@ defined('HOME_PATH') || define('HOME_PATH', realpath(dirname(__FILE__) ));
 /* Application PATH */
 defined('APP_PATH') || define('APP_PATH', realpath(dirname(__FILE__) . '/app'));
 
+defined('PLUGIN_PATH') || define('PLUGIN_PATH',  HOME_PATH . '/lib/plugins/' );
+
+
 /* log PATH */
 defined('LOGGER') || define('LOGGER',  'loadavg' );
 defined('LOG_PATH') || define('LOG_PATH',  HOME_PATH . '/logs/' );

@@ -14,7 +14,7 @@
 * later.
 */
 
-class Apache extends LoadAvg
+class Apache extends Charts
 {
 	public $logfile; // Stores the logfile name & path
 
@@ -130,7 +130,7 @@ class Apache extends LoadAvg
 		 */
 
 		$contents = array();
-		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
+		$logStatus = $this->parseLogFileData($this->logfile, $contents);
 
 		/*
 		 * build the chartArray array here as array of arrays needed for charting

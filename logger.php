@@ -17,6 +17,7 @@
 
 require_once dirname(__FILE__) . '/globals.php'; // including required globals
 include 'class.LoadAvg.php'; // including Main Controller
+include 'class.Charts.php'; // for charts module
 
 $loadavg = new LoadAvg(); // Initializing Main Controller
 $loaded = LoadAvg::$_settings->general['modules']; // Loaded modules

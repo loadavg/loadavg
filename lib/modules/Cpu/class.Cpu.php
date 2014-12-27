@@ -16,9 +16,7 @@
 
 
 
-
-
-class Cpu extends LoadAvg
+class Cpu extends Charts
 {
 	public $logfile; // Stores the logfile name & path
 

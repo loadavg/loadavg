@@ -14,7 +14,7 @@
 * later.
 */
 
-class Ssh extends LoadAvg
+class Ssh extends Charts
 {
 	public $logfile; // Stores the logfile name & path
 
@@ -323,7 +323,7 @@ class Ssh extends LoadAvg
 		 */	
 
 		$contents = array();
-		$logStatus = LoadAvg::parseLogFileData($this->logfile, $contents);
+		$logStatus = $this->parseLogFileData($this->logfile, $contents);
 
 		/*
 		 * build the chartArray array here as array of arrays needed for charting
