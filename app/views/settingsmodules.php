@@ -213,9 +213,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 
 
                 <?php $modules = LoadAvg::$_modules; 
-
-
-                var_dump(LoadAvg::$_modules);
+                //var_dump(LoadAvg::$_modules);
 
                 ?>
                 <?php foreach ($modules as $module => $moduleName) { ?>
