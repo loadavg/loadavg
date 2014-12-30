@@ -20,6 +20,7 @@ require_once '../globals.php'; // including required globals
 ob_start(); 
 
 include 'class.LoadAvg.php'; // including Main Controller
+include 'class.Charts.php';
 
 $loadavg = new LoadAvg(); // Initializing Main Controller
 $settings = LoadAvg::$_settings->general; // Default settings
