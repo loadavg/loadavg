@@ -41,6 +41,7 @@ ob_start();
 
 /* Initialize LoadAvg */ 
 include 'class.LoadAvg.php';
+include 'class.Charts.php';
 $loadavg = new LoadAvg();
 
 $settings = LoadAvg::$_settings->general;
