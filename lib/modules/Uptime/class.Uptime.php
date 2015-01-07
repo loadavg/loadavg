@@ -47,20 +47,10 @@ class Uptime extends Charts
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
 				
-		$drive = $settings['settings']['drive'];
-		
-		if (is_dir($drive)) {
-				
-			$spaceBytes = disk_total_space($drive);
-			$freeBytes = disk_free_space($drive);
 
-			$usedBytes = $spaceBytes - $freeBytes;
-						
-			//$freeBytes = dataSize($Bytes);
-			//$percentBytes = $freeBytes ? round($freeBytes / $totalBytes, 2) * 100 : 0;
-		}
+		$uptime = exec("cat /proc/uptime | awk -F' ' '{print $1\"|\"$2}'");
 
-	    $string = time() . '|' . $usedBytes  . '|' . $spaceBytes . "\n";
+	    $string = time() . '|' . $uptime . "\n";
 		
 		$filename = sprintf($this->logfile, date('Y-m-d'));
 		$this->safefilerewrite($filename,$string,"a",true);
@@ -72,66 +62,9 @@ class Uptime extends Charts
 	}
 
 
-	/**
-	 * getDiskSize
-	 *
-	 * Gets size of disk based on logger and offsets
-	 *
-	 * @return the disk size
-	 *
-	 */
-	
-	public function getDiskSize( $chartArray, $sizeofChartArray  )
-	{
 
-			//need to get disk size in order to process data properly
-			//is it better before loop or in loop
-			//what happens if you resize disk on the fly ? in loop would be better
-			$diskSize = 0;
 
-			//map the collectd disk size to our disk size here
-			//subtract 1 from size of array as a array first value is 0 but gives count of 1
 
-			//set the disk size - bad way to do this in the loop !
-			//but we read this data from the drive logs
-			//$diskSize = $data[2] / 1048576;
-			if ( LOGGER == "collectd")
-			{	
-				$diskSize = ( 	$chartArray[$sizeofChartArray-1][1] + 
-								$chartArray[$sizeofChartArray-1][2] + 
-								$chartArray[$sizeofChartArray-1][3] ) / 1048576;
-			} else {
-
-				$diskSize = $chartArray[$sizeofChartArray-1][2] / 1048576;
-			}
-
-			return $diskSize;
-
-	}
-
-	/**
-	 * reMapData
-	 *
-	 * remap data based on loogger
-	 *
-	 * @data sent over by caller
-	 * @return none
-	 *
-	 */
-	
-	public function reMapData( &$data )
-	{
-		if ( LOGGER == "collectd")
-		{
-
-			$used =  $data[2] + $data[3]; 
-			$space = $data[1] + $data[2] + $data[3];
-
-			$data[1] = $used;
-			$data[2] = $space; //ignored as computed above one time... not per dataset
-
-		}
-	}
 
 	/**
 	 * getDiskUsageData
@@ -157,8 +90,7 @@ class Uptime extends Charts
 		$displayMode =	$settings['settings']['display_limiting'];	
 
 		//define datasets
-		$dataArrayLabel[0] = 'Disk Usage';
-		$dataArrayLabel[1] = 'Overload';
+		$dataArrayLabel[0] = 'Uptime';
 
 		/*
 		 * grab the log file data needed for the charts as array of strings
@@ -190,7 +122,7 @@ class Uptime extends Charts
 		if ( $sizeofChartArray > 0 ) {
 
 			//get the size of the disk we are charting - need to calculate percentages
-			$diskSize = $this->getDiskSize($chartArray, $sizeofChartArray);
+			//$diskSize = $this->getDiskSize($chartArray, $sizeofChartArray);
 
 
 			// main loop to build the chart data
@@ -202,43 +134,26 @@ class Uptime extends Charts
 				$redline = ($this->checkRedline($data));
 
 				//remap data if it needs mapping based on different loggers
-				$this->reMapData($data);
+				//$this->reMapData($data);
 
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
 				
 				//usage is used to calculate view perspectives
-				if (!$redline) {
-					$usage[] = ( $data[1] / 1048576 );
-
-					if ($data[2] > 0)
-						$percentage_used =  ( $data[1] / $data[2] ) * 100;
-					else
-						$percentage_used =  0;						
-				
-				} else {
-					$percentage_used = 0;
-				}
+				//check for when first data is 0 here 
+				if (!$redline) 
+					$usage[] = ( $data[1] / 86400);
+					
 
 				$timedata = (int)$data[0];
-				$time[( $data[1] / 1048576 )] = date("H:ia", $timedata);
+				$time[( $data[1] / 86400 )] = date("H:ia", $timedata);
 
 				$usageCount[] = ($data[0]*1000);
 
-				if ($displayMode == 'true' ) {
-					// display data using MB
-					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
+				// display data using MB
+				$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 86400 ) ."]";
 
-					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
-
-				} else {
-					// display data using percentage
-					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
-
-					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
-				}
+			
 			}
 
 
@@ -250,46 +165,28 @@ class Uptime extends Charts
 			 * 
 			 */
 
-			if ($displayMode == 'true' )
-			{
-				$disk_high = max($usage);
-				$disk_low  = min($usage); 
-				$disk_mean = array_sum($usage) / count($usage);
 
-				//to scale charts
-				$ymax = $disk_high;
-				$ymin = $disk_low;
+			$uptime_high = max($usage);
+			$uptime_low  = min($usage); 
+			$uptime_mean = array_sum($usage) / count($usage);
 
-			} else {
+			//to scale charts
+			$ymax = $uptime_high;
+			$ymin = $uptime_low;
 
-				$disk_high=   ( max($usage) / $diskSize ) * 100 ;				
-				$disk_low =   ( min($usage) / $diskSize ) * 100 ;
-				$disk_mean =  ( (array_sum($usage) / count($usage)) / $diskSize ) * 100 ;
+			$uptime_high_time = $time[max($usage)];
+			$uptime_low_time = $time[min($usage)];
 
-				//these are the min and max values used when drawing the charts
-				//can be used to zoom into datasets
-				$ymin = 0;
-				$ymax = 100;
+			$uptime_latest = ( ( $usage[count($usage)-1]  )    )    ;		
 
-			}
-
-			$disk_high_time = $time[max($usage)];
-			$disk_low_time = $time[min($usage)];
-
-			$disk_latest = ( ( $usage[count($usage)-1]  )    )    ;		
-
-			$disk_total = $diskSize;
-			$disk_free = $disk_total - $disk_latest;
 		
 			$variables = array(
-				'disk_high' => number_format($disk_high,2),
-				'disk_high_time' => $disk_high_time,
-				'disk_low' => number_format($disk_low,2),
-				'disk_low_time' => $disk_low_time,
-				'disk_mean' => number_format($disk_mean,2),
-				'disk_total' => number_format($disk_total,1),
-				'disk_free' => number_format($disk_free,1),
-				'disk_latest' => number_format($disk_latest,1),
+				'uptime_high' => number_format($uptime_high,4),
+				'uptime_high_time' => $uptime_high_time,
+				'uptime_low' => number_format($uptime_low,4),
+				'uptime_low_time' => $uptime_low_time,
+				'uptime_mean' => number_format($uptime_mean,4),
+				'uptime_latest' => number_format($uptime_latest,4),
 			);
 
 			/*
@@ -316,13 +213,10 @@ class Uptime extends Charts
 				'ymax' => $ymax,
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => $disk_mean,
+				'mean' => $uptime_mean,
 
 				'dataset_1' 	  => $dataArray[0],
 				'dataset_1_label' => $dataArrayLabel[0],
-
-				'dataset_2' 	  => $dataArray[1],
-				'dataset_2_label' => $dataArrayLabel[1],
 				
 				'overload' => $settings['settings']['overload']
 			);
