@@ -51,14 +51,16 @@ class Memory extends Charts
 			egrep --color 'Mem|Cache|Swap' /proc/meminfo
 		*/
 		
-		exec( "egrep 'MemTotal|MemFree|SwapTotal|SwapFree' /proc/meminfo | awk -F' ' '{print $2}'", $sysmemory );
+		exec( "egrep 'MemTotal|MemFree|Buffers|Cached|SwapTotal|SwapFree' /proc/meminfo | awk -F' ' '{print $2}'", $sysmemory );
 
 		$totalmemory = $sysmemory[0];
 		$freememory = $sysmemory[1];
-		$memory = $totalmemory - $freememory;
+		$bufferedmemory = $sysmemory[2];
+		$cachedmemory = $sysmemory[3];
+		$memory = $totalmemory - $freememory - $bufferedmemory - $cachedmemory;
 
-		$totalswap = $sysmemory[2];
-		$freeswap = $sysmemory[3];
+		$totalswap = $sysmemory[4];
+		$freeswap = $sysmemory[5];
 		$swap = $totalswap - $freeswap;
 	    
 	    $string = $timestamp . '|' . $memory . '|' . $swap . '|' . $totalmemory . "\n";
