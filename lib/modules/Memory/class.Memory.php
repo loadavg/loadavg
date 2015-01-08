@@ -51,18 +51,38 @@ class Memory extends Charts
 			egrep --color 'Mem|Cache|Swap' /proc/meminfo
 		*/
 		
+		//pulling Cached here gives us both Cached and SwapCached
 		exec( "egrep 'MemTotal|MemFree|Buffers|Cached|SwapTotal|SwapFree' /proc/meminfo | awk -F' ' '{print $2}'", $sysmemory );
 
+		/*
+		  [0]=> string(9) "MemTotal:"
+		  [1]=> string(8) "MemFree:"
+		  [2]=> string(8) "Buffers:"
+		  [3]=> string(7) "Cached:"
+		  [4]=> string(11) "SwapCached:"
+		  [5]=> string(10) "SwapTotal:"
+		  [6]=> string(9) "SwapFree:"
+		*/
+
+		//calculate memory usage
 		$totalmemory = $sysmemory[0];
 		$freememory = $sysmemory[1];
 		$bufferedmemory = $sysmemory[2];
 		$cachedmemory = $sysmemory[3];
+
 		$memory = $totalmemory - $freememory - $bufferedmemory - $cachedmemory;
 
-		$totalswap = $sysmemory[4];
-		$freeswap = $sysmemory[5];
-		$swap = $totalswap - $freeswap;
-	    
+
+		//calculate swap usage
+		$swapcached = $sysmemory[4];
+		$totalswap = $sysmemory[5];
+		$freeswap = $sysmemory[6];
+
+		$swap = $totalswap - ($freeswap + $swapcached);
+
+	    echo 'totalswap:'  . $totalswap .  "\n" ;
+	    echo 'freeswap:'  . $freeswap .  "\n" ;
+
 	    $string = $timestamp . '|' . $memory . '|' . $swap . '|' . $totalmemory . "\n";
 
 	    //echo 'DATA:'  . $string .  "\n" ;
