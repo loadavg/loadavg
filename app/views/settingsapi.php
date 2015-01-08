@@ -38,21 +38,18 @@ if (isset($_POST['update_settings'])) {
 	//we clean input here for items with checkbox values for some reason not sure if we still need to
 	$_POST['formsettings']['apiserver'] = ( !isset($_POST['formsettings']['apiserver']) ) ? "false" : "true";
 
-	// Loop throught settings
-	$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
-	
-	$settings = LoadAvg::$_settings->general;
+    // Loop throught settings
+    $settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
+    
+    $settings = LoadAvg::$_settings->general;
 
-	$postsettings = $_POST['formsettings'];
+    $postsettings = $_POST['formsettings'];
 
-  //$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
-  $replaced_settings = array_replace($settings, $postsettings);
+    $replaced_settings = LoadAvg::ini_merge ($settings, $postsettings);
 
-  //LoadAvg::write_php_ini($mergedsettings, $settings_file);
-  LoadAvg::write_php_ini($replaced_settings, $settings_file);
+    LoadAvg::write_php_ini($replaced_settings, $settings_file);
 
-  //dont work only page reload work
-  //$settings = LoadAvg::$_settings->general;
+    $settings = LoadAvg::$_settings->general;
 
 
     /////////////////////////////////////////////////////////////////////
