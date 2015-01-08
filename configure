@@ -35,11 +35,24 @@ else
         echo ""
         chmod 0777 app/
         chmod 0777 app/config/
-        chmod 0777 app/config/settings.ini.php
+
+        echo -n "[+] Checking for settings.ini.php in app/config folder ... "
+        if [ ! -f "app/config/settings.ini.php" ]; then
+                echo "SETTINGS NOT FOUND"
+                echo -n "[*] Assuming new install! Creating it from default ... "
+                cp app/config/default_settings.ini.php app/config/settings.ini.php
+                echo "DONE"
+        else
+                echo "OK"
+        fi
+
+        chmod 0777 app/config/*.ini.php
         chmod 0777 lib/modules/*/*.ini.php
         chmod 0777 lib/plugins/*/*.ini.php
         chmod 0777 install
         chmod 0777 install/index.php
+        
+
         echo -n "[+] Checking for /logs folder ... "
         if [ ! -d "logs" ]; then
                 echo "NOT FOUND"
@@ -49,6 +62,8 @@ else
         else
                 echo "OK"
         fi
+        
+
         echo "[+] All done. (You can now go to: http://host/ to set up LoadAvg...)"
         chmod 0777 logs
         echo -e "=====================================================================\n\n\n"

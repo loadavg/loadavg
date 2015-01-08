@@ -38,7 +38,7 @@ else {
 	if (isset($_POST['update_settings'])) {
 
 		/////////////////////////////////////////////////////////////////////
-		//updates the general settings here as api settings are stored there
+		//updates the logger settings here with what is posted
 
 		// Loop throught settings
 		$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
@@ -47,15 +47,13 @@ else {
 
 		$postsettings = $_POST['formsettings'];
 
-		//$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
-		$replaced_settings = array_replace($settings, $postsettings);
+		$replaced_settings = LoadAvg::ini_merge ($settings, $postsettings);
 
-		//LoadAvg::write_php_ini($mergedsettings, $settings_file);
 		LoadAvg::write_php_ini($replaced_settings, $settings_file);
 
-		/* force reload settings page now */
+		$settings = LoadAvg::$_settings->general;
 
-		//echo 'URI ' . $_SERVER['REQUEST_URI'] ;
+		//now reload the page
     	header('Location: '. strtok($_SERVER["REQUEST_URI"],'&') );
 
 	}

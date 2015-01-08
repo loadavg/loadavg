@@ -71,7 +71,7 @@
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.js"></script>
 
 	<!-- Javascript for Period -->
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/demo/period.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/period.js"></script>
 	
 	<!-- JQueryUI Touch Punch -->
 	<!-- small hack that enables the use of touch events on sites using the jQuery UI user interface library -->
@@ -83,8 +83,8 @@
 	</script>
 	
 	<!--  Flot (Charts) JS -->
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/jquery.flot.js" type="text/javascript"></script>
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/jquery.flot.time.js" type="text/javascript"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/jquery.flot.min.js" type="text/javascript"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/jquery.flot.time.min.js" type="text/javascript"></script>
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/plugins/tooltip/jquery.flot.tooltip.min.js"></script>
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/charts/flot/jquery.flot.stack.min.js"></script>
 
@@ -97,7 +97,7 @@
 	<script>$(function () { $('.toggle-button').toggleButtons(); })</script>
 
 	<!-- Common script -->
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/demo/common.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/common.js"></script>
 
 <?php
 //if they are flooding the login screen we sleep here

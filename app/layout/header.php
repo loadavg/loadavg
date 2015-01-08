@@ -53,9 +53,7 @@ if (isset($_POST['login'])  ) {
 <!--[if IE 8]>    <html class="lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html> <!--<![endif]-->
 <head>
-	<!--
-	<title><?php echo 'LoadAvg ' . sprintf($settings['settings']['title'], $settings['settings']['version'], ''); ?></title>
-	-->
+
 	<title><?php echo 'Server ' . $settings['settings']['title'] . ' | LoadAvg ' . $settings['settings']['version']; ?></title>
 	
 	<!-- Meta -->
@@ -69,7 +67,7 @@ if (isset($_POST['login'])  ) {
 	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
 
 	<!-- Bootstrap Toggle Buttons Script -->
-	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-toggle-buttons/static/stylesheets/bootstrap-toggle-buttons.css" rel="stylesheet">
+	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-toggle-buttons/static/stylesheets/bootstrap-toggle-buttons.css">
 	
 	<!-- JQueryUI v1.11.1 -->
 	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.css" />
@@ -88,9 +86,10 @@ if (isset($_POST['login'])  ) {
 	<!-- Theme -->
 	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/css/style.css?<?php echo time(0); ?>" />
 	
-	<!-- LESS 2 CSS -->
+	<!-- LESS 2 CSS 
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/less-1.3.3.min.js"></script>
-	
+	-->
+
 	<!--[if IE]><script type="text/javascript" src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/other/excanvas/excanvas.js"></script><![endif]-->
 
 	<script type="text/javascript">
