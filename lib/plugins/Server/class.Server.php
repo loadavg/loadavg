@@ -16,6 +16,10 @@
 
 class Server extends LoadAvg
 {
+
+	public static $icon;
+	public static $name;
+
 	/**
 	 * __construct
 	 *
@@ -25,6 +29,11 @@ class Server extends LoadAvg
 	public function __construct()
 	{
 		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
+
+		//set the plugin link and the icon for the menubar
+		self::$name = "Server";
+		self::$icon = "fa-gears";
+
 	}
 
 	/**
@@ -48,6 +57,23 @@ class Server extends LoadAvg
 		} catch (Exception $e) {
 
 		}
+	}
+
+	/**
+	 * getIcon
+	 *
+	 * Retrives icon and passes it back for UI - move into plugin class later on
+	 *
+	 * @return string $cmd command to execute for data
+	 *
+	 */
+	public function getPluginData( )
+	{
+
+		$pluginData[0] = self::$name;
+		$pluginData[1] = self::$icon;
+
+		return $pluginData;
 	}
 
 	/**

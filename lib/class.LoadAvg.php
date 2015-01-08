@@ -94,9 +94,9 @@ class LoadAvg
 
 
 	/**
-	 * upgradeSettings
+	 * loadModules
 	 *
-	 * upgrades from legacy 2.0 version to 2.1 can be depreciated late on
+	 * load in modules by calling main scripts, will load moth core modules and plugins
 	 *
 	 * @param string $dir path to directory
 	 */
@@ -131,6 +131,44 @@ class LoadAvg
 		//echo '</pre>';
 
 	}
+
+//needs to build array with menu items and have front end deraw it really...
+
+	//1. name
+	//2. icon
+	//3. pagename 
+
+	public function buildPluginMenu( ) {
+
+		//var_dump (self::$_settings->general['plugins']);
+
+
+		//if module is true in settings.ini file then we load it in 
+		foreach ( self::$_settings->general['plugins'] as $key => &$value ) {
+
+			//echo 'VALUE: ' . $value . '   ' . 'KEY: ' . $key . '<br>';
+
+
+			//if value is true plugin is active
+			if ( $value == "true" ) {
+
+				$pluginClass = LoadAvg::$_classes[$key]; 
+
+				$pluginData =  $pluginClass->getPluginData();
+
+				var_dump ($pluginData);
+	
+
+
+
+			}
+
+		}
+
+	}
+
+
+
 
 	/**
 	 * generatePluginList

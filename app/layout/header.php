@@ -171,11 +171,27 @@ if (isset($_POST['login'])  ) {
 			<ul class="topnav pull-right">
 				<li<?php if (isset($_GET['page']) && $_GET['page'] == '') : ?> class="active"<?php endif; ?>><a href="index.php"><i class="fa fa-bar-chart-o"></i> Charts</a></li>
 
-				<li <?php if (isset($_GET['page']) && $_GET['page'] == 'server') : ?> class="active"<?php endif; ?>><a href="?page=server"><i class="fa fa-gears"></i> Server</a></li>
-				
-
 
 				<?php if ( $loadavg->isLoggedIn() ) { ?>
+
+
+				<?php 
+				//loops though active plugins and adds them to the menubar
+				foreach ( LoadAvg::$_settings->general['plugins'] as $key => &$value ) {
+
+					//if value is true plugin is active
+					if ( $value == "true" ) {
+
+						$pluginClass = LoadAvg::$_classes[$key]; 
+						$pluginData =  $pluginClass->getPluginData();
+
+						?>
+						<li <?php if (isset($_GET['page']) && $_GET['page'] == $pluginData[0]) : ?> class="active"<?php endif; ?>><a href="?page=<?php echo $pluginData[0]?>"><i class="fa <?php echo $pluginData[1]?>"></i> Server</a></li>
+						<?php
+					}
+				}
+				?>
+
 
 				<li class="account <?php if (isset($_GET['page']) && $_GET['page'] == 'settings') : ?> active<?php endif; ?>">
 					<a data-toggle="dropdown" href="" class="logout"><span class="hidden-phone text">
