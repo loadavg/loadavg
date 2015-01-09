@@ -99,22 +99,49 @@ class Swap extends Charts
 
 			//map the collectd disk size to our disk size here
 			//subtract 1 from size of array as a array first value is 0 but gives count of 1
-			/*
+			
 			if ( LOGGER == "collectd")
 			{	
 				$memorySize = ( $chartArray[$sizeofChartArray-1][1] + 
 								$chartArray[$sizeofChartArray-1][2] + 
 								$chartArray[$sizeofChartArray-1][3] ) / 1024;
+
+				$memorySize = $memorySize / 1024;
+
 			} else {
 
-				$memorySize = $chartArray[$sizeofChartArray-1][3] / 1024;
+				$memorySize = $chartArray[$sizeofChartArray-1][2] / 1024;
 			}
-*/
 
-			$memorySize = $chartArray[$sizeofChartArray-1][2] / 1024;
 
 			return $memorySize;
 
+	}
+
+	/**
+	 * reMapData
+	 *
+	 * remap data based on loogger
+	 *
+	 * @data sent over by caller
+	 * @return none
+	 *
+	 */
+	
+	public function reMapData( &$data )
+	{
+		if ( LOGGER == "collectd")
+		{
+
+			//need to equalize all data here
+			$data[1] = $data[1] / 1024;
+			$data[2] = $data[2] / 1024;
+			$data[3] = $data[3] / 1024;
+
+			//currently whats being plotted - cached + used
+			$data[4] =  $data[1] + $data[3]; 
+
+		}
 	}
 
 
@@ -195,6 +222,8 @@ class Swap extends Charts
 				//check for redline
 				$redline = ($this->checkRedline($data,4));
 
+				//remap data if it needs mapping based on different loggers
+				$this->reMapData($data);
 
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;

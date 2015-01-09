@@ -21,4 +21,4 @@ line[] = '{"format":"Latest: %s MB","args":"mem_latest"}'
 overload = 90
 display_limiting = "true"
 [collectd]
-args[] = '{"name":"df-root","functions":["df_complex-free","df_complex-reserved","df_complex-used"]}'
+args[] = '{"name":"swap","functions":["swap-cached","swap-free","swap-used"]}'
