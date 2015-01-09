@@ -12,14 +12,13 @@ args[] = '{"logfile":"swap_usage_%s.log","function":"logData"}'
 args[] = '{"id":"swap_usage","logfile":"swap_usage_%s.log","function":"getUsageData", "chart_function":"swap_usage", "label":"Swap Usage"}'
 [info]
 line[] = '{"format":"","args":"","type":"file","filename":"views/links.php"}'
-line[] = '{"format":"High (%s): %s","args":"disk_high_time|disk_high"}'
-line[] = '{"format":"Low (%s): %s","args":"disk_low_time|disk_low"}'
-line[] = '{"format":"Average: %s","args":"disk_mean"}'
-line[] = '{"format":"Size : %s MB","args":"disk_total"}'
-line[] = '{"format":"Latest: %s MB","args":"disk_latest"}'
-line[] = '{"format":"Free: %s MB","args":"disk_free"}'
+line[] = '{"format":"High (%s): %s","args":"mem_high_time|mem_high"}'
+line[] = '{"format":"Low (%s): %s","args":"mem_low_time|mem_low"}'
+line[] = '{"format":"Mean: %s","args":"mem_mean"}'
+line[] = '{"format":"Total : %s MB","args":"mem_total"}'
+line[] = '{"format":"Latest: %s MB","args":"mem_latest"}'
 [settings]
 overload = 90
-display_limiting = "false"
+display_limiting = "true"
 [collectd]
 args[] = '{"name":"df-root","functions":["df_complex-free","df_complex-reserved","df_complex-used"]}'

@@ -3,7 +3,7 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Swap Module for LoadAvg
+* Memory Module for LoadAvg
 * 
 * @version SVN: $Id$
 * @link https://github.com/loadavg/loadavg
@@ -13,9 +13,6 @@
 * This file is licensed under the Affero General Public License version 3 or
 * later.
 */
-
-
-
 
 class Swap extends Charts
 {
@@ -33,44 +30,55 @@ class Swap extends Charts
 	}
 
 	/**
-	 * logDiskUsageData
+	 * logMemoryUsageData
 	 *
 	 * Retrives data and logs it to file
 	 *
 	 * @param string $type type of logging default set to normal but it can be API too.
 	 * @return string $string if type is API returns data as string
-	 *	 *
+	 *
 	 */
 
 	public function logData( $type = false )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
-				
-		$drive = $settings['settings']['drive'];
-		
-		if (is_dir($drive)) {
-				
-			$spaceBytes = disk_total_space($drive);
-			$freeBytes = disk_free_space($drive);
 
-			$usedBytes = $spaceBytes - $freeBytes;
-						
-			//$freeBytes = dataSize($Bytes);
-			//$percentBytes = $freeBytes ? round($freeBytes / $totalBytes, 2) * 100 : 0;
-		}
+		$timestamp = time();
 
-	    $string = time() . '|' . $usedBytes  . '|' . $spaceBytes . "\n";
+		/* 
+			grab this data directly from /proc/meminfo in a single call
+			egrep --color 'Mem|Cache|Swap' /proc/meminfo
+		*/
 		
+		//pulling Cached here gives us both Cached and SwapCached
+		exec( "egrep 'SwapCached|SwapTotal|SwapFree' /proc/meminfo | awk -F' ' '{print $2}'", $sysmemory );
+
+		/*
+		  [0]=> string(11) "SwapCached:"
+		  [1]=> string(10) "SwapTotal:"
+		  [2]=> string(9) "SwapFree:"
+		*/
+
+		//calculate swap usage
+		$swapcached = $sysmemory[0];
+		$swaptotal = $sysmemory[1];
+		$swapfree = $sysmemory[2];
+
+		$swapused = $swaptotal - ($swapfree + $swapcached);
+
+	    $string = $timestamp . '|' . $swapcached . '|' . $swaptotal . '|' . $swapfree . '|' . $swapused . "\n";
+
+	    //echo 'DATA:'  . $string .  "\n" ;
+
 		$filename = sprintf($this->logfile, date('Y-m-d'));
 		$this->safefilerewrite($filename,$string,"a",true);
 
 		if ( $type == "api")
 			return $string;
 		else
-			return true;		
+			return true;
 	}
-
 
 	/**
 	 * getDiskSize
@@ -81,60 +89,37 @@ class Swap extends Charts
 	 *
 	 */
 	
-	public function getDiskSize( $chartArray, $sizeofChartArray  )
+	public function getSwapSize( $chartArray, $sizeofChartArray  )
 	{
 
-			//need to get disk size in order to process data properly
+			//need to get memory size in order to process data properly
 			//is it better before loop or in loop
 			//what happens if you resize disk on the fly ? in loop would be better
-			$diskSize = 0;
+			$memorySize = 0;
 
 			//map the collectd disk size to our disk size here
 			//subtract 1 from size of array as a array first value is 0 but gives count of 1
-
-			//set the disk size - bad way to do this in the loop !
-			//but we read this data from the drive logs
-			//$diskSize = $data[2] / 1048576;
+			/*
 			if ( LOGGER == "collectd")
 			{	
-				$diskSize = ( 	$chartArray[$sizeofChartArray-1][1] + 
+				$memorySize = ( $chartArray[$sizeofChartArray-1][1] + 
 								$chartArray[$sizeofChartArray-1][2] + 
-								$chartArray[$sizeofChartArray-1][3] ) / 1048576;
+								$chartArray[$sizeofChartArray-1][3] ) / 1024;
 			} else {
 
-				$diskSize = $chartArray[$sizeofChartArray-1][2] / 1048576;
+				$memorySize = $chartArray[$sizeofChartArray-1][3] / 1024;
 			}
+*/
 
-			return $diskSize;
+			$memorySize = $chartArray[$sizeofChartArray-1][2] / 1024;
+
+			return $memorySize;
 
 	}
 
-	/**
-	 * reMapData
-	 *
-	 * remap data based on loogger
-	 *
-	 * @data sent over by caller
-	 * @return none
-	 *
-	 */
-	
-	public function reMapData( &$data )
-	{
-		if ( LOGGER == "collectd")
-		{
-
-			$used =  $data[2] + $data[3]; 
-			$space = $data[1] + $data[2] + $data[3];
-
-			$data[1] = $used;
-			$data[2] = $space; //ignored as computed above one time... not per dataset
-
-		}
-	}
 
 	/**
-	 * getDiskUsageData
+	 * getMemoryUsageData
 	 *
 	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
 	 *
@@ -142,7 +127,7 @@ class Swap extends Charts
 	 *
 	 */
 	
-	public function getUsageData(  )
+	public function getUsageData( )
 	{
 		$class = __CLASS__;
 		$settings = LoadAvg::$_settings->$class;
@@ -150,20 +135,30 @@ class Swap extends Charts
 		//define some core variables here
 		$dataArray = $dataArrayLabel = array();
 		$dataRedline = $usage = array();
-
+		//$swap = array();
+		
 		//display switch used to switch between view modes - data or percentage
 		// true - show MB
 		// false - show percentage
 		$displayMode =	$settings['settings']['display_limiting'];	
 
 		//define datasets
-		$dataArrayLabel[0] = 'Disk Usage';
-		$dataArrayLabel[1] = 'Overload';
+		$dataArrayLabel[0] = 'Swap Used';
+		//$dataArrayLabel[1] = 'Overload';
+		//$dataArrayLabel[2] = 'Swap';
+
+		/*
+		  [0]=> string(11) "SwapCached:"
+		  [1]=> string(10) "SwapTotal:"
+		  [2]=> string(9) "SwapFree:"
+		  SwapUsed - calculated
+		*/
+
 
 		/*
 		 * grab the log file data needed for the charts as array of strings
 		 * takes logfiles(s) and gives us back contents
-		 */		
+		 */
 
 		$contents = array();
 		$logStatus = $this->parseLogFileData($this->logfile, $contents);
@@ -176,8 +171,9 @@ class Swap extends Charts
 		$chartArray = array();
 		$sizeofChartArray = 0;
 
-		//takes the log file and parses it into chartable data 
 		if ($logStatus) {
+
+			//takes the log file and parses it into chartable data 
 			$this->getChartData ($chartArray, $contents );
 			$sizeofChartArray = (int)count($chartArray);
 		}
@@ -189,60 +185,45 @@ class Swap extends Charts
 
 		if ( $sizeofChartArray > 0 ) {
 
-			//get the size of the disk we are charting
-			$diskSize = $this->getDiskSize($chartArray, $sizeofChartArray);
-
+			//get the size of memory we are charting
+			$memorySize = $this->getSwapSize($chartArray, $sizeofChartArray);
 
 			// main loop to build the chart data
-			for ( $i = 0; $i < $sizeofChartArray; ++$i) {	
+			for ( $i = 0; $i < $sizeofChartArray; ++$i) {				
 				$data = $chartArray[$i];
+				
+				//check for redline
+				$redline = ($this->checkRedline($data,4));
 
-				// clean data for missing values
-				$redline = ($this->checkRedline($data));
-
-				//remap data if it needs mapping based on different loggers
-				$this->reMapData($data);
 
 				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 					$data[1]=0.0;
-				
-				//usage is used to calculate view perspectives
-				if (!$redline) {
-					$usage[] = ( $data[1] / 1048576 );
 
-					if ($data[2] > 0)
-						$percentage_used =  ( $data[1] / $data[2] ) * 100;
-					else
-						$percentage_used =  0;						
-				
+				//used to filter out redline data from usage data as it skews it
+				if (!$redline) {
+					$usage[] = ( $data[4] / 1024 );
+					$percentage_used =  ( $data[4] / $data[2] ) * 100; // DIV 0 REDLINE
 				} else {
 					$percentage_used = 0;
 				}
-
+			
 				$timedata = (int)$data[0];
-				$time[( $data[1] / 1048576 )] = date("H:ia", $timedata);
+				$time[( $data[4] / 1024 )] = date("H:ia", $timedata);
 
 				$usageCount[] = ($data[0]*1000);
 
 				if ($displayMode == 'true' ) {
 					// display data using MB
-					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
-
-					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
-
+					//we are just plotting swap used (total) at the moment
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", '". $data[4] / 1024 ."']";
+			
 				} else {
 					// display data using percentage
-					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
-
-					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";					
 				}
+
+
 			}
-
-
-			//echo '<pre>PRESETTINGS</pre>';
-			//echo '<pre>';var_dump($usage);echo'</pre>';
 
 			/*
 			 * now we collect data used to build the chart legend 
@@ -251,46 +232,52 @@ class Swap extends Charts
 
 			if ($displayMode == 'true' )
 			{
-				$disk_high = max($usage);
-				$disk_low  = min($usage); 
-				$disk_mean = array_sum($usage) / count($usage);
+				$mem_high = max($usage);
+				$mem_low  = min($usage); 
+				$mem_mean = array_sum($usage) / count($usage);
 
-				//to scale charts
-				$ymax = $disk_high;
-				$ymin = $disk_low;
+				
+				$ymax = $memorySize;
+				$ymin = 1;
+				
 
 			} else {
 
-				$disk_high=   ( max($usage) / $diskSize ) * 100 ;				
-				$disk_low =   ( min($usage) / $diskSize ) * 100 ;
-				$disk_mean =  ( (array_sum($usage) / count($usage)) / $diskSize ) * 100 ;
+				$mem_high=   ( max($usage) / $memorySize ) * 100 ;				
+				$mem_low =   ( min($usage) / $memorySize ) * 100 ;
+				$mem_mean =  ( (array_sum($usage) / count($usage)) / $memorySize ) * 100 ;
 
 				//these are the min and max values used when drawing the charts
 				//can be used to zoom into datasets
-				$ymin = 0;
+				$ymin = 1;
 				$ymax = 100;
 
 			}
 
-			$disk_high_time = $time[max($usage)];
-			$disk_low_time = $time[min($usage)];
+			$mem_high_time = $time[max($usage)];
+			$mem_low_time = $time[min($usage)];
 
-			$disk_latest = ( ( $usage[count($usage)-1]  )    )    ;		
+			$mem_latest = ( ( $usage[count($usage)-1]  )  )    ;		
 
-			$disk_total = $diskSize;
-			$disk_free = $disk_total - $disk_latest;
+			//TODO need to get total memory here
+			//as memory can change dynamically in todays world!
+
+			$mem_total = $memorySize;
+			$mem_free = $mem_total - $mem_latest;
+
 		
+			// values used to draw the legend
 			$variables = array(
-				'disk_high' => number_format($disk_high,2),
-				'disk_high_time' => $disk_high_time,
-				'disk_low' => number_format($disk_low,2),
-				'disk_low_time' => $disk_low_time,
-				'disk_mean' => number_format($disk_mean,2),
-				'disk_total' => number_format($disk_total,1),
-				'disk_free' => number_format($disk_free,1),
-				'disk_latest' => number_format($disk_latest,1),
+				'mem_high' => number_format($mem_high,2),
+				'mem_high_time' => $mem_high_time,
+				'mem_low' => number_format($mem_low,2),
+				'mem_low_time' => $mem_low_time,
+				'mem_mean' => number_format($mem_mean,2),
+				'mem_latest' => number_format($mem_latest,2),
+				'mem_total' => number_format($mem_total,2),
+				//'mem_swap' => number_format($swap,2),
 			);
-
+		
 			/*
 			 * all data to be charted is now cooalated into $return
 			 * and is returned to be charted
@@ -299,38 +286,40 @@ class Swap extends Charts
 
 			$return  = array();
 
-			// get legend layout from ini file		
+			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
 			//parse, clean and sort data
-			$depth=2; //number of datasets
+			$depth=3; //number of datasets
 			$this->buildChartDataset($dataArray,$depth);
 
-			//build chart object			
+			//build chart object
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'chart_avg' => 'avg',
-				
+
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
-				'mean' => $disk_mean,
+				'mean' => $mem_mean,
 
-				'dataset_1' 	  => $dataArray[0],
+				'dataset_1' 	  => $dataArray[0],  
 				'dataset_1_label' => $dataArrayLabel[0],
 
-				'dataset_2' 	  => $dataArray[1],
-				'dataset_2_label' => $dataArrayLabel[1],
+				//'dataset_2' 	  => $dataArray[1],
+				//'dataset_2_label' => $dataArrayLabel[1],
+				
+				//'dataset_4' 	  => $dataArray[2],				// how is it used
+				//'dataset_4_label' => $dataArrayLabel[2],
 				
 				'overload' => $settings['settings']['overload']
 			);
 
 			return $return;	
-			
 		} else {
 
-			return false;
+			return false;	
 		}
 	}
 
@@ -344,11 +333,16 @@ class Swap extends Charts
 	 *
 	 */
 
-	public function genChart($moduleSettings, $logdir)
+
+	public function genChart($moduleSettings)
 	{
+
+		//get chart settings for module
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
 		$module = __CLASS__;
+
+		//this loop is for modules that have multiple charts in them - like mysql and network
 		$i = 0;
 		foreach ( $charts['args'] as $chart ) {
 			$chart = json_decode($chart);
@@ -364,9 +358,13 @@ class Swap extends Charts
 			// in this module its getData above
 			$caller = $chart->function;
 
-			//check if function takes settings via GET url_args 
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
+			//check if function takes settings via GET url_args 
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) 
+				? $_GET[$moduleSettings['module']['url_args']] : '2' );
+
+			//need to update for when more than 1 logfile ?
+			//cant do file exists here
 			if (!empty($this->logfile)) {
 
 				$i++;				
@@ -374,22 +372,21 @@ class Swap extends Charts
 
 				//call modules main function and pass over functionSettings
 				if ($functionSettings) {
-					$chartData = $this->$caller(  $functionSettings );
+					$chartData = $this->$caller( $functionSettings );
 				} else {
-					$chartData = $this->$caller(  );
+					$chartData = $this->$caller( );
 				}
 
 			} else {
-
 				//no log file so draw empty charts
 				$i++;				
 				$logfileStatus = false;
-
 			}
 
 			//now draw chart to screen
 			include APP_PATH . '/views/chart.php';
 		}
 	}
+
 
 }

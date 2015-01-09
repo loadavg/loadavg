@@ -18,22 +18,6 @@
 
 <?php
 
-	//clean up links first
-/*
-	if (
-		(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
-		(isset($_GET['maxDate']) && !empty($_GET['maxDate'])) &&
-		(isset($_GET['logdate']) && !empty($_GET['logdate']))
-		) {
-		$links = "?minDate=" . $_GET['minDate'] . "&maxDate=" . $_GET['maxDate'] . "&logdate=" . $_GET['logdate'] ."&";
-	} elseif (
-		(isset($_GET['logdate']) && !empty($_GET['logdate']))
-		) {
-		$links = "?logdate=" . $_GET['logdate'] . "&";
-	} else {
-		$links = "?";
-	}
-*/
 
 	//get date range links for header here
 	$links = LoadAvg::getRangeLinks();	
@@ -45,9 +29,9 @@
 	$thedata = $modSettings['settings']['display_limiting'];
 
 	//if we are changing mode
-	if  ( isset($_GET['diskmode']) || !empty($_GET['diskmode']))  {
+	if  ( isset($_GET['swapmode']) || !empty($_GET['swapmode']))  {
 
-		$newmode = $_GET['diskmode'];
+		$newmode = $_GET['swapmode'];
 
 		switch ( $newmode) {
 			case "true": 	$mydata['settings']['display_limiting'] = "true";
@@ -66,13 +50,13 @@
 
 		//if not build the links
 		switch ( $thedata) {
-			case "true": $links = $links . "diskmode=false"; break;
-			case "false": $links = $links . "diskmode=true"; break;
+			case "true": $links = $links . "swapmode=false"; break;
+			case "false": $links = $links . "swapmode=true"; break;
 		}
 	}
 
 
 ?>
 
-<strong>Disk usage in</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'MB' : '%'; ?></a>
+<strong>Swap usage in</strong> <a href="<?php echo $links; ?>"><?php echo ($thedata == 'true') ? 'MB' : '%'; ?></a>
 

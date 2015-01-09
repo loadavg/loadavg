@@ -80,9 +80,6 @@ class Memory extends Charts
 
 		$swap = $totalswap - ($freeswap + $swapcached);
 
-	    echo 'totalswap:'  . $totalswap .  "\n" ;
-	    echo 'freeswap:'  . $freeswap .  "\n" ;
-
 	    $string = $timestamp . '|' . $memory . '|' . $swap . '|' . $totalmemory . "\n";
 
 	    //echo 'DATA:'  . $string .  "\n" ;
