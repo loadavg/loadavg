@@ -35,6 +35,7 @@
 			//primary dataset includes ymin and ymax - should separate this
 			<?php 
 			if ( isset($chartData['chart']['dataset_1']) ) { ?>
+				 //console.log('data 1');
 				 d1 = {
 					label: '<?php echo $chartData['chart']['dataset_1_label']; ?>',
 					data: <?php echo $chartData['chart']['dataset_1']; ?>,
@@ -46,7 +47,8 @@
 
 			//used for primary overload
 			<?php 
-			if ( isset($chartData['chart']['dataset_2']) ) { ?>
+			//if (    ( isset($chartData['chart']['dataset_2']))    ) {  
+			if (    isset($chartData['chart']['dataset_2'])  ) {  ?>
 				 d2 = {
 					label: '<?php echo $chartData['chart']['dataset_2_label']; ?>',
 					data: <?php echo $chartData['chart']['dataset_2']; ?>
@@ -55,7 +57,7 @@
 			<?php } ?>
 
 			//used for secondary overlaods
-			<?php if ( isset($chartData['chart']['dataset_3']) ) { ?>
+			<?php if ( isset($chartData['chart']['dataset_3']) ) { 	?>
 				 d3 = {
 					label: '<?php echo $chartData['chart']['dataset_3_label']; ?>',
 					data: <?php echo $chartData['chart']['dataset_3']; ?>
@@ -76,7 +78,7 @@
 
 			//great for debugging!
 			//sends entire array to console for inspection
-			//console.info(chart_data);
+			///console.info(chart_data);
 
 
 			// CLEAN ME UP PLEASE!!!

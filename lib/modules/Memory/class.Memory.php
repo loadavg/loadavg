@@ -248,7 +248,7 @@ class Memory extends Charts
 						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
 					//swapping
-					if ( isset($data[2])  ) {
+					if ( isset($data[2])  ) {						
 						$dataArray[2][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
 						$swap[] = ( $data[2] / 1024 );
 
@@ -349,7 +349,8 @@ class Memory extends Charts
 
 			//parse, clean and sort data
 			$depth=3; //number of datasets
-			$this->buildChartDataset($dataArray,$depth);
+			$this->buildChartDataset($dataArray,$depth);			
+
 
 			//build chart object
 			$return['chart'] = array(
@@ -368,8 +369,8 @@ class Memory extends Charts
 				'dataset_2' 	  => $dataArray[1],
 				'dataset_2_label' => $dataArrayLabel[1],
 				
-				'dataset_4' 	  => $dataArray[2],				// how is it used
-				'dataset_4_label' => $dataArrayLabel[2],
+				'dataset_3' 	  => $dataArray[2],				// how is it used
+				'dataset_3_label' => $dataArrayLabel[2],
 				
 				'overload' => $settings['settings']['overload']
 			);

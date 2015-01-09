@@ -447,7 +447,9 @@ class Charts extends LoadAvg
 		{
 			if ( !isset($dataArray[$loop]) || count($dataArray[$loop]) == 0) 
 			{ 
-				$dataArray[$loop] = null; 
+				//null kills chartcore and doesnt send variables over to be charted even when empty.
+				//$dataArray[$loop] = null; 
+				$dataArray[$loop] = 0; 
 			}
 			else 
 			{
