@@ -314,9 +314,8 @@ class Charts extends LoadAvg
 	//parses contents
 	//returns in chartData
 
-	function getChartData (array &$chartData, array &$contents ) 
+	function getChartData (array &$chartData, array &$contents, $patchIt = true ) 
 	{				
-
 
 		//select 6,12 or 24 hour charts
 		$dataSet = LoadAvg::$_settings->general['settings']['chart_type'];
@@ -415,9 +414,10 @@ class Charts extends LoadAvg
 		//if there are patches to be applied, we iterate through the patcharray and patch the dataset
 		//by adding patch spans to it
 		$totalPatch= (int)count( $patch );
-		//echo "PATCHCOUNT: " . $totalPatch . "<br>";
 
-		if ($totalPatch >0) {
+		if ($totalPatch >0 && ($patchIt == true) ) {
+
+			//echo "PATCHCOUNT: " . $totalPatch . "<br>";
 
 			for ( $i = 0; $i < $totalPatch ; ++$i) {
 					

@@ -110,7 +110,7 @@ class Uptime extends Charts
 
 		//takes the log file and parses it into chartable data 
 		if ($logStatus) {
-			$this->getChartData ($chartArray, $contents );
+			$this->getChartData ($chartArray, $contents, false);
 			$sizeofChartArray = (int)count($chartArray);
 		}
 
@@ -131,7 +131,8 @@ class Uptime extends Charts
 				$data = $chartArray[$i];
 
 				// clean data for missing values
-				$redline = ($this->checkRedline($data));
+				//$redline = ($this->checkRedline($data));
+				$redline = false;
 
 				//remap data if it needs mapping based on different loggers
 				//$this->reMapData($data);
