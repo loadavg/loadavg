@@ -6,6 +6,7 @@ interface = "true"
 tabbed = "true"
 has_settings = "true"
 logable = "true"
+depth = 2
 [logging]
 args[] = '{"logfile":"network_%s_%s.log","function":"logData"}'
 [chart]
@@ -23,5 +24,5 @@ threshold_transfer = 15
 threshold_receive = 15
 transfer_cutoff = 16
 receive_cutoff = 16
-receive_limiting = "true"
+receive_limiting = "false"
 transfer_limiting = "false"

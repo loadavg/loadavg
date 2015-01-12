@@ -7,6 +7,7 @@ has_settings = "true"
 has_menu = "false"
 url_args = "ssh"
 logable = "true"
+depth = 3
 [logging]
 args[] = '{"logfile":"ssh_usage_%s.log","function":"logData"}'
 [chart]

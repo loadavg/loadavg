@@ -16,7 +16,6 @@
 
 class Mysql extends Charts
 {
-	public $logfile; // Stores the logfile name & path
 
 	/**
 	 * __construct
@@ -269,14 +268,15 @@ class Mysql extends Charts
 		 if ( $sizeofChartArray > 0 ) { 
 
 			// main loop to build the chart data
-			for ( $i = 0; $i < $sizeofChartArray; ++$i) {				
+			for ( $i = 0; $i < $sizeofChartArray; ++$i) {	
+
 				$data = $chartArray[$i];
+
+				if ($data==null)
+					continue;
 
 				//check for redline
 				$redline = ($this->checkRedline($data));
-
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
-					$data[1]=0.0;
 
 				//when showing send and receive its bytes to MB
 				//when showing queries, mode 3, its 1 to 1

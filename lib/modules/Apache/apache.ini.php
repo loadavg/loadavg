@@ -6,6 +6,7 @@ status = "true"
 has_settings = "true"
 has_menu = "false"
 logable = "true"
+depth = 1
 [logging]
 args[] = '{"logfile":"apache_usage_%s.log","function":"logData"}'
 [chart]

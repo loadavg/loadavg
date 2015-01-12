@@ -6,6 +6,7 @@ status = "true"
 has_settings = "true"
 has_menu = "false"
 logable = "true"
+depth = 4
 [logging]
 args[] = '{"logfile":"swap_usage_%s.log","function":"logData"}'
 [chart]
@@ -21,4 +22,5 @@ line[] = '{"format":"Latest: %s MB","args":"mem_latest"}'
 overload = 90
 display_limiting = "true"
 [collectd]
+depth = 3
 args[] = '{"name":"swap","functions":["swap-cached","swap-free","swap-used"]}'

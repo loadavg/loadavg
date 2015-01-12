@@ -273,13 +273,17 @@ class Processor extends Charts
 		if ( $sizeofChartArray > 0 ) {
 
 			for ( $i = 0; $i < $sizeofChartArray; ++$i) {	
+
 				$data = $chartArray[$i];
-				
+
+				if ($data==null)
+					continue;
+
 				// clean data for missing values
 				$redline = ($this->checkRedline($data));
 
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
-					$data[1]=0.0;
+				//if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
+				//	$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
 				//for us this means add 3 arrays togeather

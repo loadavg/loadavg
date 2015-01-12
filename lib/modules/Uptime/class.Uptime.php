@@ -19,7 +19,6 @@
 
 class Uptime extends Charts
 {
-	public $logfile; // Stores the logfile name & path
 
 	/**
 	 * __construct
@@ -27,6 +26,7 @@ class Uptime extends Charts
 	 * Class constructor, appends Module settings to default settings
 	 *
 	 */
+
 	public function __construct()
 	{
 		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
@@ -110,7 +110,8 @@ class Uptime extends Charts
 
 		//takes the log file and parses it into chartable data 
 		if ($logStatus) {
-			$this->getChartData ($chartArray, $contents, false);
+
+			$this->getChartData ($chartArray, $contents,  false );
 			$sizeofChartArray = (int)count($chartArray);
 		}
 
@@ -130,15 +131,14 @@ class Uptime extends Charts
 				
 				$data = $chartArray[$i];
 
-				// clean data for missing values
-				//$redline = ($this->checkRedline($data));
+				if ($data == null)
+					continue;
+
+				// clean data for missing values and check for redline
+				$redline = ($this->checkRedline($data));
+
+				//we skip all redline data for this module
 				$redline = false;
-
-				//remap data if it needs mapping based on different loggers
-				//$this->reMapData($data);
-
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
-					$data[1]=0.0;
 				
 				//usage is used to calculate view perspectives
 				//check for when first data is 0 here 
@@ -254,7 +254,7 @@ class Uptime extends Charts
 
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple log files
-			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
+			$this->setLogFile($chart->logfile,  $dateRange, $module );
 
 			// find out main function from module args that generates chart data
 			// in this module its getData above

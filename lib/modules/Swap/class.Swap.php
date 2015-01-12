@@ -16,7 +16,6 @@
 
 class Swap extends Charts
 {
-	public $logfile; // Stores the logfile name & path
 
 	/**
 	 * __construct
@@ -217,16 +216,17 @@ class Swap extends Charts
 
 			// main loop to build the chart data
 			for ( $i = 0; $i < $sizeofChartArray; ++$i) {				
+
 				$data = $chartArray[$i];
-				
+
+				if ($data == null)
+					continue;
+
 				//check for redline
-				$redline = ($this->checkRedline($data,4));
+				$redline = ($this->checkRedline($data));
 
 				//remap data if it needs mapping based on different loggers
 				$this->reMapData($data);
-
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
-					$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {
@@ -381,7 +381,7 @@ class Swap extends Charts
 
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple log files
-			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
+			$this->setLogFile($chart->logfile,  $dateRange, $module );
 
 			// find out main function from module args that generates chart data
 			// in this module its getData above

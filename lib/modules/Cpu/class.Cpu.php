@@ -18,7 +18,6 @@
 
 class Cpu extends Charts
 {
-	public $logfile; // Stores the logfile name & path
 
 	/**
 	 * __construct
@@ -141,11 +140,11 @@ class Cpu extends Charts
 				
 				$data = $chartArray[$i];
 				
+				if ($data==null)
+					continue;
+				
 				// clean data for missing values
 				$redline = ($this->checkRedline($data));
-
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
-					$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline)
@@ -283,8 +282,7 @@ class Cpu extends Charts
 
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple files make up a log file
-			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
-
+			$this->setLogFile($chart->logfile,  $dateRange, $module );
 
 			// find out main function from module args that generates chart data
 			// in this module its getUSageData above

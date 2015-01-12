@@ -16,6 +16,8 @@
 class Charts extends LoadAvg
 {
 
+	public  $logfile; // Stores the logfile name & path
+	public  $logFileDepth; // Stores the data depth based on logger for parsing
 
 	/**
 	 * checkRedline
@@ -26,12 +28,45 @@ class Charts extends LoadAvg
 	 */
 
 
-	function checkRedline (array &$data, $depth = 3 ) 
-	{
-		// check if its a readline and if so clean data and set back to 0
-		// gotta be a better way of doing this really but it works
+	/**
+	 * setDataDepth
+	 *
+	 * used to get depth of data being charted so we can clean it and get rid of erroroneus data
+	 *
+	 */
 
-		$redline = ($data[1] == "-1" ? true : false);
+	public function setDataDepth( $moduleName )
+	{
+
+		$moduleSettings = LoadAvg::$_settings->$moduleName; // if module is enabled ... get his settings
+
+		$depth = 0;
+
+		if ( LOGGER == "collectd" && (isset ($moduleSettings['collectd']['depth']))  ) {
+
+			$depth = $moduleSettings['collectd']['depth']; 
+		}
+		else
+		{
+			$depth = $moduleSettings['module']['depth']; 
+		}
+
+		$this->logFileDepth = $depth;
+
+		return $depth;
+
+	}
+
+	function checkRedline (array &$data) 
+	{
+
+		$depth = $this->logFileDepth;
+
+
+		// first check if its a readline and if it is clean data and set back to 0
+		//change redline form -1 to RED 
+
+		$redline = (isset($data[1]) && $data[1] == "-1" ? true : false);
 
 		if ($redline) {
 
@@ -40,26 +75,92 @@ class Charts extends LoadAvg
 				$data[$x]=0.0;
 			} 
 			//echo '<pre>POST REDLINE '; print_r ($data); echo '</pre>';
-
+			return true;
 		}
 
-		return $redline;
+
+		return false;
+	}
+
+
+	/**
+	 * checkRedline
+	 *
+	 * checks for redline in data point sent over via charting modules
+	 * and if it exists sets it to a null (0.0) data value for the chart
+	 *
+	 */
+
+
+	function cleanDataPoint (array &$data, $depth = 3 ) 
+	{
+
+
+		//now clean data item for bad data meaning missing a depth value
+		//we can put other rules in here...
+
+		//move this routine out into
+		//$this->getChartData ($chartArray, $contents );
+		//should be looking for bad data there really.
+	
+
+		$badData = false;
+		for ($x = 1; $x <= $depth; $x++) {
+
+			if (  (  !isset($data[$x]) )  )
+				$badData = true;
+		} 
+
+		if ($badData == true) {
+			echo "nullit<br>";
+			var_dump ($data);
+			echo "<br>";
+			
+			$data = null;	
+			return false;	
+		}
+
+	
+		//if not bad data then 
+		// check for missing data and if missing data zero out variable...
+
+		$cleanData = false;
+		for ($x = 1; $x <= $depth; $x++) {
+
+			if (    (!isset($data[$x])) ||  ($data[$x] == null) || ($data[$x] == "")  ) {
+				
+				$data[$x]=0.0;	
+				$cleanData = true;
+			}
+		} 
+
+		if ($cleanData == true) {
+			echo "cleanit<br>";
+			var_dump ($data);
+			echo "<br>";			
+			return false;	
+		}
+
+		return true;
 	}
 
 
 
 	/**
-	 * getLogFile
+	 * setLogFile
 	 *
-	 * gets log file name or multiple log file names for a range of dates depending on logger
-	 * and retunrs to module in a array to parse later on
+	 * sets log file name or multiple log file names for a range of dates depending on logger
+	 * stores in global for chart object for easy access in a array to parse later on
 	 *
 	 */
 
-	public function getLogFile( $moduleTemplate, $dateRange, $moduleName, $interface = null  )
+	public function setLogFile( $moduleTemplate, $dateRange, $moduleName, $interface = null  )
 	{
 		//needs error checking here to return null arrays when no log file present
 		$logString = null;
+
+		//set depth of dataset for logfile
+		$this->setDataDepth( $moduleName );
 
 		//get the settings for the module
         $moduleSettings = LoadAvg::$_settings->$moduleName; // if module is enabled ... get his settings
@@ -72,19 +173,16 @@ class Charts extends LoadAvg
 			$loop = 0;
 			foreach ( $dateRange as $date ) {
 					
-				$logFile = LOG_PATH . sprintf($moduleTemplate, $date, $interface);
+				$thelogFile = LOG_PATH . sprintf($moduleTemplate, $date, $interface);
 
-				if ( file_exists( $logFile )) {
+				if ( file_exists( $thelogFile )) {
 
-					$logString[$loop][0] = $logFile;	
+					$logString[$loop][0] = $thelogFile;	
 					$loop++;
 				}
 			}
 
-			return $logString;
-
 		}
-
 
 		if ( LOGGER == "collectd" ) {
 
@@ -119,13 +217,13 @@ class Charts extends LoadAvg
 
 					$moduleFunction = $thedata;
 
-					$logFile = COLLECTD_PATH . $moduleTemplate . "/" . $moduleFunction . "-" . $date;
+					$thelogFile = COLLECTD_PATH . $moduleTemplate . "/" . $moduleFunction . "-" . $date;
 					
 					//show the log files we have read in
 					//echo 'LOG: ' . $logFile . '<br>';
 
-					if ( file_exists( $logFile )) {
-						$logString[$loop][$loop2] = $logFile;
+					if ( file_exists( $thelogFile )) {
+						$logString[$loop][$loop2] = $thelogFile;
 						$foundData = true;
 						$loop2++;
 					}
@@ -135,8 +233,12 @@ class Charts extends LoadAvg
 				if  ($foundData) $loop++;
 			}
 
-			return $logString;
 		}			
+
+		$this->logfile = $logString;
+
+		//return $logString;
+
 	}
 
 	/**
@@ -201,11 +303,11 @@ class Charts extends LoadAvg
 		//array of data sets from each log file read from disk!
 
 		$arraysize = 0;
-		foreach ($logFileArray as $dataKey => $logFile) {
+		foreach ($logFileArray as $dataKey => $thelogFile) {
 
-			if ( file_exists( $logFile )) {
+			if ( file_exists( $thelogFile )) {
 
-				$mycontents[$arraysize] = file_get_contents($logFile);
+				$mycontents[$arraysize] = file_get_contents($thelogFile);
 				$mycontents[$arraysize] = explode("\n", $mycontents[$arraysize]);
 
 				//used just for collectd to clean top of datasets where descriptions are
@@ -313,9 +415,13 @@ class Charts extends LoadAvg
 
 	//parses contents
 	//returns in chartData
+	//depth is used for cleaning datapoints
 
 	function getChartData (array &$chartData, array &$contents, $patchIt = true ) 
 	{				
+
+		$depth = $this->logFileDepth;
+		//echo 'getChartData depth : ' . $depth;
 
 		//select 6,12 or 24 hour charts
 		$dataSet = LoadAvg::$_settings->general['settings']['chart_type'];
@@ -363,6 +469,7 @@ class Charts extends LoadAvg
 		if ($totalContents == 1) {
 
 			$data = explode($delimiter, $contents[0]);
+			$this->cleanDataPoint ($data, $depth ); 
 			$chartData[0] = $data;
 
 		} else {
@@ -373,6 +480,7 @@ class Charts extends LoadAvg
 			for ( $i = 0; $i <= $totalContents-1; ++$i) {
 
 				$data = explode($delimiter, $contents[$i]);
+				$this->cleanDataPoint ($data, $depth ); 
 				$chartData[$i] = $data;
 
 				/*
@@ -430,6 +538,8 @@ class Charts extends LoadAvg
 			}
 		}
 		//echo "PATCHARRAYPATCHED: " . count( $chartData ) . "<br>";
+
+
 	}
 
 

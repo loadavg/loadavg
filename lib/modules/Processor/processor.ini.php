@@ -7,6 +7,7 @@ has_settings = "true"
 has_menu = "false"
 url_args = "processor"
 logable = "true"
+depth = 5
 [logging]
 args[] = '{"logfile":"processor_%s.log","function":"logData"}'
 [chart]

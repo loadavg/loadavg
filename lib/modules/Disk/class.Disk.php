@@ -19,7 +19,8 @@
 
 class Disk extends Charts
 {
-	public $logfile; // Stores the logfile name & path
+
+
 
 	/**
 	 * __construct
@@ -178,6 +179,7 @@ class Disk extends Charts
 
 		//takes the log file and parses it into chartable data 
 		if ($logStatus) {
+
 			$this->getChartData ($chartArray, $contents );
 			$sizeofChartArray = (int)count($chartArray);
 		}
@@ -195,16 +197,17 @@ class Disk extends Charts
 
 			// main loop to build the chart data
 			for ( $i = 0; $i < $sizeofChartArray; ++$i) {	
+
 				$data = $chartArray[$i];
+
+				if ($data == null)
+					continue;
 
 				// clean data for missing values
 				$redline = ($this->checkRedline($data));
 
 				//remap data if it needs mapping based on different loggers
 				$this->reMapData($data);
-
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
-					$data[1]=0.0;
 				
 				//usage is used to calculate view perspectives
 				if (!$redline) {
@@ -351,6 +354,7 @@ class Disk extends Charts
 		$module = __CLASS__;
 		$i = 0;
 		foreach ( $charts['args'] as $chart ) {
+
 			$chart = json_decode($chart);
 
 			//get data range we are looking at - need to do some validation in this routine
@@ -358,7 +362,7 @@ class Disk extends Charts
 
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple log files
-			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
+			$this->setLogFile($chart->logfile,  $dateRange, $module );
 
 			// find out main function from module args that generates chart data
 			// in this module its getData above

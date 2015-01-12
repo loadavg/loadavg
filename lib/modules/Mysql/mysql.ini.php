@@ -6,6 +6,7 @@ status = "true"
 has_settings = "true"
 has_menu = "false"
 logable = "true"
+depth = 3
 [logging]
 args[] = '{"logfile":"mysql_usage_%s.log","function":"logData"}'
 [chart]

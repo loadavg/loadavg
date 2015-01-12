@@ -16,7 +16,6 @@
 
 class Apache extends Charts
 {
-	public $logfile; // Stores the logfile name & path
 
 	/**
 	 * __construct
@@ -51,7 +50,15 @@ class Apache extends Charts
 
 		$locate = "CPULoad";
 
+		//float $dataValue;
+
 		$dataValue = $this->getApacheDataValue($parseUrl, $locate);
+
+		//$dataValue = sscanf($dataValue, "%f")[0];
+		//$dataValue = floatval($dataValue);
+		//$dataValue = (float)$dataValue;
+		//echo 'APACHE:' . $dataValue;
+		//settype($dataValue, "float");  
 
 		if ($dataValue == null)
 			$dataValue = 0;
@@ -147,7 +154,6 @@ class Apache extends Charts
 			$sizeofChartArray = (int)count($chartArray);
 		}
 
-		
 		/*
 		 * now we loop through the dataset and build the chart
 		 * uses chartArray which contains the dataset to be charted
@@ -157,13 +163,14 @@ class Apache extends Charts
 
 			// main loop to build the chart data
 			for ( $i = 0; $i < $sizeofChartArray; ++$i) {	
+
 				$data = $chartArray[$i];
+
+				if ($data==null)
+					continue;
 
 				// clean data for missing values
 				$redline = ($this->checkRedline($data));
-
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
-					$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
 				//usage is used to calculate view perspectives
@@ -282,7 +289,7 @@ class Apache extends Charts
 
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple log files
-			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module );
+			$this->setLogFile($chart->logfile,  $dateRange, $module );
 
 			// find out main function from module args that generates chart data
 			// in this module its getData above

@@ -6,6 +6,7 @@ status = "true"
 has_settings = "true"
 has_menu = "false"
 logable = "true"
+depth = 2
 [logging]
 args[] = '{"logfile":"uptime_usage_%s.log","function":"logData"}'
 [chart]
@@ -20,5 +21,5 @@ line[] = '{"format":"Latest: %s days","args":"uptime_latest"}'
 overload = 90
 display_limiting = "false"
 [collectd]
+depth = 1
 args[] = '{"name":"uptime","functions":["uptime"]}'
-

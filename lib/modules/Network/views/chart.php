@@ -70,7 +70,7 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple log files
-			$this->logfile = $this->getLogFile($chart->logfile,  $dateRange, $module, $interface );
+			$this->setLogFile($chart->logfile,  $dateRange, $module, $interface );
 
 			$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
 

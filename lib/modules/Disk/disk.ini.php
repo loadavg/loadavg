@@ -6,6 +6,7 @@ status = "true"
 has_settings = "true"
 has_menu = "false"
 logable = "true"
+depth = 2
 [logging]
 args[] = '{"logfile":"disk_usage_%s.log","function":"logData"}'
 [chart]
@@ -23,4 +24,5 @@ overload = 90
 drive = "/"
 display_limiting = "false"
 [collectd]
+depth = 3
 args[] = '{"name":"df-root","functions":["df_complex-free","df_complex-reserved","df_complex-used"]}'

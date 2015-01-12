@@ -33,3 +33,7 @@ moving
     $todaymaxval = '<script type="text/javascript">document.write(today_max);</script>';
     echo "MAX " . $todaymaxval . "\n";
 */
+
+class network.php line 289 data is checked differently from redline now
+
+ssh mdule gives erros when less than 3 datasets in log files

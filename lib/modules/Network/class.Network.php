@@ -16,7 +16,6 @@
 
 class Network extends Charts
 {
-	public $logfile; // Stores the logfile name & path
 
 	/**
 	 * __construct
@@ -287,8 +286,8 @@ class Network extends Charts
 				$redline = ($this->checkRedline($data));
 
 				// clean data for missing values
-				if (  (!$data[$mode]) ||  ($data[$mode] == null) || ($data[$mode] == "") || (int)$data[$mode] < 0)
-					$data[$mode]=0;
+				//if (  (!$data[$mode]) ||  ($data[$mode] == null) || ($data[$mode] == "") || (int)$data[$mode] < 0)
+				//	$data[$mode]=0;
 			
 				$net_rate = $data[$mode];
 
