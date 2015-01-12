@@ -62,6 +62,8 @@ class LoadAvg
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
+		//echo 'APPMODE: ' . APPMODE . '<br>';
+
 		//check for old log files here....
 		if ( !isset( self::$_settings->general['settings']) ) {
 
@@ -82,17 +84,15 @@ class LoadAvg
 		$this->loadModules('modules');
 
 
+		if (APPMODE == "dashboard")	{
+			//generate list of all plugins
+			$this->generateModuleList('plugins');
 
-		//generate list of all plugins
-		$this->generateModuleList('plugins');
+			//load all charting modules that are enabled
+			$this->loadModules('plugins');
+		}
 
-		//load all charting modules that are enabled
-		$this->loadModules('plugins');
-
-
-	}
-
-
+}
 	/**
 	 * loadModules
 	 *
@@ -104,7 +104,13 @@ class LoadAvg
 	private function loadModules( $mode) {
 
 		//loads modules code
-		//echo '<pre>';
+		
+		//first figure out if we are loading for dashboard or logger
+		$class = 'class.';
+		if (APPMODE == "dashboard")
+			$class = 'class.';
+		else
+			$class = 'log.';
 
 		//if module is true in settings.ini file then we load it in 
 		foreach ( self::$_settings->general[$mode] as $key => &$value ) {
@@ -113,7 +119,9 @@ class LoadAvg
 
 			if ( $value == "true" ) {
 				try {
-					$loadModule = $key . DIRECTORY_SEPARATOR . 'class.' . $key . '.php';
+					$loadModule = $key . DIRECTORY_SEPARATOR . $class . $key . '.php';
+					
+					//echo 'loading:' . $loadModule;
 
 					//this doesnt work as its defined as in the path... set in globals
 					//maybe we should change this to not be relative ?

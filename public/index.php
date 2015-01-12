@@ -16,6 +16,8 @@
 
 require_once '../globals.php';
 
+defined('APPMODE') || define('APPMODE',  'dashboard' );
+
 /* Session */
 ob_start(); 
 session_start();

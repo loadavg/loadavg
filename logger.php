@@ -16,8 +16,11 @@
 // initialize LoadAvg and grab data
 
 require_once dirname(__FILE__) . '/globals.php'; // including required globals
+
+defined('APPMODE') || define('APPMODE',  'logger' );
+
 include 'class.LoadAvg.php'; // including Main Controller
-include 'class.Charts.php'; // for charts module
+include 'class.Logger.php'; // for logger module
 
 $loadavg = new LoadAvg(); // Initializing Main Controller
 $loaded = LoadAvg::$_settings->general['modules']; // Loaded modules

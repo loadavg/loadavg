@@ -32,35 +32,7 @@ class Uptime extends Charts
 		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
 	}
 
-	/**
-	 * logDiskUsageData
-	 *
-	 * Retrives data and logs it to file
-	 *
-	 * @param string $type type of logging default set to normal but it can be API too.
-	 * @return string $string if type is API returns data as string
-	 *	 *
-	 */
-
-	public function logData( $type = false )
-	{
-		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
-				
-
-		$uptime = exec("cat /proc/uptime | awk -F' ' '{print $1\"|\"$2}'");
-
-	    $string = time() . '|' . $uptime . "\n";
-		
-		$filename = sprintf($this->logfile, date('Y-m-d'));
-		$this->safefilerewrite($filename,$string,"a",true);
-
-		if ( $type == "api")
-			return $string;
-		else
-			return true;		
-	}
-
+	
 
 
 
