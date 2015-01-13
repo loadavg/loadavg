@@ -83,7 +83,7 @@ class LoadAvg
 		//load all charting modules that are enabled
 		$this->loadModules('modules');
 
-
+		//dont need to load these in for logger mate
 		if (APPMODE == "dashboard")	{
 			//generate list of all plugins
 			$this->generateModuleList('plugins');
@@ -1309,63 +1309,6 @@ class LoadAvg
 		return $interfaces;
 	}
 
-	/**
-	 * getTime
-	 *
-	 * Sets startTime of page load
-	 *
-	 */
-
-	public function getTime()
-	{
-		$time = microtime();
-		$time = explode(' ', $time);
-		$time = $time[1] + $time[0];
-		return $time;
-	}
-
-	/**
-	 * setStartTime
-	 *
-	 * Sets startTime of page load
-	 *
-	 */
-
-	public function setStartTime()
-	{
-		$time = microtime();
-		$time = explode(' ', $time);
-		$time = $time[1] + $time[0];
-		$this->timeStart = $time;
-	}
-
-	/**
-	 * setFinishTime
-	 *
-	 * Sets finish time of page load
-	 *
-	 */
-
-	public function setFinishTime()
-	{
-		$time = microtime();
-		$time = explode(' ', $time);
-		$time = $time[1] + $time[0];
-		$this->timeFinish = $time;
-	}
-
-	/**
-	 * getPageLoadTime
-	 *
-	 * Returns page load time
-	 *
-	 * @return string $time page load time
-	 */
-
-	public function getPageLoadTime()
-	{
-		return round( ( $this->timeFinish - $this->timeStart ), 4 );
-	}
 
 	/**
 	 * getDates

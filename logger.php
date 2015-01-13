@@ -17,14 +17,20 @@
 
 require_once dirname(__FILE__) . '/globals.php'; // including required globals
 
-defined('APPMODE') || define('APPMODE',  'logger' );
 
-include 'class.LoadAvg.php'; // including Main Controller
 include 'class.Logger.php'; // for logger module
+$logger = new Logger(); // Initializing Main Controller
 
-$loadavg = new LoadAvg(); // Initializing Main Controller
-$loaded = LoadAvg::$_settings->general['modules']; // Loaded modules
-$logdir = HOME_PATH . '/logs/'; // path to logfiles folder
+include 'class.Timer.php'; // for logger module
+$timer = new Timer(); // Initializing Timer
+
+$loaded = Logger::$_settings->general['modules']; // Loaded modules
+
+//grab the log diretory
+$logdir = LOG_PATH;
+
+//need to grab from system settings.ini instead
+//$logdir = LoadAvg::$_settings->general['logs_dir']; // Loaded modules
 
 
 //for testing the system
@@ -39,34 +45,27 @@ $st = $et = null;
 
 if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'time'))   ) {
 	$timemode = true;
-	$loadavg->setStartTime(); // Setting page load start time
+	$timer->setStartTime(); // Setting page load start time
 
-	echo "Start Time : " . $loadavg->timeStart . " \n"; 
+	echo "Start Time : " . $timer->timeStart . " \n"; 
 
 }
 
 //check for api server data transfer
 $api = false;
 
-if (LoadAvg::$_settings->general['settings']['apiserver'] == "true") {
+if (Logger::$_settings->general['settings']['apiserver'] == "true") {
 	$api = true; 
 }
 
 //array of data from logging used to send to api
 $response = array();
 
+////////////////////////////////////////////////
 // Delete old log files
-// should we execute this every time ?
-$fromDate = strtotime("-". LoadAvg::$_settings->general['settings']['daystokeep'] ." days 00:00:00");
-$dates = $loadavg->getDates();
-foreach ( $dates as $date ) {
-	$date = strtotime($date);
-	if ($date < $fromDate) {
-		$mask = $logdir . "*_" . date("Y-m-d", $date) . "*.log";
-		array_map( 'unlink', glob( $mask ) );
-	}
-}
-// End of delete old logs
+
+$logger->rotateLogFiles($logdir);
+
 
 //when sending api data we call data gathering 2x this is unnecssary
 //we only need to call 1x and return data as string or true/false
@@ -78,7 +77,7 @@ if (!$testmode) {
 		if ( $value == "false" ) continue;
 
 		// Settings for each loaded modules
-		$moduleSettings = LoadAvg::$_settings->$module;
+		$moduleSettings = Logger::$_settings->$module;
 
 		// Check if loaded module needs loggable capabilities
 		if ( $moduleSettings['module']['logable'] == "true" ) {
@@ -86,7 +85,7 @@ if (!$testmode) {
 
 
 				$args = json_decode($args); // decode arguments
-				$class = LoadAvg::$_classes[$module]; // load module information
+				$class = Logger::$_classes[$module]; // load module information
 
 				//the modules logging function is read from the args
 				$caller = $args->function;
@@ -95,7 +94,7 @@ if (!$testmode) {
 
 
 				if  ( $timemode  ) 
-					$st = $loadavg->getTime();
+					$st = $timer->getTime();
 
 				//we can add 3 different modes to caller
 				//log - log data
@@ -129,7 +128,7 @@ if (!$testmode) {
 					$class->$caller(); 
 
 				if  ( $timemode  ) {
-					$et = $loadavg->getTime();
+					$et = $timer->getTime();
 					echo "Module " . $module . " Time : " .   ($et - $st)   . " \n";
 				}
 
@@ -140,7 +139,7 @@ if (!$testmode) {
 	// Send data to API server
 	if ( $api ) {
 		//print_r($response) ;
-		$apistatus = $loadavg->sendApiData($response);
+		$apistatus = $logger->sendApiData($response);
 	 }
 
 }
@@ -153,7 +152,7 @@ if  ( $testmode  ) {
 
 	echo "Testing Logger \n";
 
-	$logger_status = $loadavg->testLogs();
+	$logger_status = $logger->testLogs();
 
 	if ( $logger_status )
 		echo "The logger appears to be running \n";
@@ -165,7 +164,7 @@ if  ( $testmode  ) {
 
 		echo "API Active, Testing API \n";
 
-		$apistatus = $loadavg->testApiConnection(true);
+		$apistatus = $logger->testApiConnection(true);
 
 		if ( $apistatus )
 			echo "The API appears to be running \n";
@@ -178,13 +177,13 @@ if  ( $testmode  ) {
 // timing  section
 if  ( $timemode ) {
 
-	$loadavg->setFinishTime(); // Setting page load finish time
+	$timer->setFinishTime(); // Setting page load finish time
 
-	$page_load = $loadavg->getPageLoadTime(); // Calculating page load time
+	$page_load = $timer->getPageLoadTime(); // Calculating page load time
 
-	$mytime = (float) $loadavg->timeFinish - (float) $loadavg->timeStart;
+	$mytime = (float) $timer->timeFinish - (float) $timer->timeStart;
 
-	echo "End   Time : " . $loadavg->timeFinish . " \n"; 
+	echo "End   Time : " . $timer->timeFinish . " \n"; 
 
 	echo "Total Time : " . $mytime . " \n"; 
 

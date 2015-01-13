@@ -45,7 +45,7 @@ class Uptime extends Logger
 	public function logData( $type = false )
 	{
 		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
+		$settings = Logger::$_settings->$class;
 				
 
 		$uptime = exec("cat /proc/uptime | awk -F' ' '{print $1\"|\"$2}'");

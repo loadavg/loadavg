@@ -42,19 +42,19 @@ class Network extends Logger
 	{
 
 		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
+		$settings = Logger::$_settings->$class;
 
 		//need to collect data from multiple interfaces here
 		$apiString = "";
 
-		foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
+		foreach (Logger::$_settings->general['network_interface'] as $interface => $value) {
 
 		//echo 'NET: ' . $interface . "\n" ;
 
 		//skip disabled interfaces - should be and / or not and ?
 			
-		if (  !( isset(LoadAvg::$_settings->general['network_interface'][$interface]) 
-			&& LoadAvg::$_settings->general['network_interface'][$interface] == "true" ) )
+		if (  !( isset(Logger::$_settings->general['network_interface'][$interface]) 
+			&& Logger::$_settings->general['network_interface'][$interface] == "true" ) )
 			continue;
 
 			$logfile = sprintf($this->logfile, date('Y-m-d'), $interface);

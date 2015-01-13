@@ -46,7 +46,7 @@ class Disk extends Logger
 	public function logData( $type = false )
 	{
 		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
+		$settings = Logger::$_settings->$class;
 				
 		$drive = $settings['settings']['drive'];
 		

@@ -25,8 +25,10 @@ session_start();
 /* Initialize LoadAvg */ 
 include 'class.LoadAvg.php';
 include 'class.Charts.php';
+include 'class.Timer.php';
 
 $loadavg = new LoadAvg();
+$timer = new Timer();
 
 //grab core settings
 $settings = LoadAvg::$_settings->general;
@@ -72,7 +74,7 @@ if (
  * start polling time to generate charts
  */
 
-$loadavg->setStartTime(); // Setting page load start time
+$timer->setStartTime(); // Setting page load start time
 
 /*
  * draw the current page view
@@ -153,10 +155,10 @@ else
  */
 
 // set page load finish time
-$loadavg->setFinishTime(); 
+$timer->setFinishTime(); 
 
 // Calculating total page load time
-$page_load = $loadavg->getPageLoadTime(); 
+$page_load = $timer->getPageLoadTime(); 
 
 //draw the footer
 require_once APP_PATH . '/layout/footer.php'; 
