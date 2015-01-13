@@ -14,7 +14,7 @@
 * later.
 */
 
-class Apache extends Charts
+class Apache extends Logger
 {
 
 	/**
