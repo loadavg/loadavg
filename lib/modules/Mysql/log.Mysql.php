@@ -162,14 +162,14 @@ class Mysql extends Logger
 			}
 
 		//write out log data here
-		$this->safefilerewrite($logfile,$string,"a",true);
+		LoadUtility::safefilerewrite($logfile,$string,"a",true);
 
 		// write out last transfare and received bytes to latest
 		$last_string = $bytesReceived."|".$bytesSent."|".$queries;
 
 		$fh = dirname($this->logfile) . DIRECTORY_SEPARATOR . "_mysql_latest";
 
-		$this->safefilerewrite($fh,$last_string,"w",true);
+		LoadUtility::safefilerewrite($fh,$last_string,"w",true);
 
 		if ( $type == "api")
 			return $string;

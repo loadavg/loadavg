@@ -19,26 +19,12 @@
 <?php
 
 	//clean up links first
-/*
-	if (
-		(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
-		(isset($_GET['maxDate']) && !empty($_GET['maxDate'])) &&
-		(isset($_GET['logdate']) && !empty($_GET['logdate']))
-		) {
-		$links = "?minDate=" . $_GET['minDate'] . "&maxDate=" . $_GET['maxDate'] . "&logdate=" . $_GET['logdate'] ."&";
-	} elseif (
-		(isset($_GET['logdate']) && !empty($_GET['logdate']))
-		) {
-		$links = "?logdate=" . $_GET['logdate'] . "&";
-	} else {
-		$links = "?";
-	}
-*/
+
 	//get date range links for header here
-	$links = LoadAvg::getRangeLinks();
+	$links = loadModules::getRangeLinks();
 
 	//get settings for this module
-	$modSettings = LoadAvg::$_settings->$module;
+	$modSettings = loadModules::$_settings->$module;
 
 
 	//currently we dont store settings per network interface but we need to!
@@ -58,14 +44,14 @@
 
 			switch ( $newmode) {
 				case "true": 	$mydata['settings']['transfer_limiting'] = "true";
-							$mergedsettings = LoadAvg::ini_merge ($modSettings, $mydata);
-							LoadAvg::write_module_ini($mergedsettings, $module);
+							$mergedsettings = loadModules::ini_merge ($modSettings, $mydata);
+							loadModules::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 
 				case "false": 	$mydata['settings']['transfer_limiting'] = "false";
-							$mergedsettings = LoadAvg::ini_merge ($modSettings, $mydata);
-							LoadAvg::write_module_ini($mergedsettings, $module);
+							$mergedsettings = loadModules::ini_merge ($modSettings, $mydata);
+							loadModules::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 			}		
@@ -92,14 +78,14 @@
 
 			switch ( $newmode) {
 				case "true": 	$mydata['settings']['receive_limiting'] = "true";
-							$mergedsettings = LoadAvg::ini_merge ($modSettings, $mydata);
-							LoadAvg::write_module_ini($mergedsettings, $module);
+							$mergedsettings = loadModules::ini_merge ($modSettings, $mydata);
+							loadModules::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 
 				case "false": 	$mydata['settings']['receive_limiting'] = "false";
-							$mergedsettings = LoadAvg::ini_merge ($modSettings, $mydata);
-							LoadAvg::write_module_ini($mergedsettings, $module);
+							$mergedsettings = loadModules::ini_merge ($modSettings, $mydata);
+							loadModules::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 			}		

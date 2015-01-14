@@ -177,14 +177,14 @@ class Processor extends Logger
 			//echo 'TOTAL:' . $testTotal . "\n" ;
 
 		//write out log data here
-		$this->safefilerewrite($logfile,$string,"a",true);
+		LoadUtility::safefilerewrite($logfile,$string,"a",true);
 
 		// write out last transfare and received bytes to latest
 		$last_string = $procStats[0]."|".$procStats[1]."|".$procStats[2]."|".$procStats[3];
 
 		$fh = dirname($this->logfile) . DIRECTORY_SEPARATOR . $separator;
 
-		$this->safefilerewrite($fh,$last_string,"w",true);
+		LoadUtility::safefilerewrite($fh,$last_string,"w",true);
 
 		if ( $type == "api")
 			return $string;

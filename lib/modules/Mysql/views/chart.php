@@ -57,7 +57,8 @@
 
 
 			//get data range we are looking at - need to do some validation in this routine
-			$dateRange = $this->getDateRange();
+			$dateRange = loadModules::$date_range;
+			//$dateRange = $this->getDateRange();
 
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple log files

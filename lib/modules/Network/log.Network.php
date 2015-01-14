@@ -143,13 +143,14 @@ class Network extends Logger
 			}
 
 				//write out log data here
-				$this->safefilerewrite($logfile,$string,"a",true);
+				LoadUtility::safefilerewrite($logfile,$string,"a",true);
 
 				// write out last transfare and received bytes to latest
 				$last_string = $trans."|".$recv;
 				$fh = dirname($this->logfile) . DIRECTORY_SEPARATOR . "_net_latest_" . $interface;
 
-				$this->safefilerewrite($fh,$last_string,"w",true);
+				LoadUtility::safefilerewrite($fh,$last_string,"w",true);
+
 
 				//figure out how to send back data for multiple interfaces here
 				//echo "STRING:" . $string;

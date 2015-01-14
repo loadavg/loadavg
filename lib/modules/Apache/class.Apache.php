@@ -43,7 +43,7 @@ class Apache extends Charts
 	public function getUsageData( )
 	{
 		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
+		$settings = loadModules::$_settings->$class;
 
 		//define some core variables here
 		$dataArray = null;
@@ -208,7 +208,7 @@ class Apache extends Charts
 			$chart = json_decode($chart);
 
 			//get data range we are looking at - need to do some validation in this routine
-			$dateRange = $this->getDateRange();
+			$dateRange = loadModules::$date_range;
 
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple log files

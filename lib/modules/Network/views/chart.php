@@ -25,12 +25,12 @@
 
 $i = 0; 
 
-foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) { 
+foreach (loadModules::$_settings->general['network_interface'] as $interface => $value) { 
 	$i++;
 
 	//skip disabled interfaces
-	if (  !( isset(LoadAvg::$_settings->general['network_interface'][$interface]) 
-		&& LoadAvg::$_settings->general['network_interface'][$interface] == "true" ) )
+	if (  !( isset(loadModules::$_settings->general['network_interface'][$interface]) 
+		&& loadModules::$_settings->general['network_interface'][$interface] == "true" ) )
 		continue;
 
 	$moduleCollapse = $moduleCollapseStatus =  "";
@@ -66,7 +66,8 @@ foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $val
 
 
 			//get data range we are looking at - need to do some validation in this routine
-			$dateRange = $this->getDateRange();
+			$dateRange = loadModules::$date_range;
+			//$dateRange = $this->getDateRange();
 
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple log files

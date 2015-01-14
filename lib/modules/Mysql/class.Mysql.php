@@ -77,7 +77,7 @@ class Mysql extends Charts
 	{
 
 		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
+		$settings = loadModules::$_settings->$class;
 
 		//define some core variables here
 		$dataArray = $dataRedline = $usage = array();

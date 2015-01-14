@@ -66,7 +66,8 @@ class Apache extends Logger
 	    $string = time() . '|' . $dataValue . "\n";
 
 		$filename = sprintf($this->logfile, date('Y-m-d'));
-		$this->safefilerewrite($filename,$string,"a",true);
+		//$this->safefilerewrite($filename,$string,"a",true);
+		LoadUtility::safefilerewrite($filename,$string,"a",true);
 
 		if ( $type == "api")
 			return $string;

@@ -151,10 +151,10 @@ class Ssh extends Logger
 		}
 
 		//write out log data here
-		$this->safefilerewrite($logfile,$string,"a",true);
+		LoadUtility::safefilerewrite($logfile,$string,"a",true);
 
 		// write out filesize so we can pick up where we left off next time around
-		$this->safefilerewrite($sshLatestLocation,$fileSize,"w",true);
+		LoadUtility::safefilerewrite($sshLatestLocation,$fileSize,"w",true);
 
 		if ( $type == "api")
 			return $string;
