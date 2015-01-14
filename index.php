@@ -39,10 +39,13 @@ require_once 'globals.php';
 
 ob_start(); 
 
+/* Initialize LoadAvg Utility Class */ 
+include 'class.Utility.php';
+
 /* Initialize LoadAvg */ 
 include 'class.LoadAvg.php';
-include 'class.Charts.php';
 $loadavg = new LoadAvg();
+
 
 $settings = LoadAvg::$_settings->general;
 
