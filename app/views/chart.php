@@ -13,6 +13,10 @@
 * later.
 */
 
+//called by charting modules module to render chart! 
+//in lib/modules/Cpu/class.Cpu.php for eg
+//really shoudl be a function... instead of located here
+
 ?>
 
 <?php

@@ -167,56 +167,7 @@ class Logger
 		return $dates;
 	}
 
-	/**
-	 * safefilewrite
-	 *
-	 * Writes data to INI file and locks the file
-	 *
-	 * @param string $fileName filename
-	 * @param array $dataToSave data to save to file
-	 */
 
-	public function safefilerewrite($fileName, $dataToSave, $mode = "w", $logs = false )
-	{    
-
-		//if file is new and is a logfile then we need to make it chmod 777
-		//or we have issues between flies create using app and ones using cron
-		//cron gives root permissions and app gives appache permissions
-		$exists = file_exists ( $fileName );
-
-		if ($fp = fopen($fileName, $mode))
-	    {
-	        $startTime = microtime();
-	        do
-	        {
-	        	$canWrite = flock($fp, LOCK_EX);
-	        	// If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
-	        	if(!$canWrite) usleep(round(rand(0, 100)*1000));
-	        } while ((!$canWrite)and((microtime()-$startTime) < 1000));
-
-	        //file was locked so now we can store information
-	        if ($canWrite)
-	        {
-	        	fwrite($fp, $dataToSave);
-	            //flock($fp, LOCK_UN);
-	        }
-
-	        fclose($fp);
-
-	        //if its a new log file fix permissions
-	        if (!$exists && $logs==true ) {
-	        	//echo "fix logs";
-				chmod($fileName, 0777);
-			}
-
-	        return true;
-	    }
-	    else
-	    {
-	    	return false;
-	    }
-
-	}
 
 	/**
 	 * rotateLogFiles
@@ -245,7 +196,78 @@ class Logger
 
 }
 
+	/**
+	 * sendApiData
+	 *
+	 * If API is activated sends data to server
+	 *
+	 * @param array $data array of data to send to the server
+	 * @return string $result message returned from the server
+	 */
 
+	public function sendApiData( $data ) {
+
+		// for debugging
+		//var_dump($data); //exit;
+		//echo 'DEBUG: ' .  json_encode($data);
+
+		$url = self::$_settings->general['api']['url'];
+
+		$user_url = $url . '/users/';
+		$server_url = $url . '/servers/';
+
+		//validate API access here
+		if ( self::$_settings->general['api']['server_token'] && self::$_settings->general['api']['key'] ) {		
+		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/' . self::$_settings->general['api']['key'] . '/v');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$account_valid = curl_exec($ch);
+		} else
+			$account_valid = 'false';
+
+		//get server id from server token
+		if ( self::$_settings->general['api']['server_token'] ) {			
+		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/t');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		$server_exists = curl_exec($ch);
+		} else
+			$server_exists = 'false';
+
+		//echo $server_url.json_decode($server_exists)->id.'/data';
+
+		//validation needs to happen on the sever this is still insecure!
+		//need to pass api token and server token over in data push
+
+		if( $server_exists != 'false' && $account_valid != 'false' ) 
+		{
+
+			//file_put_contents("file.txt", json_encode($data)); test data
+			$curl = curl_init();
+
+			// Set some options - we are passing in a useragent too here
+			curl_setopt_array($curl, array(
+		    CURLOPT_RETURNTRANSFER => 1,
+		    CURLOPT_URL => $server_url.json_decode($server_exists)->id.'/data',
+		    CURLOPT_USERAGENT => 'LoadAvg Client',
+		    CURLOPT_POST => 1,
+		    CURLOPT_POSTFIELDS => array(
+		      'data' => json_encode($data),
+		    )
+			));
+
+			// Send the request & save response to $resp
+			$resp = curl_exec($curl);
+
+			// Close request to clear up some resources
+			curl_close($curl);
+
+			//used for debugging to file
+			//file_put_contents("file.txt",$resp);
+			
+			return true;
+		}
+
+		return null;
+	}
 	/**
 	 * getProcStats
 	 *

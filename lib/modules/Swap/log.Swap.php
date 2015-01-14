@@ -71,7 +71,7 @@ class Swap extends Logger
 	    //echo 'DATA:'  . $string .  "\n" ;
 
 		$filename = sprintf($this->logfile, date('Y-m-d'));
-		$this->safefilerewrite($filename,$string,"a",true);
+		LoadUtility::safefilerewrite($filename,$string,"a",true);
 
 		if ( $type == "api")
 			return $string;

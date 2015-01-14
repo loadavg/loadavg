@@ -34,11 +34,11 @@
 		$links = "?";
 	}
 */
-	$links = LoadAvg::getRangeLinks();
+	$links = LoadModules::getRangeLinks();
 
 
 	//get settings for this module
-	$modSettings = LoadAvg::$_settings->$module;
+	$modSettings = LoadModules::$_settings->$module;
 
 	//get the display_limiting setting from the settings subsection for this module
 	$thedata = $modSettings['settings']['display_limiting'];
@@ -50,14 +50,14 @@
 
 		switch ( $newmode) {
 			case "true": 	$mydata['settings']['display_limiting'] = "true";
-						$mergedsettings = LoadAvg::ini_merge ($modSettings, $mydata);
-						LoadAvg::write_module_ini($mergedsettings, $module);
+						$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+						LoadUtility::write_module_ini($mergedsettings, $module);
 						header("Location: " . $links);						
 						break;
 
 			case "false": 	$mydata['settings']['display_limiting'] = "false";
-						$mergedsettings = LoadAvg::ini_merge ($modSettings, $mydata);
-						LoadAvg::write_module_ini($mergedsettings, $module);
+						$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+						LoadUtility::write_module_ini($mergedsettings, $module);
 						header("Location: " . $links);						
 						break;
 		}		

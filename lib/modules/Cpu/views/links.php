@@ -28,29 +28,15 @@ switch ( ( isset($_GET['load']) || !empty($_GET['load'])) ? $_GET['load'] : '2' 
 		$load_mode = "5 min"; $load = 2; break;
 }
 
-/*
-if (
-	(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
-	(isset($_GET['maxDate']) && !empty($_GET['maxDate'])) &&
-	(isset($_GET['logdate']) && !empty($_GET['logdate']))
-	) {
-	$links = "?minDate=" . $_GET['minDate'] . "&maxDate=" . $_GET['maxDate'] . "&logdate=" . $_GET['logdate'] ."&";
-} elseif (
-	(isset($_GET['logdate']) && !empty($_GET['logdate']))
-	) {
-	$links = "?logdate=" . $_GET['logdate'] . "&";
-} else {
-	$links = "?";
-}
-*/
+
 	//get date range links for header here
-	$links = LoadAvg::getRangeLinks();
+	$links = LoadModules::getRangeLinks();
 
 	//$displaylinks = $links;
 
 
 	//get settings for this module
-	$modSettings = LoadAvg::$_settings->$module;
+	$modSettings = LoadModules::$_settings->$module;
 
 	//get the display_limiting setting from the settings subsection for this module
 	$thedata = $modSettings['settings']['display_limiting'];
@@ -63,14 +49,14 @@ if (
 
 		switch ( $newmode) {
 			case "true": 	$mydata['settings']['display_limiting'] = "true";
-						$mergedsettings = LoadAvg::ini_merge ($modSettings, $mydata);
-						LoadAvg::write_module_ini($mergedsettings, $module);
+						$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+						LoadUtility::write_module_ini($mergedsettings, $module);
 						header("Location: " . $links);						
 						break;
 
 			case "false": 	$mydata['settings']['display_limiting'] = "false";
-						$mergedsettings = LoadAvg::ini_merge ($modSettings, $mydata);
-						LoadAvg::write_module_ini($mergedsettings, $module);
+						$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+						LoadUtility::write_module_ini($mergedsettings, $module);
 						header("Location: " . $links);						
 						break;
 		}		

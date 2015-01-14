@@ -55,7 +55,7 @@ if (isset($_POST['update_settings'])) {
 
 	/* Need to loop thorugh interfaces as well as when all off all dispapear */
 
-	$interfaces = LoadAvg::getNetworkInterfaces();
+	$interfaces = LoadUtility::getNetworkInterfaces();
 
 	foreach ($interfaces as $interface) { 
 
@@ -184,7 +184,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 
 	<div class="well">
 		<h4>Network interfaces</h4>
-		<?php $interfaces = LoadAvg::getNetworkInterfaces(); ?>
+		<?php $interfaces = LoadUtility::getNetworkInterfaces(); ?>
 		<?php foreach ($interfaces as $interface) { ?>
 		<div class="row-fluid">
 			<div class="span3">

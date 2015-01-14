@@ -66,7 +66,8 @@ class Cpu extends Logger
 		//by just returning data
 		
 		$filename = sprintf($this->logfile, date('Y-m-d'));
-		$this->safefilerewrite($filename,$string,"a",true);
+		//$this->safefilerewrite($filename,$string,"a",true);
+		LoadUtility::safefilerewrite($filename,$string,"a",true);
 
 		if ( $type == "api")
 			return $string;

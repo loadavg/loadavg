@@ -13,12 +13,16 @@
 * later.
 */
 
+
 class LoadAvg
 {
-	public static $_settings; // storing standard settings and/or loaded modules settings
-	public static $_classes; // storing loaded modules classes
 
-	public static $_modules; // storing and managing modules
+	public static $settings_ini; //location of settings.ini file
+	public static $_settings; // storing standard settings and/or loaded modules settings
+	
+	public static $_classes; // storing loaded modules classes
+	//public static $_modules; // storing and managing modules
+
 	public static $_plugins; // storing and managing plugins
 
 	public static $current_date; // current date
@@ -28,9 +32,6 @@ class LoadAvg
 	public static $period;
 	public static $period_minDate;
 	public static $period_maxDate;
-	public static $settings_ini;
-	public $timeStart = null, $timeFinish = null;
-
 
 	/**
 	 * setSettings
@@ -55,14 +56,14 @@ class LoadAvg
 	public function __construct()
 	{
 
+
+		//set timezone and load in settings
 		date_default_timezone_set("UTC");
 		self::$settings_ini = "settings.ini.php";
 
 		$this->setSettings('general',
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
-
-		//echo 'APPMODE: ' . APPMODE . '<br>';
 
 		//check for old log files here....
 		if ( !isset( self::$_settings->general['settings']) ) {
@@ -74,88 +75,33 @@ class LoadAvg
 		//get the date and timezone
 		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
 
+		//if no log date is set then use todays date
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
 
 
-		//generate list of all modules
-		$this->generateModuleList('modules');
+		//generate list of all plugins
+		//$this->generateModuleList('plugins');
+		LoadUtility::generateExtensionList( 'plugins', self::$_plugins );
+
 
 		//load all charting modules that are enabled
-		$this->loadModules('modules');
-
-		//dont need to load these in for logger mate
-		if (APPMODE == "dashboard")	{
-			//generate list of all plugins
-			$this->generateModuleList('plugins');
-
-			//load all charting modules that are enabled
-			$this->loadModules('plugins');
-		}
-
-}
-	/**
-	 * loadModules
-	 *
-	 * load in modules by calling main scripts, will load moth core modules and plugins
-	 *
-	 * @param string $dir path to directory
-	 */
-
-	private function loadModules( $mode) {
-
-		//loads modules code
-		
-		//first figure out if we are loading for dashboard or logger
-		$class = 'class.';
-		if (APPMODE == "dashboard")
-			$class = 'class.';
-		else
-			$class = 'log.';
-
-		//if module is true in settings.ini file then we load it in 
-		foreach ( self::$_settings->general[$mode] as $key => &$value ) {
-
-			//echo 'VALUE: ' . $value . '   ' . 'KEY: ' . $key . '<br>';
-
-			if ( $value == "true" ) {
-				try {
-					$loadModule = $key . DIRECTORY_SEPARATOR . $class . $key . '.php';
-					
-					//echo 'loading:' . $loadModule;
-
-					//this doesnt work as its defined as in the path... set in globals
-					//maybe we should change this to not be relative ?
-					require_once $loadModule;
-					self::$_classes[$key] = new $key;
-
-				} catch (Exception $e) {
-					throw Exception( $e->getMessage() );
-				}
-			}
-
-		}
-
-		//var_dump(self::$_classes);
-		//echo '</pre>';
+		//$this->loadModules('plugins');
+		LoadUtility::loadExtensions( 'plugins', self::$_settings, self::$_classes);
 
 	}
 
-//needs to build array with menu items and have front end deraw it really...
 
-	//1. name
-	//2. icon
-	//3. pagename 
+
+	//needs to build array with menu items and have front end deraw it really...
 
 	public function buildPluginMenu( ) {
 
 		//var_dump (self::$_settings->general['plugins']);
 
-
 		//if module is true in settings.ini file then we load it in 
 		foreach ( self::$_settings->general['plugins'] as $key => &$value ) {
 
 			//echo 'VALUE: ' . $value . '   ' . 'KEY: ' . $key . '<br>';
-
 
 			//if value is true plugin is active
 			if ( $value == "true" ) {
@@ -164,58 +110,11 @@ class LoadAvg
 
 				$pluginData =  $pluginClass->getPluginData();
 
-				var_dump ($pluginData);
-	
-
-
-
-			}
-
-		}
-
-	}
-
-
-
-
-	/**
-	 * generatePluginList
-	 *
-	 * searches plugins directory for all plugins and adds them to list _plugins
-	 *
-	 */
-
-	private function generateModuleList( $mode) {
-
-		//loads modules code
-		//echo '<pre>';
-
-		//loads in all modules names
-		//so users can turn them on and off !
-
-		//if (is_dir(HOME_PATH . '/lib/' . $mode . '/')) {
-		if (is_dir(HOME_PATH . '/lib/' . $mode . '/')) {
-
-			//foreach (glob(HOME_PATH . "/lib/' . $mode . '/*/class.*.php") as $filename) {
-
-			$searchpath = HOME_PATH . '/lib/' . $mode . '/*/class.*.php';
-
-			foreach (glob($searchpath) as $filename) {
-				$filename = explode(".", basename($filename));
-
-				if ($mode == 'modules')
-					self::$_modules[$filename[1]] = strtolower($filename[1]);
-
-				if ($mode == 'plugins')
-					self::$_plugins[$filename[1]] = $filename[1];
-
+				//var_dump ($pluginData);
 			}
 		}
-		
-		//var_dump(self::$_plugins);
-		//echo '</pre>';
-
 	}
+
 
 
 	/**
@@ -255,19 +154,6 @@ class LoadAvg
 
 
 	/**
-	 * is_dir_empty
-	 *
-	 * Checks if specified directory is empty or not.
-	 *
-	 * @param string $dir path to directory
-	 */
-
-	private function is_dir_empty($dir) {
-		if (!is_readable($dir)) return NULL;
-		return (count(scandir($dir)) == 2);
-	}
-
-	/**
 	 * createFirstLogs
 	 *
 	 * Creates first log files for every loaded modules 
@@ -280,7 +166,8 @@ class LoadAvg
 	{
 
 		//only does it if DIR is empty ?
-		if ( $this->is_dir_empty(HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir']) ) {
+//		if ( $this->is_dir_empty(HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir']) ) {
+		if ( LoadUtility::is_dir_empty(HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir']) ) {
 
 			$loaded = self::$_settings->general['modules'];
 			$logdir = HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir'];
@@ -465,24 +352,7 @@ class LoadAvg
 	}
 
 
-	
 
-
-	/**
-	 * checkWritePermissions
-	 *
-	 * Checks if specified file has write permissions.
-	 *
-	 * @param string $file path to file
-	 */
-
-	public function checkWritePermissions( $file )
-	{
-		if ( is_writable( $file ) )
-			return true;
-		else
-			return false;
-	}
 
 	/**
 	 * checkInstaller
@@ -533,7 +403,8 @@ class LoadAvg
 		$settings_file = APP_PATH . '/config/settings.ini.php';
 
 		//see if we can write to settings file
-		if ( $this->checkWritePermissions( $settings_file ) ) 
+		//if ( $this->checkWritePermissions( $settings_file ) ) 
+		if ( LoadUtility::checkWritePermissions( $settings_file ) ) 
 		{
 			/* 
 			 * Create first log files for all active modules 
@@ -577,83 +448,6 @@ class LoadAvg
 	}
 
 
-	/**
-	 * getUIcookie
-	 *
-	 * used to get status of accordions - collapsed or visable from the loadUI cookie
-	 * using code to manage accordion state is in common.js
-	 *
-	 */
-
-	public function getUIcookie ( &$data1,  &$data2, $module) 
-	{
-
-		//these are the default values 
-		$data1 = "accordion-body collapse in";
-		$data2 = "true";
-
-		//if cookie exist greb it here
-		//if not we return default values above
-		if (isset($_COOKIE["loadUIcookie"]))
-			$myCookie = $_COOKIE["loadUIcookie"];
-		else
-			return false;
-		
-		$cookie = stripslashes($myCookie);
-
-		$savedCardArray = json_decode($cookie, true);
-
-
-
-		//now loop thorugh cookies
-		foreach ($savedCardArray as &$value) {
-
-			$myval = explode("=", $value);
-
-			if ($module == $myval[0]) {
-
-				if ($myval[1] == "true") {
-					$data1 = "accordion-body collapse in";
-				    $data2 = "true";
-				}
-				else {
-					$data1 = "accordion-body collapse";
-				    $data2 = "false";
-				   }
-			}
-
-		}
-
-
-
-	}
-
-	/**
-	 * getProcStats
-	 *
-	 * parses /proc/stat and returns line $theLine
-	 * move this out into functions really
-	 *
-	 */
-
-	public function getProcStats (array &$data, $theLine = 0) 
-	{
-
-        //we grab data from proc/stat in one pass as it changes as you read it
-  		$stats = file('/proc/stat'); 
-
-  		//if array is emoty we didnt work
-		if($stats === array())
-        	return false;
-
-        //echo 'STATS:' . $stats[1];
-
-        //grab cpu data
-		$data = explode(" ", preg_replace("!cpu +!", "", $stats[$theLine])); 
-
-       return true; 
-
-	}
 
 
 
@@ -667,9 +461,44 @@ class LoadAvg
 	 */
 
 	//TODO: update this to work with collectd dates
+	//fix ranges up to todays date as well
 
 	public function getDateRange ()
 	{
+
+		/* 
+		 * Grab the current period if a period has been selected
+		 * TODO: if min date and no max date then set max date to todays date
+		 * max date alone does nothing...
+		 */
+	
+		$minDate = $maxDate = false;
+
+		if ( isset($_GET['minDate']) && !empty($_GET['minDate']) ) 
+			$minDate = true;
+
+		if ( isset($_GET['maxDate']) && !empty($_GET['maxDate']) ) 
+			$maxDate = true;
+
+
+		//for some reason when max date is todays date we cant plot the range ?
+
+		if ( $minDate  )
+		{
+			LoadAvg::$period = true;
+			LoadAvg::$period_minDate = date("Y-m-d", strtotime($_GET['minDate']));
+
+			if ($maxDate)
+				LoadAvg::$period_maxDate = date("Y-m-d", strtotime($_GET['maxDate']));
+			else
+				LoadAvg::$period = false;
+
+			//else
+			//	LoadAvg::$period_maxDate = self::$current_date;
+		}
+
+		//echo "minDate" . LoadAvg::$period_minDate . "<br>";
+		//echo "maxDate" . LoadAvg::$period_maxDate . "<br>";
 
 		$currentDate = self::$current_date;
 
@@ -697,336 +526,7 @@ class LoadAvg
 		return $dateArray;
 	}
 
-	/**
-	 * getRangeLinks
-	 *
-	 * builds links for header when ranges are used to pass them around
-	 */
-
-	public function getRangeLinks ()
-	{
-
-		$links = "";
-
-		if (
-			(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
-			(isset($_GET['maxDate']) && !empty($_GET['maxDate'])) &&
-			(isset($_GET['logdate']) && !empty($_GET['logdate']))
-			) {
-			$links = "?minDate=" . $_GET['minDate'] . "&maxDate=" . $_GET['maxDate'] . "&logdate=" . $_GET['logdate'] ."&";
-		} elseif (
-			(isset($_GET['logdate']) && !empty($_GET['logdate']))
-			) {
-			$links = "?logdate=" . $_GET['logdate'] . "&";
-		} else {
-			$links = "?";
-		}
-
-		return $links;
-
-	}
-
-
-	/**
-	 * parseInfo
-	 *
-	 * Parses ini file data for a module into lines of text for legend display
-	 *
-	 * @param array $info array with info lines from the classes INI file
-	 * @param array $variables variables to format lines
-	 * @param string $class class name of module
-	 * @return array $return formatted info lines
-	 */
-
-	public function parseInfo( $info, $variables, $class )
-	{
-		$return = array();
-		
-		foreach ( $info as $line ) {
-			$line = json_decode($line);
-
-			if (isset($line->type) && isset($line->filename)) {
-				$return['info']['line'][] = array("type" => "file", "file" => 'modules' . DIRECTORY_SEPARATOR . $class . DIRECTORY_SEPARATOR . $line->filename);
-				continue;
-			}
-
-			if ( strstr($line->args, "|")) {
-				$lineArgs = explode("|", $line->args);
-				$args = array();
-				foreach ($lineArgs as $arg) {
-					$args[] = $variables[$arg];
-				}
-				$line = vsprintf($line->format, $args);
-			} else {
-				$line = sprintf($line->format, $variables[$line->args]);
-			}
-			$return['info']['line'][] = array( "type" => "line", "formatted_line" => $line );
-		}
-
-		return $return;
-	}
-
-	/**
-	 * write_php_ini
-	 *
-	 * Writes data into INI file
-	 *
-	 * @param array $array array with data to write into INI file.
-	 * @param string $file filename to write.
-	 */
-
-	public static function write_php_ini($array, $file)
-	{
-	    $res = array();
-		$bval = null;
-	    foreach($array as $key => $val)
-	    {
-	        if(is_array($val))
-	        {
-	            $res[] = "[$key]";
-	            foreach($val as $skey => $sval) {
-			if (is_array($sval)) {
-				for ($i = 0; $i < count($sval); $i++) {
-					$res[] = $skey . '[] = \'' . $sval[$i] . '\'';
-				}
-			} else {
-	        	    	if (strpos($sval, ";") === 0)
-		            		$res[] = $sval;
-		            	else
-	            			$res[] = "$skey = ".(is_numeric($sval) ? $sval : '"'.$sval.'"');
-			}
-	            }
-	        }
-	        else {
-	        	if (strpos($val, ";") === 0)
-	        		$res[] = $val;
-	        	else
-	        		$res[] = "$key = ".(is_numeric($val) ? $val : (strstr($val, '{') !== false) ? '\''.$val.'\'' : '"'.$val.'"');
-	        }
-	    }
-
-	    //we should use this instead
-	    //LoadAvg::safefilerewrite($file, implode("\r\n", $res));
-
-	    //security header here
-	    $header = "; <?php exit(); __halt_compiler(); ?>\n";
-
-	    if ($fp = fopen($file, 'w') ) {
-	    	fwrite($fp, $header);	    	
-	    	fwrite($fp, implode("\r\n", $res));
-	    	fclose($fp);
-	    }
-	}
-
-	//modified to not clean numeric values
-	/*
-	function write_php_ini($array, $file)
-	{
-	    $res = array();
-	    foreach($array as $key => $val)
-	    {
-	        if(is_array($val))
-	        {
-	            $res[] = "[$key]";
-
-	            //foreach($val as $skey => $sval) $res[] = "$skey = ".(is_numeric($sval) ? $sval : '"'.$sval.'"');
-	            foreach($val as $skey => $sval) 
-	            	$res[] = "$skey = ".'"'.$sval.'"';
-	        }
-	        //else $res[] = "$key = ".(is_numeric($val) ? $val : '"'.$val.'"');
-	        else $res[] = "$key = ".'"'.$val.'"';
-	    }
-	    safefilerewrite($file, implode("\r\n", $res));
-	}
-	*/
-
-
-
-	public static function write_module_ini($newsettings, $module_name)
-	{
-
-		$module_config_file = HOME_PATH . '/lib/modules/' . $module_name . '/' . strtolower( $module_name ) . '.ini.php';
-
-		//$this->write_php_ini($newsettings, $module_config_file);
-		self::write_php_ini($newsettings, $module_config_file);
-
-	}
-
-	/**
-	 * safefilewrite
-	 *
-	 * Writes data to INI file and locks the file
-	 *
-	 * @param string $fileName filename
-	 * @param array $dataToSave data to save to file
-	 */
-
-	public function safefilerewrite($fileName, $dataToSave, $mode = "w", $logs = false )
-	{    
-
-		//if file is new and is a logfile then we need to make it chmod 777
-		//or we have issues between flies create using app and ones using cron
-		//cron gives root permissions and app gives appache permissions
-		$exists = file_exists ( $fileName );
-
-		if ($fp = fopen($fileName, $mode))
-	    {
-	        $startTime = microtime();
-	        do
-	        {
-	        	$canWrite = flock($fp, LOCK_EX);
-	        	// If lock not obtained sleep for 0 - 100 milliseconds, to avoid collision and CPU load
-	        	if(!$canWrite) usleep(round(rand(0, 100)*1000));
-	        } while ((!$canWrite)and((microtime()-$startTime) < 1000));
-
-	        //file was locked so now we can store information
-	        if ($canWrite)
-	        {
-	        	fwrite($fp, $dataToSave);
-	            //flock($fp, LOCK_UN);
-	        }
-
-	        fclose($fp);
-
-	        //if its a new log file fix permissions
-	        if (!$exists && $logs==true ) {
-	        	//echo "fix logs";
-				chmod($fileName, 0777);
-			}
-
-	        return true;
-	    }
-	    else
-	    {
-	    	return false;
-	    }
-
-	}
-
-
-	/**
-	 * ini_merge
-	 *
-	 * used in settings modules to merge changes inot settings files
-	 * may be depreciated now in exchange for array_replace
-	 *
-	 * @param string $config_ini config file array
-	 * @param string $custom_ini data config file array to merge with
-	 */
-
-	 public static function ini_merge ($config_ini, $custom_ini) 
-	 {
-	 	foreach ($custom_ini AS $k => $v):
-	    	if (is_array($v)):
-	      		$config_ini[$k] = self::ini_merge($config_ini[$k], $custom_ini[$k]);
-	    	else:
-	      		$config_ini[$k] = $v;
-	    	endif;
-	  	endforeach;
-	 
-	 	return $config_ini;
-	 }
-	/**
-	 * getLoggerInterval
-	 *
-	 * User login, checks username and password from default settings to match.
-	 *
-	 * @param string $username the username
-	 * @param string $password the password
-	 */
-
-	public function getLoggerInterval( ) 
-	{
-
-		$interval = LoadAvg::$_settings->general['settings']['logger_interval'];
-
-		if  ( $interval ) {
-
-			$interval = $interval * 60;
-			return $interval;
-
-		} else {
-
-			return false;
-		}
-
-	}
-
-
-
-
-	/**
-	 * sendApiData
-	 *
-	 * If API is activated sends data to server
-	 *
-	 * @param array $data array of data to send to the server
-	 * @return string $result message returned from the server
-	 */
-
-	public function sendApiData( $data ) {
-
-		// for debugging
-		//var_dump($data); //exit;
-		//echo 'DEBUG: ' .  json_encode($data);
-
-		$url = self::$_settings->general['api']['url'];
-
-		$user_url = $url . '/users/';
-		$server_url = $url . '/servers/';
-
-		//validate API access here
-		if ( self::$_settings->general['api']['server_token'] && self::$_settings->general['api']['key'] ) {		
-		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/' . self::$_settings->general['api']['key'] . '/v');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$account_valid = curl_exec($ch);
-		} else
-			$account_valid = 'false';
-
-		//get server id from server token
-		if ( self::$_settings->general['api']['server_token'] ) {			
-		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/t');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$server_exists = curl_exec($ch);
-		} else
-			$server_exists = 'false';
-
-		//echo $server_url.json_decode($server_exists)->id.'/data';
-
-		//validation needs to happen on the sever this is still insecure!
-		//need to pass api token and server token over in data push
-
-		if( $server_exists != 'false' && $account_valid != 'false' ) 
-		{
-
-			//file_put_contents("file.txt", json_encode($data)); test data
-			$curl = curl_init();
-
-			// Set some options - we are passing in a useragent too here
-			curl_setopt_array($curl, array(
-		    CURLOPT_RETURNTRANSFER => 1,
-		    CURLOPT_URL => $server_url.json_decode($server_exists)->id.'/data',
-		    CURLOPT_USERAGENT => 'LoadAvg Client',
-		    CURLOPT_POST => 1,
-		    CURLOPT_POSTFIELDS => array(
-		      'data' => json_encode($data),
-		    )
-			));
-
-			// Send the request & save response to $resp
-			$resp = curl_exec($curl);
-
-			// Close request to clear up some resources
-			curl_close($curl);
-
-			//used for debugging to file
-			//file_put_contents("file.txt",$resp);
-			
-			return true;
-		}
-
-		return null;
-	}
+	
 
 
 	/**
@@ -1273,41 +773,7 @@ class LoadAvg
 
 	}
 		
-	/**
-	 * getNetworkInteraces
-	 *
-	 * Retrives network interfaces
-	 *
-	 * @return array $interfaces array of interfaces found on server
-	 */
 
-	public static function getNetworkInterfaces()
-	{
-		// $interfaces = exec("/sbin/ifconfig | grep -oP '^[a-zA-Z0-9]*' | paste -d'|' -s");
-		//$interfaces = exec('/sbin/ifconfig | expand | cut -c1-8 | sort | uniq -u | awk -F: \'{print $1;}\' | tr "\\n" "|" | tr -d \' \' | sed \'s/|*$//g\'');
-
-		exec("/sbin/ifconfig", $content);
-		$interfaces = array();
-
-		#foreach (preg_split("/\n\n/", $content) as $int) {
-		foreach ( $content as $int ) {
-		    preg_match("/^(.*)\s+(flags|Link)/ims", $int, $regex);
-
-		        if (!empty($regex)) {
-		                $interface = array();
-		                //$interface['name'] = $regex[1];
-
-		                //added a trim to the return value as on centos 6.5 we had whitespace
-		                $interface['name'] =  trim ( (substr(trim($regex[1]), strlen(trim($regex[1]))-1, strlen(trim($regex[1]))) == ":") ? substr(trim($regex[1]), 0 , strlen(trim($regex[1]))-1) : $regex[1] );
-
-		                //echo ':' . $interface['name'] . ':';
-
-		                $interfaces[] = $interface;
-		        }
-		}
-
-		return $interfaces;
-	}
 
 
 	/**

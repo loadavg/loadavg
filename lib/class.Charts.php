@@ -3,7 +3,7 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Main controller class for LoadAvg 2.0
+* Main class for LoadAvg Chart Modules
 *
 * @link https://github.com/loadavg/loadavg
 * @author Karsten Becker
@@ -13,19 +13,11 @@
 * later.
 */
 
-class Charts extends LoadAvg
+class Charts extends LoadModules
 {
 
 	public  $logfile; // Stores the logfile name & path
 	public  $logFileDepth; // Stores the data depth based on logger for parsing
-
-	/**
-	 * checkRedline
-	 *
-	 * checks for redline in data point sent over via charting modules
-	 * and if it exists sets it to a null (0.0) data value for the chart
-	 *
-	 */
 
 
 	/**
@@ -38,7 +30,7 @@ class Charts extends LoadAvg
 	public function setDataDepth( $moduleName )
 	{
 
-		$moduleSettings = LoadAvg::$_settings->$moduleName; // if module is enabled ... get his settings
+		$moduleSettings = LoadModules::$_settings->$moduleName; // if module is enabled ... get his settings
 
 		$depth = 0;
 
@@ -56,6 +48,14 @@ class Charts extends LoadAvg
 		return $depth;
 
 	}
+
+	/**
+	 * checkRedline
+	 *
+	 * checks for redline in data point sent over via charting modules
+	 * and if it exists sets it to a null (0.0) data value for the chart
+	 *
+	 */
 
 	function checkRedline (array &$data) 
 	{
@@ -163,7 +163,7 @@ class Charts extends LoadAvg
 		$this->setDataDepth( $moduleName );
 
 		//get the settings for the module
-        $moduleSettings = LoadAvg::$_settings->$moduleName; // if module is enabled ... get his settings
+        $moduleSettings = LoadModules::$_settings->$moduleName; // if module is enabled ... get his settings
        
 
 		if ( LOGGER == "loadavg" ) {

@@ -17,6 +17,7 @@
 
 require_once dirname(__FILE__) . '/globals.php'; // including required globals
 
+include 'class.Utility.php'; // for logger module
 
 include 'class.Logger.php'; // for logger module
 $logger = new Logger(); // Initializing Main Controller

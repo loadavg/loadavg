@@ -96,14 +96,23 @@
     <div class="innerAll">
 
         <?php
+
+        //get the range of dates to be charted from the UI and 
+        //set the date range to be charted in the modules
+        $range = $loadavg->getDateRange();
+
+        $loadModules->setDateRange($range);
+
+        //now loop through the modules and draw them
+        
         foreach ( $loaded as $module => $value ) { // looping through all the modules in the settings.ini file
             if ( $value === "false" ) continue; // if modules is disabled ... moving on.
 
-            $moduleSettings = LoadAvg::$_settings->$module; // if module is enabled ... get his settings
+            $moduleSettings = LoadModules::$_settings->$module; // if module is enabled ... get his settings
             
             if ( $moduleSettings['module']['logable'] == "true" ) { // if module has loggable enabled it has a chart
                 
-                $class = LoadAvg::$_classes[$module];
+                $class = LoadModules::$_classes[$module];
 
                 $i = 0;
 

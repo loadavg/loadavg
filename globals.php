@@ -57,6 +57,7 @@ defined('LOG_PATH') || define('LOG_PATH',  HOME_PATH . '/logs/' );
 //defined('LOGGER') || define('LOGGER',  'collectd' );
 defined('COLLECTD_PATH') || define('COLLECTD_PATH',  '/var/lib/collectd/csv/localhost/' );
 
+
 // Add lib/ to include_path
 set_include_path(implode(PATH_SEPARATOR, array(
     realpath(HOME_PATH . '/lib'),

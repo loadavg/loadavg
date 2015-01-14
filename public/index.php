@@ -22,12 +22,19 @@ defined('APPMODE') || define('APPMODE',  'dashboard' );
 ob_start(); 
 session_start();
 
+/* Initialize LoadAvg Utility Class */ 
+include 'class.Utility.php';
+
 /* Initialize LoadAvg */ 
 include 'class.LoadAvg.php';
-include 'class.Charts.php';
-include 'class.Timer.php';
-
 $loadavg = new LoadAvg();
+
+/* Initialize LoadAvg Charts module */ 
+include 'class.Modules.php';
+$loadModules = new LoadModules();
+
+/* initialize timer */
+include 'class.Timer.php';
 $timer = new Timer();
 
 //grab core settings
@@ -53,22 +60,6 @@ if ( isset( $_GET['check'] ) )
 	$loadavg->checkInstall();
 }
 
-/* 
- * Grab the current period if a period has been selected
- * TODO: if min date and no max date then set mac date to todays date
- * max date alone does nothing...
- */
-
-if ( 
-	( isset($_GET['minDate']) && !empty($_GET['minDate']) ) &&
-	( isset($_GET['maxDate']) && !empty($_GET['maxDate']) )
-	) 
-{
-	LoadAvg::$period = true;
-	LoadAvg::$period_minDate = date("Y-m-d", strtotime($_GET['minDate']));
-	LoadAvg::$period_maxDate = date("Y-m-d", strtotime($_GET['maxDate']));
-}
-
 
 /*
  * start polling time to generate charts
@@ -81,7 +72,7 @@ $timer->setStartTime(); // Setting page load start time
  */
 
 //array of modules and status either on or off
-$loaded = LoadAvg::$_settings->general['modules']; 
+$loaded = LoadModules::$_settings->general['modules']; 
 
 //grab the log diretory
 $logdir = LOG_PATH;
