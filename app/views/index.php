@@ -127,6 +127,8 @@
             else
         $chartList = $loaded;
 
+      // echo '<pre>'; var_dump( $loaded); echo '</pre>';
+
         foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
             if ( $value === "false" ) continue; // if modules is disabled ... moving on.
 

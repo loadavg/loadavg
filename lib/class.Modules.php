@@ -239,27 +239,33 @@ class loadModules
 		
 		$cookie = stripslashes($myCookie);
 
-		$savedCardArray = json_decode($cookie, true);
-
-			//echo '<pre>';
-			//var_dump( $savedCardArray);
-			//echo '</pre>';
+		$cookieArray = json_decode($cookie, true);
 
 		//now loop thorugh cookies
-		foreach ($savedCardArray as &$value) {
+		//foreach ($cookieArray as &$value) {
 
-			$myval = explode("=", $value);
+		foreach ($cookieArray as $key =>$value) {
 
-			if ($module == $myval[0]) {
+			//$myval = explode(":", $value);
 
-				if ($myval[1] == "true") {
+			if ($module == $key) {
+
+				if ($value == "open") {
 					$data1 = "accordion-body collapse in";
 				    $data2 = "true";
 				}
-				else {
+
+				if ($value == "closed") {
 					$data1 = "accordion-body collapse";
 				    $data2 = "false";
-				   }
+				}
+
+				//if none then its open...
+				if ($value != "open" && $value != "closed"  ) {
+					$data1 = "accordion-body collapse in";
+				    $data2 = "true";
+				}
+
 			}
 
 		}
@@ -268,11 +274,6 @@ class loadModules
 		
 	public static function getUIcookieSorting (&$returnArray) 
 	{
-
-		//these are the default values 
-		//$data1 = "accordion-body collapse in";
-		//$data2 = "true";
-
 		//if cookie exist greb it here
 		//if not we return default values above
 		if (isset($_COOKIE["loadUIcookie"]))
@@ -282,73 +283,153 @@ class loadModules
 		
 		$cookie = stripslashes($myCookie);
 
-		$savedCardArray = json_decode($cookie, true);
-
-			//echo '<pre>';
-			//var_dump( $savedCardArray);
-			//echo '</pre>';
-
-		//now loop thorugh cookies
-
-		$returnArray = "";
-
-		foreach ($savedCardArray as &$value) {
-
-			$myval = explode("=", $value);
-
-			//echo 'myval :' . $myval[0];
-			//echo 'value :' . $myval[1];
-
-			$returnArray[$myval[0]]="true";
+		$cookieArray = json_decode($cookie, true);
 
 
+		//parse out as true so they can be shown
+		$returnArray = null;
+		foreach ($cookieArray as $key =>$value) {
+			$returnArray[$key]="true";
 		}
 
 		return true;
-
-
 	}
+
+	//updates cookies according to new module settings
+	//for when modules are turned on or off
 
 	public static function updateUIcookieSorting ($newSettings) 
 	{
 
-		echo '<pre>'; var_dump( $newSettings); echo '</pre>';
-
-		//these are the default values 
-		//$data1 = "accordion-body collapse in";
-		//$data2 = "true";
-
 		//if cookie exist greb it here
-		//if not we return default values above
+		//if not we return as false and cookie isnt used
 		if (isset($_COOKIE["loadUIcookie"]))
 			$myCookie = $_COOKIE["loadUIcookie"];
 		else
 			return false;
 		
+		//got cookie lets clean it up
 		$cookie = stripslashes($myCookie);
+		$currentCookie = json_decode($cookie, true);
 
-		$savedCardArray = json_decode($cookie, true);
+		//echo '<pre>newSettings'; var_dump( $newSettings); echo '</pre>';
 
+		//now parse newSettings and drop all false values as cookies are only for true values
+		$cleanSettings = null;
+		foreach ($newSettings as $key =>$value) {
 
+			if ($value=="true") {
+				$cleanSettings[$key]="true";
+			}
 
-		//now loop thorugh cookies
-		$parseArray = "";
-		foreach ($savedCardArray as &$value) {
-			$myval = explode("=", $value);
-			$parseArray[$myval[0]]="true";
 		}
 
-		echo '<pre>'; var_dump( $parseArray); echo '</pre>';
+		echo '<pre>cleanSettings'; var_dump( $cleanSettings); echo '</pre>';
 
-		//dirty short term hack ddeleted cookie
-		if(isset($_COOKIE['loadUIcookie'])) {
-			setcookie('loadUIcookie', null, -1, "/");
-    		unset($_COOKIE['loadUIcookie']);
+		echo '<pre>CoockieData'; var_dump( $currentCookie); echo '</pre>';
+
+		// now we need to update cookie to remove or add items from cleanSettings....
+		//if item crossess over ski[p it
+
+		$newCookie = null;
+		foreach ($cleanSettings as $key =>$value) {
+
+			//if value is in currentCookie
+			//grab from currentCookie
+ 			$newvalue = false;
+			//check if key is already in cookies
+			foreach ($currentCookie as $cookiekey => $cookievalue) {
+			  if ( $key == $cookiekey ) {
+			    $newvalue = $cookievalue;
+			  }
+			}
+
+			if ($newvalue) {
+				$newCookie[$key]=$newvalue;
+			}
+
+			else
+				$newCookie[$key]="open";
 		}
+
+
+		echo '<pre>newCookie'; var_dump( $newCookie); echo '</pre>';
+
+		//now we need to preserve the sorting!!!
+		//as sorting is in the cookie...!!
+
+		//easy way ? compare old coockie against new cookie...
+
+		//so clean out oldcookie
+		//then add missing data to old cookie
+
+		$finalCookie = null;
+
+		foreach ($currentCookie as $key =>$value) {
+
+			//check if key is already in cookies
+			foreach ($newCookie as $cookiekey => $cookievalue) {
+
+			  if ( $key == $cookiekey ) {
+			    $finalCookie[$key]= $cookievalue;
+			  }
+
+			}
+		}
+
+		//now go thorugh the new cookie and see if we left anything out
+		foreach ($newCookie as $key =>$value) {
+
+			//check if key is there
+			$foundit = false;
+			foreach ($finalCookie as $cookiekey => $cookievalue) {
+			  if ( $key == $cookiekey ) 
+			  		$foundit = true;
+			}
+
+			if (!$foundit)
+			    $finalCookie[$key]= $value;
+
+		}
+	
+
+
+		echo '<pre>finalCookie'; var_dump( $finalCookie); echo '</pre>';
+
+		//here we need to rewrite the cookie
+		$cookietime = time() + (86400 * 365); // 1 year
+
+		$finalCookie = json_encode($finalCookie);
+
+		setcookie('loadUIcookie', $finalCookie, $cookietime, "/");
+
+
+		//if things get crazy for any reason then we need to just delete all cookies 
+		//maybe add to settings >
+		
+		//dirty short term hack deleted cookie
+		//if(isset($_COOKIE['loadUIcookie'])) {
+		//	setcookie('loadUIcookie', null, -1, "/");
+    	//	unset($_COOKIE['loadUIcookie']);
+		//}
+
+
 
 		return true;
 	}
 
+	public static  function sortArrayByArray(Array $array, Array $orderArray) {
+    
+    $ordered = array();
+
+    foreach($orderArray as $key) {
+        if(array_key_exists($key,$array)) {
+            $ordered[$key] = $array[$key];
+            unset($array[$key]);
+        }
+    }
+    return $ordered + $array;
+}
 
 	/**
 	 * getDates

@@ -102,9 +102,13 @@ function current_order(el){
 
 function storeState() {
 
-    var loadCookie = "loadUIcookie";
 
-    var check_open_divs = [];
+    var loadCookie = "loadUIcookie";
+//    var testCookie = "testJSUIcookie";
+
+  //  var check_open_divs = [];
+    var myCookie = [];
+   var jsonObj = {}; 
 
     //mine
     var toggled_div = $('#accordion');
@@ -125,21 +129,36 @@ function storeState() {
             if ( (moduleName) )
             {
                 var status = $(this).attr('cookie-closed');
-                if (status == null)
-                    status = "false";
 
-                check_open_divs.push(moduleName + "=" + status  );
+                if ( status == null || !status )
+                    status = "open";
+
+                //for when nothinbg has been set its open
+                if ( status == "true" || status == "open" )
+                    status = "open";
+                else
+                    status = "closed";
+
+                jsonObj[moduleName] = status;
+
             }
         }
 
     });
 
-    // stringify array object
-    check_open_divs = JSON.stringify(check_open_divs);
-    
-    console.log(check_open_divs);
+    myCookie.push( jsonObj   );
 
-    $.cookie(loadCookie, check_open_divs, {expires:365, path: '/'});
+    // then to get the JSON string
+    myCookie = JSON.stringify(myCookie);
+
+    //get rid of extra brackets on string
+    var newStr = myCookie.substring(1, myCookie .length-1);
+
+    $.cookie(loadCookie, newStr, {expires:365, path: '/'});
+
+
+   // console.log(check_open_divs);
+
 }
 
 
