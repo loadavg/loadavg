@@ -127,6 +127,12 @@
             else
         $chartList = $loaded;
 
+        //for old broken cookies
+        if ($chartList == null || !$chartList)
+            $chartList = $loaded;
+
+    //check here if issues with cookies first!!!
+
       // echo '<pre>'; var_dump( $loaded); echo '</pre>';
 
         foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
