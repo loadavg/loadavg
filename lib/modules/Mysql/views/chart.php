@@ -21,8 +21,8 @@
 
 <?php
 
-	$moduleCollapse = $moduleCollapseStatus =  "";
-	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+	$moduleCollapse = $moduleCollapseStatus = $modulePosition = "";
+	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $modulePosition, $module); 
 
 ?>
 

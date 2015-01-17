@@ -30,20 +30,26 @@
 	}
 	
 	//read status of accordions from cookies so we can paint screen accordingly
-	$moduleCollapse = $moduleCollapseStatus =  "";
+	$moduleCollapse = $moduleCollapseStatus  = "";
 	
+	//grab it here
 	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
 
-?>
 
+?>
+<!--
 <div class="accordion" id="accordion<?php echo $module;?>"  data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
-  	<div class="accordion-group">
+-->
+<div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
 
 	<?php if ( $chart ) {    // what happens if not chart here ??? ?>
 
 		<div class="accordion-heading"> 
+<!--
 			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $module; ?>" href="#category<?php echo $module; ?>">
+-->
+			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 				<strong><?php echo $chart->label; ?></strong>				
 			</a>
 		</div>
@@ -126,9 +132,8 @@
 		</div> <!-- // Accordion inner end -->
 
 		</div> <!-- // Accordion category end -->
-
-	</div> <!-- // Accordion group end -->
 	
 </div> <!-- // Accordion end -->
 
-<div class="separator bottom"></div>
+
+<div id="separator" class="separator bottom"></div>

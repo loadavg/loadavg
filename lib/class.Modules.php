@@ -218,7 +218,9 @@ class loadModules
 
 		$savedCardArray = json_decode($cookie, true);
 
-
+			//echo '<pre>';
+			//var_dump( $savedCardArray);
+			//echo '</pre>';
 
 		//now loop thorugh cookies
 		foreach ($savedCardArray as &$value) {
@@ -241,7 +243,48 @@ class loadModules
 	}
 
 		
+	public static function getUIcookieSorting (&$returnArray) 
+	{
 
+		//these are the default values 
+		//$data1 = "accordion-body collapse in";
+		//$data2 = "true";
+
+		//if cookie exist greb it here
+		//if not we return default values above
+		if (isset($_COOKIE["loadUIcookie"]))
+			$myCookie = $_COOKIE["loadUIcookie"];
+		else
+			return false;
+		
+		$cookie = stripslashes($myCookie);
+
+		$savedCardArray = json_decode($cookie, true);
+
+			//echo '<pre>';
+			//var_dump( $savedCardArray);
+
+		//now loop thorugh cookies
+
+		$returnArray = "";
+
+		foreach ($savedCardArray as &$value) {
+
+			$myval = explode("=", $value);
+
+			//echo 'myval :' . $myval[0];
+			//echo 'value :' . $myval[1];
+
+			$returnArray[$myval[0]]="true";
+
+
+		}
+
+		return true;
+
+			//echo '</pre>';
+
+	}
 
 
 	/**

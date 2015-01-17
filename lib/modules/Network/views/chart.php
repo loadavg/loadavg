@@ -33,8 +33,8 @@ foreach (loadModules::$_settings->general['network_interface'] as $interface => 
 		&& loadModules::$_settings->general['network_interface'][$interface] == "true" ) )
 		continue;
 
-	$moduleCollapse = $moduleCollapseStatus =  "";
-	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $interface); 
+	$moduleCollapse = $moduleCollapseStatus =  $modulePosition = "";
+	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $modulePosition, $interface); 
 
 ?>
 

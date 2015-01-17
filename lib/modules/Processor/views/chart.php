@@ -23,9 +23,9 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 
 <?php
 
-	$moduleCollapse = $moduleCollapseStatus =  "";
+	$moduleCollapse = $moduleCollapseStatus = $modulePosition = "";
 
-	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $modulePosition, $module); 
 
 ?>
 

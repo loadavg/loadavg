@@ -95,7 +95,20 @@
 
     <div class="innerAll">
 
+    <div id="accordion" class="accordion">
+
+
+
         <?php
+
+       // echo '<pre>'; var_dump( $loaded); echo '</pre>';
+
+        $cookieStatus = false;
+        $newArray;
+        $cookieStatus = LoadModules::getUIcookieSorting($newArray);
+
+
+      // echo '<pre>'; var_dump( $newArray); echo '</pre>';
 
         //get the range of dates to be charted from the UI and 
         //set the date range to be charted in the modules
@@ -104,9 +117,20 @@
         $loadModules->setDateRange($range);
 
         //now loop through the modules and draw them
+
+        $moduleNumber = 0;
         
-        foreach ( $loaded as $module => $value ) { // looping through all the modules in the settings.ini file
+        $chartList;
+
+        if ($cookieStatus)
+        $chartList = $newArray;
+            else
+        $chartList = $loaded;
+
+        foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
             if ( $value === "false" ) continue; // if modules is disabled ... moving on.
+
+            //echo 'modulename: ' . $module;
 
             $moduleSettings = LoadModules::$_settings->$module; // if module is enabled ... get his settings
             
@@ -115,6 +139,7 @@
                 $class = LoadModules::$_classes[$module];
 
                 $i = 0;
+
 
                 //tabbed modules have more than 1 chart in them
                 if (isset($moduleSettings['module']['tabbed']) && $moduleSettings['module']['tabbed'] == "true") {
@@ -127,8 +152,12 @@
                     //echo 'CORECHART:';
                     $class->genChart( $moduleSettings, $logdir );
                 }
+
+                $moduleNumber++;
+
             }
         }
         ?>
 
+    </div>    
     </div>

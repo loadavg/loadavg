@@ -11,59 +11,135 @@
 
 $(function () {
 
-	$('div.accordion-body').on('shown', function () {
 
-		//console.log( $(this).parents('.accordion:first').attr('data-collapse-closed') , 'open' );
+ var active = false,
+ sorting = false;
 
-		$(this).parents('.accordion:first').attr('cookie-closed', true);
+ $( "#accordion" )
 
-	    //$(this).parent("div").find(".icon-chevron-down")
-	    //       .removeClass("icon-chevron-down").addClass("icon-chevron-up");
-	
-		storeState();
+     .accordion({
+         header: "> div > h3",
+         //collapsible: true,
 
-	});
+         activate: function( event, ui){
+             //this fixes any problems with sorting if panel was open 
+             //remove to see what I am talking about
 
-	$('div.accordion-body').on('hidden', function () {
+             if(sorting) {
+                 $(this).sortable("refresh"); 
+                 current_order($(this));                                         
+             };
+         }
+     })
+     
+     .sortable({
+        connectWith: ".accordion",
+     //handle: "h3",
+     //placeholder: "ui-state-highlight",
 
-		//console.log( $(this).parents('.accordion:first').attr('data-collapse-closed') , 'close' );
+     start: function( event, ui ){
+     //change bool to true
+     sorting=true;
 
-		$(this).parents('.accordion:first').attr('cookie-closed', false);
-	    
-	    //$(this).parent("div").find(".icon-chevron-up")
-	    //       .removeClass("icon-chevron-up").addClass("icon-chevron-down");
-	
-		storeState();
+     },
 
-	});
+     stop: function( event, ui ) {
+     
+     //ui.item.children( "h3" ).triggerHandler( "focusout" );
+
+    $(this).sortable("refresh"); 
+    
+    //current_order($(this));    
+
+     //change bool to false
+     sorting=false;
+     
+      storeState();
+
+     }
+ });
+
+
+
+    $('div.accordion-body').on('shown', function () {
+
+        console.log( $(this).parents().attr('data-collapse-closed') + ' open' );
+
+        //$(this).('.accordion:first').attr('cookie-closed', true);
+        //$(this).parents('.accordion:first').attr('cookie-closed', true);
+        $(this).parents().attr('cookie-closed', true);
+
+        storeState();
+
+    });
+
+    $('div.accordion-body').on('hidden', function () {
+
+
+         console.log( $(this).parents().attr('data-collapse-closed') + ' close' );
+
+       // $(this).('.accordion:first').attr('cookie-closed', false);
+        //$(this).parents('.accordion:first').attr('cookie-closed', false);
+         $(this).parents().attr('cookie-closed', false);
+
+        storeState();
+
+    });
+
+
 });
 
+function current_order(el){
+    var order=[];
+    el.children().each( function(i){      
+              order[i]=this.id;
+    });
+    // silly test      
+    for(var i=0; i<order.length; i++){
+       //console.log("got " + order[i]);
+   }
+}
 
 function storeState() {
 
-	var loadCookie = "loadUIcookie";
+    var loadCookie = "loadUIcookie";
 
     var check_open_divs = [];
 
     //mine
-    var toggled_div = $('.accordion');
+    var toggled_div = $('#accordion');
 
-    $(toggled_div).each(function() {
+    var position = 0;
 
-    	var moduleName = $(this).attr('data-collapse-closed');
+    $(toggled_div).children().each(function() {
 
-    	var status = $(this).attr('cookie-closed');
-    	if (status == null)
-    		status = "false";
 
-    	check_open_divs.push(moduleName + "=" + status);
+        var id = $(this).attr('id');
+       if (id != 'separator' )
+       {
+            var moduleName = $(this).attr('data-collapse-closed');
+
+            console.log("moduleName " + moduleName);
+
+            //if (moduleName != 'undefined' && (moduleName) )
+            if ( (moduleName) )
+            {
+                var status = $(this).attr('cookie-closed');
+                if (status == null)
+                    status = "false";
+
+                check_open_divs.push(moduleName + "=" + status  );
+            }
+        }
 
     });
 
     // stringify array object
     check_open_divs = JSON.stringify(check_open_divs);
     
-    //console.log(check_open_divs);
+    console.log(check_open_divs);
 
     $.cookie(loadCookie, check_open_divs, {expires:365, path: '/'});
 }
+
+

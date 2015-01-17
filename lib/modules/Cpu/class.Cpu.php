@@ -224,6 +224,9 @@ class Cpu extends Charts
 
 		//this loop is for modules that have multiple charts in them - like mysql and network
 		$i = 0;
+
+		$moduleNumber = 1;
+
 		foreach ( $charts['args'] as $chart ) {
 
 			$chart = json_decode($chart);
