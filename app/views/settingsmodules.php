@@ -42,7 +42,7 @@ if (isset($_POST['update_settings'])) {
 
 	//need to check all modules status first
 	//as form drops unchecked values when posted for some reason
-	$modules = LoadAvg::$_modules;
+	$modules = LoadModules::$_modules;
 
 	foreach ($modules as $module => $moduleName) { 
 
@@ -82,7 +82,7 @@ if (isset($_POST['update_settings'])) {
 
 	//die;
 
-	LoadAvg::write_php_ini($mergedsettings, $settings_file);
+	LoadUtility::write_php_ini($mergedsettings, $settings_file);
 
 
 	///////////////////////////////////////////////////
@@ -98,9 +98,9 @@ if (isset($_POST['update_settings'])) {
 
 	$_POST['Mysql_settings']['settings']['show_queries'] = ( !isset($_POST['Mysql_settings']['settings']['show_queries']) ) ? "false" : "true";
 
-	echo '<pre>';var_dump($_POST);echo'</pre>';
+	//echo '<pre>';var_dump($_POST);echo'</pre>';
 
-	$modules = LoadAvg::$_modules;
+	$modules = LoadModules::$_modules;
 
     foreach ($modules as $module => $moduleName) {
     
@@ -115,9 +115,9 @@ if (isset($_POST['update_settings'])) {
 			//the array replace is deleting out missing data on posts
 			//when the data has not been modified
 			//$replaced_settings = array_replace($module_config_ini, $_POST[$module . '_settings']);
-  			$replaced_settings = LoadAvg::ini_merge ($module_config_ini, $_POST[$module . '_settings']);
+  			$replaced_settings = LoadUtility::ini_merge ($module_config_ini, $_POST[$module . '_settings']);
 
-			LoadAvg::write_php_ini($replaced_settings, $module_config_file);
+			LoadUtility::write_php_ini($replaced_settings, $module_config_file);
 
 			//why is this here ?
 			//$fh = fopen($module_config_file, "a"); fwrite($fh, "\n"); fclose($fh);
@@ -134,7 +134,20 @@ if (isset($_POST['update_settings'])) {
  * as for some reason after a post the data isnt updated internally
  */
 
-$settings = LoadAvg::$_settings->general;
+//still old here mate
+//$settings = LoadAvg::$_settings->general;
+
+LoadModules::updateModuleSettings();
+
+//not changed either as written to file above
+$loaded = LoadModules::$_settings->general['modules']; 
+
+//now we need to update UI cookie used to hide and show modules by position
+LoadModules::updateUIcookieSorting ($loaded);
+
+//die;
+
+
 //LoadAvg::$_settings->general = $settings;
 
 /* rebuild logs
@@ -180,42 +193,17 @@ header('Location: '.$_SERVER['REQUEST_URI']);
     <!-- 
       * this is where we loop through all the modules
       * and deal with their individual settings
-	-->
-
-	<div class="well">
-		<h4>Network interfaces</h4>
-		<?php $interfaces = LoadUtility::getNetworkInterfaces(); ?>
-		<?php foreach ($interfaces as $interface) { ?>
-		<div class="row-fluid">
-			<div class="span3">
-				<strong>Monitor: <?php echo trim($interface['name']); ?></strong>
-			</div>
-			<div class="span9 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-                    <input name="formsettings[network_interface][<?php echo trim($interface['name']); ?>]" value="true" type="checkbox"
-                    	<?php
-                    		if ( isset($settings['network_interface'][trim($interface['name'])]) && $settings['network_interface'][trim($interface['name'])] == "true" )
-                    		{ ?>checked="checked"<?php }
-                    	?>
-                    >
-                </div>
-			</div>
-		</div>
-		<?php } ?>
-	</div>
-
-
-
-	<div class="separator bottom"></div>
+	-->	
 
 	<div class="well">
 
 
 
-                <?php $modules = LoadAvg::$_modules; 
-                //var_dump(LoadAvg::$_modules);
-
-                ?>
+                <?php 
+                	$modules = LoadModules::$_modules; 
+					$interfaces = LoadUtility::getNetworkInterfaces(); 
+				?>
+                
                 <?php foreach ($modules as $module => $moduleName) { ?>
 				<div class="separator bottom"></div>
             	<div class="row-fluid">
@@ -231,6 +219,7 @@ header('Location: '.$_SERVER['REQUEST_URI']);
                             >
                         </div>
                     </div>
+
                 </div>
 				<div class="separator bottom"></div>
                 <?php
@@ -238,15 +227,43 @@ header('Location: '.$_SERVER['REQUEST_URI']);
                 //need a way to load this dynamically when the module is activated above!
                 if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" ) {
 
-                	$moduleSettings = LoadAvg::$_settings->$module;
+                	$moduleSettings = LoadModules::$_settings->$module;
                 	
                 	if ( isset($moduleSettings['module']['has_settings']) && $moduleSettings['module']['has_settings'] == "true") {
                 		?>
+
                 		<div class="well">
 
-                		<!--
-            				<strong><?php echo $module; ?> module settings:</strong>
-						-->
+                		<?php
+
+                		if ($module == "Network") {
+
+                			echo "<strong>Network Interfaces</strong><br><br>";
+
+							foreach ($interfaces as $interface) { ?>
+							<div class="row-fluid">
+								<div class="span3">
+									<strong>Monitor: <?php echo trim($interface['name']); ?></strong>
+								</div>
+								<div class="span9 right">
+									<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
+					                    <input name="formsettings[network_interface][<?php echo trim($interface['name']); ?>]" value="true" type="checkbox"
+					                    	<?php
+					                    		if ( isset($settings['network_interface'][trim($interface['name'])]) && $settings['network_interface'][trim($interface['name'])] == "true" )
+					                    		{ ?>checked="checked"<?php }
+					                    	?>
+					                    >
+					                </div>
+								</div>
+							</div>
+							<?php } 
+							echo "<br>";
+                			echo "<strong>Network Settings</strong><br><br>";						
+						}
+				        ?>
+
+
+
 	                        <?php
 	                        foreach ($moduleSettings['settings'] as $setting => $value) {
 	                        	?>
@@ -276,6 +293,12 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 	                        	<?php
 	                        }
 	                        ?>
+
+
+
+
+
+
                 		</div>
                 		<?php
                 	}

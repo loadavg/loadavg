@@ -37,7 +37,7 @@ class loadModules
 	 * @param array $args array of module settings
 	 */
 
-	public function setSettings($module, $args)
+	public static function setSettings($module, $args)
 	{
 		@self::$_settings->$module = $args;
 	}
@@ -92,6 +92,29 @@ class loadModules
 		@self::$date_range = $dateRange;
 	}
 
+
+	/**
+	 * updateModuleSettings
+	 *
+	 * Called by modulesettings to read settings back in after changes...
+	 *
+	 */
+
+	public static function updateModuleSettings()
+	{
+
+		LoadModules::setSettings('general',
+			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
+		);
+
+				//generate list of all modules
+		//$this->generateModuleList('modules');
+		LoadUtility::generateExtensionList( 'modules', self::$_modules );
+
+		//load all charting modules that are enabled
+		//$this->loadModules('modules');
+		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes);
+	}
 
 	/**
 	 * parseInfo
@@ -263,6 +286,7 @@ class loadModules
 
 			//echo '<pre>';
 			//var_dump( $savedCardArray);
+			//echo '</pre>';
 
 		//now loop thorugh cookies
 
@@ -282,8 +306,47 @@ class loadModules
 
 		return true;
 
-			//echo '</pre>';
 
+	}
+
+	public static function updateUIcookieSorting ($newSettings) 
+	{
+
+		echo '<pre>'; var_dump( $newSettings); echo '</pre>';
+
+		//these are the default values 
+		//$data1 = "accordion-body collapse in";
+		//$data2 = "true";
+
+		//if cookie exist greb it here
+		//if not we return default values above
+		if (isset($_COOKIE["loadUIcookie"]))
+			$myCookie = $_COOKIE["loadUIcookie"];
+		else
+			return false;
+		
+		$cookie = stripslashes($myCookie);
+
+		$savedCardArray = json_decode($cookie, true);
+
+
+
+		//now loop thorugh cookies
+		$parseArray = "";
+		foreach ($savedCardArray as &$value) {
+			$myval = explode("=", $value);
+			$parseArray[$myval[0]]="true";
+		}
+
+		echo '<pre>'; var_dump( $parseArray); echo '</pre>';
+
+		//dirty short term hack ddeleted cookie
+		if(isset($_COOKIE['loadUIcookie'])) {
+			setcookie('loadUIcookie', null, -1, "/");
+    		unset($_COOKIE['loadUIcookie']);
+		}
+
+		return true;
 	}
 
 
