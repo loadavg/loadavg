@@ -21,16 +21,29 @@
 
 <?php
 
-	$moduleCollapse = $moduleCollapseStatus = $modulePosition = "";
-	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $modulePosition, $module); 
+	//if there is no logfile or error from the caller (stuff is false) 
+	//then we just build empty charts
+	if ( !isset($chartData) || $chartData == false || $logfileStatus == false ) {
+
+		$chartData = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
+		$chartData['chart'] = $this->getEmptyChart();
+	}
+	
+	//read status of accordions from cookies so we can paint screen accordingly
+	$moduleCollapse = $moduleCollapseStatus  = "";
+	
+	//grab it here
+	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+
 
 ?>
 
 
-<div class="accordion" id="accordion<?php echo $module;?>"  data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
-  	<div class="accordion-group">
+<div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
+
 		<div class="accordion-heading"> 
-			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $module; ?>" href="#category<?php echo $module; ?>">				
+		
+			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 				<strong>Mysql Usage</strong>
 			</a>
 		</div>
@@ -163,8 +176,6 @@
 		</div> <!-- // Accordion inner end -->
 
 		</div> <!-- // Accordion category end -->
-
-	</div> <!-- // Accordion group end -->
 	
 </div> <!-- // Accordion end -->
 

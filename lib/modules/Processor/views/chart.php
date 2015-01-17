@@ -23,9 +23,15 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 
 <?php
 
+	if ( !isset($chartData) || $chartData == false || $logfileStatus == false ) {
+
+		$chartData = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
+		$chartData['chart'] = $this->getEmptyChart();
+	}
+
 	$moduleCollapse = $moduleCollapseStatus = $modulePosition = "";
 
-	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $modulePosition, $module); 
+	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
 ?>
 
@@ -39,15 +45,16 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 
 	<div class="widget-head"><h4 class="heading"><strong>Processor Usage</strong></h4></div>
 	<div class="widget-body collapse in" style="height: auto;">
--->
+
 
 
 <div class="accordion" id="accordion<?php echo $module;?>"  data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
-
-  	<div class="accordion-group">
+-->
+<div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
   	
 		<div class="accordion-heading"> 
-			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $module; ?>" href="#category<?php echo $module; ?>">
+
+			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 				<strong>Processor Usage</strong>				
 			</a>
 		</div>
@@ -192,10 +199,8 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 		</div> <!-- // Accordion inner end -->
 
 		</div> <!-- // Accordion category end -->
-
-	</div> <!-- // Accordion group end -->
 	
 </div> <!-- // Accordion end -->
 
-<div class="separator bottom"></div>
+<div id="separator" class="separator bottom"></div>
 

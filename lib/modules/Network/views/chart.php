@@ -33,17 +33,20 @@ foreach (loadModules::$_settings->general['network_interface'] as $interface => 
 		&& loadModules::$_settings->general['network_interface'][$interface] == "true" ) )
 		continue;
 
-	$moduleCollapse = $moduleCollapseStatus =  $modulePosition = "";
-	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $modulePosition, $interface); 
+	$moduleCollapse = $moduleCollapseStatus  = "";
+	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
 ?>
 
-<div class="accordion" id="accordion<?php echo $interface;?>"  data-collapse-closed="<?php echo $interface;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
-
-  	<div class="accordion-group">
+<div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
 
 		<div class="accordion-heading"> 
+
+<!--
 			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $interface; ?>" href="#category<?php echo $interface; ?>">				
+-->
+			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $interface; ?>" >
+
 				<strong>Network Interface: <?php echo $interface; ?></strong>
 			</a>
 		</div>
@@ -178,8 +181,6 @@ foreach (loadModules::$_settings->general['network_interface'] as $interface => 
 		</div> <!-- // Accordion inner end -->
 
 		</div> <!-- // Accordion category end -->
-
-	</div> <!-- // Accordion group end -->
 	
 </div> <!-- // Accordion end -->
 

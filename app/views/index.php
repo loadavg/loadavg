@@ -108,7 +108,7 @@
         $cookieStatus = LoadModules::getUIcookieSorting($newArray);
 
 
-      // echo '<pre>'; var_dump( $newArray); echo '</pre>';
+       //echo '<pre>'; var_dump( $newArray); echo '</pre>';
 
         //get the range of dates to be charted from the UI and 
         //set the date range to be charted in the modules
