@@ -19,10 +19,17 @@ require_once '../globals.php'; // including required globals
 /* Session */
 ob_start(); 
 
-include 'class.LoadAvg.php'; // including Main Controller
-include 'class.Charts.php';
+/* Initialize LoadAvg Utility Class */ 
+include 'class.Utility.php';
 
-$loadavg = new LoadAvg(); // Initializing Main Controller
+/* Initialize LoadAvg */ 
+include 'class.LoadAvg.php';
+$loadavg = new LoadAvg();
+
+/* Initialize LoadAvg Charts module */ 
+include 'class.Modules.php';
+$loadModules = new LoadModules();
+
 $settings = LoadAvg::$_settings->general; // Default settings
 
 
@@ -35,7 +42,7 @@ require_once APP_PATH . '/layout/header.php';
 $settings_file = APP_PATH . '/config/settings.ini.php'; // path to settings INI file
 
 //read some system data
-$settingsActive = $loadavg->checkWritePermissions( $settings_file );
+$settingsActive = LoadUtility::checkWritePermissions( $settings_file );
 $logStatus = $loadavg->testLogs(false);
 
 //check if any data has been passed in
