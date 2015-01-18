@@ -131,9 +131,10 @@
         if ($chartList == null || !$chartList)
             $chartList = $loaded;
 
-    //check here if issues with cookies first!!!
+        //checks for new style arrays  
+        //array_key_exists($foo[0][1]);
 
-      // echo '<pre>'; var_dump( $loaded); echo '</pre>';
+        //echo '<pre>'; var_dump( $loaded); echo '</pre>';
 
         foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
             if ( $value === "false" ) continue; // if modules is disabled ... moving on.
