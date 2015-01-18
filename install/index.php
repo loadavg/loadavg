@@ -43,6 +43,7 @@ $settings_file = APP_PATH . '/config/settings.ini.php'; // path to settings INI 
 
 //read some system data
 $settingsActive = LoadUtility::checkWritePermissions( $settings_file );
+
 $logStatus = $loadavg->testLogs(false);
 
 //check if any data has been passed in
@@ -234,7 +235,9 @@ switch ( $step )
 					<?php
 					// write settings file out
 					//var_dump($settings);
-					$loadavg->write_php_ini( $settings, $settings_file);
+					LoadUtility::write_php_ini( $settings, $settings_file);
+
+					//use safe write here ?
 					$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
 					?>
 
