@@ -222,6 +222,86 @@ class Logger
 
 	}
 
+/*
+ * used to test if log files are being created by logger
+ * needs better testing currently a bit of a hack
+ * as we just test if the log directory is empty or not
+ */
+
+ 	function testLogs( $mode = true)
+	{
+
+			$loaded = self::$_settings->general['modules'];
+			$logdir = HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir'];
+
+			$test_worked = false;
+			$test_nested = false;
+
+			if ( LoadUtility::is_dir_empty($logdir))
+				return false;
+
+			// Check for each module we have loaded
+			foreach ( $loaded as $module => $value ) {
+				if ( $value == "false" ) continue;
+
+				$moduleSettings = Logger::$_settings->$module;
+
+				// Check if loaded module needs loggable capabilities
+				if ( $moduleSettings['module']['logable'] == "true" ) {
+					
+					foreach ( $moduleSettings['logging']['args'] as $args) {
+						
+						$args = json_decode($args);
+						$class = Logger::$_classes[$module];
+						
+						$caller = $args->function;
+
+						//skip network interfaces as they have nested logs and work differently
+						//later need to skip all nested logs as we check those below
+						
+						if ( $args->logfile == "network_%s_%s.log" )
+						{
+							$test_nested = true;
+						}
+						else
+						{
+							$filename = ( $logdir . sprintf($args->logfile, date('Y-m-d')) );
+
+							if (file_exists($filename)) {
+						    	$test_worked = true;
+							}
+
+							if ($mode == true)
+								echo "Log: $filename Status: $test_worked  \n";		
+						}
+					}
+				}
+			}
+
+			if ($test_nested == true) {
+
+				//now do nested charts 
+				foreach (Logger::$_settings->general['network_interface'] as $interface => $value) {
+
+					if (  !( isset(Logger::$_settings->general['network_interface'][$interface]) 
+						&& Logger::$_settings->general['network_interface'][$interface] == "true" ) )
+						continue;
+
+					$filename = ( $logdir . sprintf($args->logfile, date('Y-m-d') , $interface ) );
+																				
+					if (file_exists($filename)) {
+				    	$test_worked = true;
+					}
+
+					if ($mode == true)
+						echo "Log: $filename Status: $test_worked  \n";
+				}
+			}
+
+			return $test_worked;
+	}
+
+
 	/**
 	 * sendApiData
 	 *
