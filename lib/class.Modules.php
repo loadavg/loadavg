@@ -282,15 +282,18 @@ class loadModules
 			return false;
 		
 		$cookie = stripslashes($myCookie);
-
 		$cookieArray = json_decode($cookie, true);
-
 
 		//parse out as true so they can be shown
 		$returnArray = null;
 		foreach ($cookieArray as $key =>$value) {
 			$returnArray[$key]="true";
 		}
+
+        //checks for problems with cookies 
+        if (  array_keys($returnArray) == range(0, count($returnArray) - 1)  ) {
+            return false;
+        } 
 
 		return true;
 	}
@@ -312,8 +315,6 @@ class loadModules
 		$cookie = stripslashes($myCookie);
 		$currentCookie = json_decode($cookie, true);
 
-		//echo '<pre>newSettings'; var_dump( $newSettings); echo '</pre>';
-
 		//now parse newSettings and drop all false values as cookies are only for true values
 		$cleanSettings = null;
 		foreach ($newSettings as $key =>$value) {
@@ -324,9 +325,9 @@ class loadModules
 
 		}
 
-		echo '<pre>cleanSettings'; var_dump( $cleanSettings); echo '</pre>';
+		//echo '<pre>cleanSettings'; var_dump( $cleanSettings); echo '</pre>';
 
-		echo '<pre>CoockieData'; var_dump( $currentCookie); echo '</pre>';
+		//echo '<pre>CoockieData'; var_dump( $currentCookie); echo '</pre>';
 
 		// now we need to update cookie to remove or add items from cleanSettings....
 		//if item crossess over ski[p it
@@ -353,7 +354,7 @@ class loadModules
 		}
 
 
-		echo '<pre>newCookie'; var_dump( $newCookie); echo '</pre>';
+		//echo '<pre>newCookie'; var_dump( $newCookie); echo '</pre>';
 
 		//now we need to preserve the sorting!!!
 		//as sorting is in the cookie...!!
@@ -394,7 +395,7 @@ class loadModules
 	
 
 
-		echo '<pre>finalCookie'; var_dump( $finalCookie); echo '</pre>';
+		//echo '<pre>finalCookie'; var_dump( $finalCookie); echo '</pre>';
 
 		//here we need to rewrite the cookie
 		$cookietime = time() + (86400 * 365); // 1 year
@@ -406,7 +407,7 @@ class loadModules
 
 		//if things get crazy for any reason then we need to just delete all cookies 
 		//maybe add to settings >
-		
+
 		//dirty short term hack deleted cookie
 		//if(isset($_COOKIE['loadUIcookie'])) {
 		//	setcookie('loadUIcookie', null, -1, "/");
