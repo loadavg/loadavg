@@ -287,14 +287,14 @@ class LoadAvg
 			$test_worked = false;
 			$test_nested = false;
 
-			if ( $this->is_dir_empty($logdir))
+			if ( LoadUtility::is_dir_empty($logdir))
 				return false;
 
 			// Check for each module we have loaded
 			foreach ( $loaded as $module => $value ) {
 				if ( $value == "false" ) continue;
 
-				$moduleSettings = self::$_settings->$module;
+				$moduleSettings = LoadModules::$_settings->$module;
 
 				// Check if loaded module needs loggable capabilities
 				if ( $moduleSettings['module']['logable'] == "true" ) {
@@ -302,7 +302,7 @@ class LoadAvg
 					foreach ( $moduleSettings['logging']['args'] as $args) {
 						
 						$args = json_decode($args);
-						$class = self::$_classes[$module];
+						$class = LoadModules::$_classes[$module];
 						
 						$caller = $args->function;
 
