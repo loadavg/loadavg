@@ -137,7 +137,9 @@
         foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
             if ( $value === "false" ) continue; // if modules is disabled ... moving on.
 
-            //echo 'modulename: ' . $module;
+            //fix for issues with cookies
+            if (!isset(LoadModules::$_settings->$module))
+                continue;
 
             $moduleSettings = LoadModules::$_settings->$module; // if module is enabled ... get his settings
             
