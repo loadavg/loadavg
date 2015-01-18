@@ -165,70 +165,23 @@ class LoadAvg
 	public function createFirstLogs()
 	{
 
-		//only does it if DIR is empty ?
-//		if ( $this->is_dir_empty(HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir']) ) {
+		$php_location = PHP_BINDIR . "/php ";
+
 		if ( LoadUtility::is_dir_empty(HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir']) ) {
 
-			$loaded = self::$_settings->general['modules'];
-			$logdir = HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir'];
+		$runLogger = $php_location . dirname(APP_PATH) . "/logger.php";
+		$runLoggerStatus = $php_location . dirname(APP_PATH) . "/logger.php" . " status ";
 
-			$test_nested = false;
+		//echo 'log exec : ' . $runLogger . '<br>';
 
-			// Check for each module we have loaded
-			foreach ( $loaded as $module => $value ) {
-				if ( $value == "false" ) continue;
+		exec( $runLogger );
+		$loggerStatus = exec( $runLoggerStatus );
 
-				$moduleSettings = self::$_settings->$module;
-
-				// Check if loaded module needs loggable capabilities
-				if ( $moduleSettings['module']['logable'] == "true" ) {
-					foreach ( $moduleSettings['logging']['args'] as $args) {
-
-						$args = json_decode($args);
-						$class = self::$_classes[$module];
-						
-						$caller = $args->function;
-
-						//skip network interfaces as they have nested logs and work differently
-						//later need to skip all other nested logs as we check those below
-						
-						if ( $args->logfile == "network_%s_%s.log" )
-						{
-							$test_nested = true;
-						}
-						else
-						{
-							$caller = sprintf($args->function, sprintf("'". $args->logfile . "'", date('Y-m-d')));
-							$caller = $args->function;
-							
-							//dont work for network ?
-							$class->logfile = $logdir . sprintf($args->logfile, date('Y-m-d'));
-							$class->logfile = $logdir . $args->logfile;
-
-							$class->$caller();	
-						}
-					}
-				}
-
-				//network interface is off at install time so dont really matter at this point
-
-				if ($test_nested == true) {
-
-					//now do nested charts 
-					foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) {
-																					
-								$caller = sprintf($args->function, sprintf("'". $args->logfile . "'", date('Y-m-d') , $interface  ));
-								$caller = $args->function;
-								
-								//dont work for network ?
-								$class->logfile = $logdir . sprintf($args->logfile, date('Y-m-d') , $interface );
-								$class->logfile = $logdir . $args->logfile;
-
-								$class->$caller();	
-					}
-				}
-			}
+		//echo 'log status : ' . $loggerStatus ;
 		}
+
+
+
 	}
 
 /*
@@ -399,6 +352,7 @@ class LoadAvg
 
 	public function cleanUpInstaller() {
 
+		
 		//location of core settings
 		$settings_file = APP_PATH . '/config/settings.ini.php';
 
