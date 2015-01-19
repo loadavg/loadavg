@@ -50,7 +50,7 @@
 			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $module; ?>" href="#category<?php echo $module; ?>">
 -->
 			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
-				<strong><?php echo $chart->label; ?></strong>				
+				<?php echo $chart->label; ?>				
 			</a>
 		</div>
 

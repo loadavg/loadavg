@@ -44,7 +44,7 @@
 		<div class="accordion-heading"> 
 		
 			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
-				<strong>Mysql Usage</strong>
+				Mysql Usage
 			</a>
 		</div>
 		<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">

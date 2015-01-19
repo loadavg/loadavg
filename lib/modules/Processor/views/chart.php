@@ -55,16 +55,11 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 		<div class="accordion-heading"> 
 
 			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
-				<strong>Processor Usage</strong>				
+				Processor Usage				
 			</a>
 		</div>
 
 		<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
-		
-		<!--
-		/var/www/vhosts/load.loadavg.com/httpdocs/public/assets/theme/css/style.css:
-		line 2881 in .accordion .accordion-inner 
-		-->
 
 		<div class="accordion-inner">
 

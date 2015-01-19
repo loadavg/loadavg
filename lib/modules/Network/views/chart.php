@@ -42,12 +42,8 @@ foreach (loadModules::$_settings->general['network_interface'] as $interface => 
 
 		<div class="accordion-heading"> 
 
-<!--
-			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $interface; ?>" href="#category<?php echo $interface; ?>">				
--->
 			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $interface; ?>" >
-
-				<strong>Network Interface: <?php echo $interface; ?></strong>
+				Network Interface: <?php echo $interface; ?>
 			</a>
 		</div>
 
