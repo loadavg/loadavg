@@ -165,9 +165,28 @@ class LoadAvg
 	public function createFirstLogs()
 	{
 
-		$php_location = PHP_BINDIR . "/php ";
 
 		if ( LoadUtility::is_dir_empty(HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir']) ) {
+
+			$this->runLogger();
+		}
+
+
+	}
+
+	/**
+	 * runLogger
+	 *
+	 * Creates first log files for every loaded modules 
+	 * only run once - after installation - and may not be needed as modules will do this themselves
+	 * if the file isnt there they create it
+	 *
+	 */
+
+	public function runLogger()
+	{
+
+		$php_location = PHP_BINDIR . "/php ";
 
 		$runLogger = $php_location . dirname(APP_PATH) . "/logger.php";
 		$runLoggerStatus = $php_location . dirname(APP_PATH) . "/logger.php" . " status ";
@@ -178,11 +197,12 @@ class LoadAvg
 		$loggerStatus = exec( $runLoggerStatus );
 
 		//echo 'log status : ' . $loggerStatus ;
-		}
 
+		//return true or false base don logger status...
 
 
 	}
+
 
 /*
  * used when we turn modules on and off

@@ -50,6 +50,12 @@ class Uptime extends Logger
 
 		$uptime = exec("cat /proc/uptime | awk -F' ' '{print $1\"|\"$2}'");
 
+//test internal ping
+//ping localhost -c 1
+
+//test external ping / google.com [user defined]
+//ping localhost -c 1
+
 	    $string = time() . '|' . $uptime . "\n";
 		
 		$filename = sprintf($this->logfile, date('Y-m-d'));

@@ -29,7 +29,7 @@ else {
 	<?php
 	if (isset($_POST['Run_Logger'])) {
 
-		$loadavg->rebuildLogs();
+		$loadavg->runLogger();
 
 		/* force reload settings page now */
 		header('Location: '. '/public/index.php?page=settingslogger'  );
