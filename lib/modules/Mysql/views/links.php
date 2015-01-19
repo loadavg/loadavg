@@ -61,14 +61,14 @@
 
 		switch ( $newmode) {
 			case "true": 	$mydata['settings']['show_queries'] = "true";
-							$mergedsettings = loadModules::ini_merge ($modSettings, $mydata);
-							loadModules::write_module_ini($mergedsettings, $module);
+							$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+							LoadUtility::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 
 			case "false": 	$mydata['settings']['show_queries'] = "false";
-							$mergedsettings = loadModules::ini_merge ($modSettings, $mydata);
-							loadModules::write_module_ini($mergedsettings, $module);
+							$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+							LoadUtility::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 		}		

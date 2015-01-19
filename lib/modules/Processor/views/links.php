@@ -50,14 +50,14 @@ switch ( ( isset($_GET['processor']) || !empty($_GET['processor'])) ? $_GET['pro
 
 		switch ( $newmode) {
 			case "true": 	$mydata['settings']['display_limiting'] = "true";
-						$mergedsettings = loadModules::ini_merge ($modSettings, $mydata);
-						loadModules::write_module_ini($mergedsettings, $module);
+						$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+						LoadUtility::write_module_ini($mergedsettings, $module);
 						header("Location: " . $displaylinks);						
 						break;
 
 			case "false": 	$mydata['settings']['display_limiting'] = "false";
-						$mergedsettings = loadModules::ini_merge ($modSettings, $mydata);
-						loadModules::write_module_ini($mergedsettings, $module);
+						$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+						LoadUtility::write_module_ini($mergedsettings, $module);
 						header("Location: " . $displaylinks);						
 						break;
 		}		
