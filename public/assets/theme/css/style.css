@@ -4,11 +4,6 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,800,700,600&subset=latin,latin-ext);
 */
 
-
-.accordion .accordion-inner {
-    font-size: 12px;
-}
-
 body {
 /* font-family: 'Open Sans', sans-serif; */
   font-family: arial;
@@ -2884,7 +2879,7 @@ textarea {
   border-radius: 0 0 0 0;
 }
 .accordion .accordion-inner {
-  font-size: 13px;
+  font-size: 12px;
   background: #222;
   -webkit-border-radius: 0 0 0 0;
   -moz-border-radius: 0 0 0 0;
