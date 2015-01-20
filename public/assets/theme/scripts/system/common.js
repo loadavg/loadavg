@@ -12,83 +12,53 @@
 $(function () {
 
 
- var active = false,
- sorting = false;
-
  $( "#accordion" )
 
      .accordion({
          header: "> div > h3",
-         //collapsible: true,
 
          activate: function( event, ui){
-             //this fixes any problems with sorting if panel was open 
-             //remove to see what I am talking about
-
-             if(sorting) {
-                 $(this).sortable("refresh"); 
-                 current_order($(this));                                         
-             };
          }
      })
      
      .sortable({
+
         connectWith: ".accordion",
-     //handle: "h3",
-     //placeholder: "ui-state-highlight",
+        //items: ":not(.ui-state-disabled)",
+        cancel: ".separator",
 
-     start: function( event, ui ){
-     //change bool to true
-     sorting=true;
+        start: function( event, ui ){
+        },
 
-     },
-
-     stop: function( event, ui ) {
-     
-     //ui.item.children( "h3" ).triggerHandler( "focusout" );
-
-    $(this).sortable("refresh"); 
-    
-    //current_order($(this));    
-
-     //change bool to false
-     sorting=false;
-     
-      storeState();
-
-     }
- });
+        stop: function( event, ui ) {
+             //ui.item.children( "h3" ).triggerHandler( "focusout" );
+            $(this).sortable("refresh"); 
+            storeState();
+        }
+    });
 
 
 
     $('div.accordion-body').on('shown', function () {
 
-        console.log( $(this).parents().attr('data-collapse-closed') + ' open' );
-
-        //$(this).('.accordion:first').attr('cookie-closed', true);
-        //$(this).parents('.accordion:first').attr('cookie-closed', true);
+        //console.log( $(this).parents().attr('data-collapse-closed') + ' open' );
         $(this).parents().attr('cookie-closed', true);
 
         storeState();
-
     });
 
     $('div.accordion-body').on('hidden', function () {
 
-
-         console.log( $(this).parents().attr('data-collapse-closed') + ' close' );
-
-       // $(this).('.accordion:first').attr('cookie-closed', false);
-        //$(this).parents('.accordion:first').attr('cookie-closed', false);
+         //console.log( $(this).parents().attr('data-collapse-closed') + ' close' );
          $(this).parents().attr('cookie-closed', false);
 
         storeState();
-
     });
 
 
 });
 
+/*
 function current_order(el){
     var order=[];
     el.children().each( function(i){      
@@ -96,27 +66,23 @@ function current_order(el){
     });
     // silly test      
     for(var i=0; i<order.length; i++){
-       //console.log("got " + order[i]);
+       console.log("got " + order[i]);
    }
 }
+*/
 
 function storeState() {
 
 
     var loadCookie = "loadUIcookie";
-//    var testCookie = "testJSUIcookie";
 
-  //  var check_open_divs = [];
     var myCookie = [];
-   var jsonObj = {}; 
+    var jsonObj = {}; 
 
     //mine
     var toggled_div = $('#accordion');
 
-    var position = 0;
-
     $(toggled_div).children().each(function() {
-
 
         var id = $(this).attr('id');
        if (id != 'separator' )
@@ -146,7 +112,7 @@ function storeState() {
 
     });
 
-    myCookie.push( jsonObj   );
+    myCookie.push( jsonObj );
 
     // then to get the JSON string
     myCookie = JSON.stringify(myCookie);
@@ -155,7 +121,6 @@ function storeState() {
     var newStr = myCookie.substring(1, myCookie .length-1);
 
     $.cookie(loadCookie, newStr, {expires:365, path: '/'});
-
 
    // console.log(check_open_divs);
 
