@@ -14,7 +14,7 @@
 */
 ?>
 
-<?php $server = LoadAvg::$_classes['Server']; ?>
+<?php $server = LoadPlugins::$_classes['Server']; ?>
 
 <!--
 widget stytles can be found here but need cleaning up

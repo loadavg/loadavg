@@ -1,16 +1,10 @@
 
 
-//used to get status of accordions - collapsed or visable
+//used to get status of accordions - collapsed or visable as well as postion
 //from the loadUI cookie
-//using code to manage accordion state is in common.js
-//http://www.ridgesolutions.ie/index.php/2013/02/19/twitter-bootstrap-programmatically-open-or-close-an-accordion-with-javascript/
-
-//fix icons with this if we want them
-//http://stackoverflow.com/questions/18325779/bootstrap-3-collapse-show-state-with-chevron-icon
 
 
 $(function () {
-
 
  $( "#accordion" )
 
@@ -24,7 +18,7 @@ $(function () {
      .sortable({
 
         connectWith: ".accordion",
-        //items: ":not(.ui-state-disabled)",
+        //items: ":not(.separator)",
         cancel: ".separator",
 
         start: function( event, ui ){

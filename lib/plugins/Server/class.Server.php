@@ -14,11 +14,13 @@
 * later.
 */
 
-class Server extends LoadAvg
+class Server extends LoadPlugins
 {
+
 
 	public static $icon;
 	public static $name;
+
 
 	/**
 	 * __construct
@@ -26,6 +28,8 @@ class Server extends LoadAvg
 	 * Class constructor, appends Module settings to default settings
 	 *
 	 */
+
+	
 	public function __construct()
 	{
 		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
@@ -48,7 +52,7 @@ class Server extends LoadAvg
 	public function getData( $cmd )
 	{
 		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
+		$settings = LoadPlugins::$_settings->$class;
 		try {
 			$results = array();
 			exec($settings['cmd'][$cmd], $results, $res);

@@ -101,7 +101,7 @@
 
         <?php
 
-       // echo '<pre>'; var_dump( $loaded); echo '</pre>';
+        //echo '<pre>'; var_dump( $loaded); echo '</pre>';
 
         $cookieStatus = false;
         $newArray;
@@ -117,10 +117,8 @@
         $loadModules->setDateRange($range);
 
         //now loop through the modules and draw them
-
         $moduleNumber = 0;
-        
-        $chartList;
+        $chartList = null;
 
         if ($cookieStatus)
         $chartList = $newArray;

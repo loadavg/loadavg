@@ -176,14 +176,12 @@ if (isset($_POST['login'])  ) {
 
 
 				<?php 
-				//loops though active plugins and adds them to the menubar
-				foreach ( LoadAvg::$_settings->general['plugins'] as $key => &$value ) {
 
-					//if value is true plugin is active
-					if ( $value == "true" ) {
+				foreach ( $plugins as $module => $value ) { // looping through all the modules in the settings.ini file
+	            	if ( $value === "true" ) {
 
-						$pluginClass = LoadAvg::$_classes[$key]; 
-						$pluginData =  $pluginClass->getPluginData();
+						$class = LoadPlugins::$_classes[$module];
+						$pluginData =  $class->getPluginData();
 
 						?>
 						<li <?php if (isset($_GET['page']) && $_GET['page'] == $pluginData[0]) : ?> class="active"<?php endif; ?>><a href="?page=<?php echo $pluginData[0]?>"><i class="fa <?php echo $pluginData[1]?>"></i> Server</a></li>

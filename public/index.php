@@ -20,27 +20,50 @@ require_once '../globals.php';
 ob_start(); 
 session_start();
 
+if (DEBUG) $memory_usage['start'] = memory_get_usage();
+
+
 /* Initialize LoadAvg Utility Class */ 
-include 'class.Utility.php';
+include_once 'class.Utility.php';
+if (DEBUG) $memory_usage['utility'] = memory_get_usage();
 
 /* Initialize LoadAvg */ 
-include 'class.LoadAvg.php';
+
+include_once 'class.LoadAvg.php';
 $loadavg = new LoadAvg();
+if (DEBUG) $memory_usage['loadavg'] = memory_get_usage();
+
 
 /* Initialize LoadAvg Charts module */ 
-include 'class.Modules.php';
+include_once 'class.Modules.php';
 $loadModules = new LoadModules();
+if (DEBUG) $memory_usage['modules'] = memory_get_usage();
+
+/* Initialize LoadAvg Charts module */ 
+include_once 'class.Plugins.php';
+$loadPlugins = new loadPlugins();
+if (DEBUG) $memory_usage['plugins'] = memory_get_usage();
+
 
 /* initialize timer */
-include 'class.Timer.php';
+include_once 'class.Timer.php';
 $timer = new Timer();
+if (DEBUG) $memory_usage['timer'] = memory_get_usage();
+
 
 //grab core settings
 $settings = LoadAvg::$_settings->general;
 
-//get plugins
-$plugins = LoadAvg::$_plugins; 
+//array of modules and status either on or off
+$loaded = LoadModules::$_settings->general['modules']; 
+//var_dump ($loaded);
 
+//get plugins//
+$plugins = LoadPlugins::$_settings->general['plugins']; 
+//var_dump ($plugins);
+
+if (DEBUG)
+	$loadavg->memoryDebugData($memory_usage);
 
 //draw the header
 require_once APP_PATH . '/layout/header.php';
@@ -69,8 +92,7 @@ $timer->setStartTime(); // Setting page load start time
  * draw the current page view
  */
 
-//array of modules and status either on or off
-$loaded = LoadModules::$_settings->general['modules']; 
+
 
 //grab the log diretory
 $logdir = LOG_PATH;
@@ -118,9 +140,9 @@ else
 
 
 	//first check to see if its a plugin
-	if (in_array($pageName, $plugins)) 
+	//if (in_array($pageName, $plugins))  array_key_exists
+	if (array_key_exists($pageName, $plugins))  
     {
-    	echo 'PLUGIN: ' . $_GET['page'] . '<br>';
 		require_once PLUGIN_PATH .  $pageName  . '/' . $pageName . '.php';
     }
 

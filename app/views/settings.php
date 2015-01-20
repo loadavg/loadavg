@@ -100,13 +100,6 @@ if (isset($_POST['update_settings'])) {
 	 */
 
 	$settings = LoadAvg::$_settings->general;
-	//LoadAvg::$_settings->general = $settings;
-
-	/* rebuild logs
-	 * needed for when you turn a module on that has no logs
-	 * this needs to only rebuild logs for modules that have been turned on
-	 */
-	//$loadavg->rebuildLogs();
 
 	/* force reload settings page now */
 	header('Location: '.$_SERVER['REQUEST_URI']);

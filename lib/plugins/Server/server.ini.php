@@ -6,7 +6,6 @@ status = true
 has_settings = false
 has_menu = false
 logable = false
-
 [cmd]
 hostname = "hostname -d"
 nodename = "uname -n"

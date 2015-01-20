@@ -42,9 +42,13 @@ class LoadUtility
 	 */
 
 	public static function loadExtensions( $mode, &$settings, &$classes) {
-
+		
 		//loads modules code
 		$class = 'class.';
+
+		$previous = null;
+
+		if (DEBUG) echo "<pre>Loading " . $mode . "<br>";
 
 		//if module is true in settings.ini file then we load it in 
 		foreach ( $settings->general[$mode] as $key => &$value ) {
@@ -53,19 +57,23 @@ class LoadUtility
 				try {
 					$loadModule = $key . DIRECTORY_SEPARATOR . $class . $key . '.php';
 					
-					//echo 'loading:' . $loadModule;
+					if (DEBUG) echo $loadModule . "<br>";
 
 					//this doesnt work as its defined as in the path... set in globals
 					//maybe we should change this to not be relative ?
 					require_once $loadModule;
+
 					$classes[$key] = new $key;
 
 				} catch (Exception $e) {
 					throw Exception( $e->getMessage() );
 				}
+
+				$previous = $key;
 			}
 
 		}
+		if (DEBUG) echo "</pre>";
 
 	}
 

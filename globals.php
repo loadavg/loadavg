@@ -16,6 +16,8 @@
 
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
+    
+defined('DEBUG') || define('DEBUG', false );
 
 
 /* Find out where are we on the server*/

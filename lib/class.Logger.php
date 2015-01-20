@@ -93,6 +93,9 @@ class Logger
 
 	}
 
+
+
+
 	/**
 	 * loadModules
 	 *

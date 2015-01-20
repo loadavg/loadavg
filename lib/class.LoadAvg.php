@@ -20,10 +20,10 @@ class LoadAvg
 	public static $settings_ini; //location of settings.ini file
 	public static $_settings; // storing standard settings and/or loaded modules settings
 	
-	public static $_classes; // storing loaded modules classes
+	//public static $_classes; // storing loaded modules classes
 	//public static $_modules; // storing and managing modules
 
-	public static $_plugins; // storing and managing plugins
+	//public static $_plugins; // storing and managing plugins
 
 	public static $current_date; // current date
 	private static $_timezones; // Cache of timezones
@@ -80,13 +80,11 @@ class LoadAvg
 
 
 		//generate list of all plugins
-		//$this->generateModuleList('plugins');
-		LoadUtility::generateExtensionList( 'plugins', self::$_plugins );
+		//LoadUtility::generateExtensionList( 'plugins', self::$_plugins );
 
 
 		//load all charting modules that are enabled
-		//$this->loadModules('plugins');
-		LoadUtility::loadExtensions( 'plugins', self::$_settings, self::$_classes);
+		//LoadUtility::loadExtensions( 'plugins', self::$_settings, self::$_classes);
 
 	}
 
@@ -94,26 +92,7 @@ class LoadAvg
 
 	//needs to build array with menu items and have front end deraw it really...
 
-	public function buildPluginMenu( ) {
 
-		//var_dump (self::$_settings->general['plugins']);
-
-		//if module is true in settings.ini file then we load it in 
-		foreach ( self::$_settings->general['plugins'] as $key => &$value ) {
-
-			//echo 'VALUE: ' . $value . '   ' . 'KEY: ' . $key . '<br>';
-
-			//if value is true plugin is active
-			if ( $value == "true" ) {
-
-				$pluginClass = LoadAvg::$_classes[$key]; 
-
-				$pluginData =  $pluginClass->getPluginData();
-
-				//var_dump ($pluginData);
-			}
-		}
-	}
 
 
 
@@ -152,6 +131,19 @@ class LoadAvg
 
 	}
 
+	public function memoryDebugData( $memory_usage) {
+
+		echo '<pre>';
+		echo "Memory at Start        :" . $memory_usage['start'] . "\n"; 
+		echo "After class.Utility.php:" . $memory_usage['utility'] . "\n"; 
+		echo "After class.LoadAvg.php:" . $memory_usage['loadavg'] . "\n"; 
+		echo "After class.Modules.php:" . $memory_usage['modules'] . "\n"; 
+		echo "After class.Plugins.php:" . $memory_usage['plugins'] . "\n"; 
+		echo "After class.Timer.php  :" . $memory_usage['timer'] . "\n"; 
+		echo '</pre>';
+
+	}
+
 
 	/**
 	 * createFirstLogs
@@ -183,6 +175,13 @@ class LoadAvg
 	 *
 	 */
 
+/*
+ * used when we turn modules on and off
+ * this needs to only build the log file for modules that have no log file in /logs
+ * also be great to pass the module over if we know 
+ * what module has changed or been enabled
+ */
+
 	public function runLogger()
 	{
 
@@ -203,46 +202,6 @@ class LoadAvg
 
 	}
 
-
-/*
- * used when we turn modules on and off
- * this needs to only build the log file for modules that have no log file in /logs
- * also be great to pass the module over if we know 
- * what module has changed or been enabled
- */
-
-	public static function rebuildLogs()
-	{
-
-			echo "Rebuild Logs  \n";
-
-			$loaded = self::$_settings->general['modules'];
-
-			$logdir = HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir'];
-
-			// Check for each module we have loaded
-			foreach ( $loaded as $module => $value ) {
-				if ( $value == "false" ) continue;
-
-				$moduleSettings = self::$_settings->$module;
-
-				// Check if loaded module needs loggable capabilities
-				if ( $moduleSettings['module']['logable'] == "true" ) {
-					foreach ( $moduleSettings['logging']['args'] as $args) {
-						$args = json_decode($args);
-						$class = self::$_classes[$module];
-
-						$caller = $args->function;
-
-						$class->logfile = $logdir . $args->logfile;
-
-						//what does this do ? run args function ?
-						$class->$caller();
-					}
-				}
-			}
-
-	}
 
 
 /*

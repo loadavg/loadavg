@@ -156,7 +156,7 @@ LoadModules::updateUIcookieSorting ($loaded);
  */
 
 //why dont this work ?
-//$loadavg->rebuildLogs();
+$loadavg->runLogger();
 
 /* force reload settings page now */
 header('Location: '.$_SERVER['REQUEST_URI']);
