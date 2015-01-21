@@ -184,7 +184,7 @@ if (isset($_POST['login'])  ) {
 						$pluginData =  $class->getPluginData();
 
 						?>
-						<li <?php if (isset($_GET['page']) && $_GET['page'] == $pluginData[0]) : ?> class="active"<?php endif; ?>><a href="?page=<?php echo $pluginData[0]?>"><i class="fa <?php echo $pluginData[1]?>"></i> Server</a></li>
+						<li <?php if (isset($_GET['page']) && $_GET['page'] == $pluginData[0]) : ?> class="active"<?php endif; ?>><a href="?page=<?php echo $pluginData[0]?>"><i class="fa <?php echo $pluginData[1]?>"></i> <?php echo $pluginData[0]?></a></li>
 						<?php
 					}
 				}

@@ -45,9 +45,9 @@ if (isset($_POST['update_settings'])) {
 
     $postsettings = $_POST['formsettings'];
 
-    $replaced_settings = LoadAvg::ini_merge ($settings, $postsettings);
+    $replaced_settings = LoadUtility::ini_merge ($settings, $postsettings);
 
-    LoadAvg::write_php_ini($replaced_settings, $settings_file);
+    LoadUtility::write_php_ini($replaced_settings, $settings_file);
 
     $settings = LoadAvg::$_settings->general;
 
