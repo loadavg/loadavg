@@ -35,7 +35,7 @@ $(function () {
 
     $('div.accordion-body').on('shown', function () {
 
-        console.log( $(this).parents().attr('data-collapse-closed') + ' open' );
+        //console.log( $(this).parents().attr('data-collapse-closed') + ' open' );
         $(this).parents().attr('cookie-closed', true);
 
         storeState();
@@ -43,7 +43,7 @@ $(function () {
 
     $('div.accordion-body').on('hidden', function () {
 
-         console.log( $(this).parents().attr('data-collapse-closed') + ' close' );
+         //console.log( $(this).parents().attr('data-collapse-closed') + ' close' );
          $(this).parents().attr('cookie-closed', false);
 
         storeState();
@@ -83,7 +83,7 @@ function storeState() {
        {
             var moduleName = $(this).attr('data-collapse-closed');
 
-            console.log("moduleName " + moduleName);
+            //console.log("moduleName " + moduleName);
 
             //if (moduleName != 'undefined' && (moduleName) )
             if ( (moduleName) )
