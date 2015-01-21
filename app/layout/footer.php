@@ -96,8 +96,33 @@
 
 	<script>$(function () { $('.toggle-button').toggleButtons(); })</script>
 
-	<!-- Common script -->
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/common.js"></script>
+	<!-- Common script 
+		 Only include for chart/index right now as conflicts with opther modules
+		 really should dynamically include the modules common.js when loaded...
+	-->
+	<?php 
+
+	if ( isset($_GET['page']) && ($_GET['page'] != "") ) 
+		$pageName = $_GET['page'];
+
+	if (!$pageName) 
+	{
+		//echo 'INDEX ';
+		?>
+		<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/common.js"></script>
+		<?php
+	}
+	else 
+	{
+		//echo 'PAGENAME ' . $pageName; 
+		?>
+		<?php
+	} 
+	?>
+
+
+
+
 
 <?php
 //if they are flooding the login screen we sleep here

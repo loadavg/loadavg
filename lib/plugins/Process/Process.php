@@ -72,62 +72,106 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 </div>
 
 <div class="innerAll">
+
+
 	<div class="row-fluid">
 		<div class="span12">
 			<div class="widget widget-4">
 				<div class="widget-head">
-					<h4 class="heading">Process information</h4>
-				</div>
-				<div class="widget-body">
-					<div class="widget ">
-						<div class="widget-head"><h4 class="heading">Process Data</h4></div>
-
-						<div class="widget-body">
-						
-							<?php
-							$myNewArray = $process->arraySort($procs,'command0');
-
-							foreach ($myNewArray as $value) {
-								
-								$numItems = 0;
-								foreach ($value as $items) {
-									$numItems++;
-								}
-
-								//skip rcuo - kernel threads
-								//$pos = strpos($value[0]['command0'], "rcuo");
-
-								//if ($pos !== false)
-								//	continue;
-
-								//skip all null data
-								if ( ($value[0]['%cpu'] == 0) && ($value[0]['%mem'] == 0) )
-									continue;
-
-								//render data to screen
-								echo '<strong>Process:</strong> ' . $value[0]['command0'];
-								echo ' Running: ' . $numItems;
-								echo ' ID: ' . $value[0]['pid'];
-								echo ' User: ' . $value[0]['user'];
-								echo ' Cpu: ' . $value[0]['%cpu'];
-								echo ' Memory: ' . $value[0]['%mem'];
-								echo '<br>';
-								echo '<strong>Command:</strong> ' . $value[0]['command1'];
-								echo '<br><br>';
-							}
-							?>
-							<ul class="unstyled row-fluid">
-								<li><strong  class="span4">Server:</strong><span class="span8">Some data</span></li>
-							</ul>
-
-						</div>
-
-					</div>
+					<h4 class="heading">Running Processess</h4>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
+
+	<div id="separator" class="separator bottom"></div>
+
+    <div id="accordion" class="accordion">
+						
+	<?php
+	$myNewArray = $process->arraySort($procs,'command0');
+
+	//gives each module a id in accordions
+	$module = 0;
+
+	foreach ($myNewArray as $value) {
+		
+		$module++;
+
+		$totalProcesCpu = $totalProcesMem = 0;
+		$numProcs = 0;
+
+		foreach ($value as $items) {
+			$totalProcesCpu += $items['%cpu'];
+			$totalProcesMem += $items['%mem'];
+			$numProcs++;
+		}
+
+		//skip rcuo - kernel threads
+		//$pos = strpos($value[0]['command0'], "rcuo");
+		//if ($pos !== false)
+		//	continue;
+
+		//skip all null data
+		if ( ($value[0]['%cpu'] == 0) && ($value[0]['%mem'] == 0) )
+			continue;
+
+
+		/*
+		  //status data used from common.js 
+		  if ($value == "open") {
+			$moduleCollapse = "accordion-body collapse in";
+		    $moduleCollapseStatus = "true";
+
+		  if ($value == "closed") {
+			$moduleCollapse = "accordion-body collapse";
+		    $moduleCollapseStatus = "false";
+		*/
+
+		$moduleCollapse = "accordion-body collapse";
+	    $moduleCollapseStatus = "false";
+
+		//render data to screen
+		?>
+
+		<div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
+			
+			<div class="accordion-heading"> 
+				<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
+					<?php
+					echo '<strong>Process:</strong> ' . $value[0]['command0'];
+					echo ' Number Running: ' . $numProcs;
+					echo "<span style='float:right;display:inline'>";
+					echo ' Cpu: ' . $totalProcesCpu;
+					echo ' Memory: ' . $totalProcesMem;
+					echo "</span>";
+					?>				
+				</a>					
+			</div>
+
+			<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
+				<div class="accordion-inner">
+					<?php
+						echo '<strong>Command:</strong> ' . $value[0]['command1'] . '<br>';
+						foreach ($value as $items) {
+							echo ' ID: ' . $items['pid'];
+							echo ' User: ' . $items['user'];
+							echo ' Cpu: ' . $items['%cpu'];
+							echo ' Memory: ' . $items['%mem'];
+							echo '<br>';
+						}
+					?>
+				</div> <!-- // Accordion inner end -->
+			</div> <!-- // Accordion category end -->
+
+		</div> <!-- // Accordion inner stack end -->
+
+		<?php
+		}
+		?>
+	</div> <!-- // Accordion group end -->
+
+</div> <!-- // inner all end -->
 
 
 	

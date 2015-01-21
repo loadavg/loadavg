@@ -123,6 +123,8 @@ if (  (!isset($_SESSION['logged_in']) || ($_SESSION['logged_in'] == false)) && (
 	}
 }
 
+	//first lets see if a name has been set...
+	$pageName = "";
 
 //security check for all access
 if ( (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "false" && !$loadavg->isLoggedIn())  || ($banned == true)   ) 
@@ -132,8 +134,7 @@ if ( (isset($settings['settings']['allow_anyone']) && $settings['settings']['all
 else 
 {
 
-	//first lets see if a name has been set...
-	$pageName = "";
+
 
 	if ( isset($_GET['page']) && ($_GET['page'] != "") ) 
 		$pageName = $_GET['page'];
