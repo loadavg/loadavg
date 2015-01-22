@@ -94,7 +94,8 @@ $timer->setStartTime(); // Setting page load start time
 
 
 
-//grab the log diretory
+//grab the log diretory - needs to be dynamic really
+//as this is also set in settings.ini.php !!!
 $logdir = LOG_PATH;
 
 

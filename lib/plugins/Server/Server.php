@@ -33,20 +33,28 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 	<h3>Server Data</h3>
 	-->
 	
-	<!--
-	<div class="accordion" id="accordion2">
-	  	<div class="accordion-group">
-			<div class="accordion-heading">
-				<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
-					Active Item
-				</a>
-			</div>
-			<div id="collapseTwo" class="accordion-body collapse in">
-				...
-			</div>
-		</div>
+
+    <div id="accordion" class="accordion">	
+	<?php
+	        //get the range of dates to be charted from the UI and 
+	        //set the date range to be charted in the modules
+	        $range = $loadavg->getDateRange();
+	        $loadModules->setDateRange($range);
+
+	        //now loop through the modules and draw them
+	        $moduleNumber = 0;
+	        $chartList["Uptime"]="true";
+
+			//grab the log diretory - needs to be dynamic really
+			//as this is also set in settings.ini.php !!!
+			$logdir = LOG_PATH;
+
+	        $loadModules->renderCharts($chartList, $logdir);
+
+	?>
 	</div>
-	-->
+
+	<div id="separator" class="separator bottom"></div>
 
 	<div class="row-fluid">
 		<div class="span6">

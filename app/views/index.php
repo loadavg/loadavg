@@ -131,7 +131,9 @@
 
 
         //echo '<pre>'; var_dump( $chartList); echo '</pre>';
+        $loadModules->renderCharts($chartList, $logdir);
 
+/*
         foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
             if ( $value === "false" ) continue; // if modules is disabled ... moving on.
 
@@ -164,6 +166,7 @@
 
             }
         }
+        */
         ?>
 
     </div>    
