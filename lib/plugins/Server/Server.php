@@ -198,10 +198,9 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 						<?php
 						
 						//this is how we get a loaded modules settings data
-						$settings = LoadAvg::$_settings->Disk;
-						//print_r($settings);
-
-						$drive = $settings['settings']['drive'];
+						//$settings = LoadPlugins::$_settings->Disk;
+						//$drive = $settings['settings']['drive'];
+						$drive = "/";
 
 						//really need to do this 
 						//if (is_dir($drive)) {				
