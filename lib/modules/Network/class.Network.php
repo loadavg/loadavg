@@ -256,7 +256,7 @@ class Network extends Charts
 	 * @param string @logdir path to logfiles folder
 	 *
 	 */
-	public function genChart($moduleSettings, $logdir)
+	public function genChart($moduleSettings, $drawAvg = true )
 	{
 
 	//used for debugging

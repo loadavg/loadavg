@@ -198,7 +198,7 @@ class Apache extends Charts
 	 *
 	 */
 
-	public function genChart($moduleSettings, $logdir)
+	public function genChart($moduleSettings, $drawAvg = true )
 	{
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
@@ -222,7 +222,6 @@ class Apache extends Charts
 			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
 			if (!empty($this->logfile)) {
-			//if ( file_exists( $this->logfile[0][0] )) {
 				$i++;				
 				$logfileStatus = true;
 
@@ -240,6 +239,9 @@ class Apache extends Charts
 			}
 
 			//now draw chart to screen
+			if ($drawAvg == false)
+				$dontDrawAvg = true;
+			
 			include APP_PATH . '/views/chart.php';
 		}
 	}

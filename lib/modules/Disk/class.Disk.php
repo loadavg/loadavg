@@ -307,7 +307,7 @@ class Disk extends Charts
 	 *
 	 */
 
-	public function genChart($moduleSettings, $logdir)
+	public function genChart($moduleSettings, $drawAvg = true )
 	{
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
@@ -352,6 +352,9 @@ class Disk extends Charts
 			}
 
 			//now draw chart to screen
+			if ($drawAvg == false)
+				$dontDrawAvg = true;
+			
 			include APP_PATH . '/views/chart.php';
 		}
 	}

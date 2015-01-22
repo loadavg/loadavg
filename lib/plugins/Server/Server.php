@@ -45,11 +45,8 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 	        $moduleNumber = 0;
 	        $chartList["Uptime"]="true";
 
-			//grab the log diretory - needs to be dynamic really
-			//as this is also set in settings.ini.php !!!
-			$logdir = LOG_PATH;
-
-	        $loadModules->renderCharts($chartList, $logdir);
+	        //false is no average
+	        $loadModules->renderCharts($chartList, false);
 
 	?>
 	</div>

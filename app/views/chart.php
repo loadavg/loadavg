@@ -35,20 +35,28 @@
 	//grab it here
 	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
+	if (isset($dontDrawAvg))
+		$dontDrawAvg = true;
+	else
+		$dontDrawAvg = false;
+
+	//echo 'DrawAvg ' . $dontDrawAvg ;
+	
+	$tableStyle = ( isset( $chartData['chart']['chart_avg'] )     ) ? 'span8' : 'span9'; 
+	
+	//dirty hack
+	if ($dontDrawAvg == true)
+		$tableStyle = 'span9';
 
 
 ?>
-<!--
-<div class="accordion" id="accordion<?php echo $module;?>"  data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
--->
+
 <div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
 
 	<?php if ( $chart ) {    // what happens if not chart here ??? ?>
 
 		<div class="accordion-heading"> 
-<!--
-			<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion<?php echo $module; ?>" href="#category<?php echo $module; ?>">
--->
+
 			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 				<?php echo $chart->label; ?>				
 			</a>
@@ -85,9 +93,13 @@
 
 	        <!-- this sections renders main chart area -->
 
-			<!-- used to change  if we have the Avg chart on right or not -->
+			<!-- used to change  if we have the Avg chart on right or not 
 			<td class="<?php echo ( isset( $chartData['chart']['chart_avg'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
+			-->
+
+			<td class="<?php echo $tableStyle ?> innerT"> 
 				
+
 	       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
 	       		     more than 1 in i means multiple charts in the segment so we include js files just once
 	       		-->
@@ -104,7 +116,7 @@
 			<?php 
 	        // Now draw separate chart for mean value display stacked bar chart
 	        // cool as we can also do pie charts etc using different flags
-			if ( isset($chartData['chart']['chart_avg']) ) {  
+			if ( isset($chartData['chart']['chart_avg']) && ($dontDrawAvg == false)  ) {  
 
 				//$chartMode = $chartData['chart']['chart_avg'];
 

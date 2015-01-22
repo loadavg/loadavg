@@ -196,10 +196,8 @@ class loadModules
 	 */
 
 
-	public function renderCharts ( $chartList, $logdir )
+	public function renderCharts ( $chartList, $drawAvg = true )
 	{
-
-        $moduleNumber=0;
 
         foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
             if ( $value === "false" ) continue; // if modules is disabled ... moving on.
@@ -216,20 +214,19 @@ class loadModules
 
                 $i = 0;
 
-
                 //tabbed modules have more than 1 chart in them
                 if (isset($moduleSettings['module']['tabbed']) && $moduleSettings['module']['tabbed'] == "true") {
                     if ($i == 1) break;
 
                     //echo 'NESTEDCHARTS:';
-                    $class->genChart( $moduleSettings, $logdir );
+                   // $class->genChart( $moduleSettings, $logdir );
+                    $class->genChart( $moduleSettings, $drawAvg );
                     $i++; //will this ever be hit ? as i = 1 breaks things - yes its mean to only include genChart once
                 } else {
                     //echo 'CORECHART:';
-                    $class->genChart( $moduleSettings, $logdir );
+                  //  $class->genChart( $moduleSettings, $logdir );
+                    $class->genChart( $moduleSettings, $drawAvg );
                 }
-
-                $moduleNumber++;
 
             }
         }

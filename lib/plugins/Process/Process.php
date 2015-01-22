@@ -28,17 +28,6 @@
 
 
 
-	<div class="row-fluid">
-		<div class="span12">
-			<div class="widget widget-4">
-				<div class="widget-head">
-					<h4 class="heading">Running Processess</h4>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div id="separator" class="separator bottom"></div>
 
     <div id="accordion" class="accordion">	
 	<?php
@@ -51,15 +40,12 @@
 	        $moduleNumber = 0;
 	        $chartList["Cpu"]="true";
 
-			//grab the log diretory - needs to be dynamic really
-			//as this is also set in settings.ini.php !!!
-			$logdir = LOG_PATH;
-
-	        $loadModules->renderCharts($chartList, $logdir);
+	        //false is no average
+	        $loadModules->renderCharts($chartList, false);
 
 	?>
 	</div>
-	
+
 <!--
 widget stytles can be found here but need cleaning up
 http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
@@ -104,6 +90,15 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 ?>
 
 
+	<div class="row-fluid">
+		<div class="span12">
+			<div class="widget widget-4">
+				<div class="widget-head">
+					<h4 class="heading">Running Processess</h4>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<div id="separator" class="separator bottom"></div>
 

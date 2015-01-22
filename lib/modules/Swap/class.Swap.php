@@ -314,7 +314,7 @@ class Swap extends Charts
 	 */
 
 
-	public function genChart($moduleSettings)
+	public function genChart($moduleSettings, $drawAvg = true )
 	{
 
 		//get chart settings for module
@@ -365,6 +365,9 @@ class Swap extends Charts
 			}
 
 			//now draw chart to screen
+			if ($drawAvg == false)
+				$dontDrawAvg = true;
+			
 			include APP_PATH . '/views/chart.php';
 		}
 	}
