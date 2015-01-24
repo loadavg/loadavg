@@ -112,9 +112,9 @@ class Charts extends LoadModules
 		} 
 
 		if ($badData == true) {
-			echo "nullit<br>";
-			var_dump ($data);
-			echo "<br>";
+			//echo "nullit<br>";
+			//var_dump ($data);
+			//echo "<br>";
 			
 			$data = null;	
 			return false;	
@@ -135,9 +135,9 @@ class Charts extends LoadModules
 		} 
 
 		if ($cleanData == true) {
-			echo "cleanit<br>";
-			var_dump ($data);
-			echo "<br>";			
+			//echo "cleanit<br>";
+			//var_dump ($data);
+			//echo "<br>";			
 			return false;	
 		}
 
@@ -568,6 +568,82 @@ class Charts extends LoadModules
 			}
 		}
 	}
+
+
+
+	/**
+	 * genChart
+	 *
+	 * Function witch passes the data formatted for the chart view
+	 *
+	 * @param array @moduleSettings settings of the module
+	 * @param string @logdir path to logfiles folder
+	 *
+	 */
+
+	public function generateChart($module, $drawAvg = true )
+	{
+
+        $moduleSettings = LoadModules::$_settings->$module; 
+
+		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
+
+		//$module = __CLASS__;
+
+		$i = 0;
+		foreach ( $charts['args'] as $chart ) {
+
+			$chart = json_decode($chart);
+
+			//grab the log file for current date (current date can be overriden to show other dates)
+			//problem when overiding dates with new format ? why ?
+			//$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
+
+			//get data range we are looking at - need to do some validation in this routine
+			//$dateRange = $this->getDateRange();
+			$dateRange = loadModules::$date_range;
+
+			//get the log file NAME or names when there is a range
+			//returns multiple files when multiple files make up a log file
+			$this->setLogFile($chart->logfile,  $dateRange, $module );
+
+			// find out main function from module args that generates chart data
+			// in this module its getUSageData above
+			$caller = $chart->function;
+
+			//need to address this used for cpu module for render views ?
+			//check if function takes settings via GET url_args 
+			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) 
+				? $_GET[$moduleSettings['module']['url_args']] : '2' );
+
+			if (!empty($this->logfile)) {
+
+				$i++;				
+				$logfileStatus = true;
+
+				//call modules main function and pass over functionSettings
+				if ($functionSettings) {
+					$chartData = $this->$caller(  $functionSettings );
+				} else {
+					$chartData = $this->$caller(  );
+				}
+
+			} else {
+
+				//no log file so draw empty charts
+				$i++;				
+				$logfileStatus = false;
+			}
+
+			//now draw chart to screen
+			if ($drawAvg == false)
+				$dontDrawAvg = true;
+
+			include APP_PATH . '/views/chart.php';
+
+		}
+	}
+
 
 
 	/**

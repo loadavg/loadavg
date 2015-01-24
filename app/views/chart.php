@@ -93,17 +93,16 @@
 
 	        <!-- this sections renders main chart area -->
 
-			<!-- used to change  if we have the Avg chart on right or not 
-			<td class="<?php echo ( isset( $chartData['chart']['chart_avg'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
-			-->
-
 			<td class="<?php echo $tableStyle ?> innerT"> 
 				
 
 	       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
 	       		     more than 1 in i means multiple charts in the segment so we include js files just once
 	       		-->
-				<?php if ( $i == 1) { ?>
+				<?php 
+				echo ' and $i is ' . $i;
+
+				if ( $i == 1) { ?>
 				<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
 				<?php }	
 

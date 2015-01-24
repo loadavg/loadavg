@@ -41,12 +41,8 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 	        $range = $loadavg->getDateRange();
 	        $loadModules->setDateRange($range);
 
-	        //now loop through the modules and draw them
-	        $moduleNumber = 0;
-	        $chartList["Uptime"]="true";
-
-	        //false is no average
-	        $loadModules->renderCharts($chartList, false);
+	        //render chart
+	        $loadModules->renderSingleChart("Uptime");
 
 	?>
 	</div>

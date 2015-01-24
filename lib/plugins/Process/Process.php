@@ -36,12 +36,8 @@
 	        $range = $loadavg->getDateRange();
 	        $loadModules->setDateRange($range);
 
-	        //now loop through the modules and draw them
-	        $moduleNumber = 0;
-	        $chartList["Cpu"]="true";
-
-	        //false is no average
-	        $loadModules->renderCharts($chartList, false);
+	        //render chart
+	        $loadModules->renderSingleChart("Cpu");
 
 	?>
 	</div>
@@ -58,7 +54,13 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 //code form here
 //https://github.com/pear/System_ProcWatch/blob/master/System/ProcWatch/Parser.php
 
-//provblems with past part of data - command 1 - we truncate all data passed to command for some reason when parsing
+//provblems with part of data - command1
+//we truncate all data passed to command for some reason when parsing
+
+//also bug when sorting with command0 check it out
+
+// view 
+// ps -Ao %cpu,%mem,pid,user,comm,args | sort -r -k1 | less
 
 $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 
@@ -68,22 +70,27 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 
         $procs = array();
 
+        var_dump ($heads);
+
         foreach($lines as $i => $line){
 
             $parts = preg_split('/\s+/', trim($line), $count);
         
-        	//deal with dual command headings here!
+        	//deal with dual command title headings here in row 0
+        	//when creating keys for array
         	$command = 0;
             foreach ($heads as $j => $head) {
 
-            	if ($head == 'command') {
-            		$head = $head . $command;
-            		$command++;
-            	}
+	            	if ($head == 'command') {
+	            		$head = $head . $command;
+	            		$command++;
+	            	}
             	
                 $procs[$i][$head] = str_replace('"', '\"', $parts[$j]);
 
             }
+
+
         }
 
 

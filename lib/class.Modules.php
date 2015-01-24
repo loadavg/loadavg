@@ -212,24 +212,50 @@ class loadModules
                 
                 $class = LoadModules::$_classes[$module];
 
-                $i = 0;
+                $nesting = 0;
 
                 //tabbed modules have more than 1 chart in them
                 if (isset($moduleSettings['module']['tabbed']) && $moduleSettings['module']['tabbed'] == "true") {
-                    if ($i == 1) break;
+                    if ($nesting == 1) break;
 
+                    //uses the modules genChart function
                     //echo 'NESTEDCHARTS:';
-                   // $class->genChart( $moduleSettings, $logdir );
-                    $class->genChart( $moduleSettings, $drawAvg );
-                    $i++; //will this ever be hit ? as i = 1 breaks things - yes its mean to only include genChart once
+                    $class->genChart( $module, $drawAvg );
+        			//$class->generateChart( $module, $drawAvg );
+                    $nesting++; //will this ever be hit ? as i = 1 breaks things - yes its mean to only include genChart once
                 } else {
-                    //echo 'CORECHART:';
-                  //  $class->genChart( $moduleSettings, $logdir );
-                    $class->genChart( $moduleSettings, $drawAvg );
+                	//uses the global function in class.Charts.php
+                    //echo 'SINGLECHART:';
+                    //$class->genChart( $moduleSettings, $drawAvg );
+        			$class->generateChart( $module, $drawAvg );
                 }
 
             }
         }
+    }
+
+
+	public function renderSingleChart ( $module )
+	{
+
+        if (!isset(LoadModules::$_settings->$module))
+            return false;
+
+       // if ( $modue => $value === "false" ) 
+       // return false; // if modules is disabled ... moving on.
+
+        // if module is enabled ... get his settings
+        $moduleSettings = LoadModules::$_settings->$module; 
+                        
+        //get the class so we can call functions
+        $class = LoadModules::$_classes[$module];
+
+        //render the chart
+        //$class->genChart( $moduleSettings, false );
+        $class->generateChart( $module, false );
+
+        return true;
+
     }
 
 

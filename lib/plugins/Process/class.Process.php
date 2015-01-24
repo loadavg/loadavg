@@ -105,7 +105,13 @@ class Process extends LoadPlugins
     //http://stackoverflow.com/questions/2189626/group-a-multidimensional-array-by-a-particular-value
     
 	public function arraySort($input,$sortkey){
-	  foreach ($input as $key=>$val) $output[$val[$sortkey]][]=$val;
+
+	var_dump ($sortkey);
+	var_dump ($input[0]);
+
+	  foreach ($input as $key=>$val) 
+	  	$output[$val[$sortkey]][]=$val;
+	  
 	  return $output;
 	}
 

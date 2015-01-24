@@ -236,11 +236,12 @@ class Processor extends Charts
 	 *
 	 */
 
-	public function genChart($moduleSettings, $drawAvg = true )
+	public function genChart($module, $drawAvg = true )
 	{
 
 	//used for debugging
     //echo '<pre>';var_dump(self::$current_date);echo'</pre>';
+        $moduleSettings = LoadModules::$_settings->$module; 
 
 		$charts = $moduleSettings['chart'];
 
