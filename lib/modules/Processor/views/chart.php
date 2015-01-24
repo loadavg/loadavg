@@ -181,8 +181,10 @@ args[] = '{"id":"processor_load","logfile":"processor_%s.log","function":"getUsa
 		        // Now draw separate chart for mean value display stacked bar chart
 		        // cool as we can also do pie charts etc using different flags
 				if ( isset($chartData['chart']['mean']) ) {  
+            		?> <td class="span1 hidden-phone" style="height: 170px">
 
-					include( HOME_PATH . '/lib/charts/chartavg.php');
+					<?php include( HOME_PATH . '/lib/charts/chartavg.php');
+										?> </td> <?php
 				} 
 				?> 
 

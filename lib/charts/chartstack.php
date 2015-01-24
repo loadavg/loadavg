@@ -97,7 +97,5 @@
 			})();
 			</script>
 
-            <td class="span1 hidden-phone" style="height: 170px">
                 <div id="minmax_<?php echo $chart->id; ?>" style="width:35px;height:140px;top: 18px;right: 5px;"></div>
                 <div style="position: relative; top: 13px;font-size: 11px;left: 3px;">Sum</div>
-        	</td>

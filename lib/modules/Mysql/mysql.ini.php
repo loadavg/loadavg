@@ -3,6 +3,7 @@
 name = "Mysql Usage"
 description = "This module is used to display and log mysql usage data."
 status = "true"
+tabbed = "true"
 has_settings = "true"
 has_menu = "false"
 logable = "true"

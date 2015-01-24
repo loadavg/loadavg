@@ -20,51 +20,26 @@
 ?>
 
 <?php
-
-	//if there is no logfile or error from the caller (stuff is false) 
-	//then we just build empty charts
-	if ( !isset($chartData) || $chartData == false || $logfileStatus == false ) {
-
-		$chartData = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
-		$chartData['chart'] = $this->getEmptyChart();
-	}
-	
-	//read status of accordions from cookies so we can paint screen accordingly
-	$moduleCollapse = $moduleCollapseStatus  = "";
-	
-	//grab it here
-	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
-
-	if (isset($dontDrawAvg))
-		$dontDrawAvg = true;
-	else
-		$dontDrawAvg = false;
+	//used to set the table width for charts when rendered with or without AVG column at right
+	//need to move this over to CSS and loose php variables
 
 	//echo 'DrawAvg ' . $dontDrawAvg ;
-	
 	$tableStyle = ( isset( $chartData['chart']['chart_avg'] )     ) ? 'span8' : 'span9'; 
 	
 	//dirty hack
 	if ($dontDrawAvg == true)
 		$tableStyle = 'span9';
-
-
 ?>
 
 <div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
-
-	<?php if ( $chart ) {    // what happens if not chart here ??? ?>
-
 		<div class="accordion-heading"> 
-
 			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 				<?php echo $chart->label; ?>				
 			</a>
 		</div>
 
-
-	<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
-	<div class="accordion-inner">
+		<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
+		<div class="accordion-inner">
 
 		<table border="0" width="100%" cellspacing="0" cellpadding="0">
 			<tr>	
@@ -100,6 +75,8 @@
 	       		     more than 1 in i means multiple charts in the segment so we include js files just once
 	       		-->
 				<?php 
+				//$i is never used unless in group charts!
+				//and all group chart modules have thier own version of this file it seems
 				echo ' and $i is ' . $i;
 
 				if ( $i == 1) { ?>
@@ -118,9 +95,10 @@
 			if ( isset($chartData['chart']['chart_avg']) && ($dontDrawAvg == false)  ) {  
 
 				//$chartMode = $chartData['chart']['chart_avg'];
-
 				$chartMode = (isset($chartData['chart']['chart_avg']) ? $chartData['chart']['chart_avg'] : null);
 
+            ?> <td class="span1 hidden-phone" style="height: 170px">
+            <?php
 				switch ( $chartMode) {
 
 					case "avg": 	include( HOME_PATH . '/lib/charts/chartavg.php');				
@@ -130,20 +108,16 @@
 									break;
 
 					default: 		include( HOME_PATH . '/lib/charts/chartavg.php');				
-									break;				}
-
+									break;				
+				}
+			?> </td> <?php
 			} 
 			?> 
-
-		</tr>
-	</table>
-
-	<?php } // closes main if chart at top ?>
+			</tr>
+		</table>
 
 		</div> <!-- // Accordion inner end -->
-
-		</div> <!-- // Accordion category end -->
-	
+	</div> <!-- // Accordion category end -->
 </div> <!-- // Accordion end -->
 
 

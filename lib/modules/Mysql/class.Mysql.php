@@ -279,8 +279,9 @@ class Mysql extends Charts
 	{
 
 	//used for debugging
-    //echo '<pre>';var_dump(self::$current_date);echo'</pre>';
         $moduleSettings = LoadModules::$_settings->$module; 
+    
+    	//echo '<pre>';var_dump($moduleSettings);echo'</pre>';
 
 		$charts = $moduleSettings['chart'];
 
