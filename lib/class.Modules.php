@@ -200,6 +200,7 @@ class loadModules
 	{
 
         foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
+            
             if ( $value === "false" ) continue; // if modules is disabled ... moving on.
 
             //fix for issues with cookies
@@ -212,21 +213,15 @@ class loadModules
                 
                 $class = LoadModules::$_classes[$module];
 
-                $nesting = 0;
-
                 //tabbed modules have more than 1 chart in them
-                if (isset($moduleSettings['module']['tabbed']) && $moduleSettings['module']['tabbed'] == "true") {
-                    if ($nesting == 1) break;
+                if (isset($moduleSettings['module']['tabbed']) 
+                	&& $moduleSettings['module']['tabbed'] == "true") {
+ 
+                    //uses the modules views/chart code
+                    $class->generateTabbedChart( $module, $drawAvg );
 
-                    //uses the modules genChart function
-                    //echo 'NESTEDCHARTS:';
-                    $class->genChart( $module, $drawAvg );
-        			//$class->generateChart( $module, $drawAvg );
-                    $nesting++; //will this ever be hit ? as i = 1 breaks things - yes its mean to only include genChart once
                 } else {
                 	//uses the global function in class.Charts.php
-                    //echo 'SINGLECHART:';
-                    //$class->genChart( $moduleSettings, $drawAvg );
         			$class->generateChart( $module, $drawAvg );
                 }
 
@@ -251,7 +246,6 @@ class loadModules
         $class = LoadModules::$_classes[$module];
 
         //render the chart
-        //$class->genChart( $moduleSettings, false );
         $class->generateChart( $module, false );
 
         return true;

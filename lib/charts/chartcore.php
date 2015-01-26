@@ -15,13 +15,16 @@
 * This file is licensed under the Affero General Public License version 3 or
 * later.
 */
+
+$chartHeight = 160;
+
 ?>
 
 
 	<script type="text/javascript">
 	(function () {
 	
-		<?php if ( $i > 1) { ?>
+		<?php if ( $chartModules > 1) { ?>
 		charts.<?php echo $chart->id; ?> = $.extend({}, charts.<?php echo $chart->chart_function; ?>);
 		<?php }?>
 
@@ -114,7 +117,7 @@
 				// $chart->id; ?> = $.extend({}, charts.<?php echo $chart->chart_function; ?>);
 
 
-				<?php if ( $i == 1) 
+				<?php if ( $chartModules == 1) 
 				{ ?>
 
 					//send chart data over first	
@@ -125,17 +128,7 @@
 					<?php if ($changeRange == true) { ?>
 					charts.<?php echo $chart->chart_function; ?>.setRange(  <?php echo $rangeMin; ?> , <?php echo $rangeMax; ?> , <?php echo ($chartType/2); ?>  );
 					<?php } ?>
-
-					//if set to true it means we have no log file to read from
-					//so we send over error message
-					<?php 
-					if ($logfileStatus == true) { 
-						
-						$errorMessage = 'No logfile data to generate charts for module ' . $module . ' check your logger';
-						?>
-						charts.<?php echo $chart->chart_function; ?>.setLabel("<?php echo $errorMessage; ?>");
-					<?php } ?>
-
+				
 					//initalize chart here
 					charts.<?php echo $chart->chart_function; ?>.init('<?php echo $chart->id; ?>');
 
@@ -143,7 +136,7 @@
 				<?php 
 				} 
 
-				elseif ($i > 1) 
+				elseif ($chartModules > 1) 
 
 				{ ?>
 					//send chart data over first	
@@ -153,15 +146,6 @@
 					//has issues if start time is before start of series mon
 					<?php if ($changeRange == true) { ?>
 					charts.<?php echo $chart->chart_function; ?>.setRange(  <?php echo $rangeMin; ?> , <?php echo $rangeMax; ?> , <?php echo ($chartType/2); ?>  );
-					<?php } ?>
-
-
-					<?php 
-					if ($logfileStatus == true) { 
-
-						$errorMessage = 'No logfile data to generate charts for module ' . $module . ' check your logger';
-						?>
-						charts.<?php echo $chart->chart_function; ?>.setLabel("<?php echo $errorMessage; ?>");
 					<?php } ?>
 
 					//initalize chart here
@@ -180,9 +164,4 @@
 
 	<div id="<?php echo $chart->id; ?>_legend" class="pull-right innerLR" style="right: 22px;"></div>
 	<div class="clearfix"></div>
-	<div id="<?php echo $chart->id; ?>" style="height: 160px;" class="chart-holder"></div>
-
-
-
-
-
+	<div id="<?php echo $chart->id; ?>" style="height: <?php echo $chartHeight;?>px;" class="chart-holder"></div>

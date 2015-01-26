@@ -601,8 +601,9 @@ class Charts extends LoadModules
 		$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) 
 			? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
-		$i = 0;
+		$chartModules = 0;
 		foreach ( $charts['args'] as $chart ) {
+			$chartModules++;	
 
 			$chart = json_decode($chart);
 
@@ -613,10 +614,6 @@ class Charts extends LoadModules
 			//get data needed to send to template to render chart
 			$chartData = $this->getChartRenderData( $chart, $functionSettings, $module );
 
-			//depreciated - need to remove this varibale from chartcore.php 132
-			$logfileStatus = true;
-
-			$i++;	
 
 			/*
 			 * set up chart specific interface options here
@@ -630,11 +627,8 @@ class Charts extends LoadModules
 			//check if we draw average minichart as well - makes no sense heh
 			$dontDrawAvg = !$drawAvg;
 
-			/*
-			 * now call template to draw chart to screen
-			 */
-			
-			include APP_PATH . '/views/chart.php';
+			//now call template to draw chart to screen
+			include HOME_PATH . '/lib/charts/chart.php';
 
 		}
 	}
@@ -684,6 +678,41 @@ class Charts extends LoadModules
 
 		return $chartData;
 	
+	}
+
+
+	/**
+	 * generateTabbedChart
+	 *
+	 * Function witch passes the data formatted for the chart view
+	 *
+	 * @param array @moduleSettings settings of the module
+	 * @param string @logdir path to logfiles folder
+	 *
+	 */
+	
+	public function generateTabbedChart($module, $drawAvg = true )
+	{
+
+        $moduleSettings = LoadModules::$_settings->$module; 
+
+		$charts = $moduleSettings['chart'];
+
+		$fileName = HOME_PATH . DIRECTORY_SEPARATOR . 'lib/modules' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'views/chart.php';
+
+		//echo 'FILE : ' . $fileName . '<br>';
+
+		//check if we draw average minichart as well - makes no sense heh
+		$dontDrawAvg = !$drawAvg;
+
+		if ( file_exists( $fileName )) {
+			//echo 'YES';
+			include $fileName;
+		} else {
+			//echo 'NO';
+			include HOME_PATH . '/lib/charts/chart.php';
+		}		
+
 	}
 
 

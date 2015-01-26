@@ -266,32 +266,5 @@ class Mysql extends Charts
 		return $returnStatus;			
 	}
 
-	/**
-	 * genChart
-	 *
-	 * Function witch passes the data formatted for the chart view
-	 *
-	 * @param array @moduleSettings settings of the module
-	 * @param string @logdir path to logfiles folder
-	 *
-	 */
-	public function genChart($module, $drawAvg = true )
-	{
 
-	//used for debugging
-        $moduleSettings = LoadModules::$_settings->$module; 
-    
-    	//echo '<pre>';var_dump($moduleSettings);echo'</pre>';
-
-		$charts = $moduleSettings['chart'];
-
-		$module = __CLASS__;
-		$i = 0;
-
-		if ( file_exists( dirname(__FILE__) . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'chart.php')) {
-			include dirname(__FILE__) . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'chart.php';
-		} else {
-			include APP_PATH . '/lib/views/chart.php';
-		}		
-	}
 }

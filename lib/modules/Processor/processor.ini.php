@@ -3,6 +3,7 @@
 name = "CPU Usage"
 description = "This module is used to display and log processor usage data."
 status = "true"
+tabbed = "true"
 has_settings = "true"
 has_menu = "false"
 url_args = "processor"

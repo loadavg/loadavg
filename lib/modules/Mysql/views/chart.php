@@ -16,163 +16,62 @@
 ?>
 
 
+<?php	
 
-<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
+	$tableStyle = ( isset( $chartData['chart']['chart_avg'] )     ) ? 'span8' : 'span9'; 
+	$dontDrawAvg = false;
 
-<?php
-
-	//if there is no logfile or error from the caller (stuff is false) 
-	//then we just build empty charts
-	if ( !isset($chartData) || $chartData == false || $logfileStatus == false ) {
-
-		$chartData = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
-		$chartData['chart'] = $this->getEmptyChart();
-	}
-	
 	//read status of accordions from cookies so we can paint screen accordingly
 	$moduleCollapse = $moduleCollapseStatus  = "";
-	
+
 	//grab it here
 	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
-
-
 ?>
 
-
 <div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
-
-		<div class="accordion-heading"> 
-		
-			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
-				Mysql Usage
-			</a>
-		</div>
-		<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
-		<div class="accordion-inner">
+	<div class="accordion-heading"> 		
+		<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
+		Mysql Usage
+		</a>
+	</div>
+	<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
+	<div class="accordion-inner">
 
 		<?php
-		$j = 0;
+
+		//get data range we are looking at - need to do some validation in this routine
+		$dateRange = loadModules::$date_range;
+
+		//check if function takes settings via GET url_args 
+		$functionSettings =( (isset($moduleSettings['module']['url_args']) 
+			&& isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
 		//show or skip last chart
 		$showqueries = $moduleSettings['settings']['show_queries'];
 
-		/* draw charts for each subchart as per args will be Transmit and receive */
-
+		$chartModules = 0;
 		foreach ( $charts['args'] as $chart ) {
-			$j++;
+			$chartModules++;
 
 			//this is to switch between differet chart modes
 			//if set to show queries skip charts 1 and 2
-			if ( ( ( $showqueries == "true" ) && ( $j == 1 || $j == 2) ) || ( $showqueries == "false" && $j == 3) )
+			if ( ( ( $showqueries == "true" ) && ( $chartModules == 1 || $chartModules == 2) ) 
+				|| ( $showqueries == "false" && $chartModules == 3) )
 				continue;
 
 			$chart = json_decode($chart);
 
-
-			//get data range we are looking at - need to do some validation in this routine
-			$dateRange = loadModules::$date_range;
-			//$dateRange = $this->getDateRange();
-
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple log files
-			//$this->logfile = 
 			$this->setLogFile($chart->logfile,  $dateRange, $module );
 
-			// find out main function from module args that generates chart data
-			// in this module its getData above
-			$caller = $chart->function;
+			//get data needed to send to template to render chart
+			$chartData = $this->getChartRenderData( $chart, $functionSettings, $module );
 
-			//check if function takes settings via GET url_args 
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
-
-			if (!empty($this->logfile)) {
-			//if ( file_exists( $this->logfile[0][0] )) {
-				$i++;				
-				$logfileStatus = true;
-
-				//call modules main function and pass over functionSettings
-				if ($functionSettings) {
-					$chartData = $this->$caller( $functionSettings );
-				} else {
-					$chartData = $this->$caller(  );
-				}
-
-			} else {
-
-				//no log file so draw empty charts
-				$i++;				
-				$logfileStatus = false;
-
-			}
 			?>
 
+			<?php	include( HOME_PATH . '/lib/charts/chartmodule.php'); ?>
 
-			<?php
-			//if there is no logfile or error from the caller (stuff is false) 
-			//then we just build empty charts
-			if ( !isset($chartData) || $chartData == false || $logfileStatus == false ) {
-
-				$chartData = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
-
-				$chartData['chart'] = $this->getEmptyChart();
-			}
-			?>
-
-
-			<!-- <div class="row-fluid"> -->
-			<table border="0" width="100%" cellspacing="0" cellpadding="0">
-				<tr>
-				<!-- <div class="span3 right"> -->
-				<td width="26%" align="right" style="padding-right: 15px">
-					<?php if ( $chartData ) { ?>
-					<ul class="unstyled">
-						<?php
-						foreach ($chartData['info']['line'] as $line) {
-							switch ($line['type']) {
-								case "file":
-									echo '<li>'; include $line['file']; echo '</li>';
-									break;
-								case "line":
-									echo '<li>' . $line['formatted_line'] . '</li>';
-							}
-						}
-						?>
-					</ul>
-					<?php } ?>
-				<!-- </div> -->
-				</td>
-
-				<!-- used to change  if we have the Avg chart on right or not -->
-				<td class="<?php echo ( isset( $chartData['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
-					
-		       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
-		       		     more than 1 in i means multiple charts in the segment so we include js files just once
-		       		-->
-					<?php if ( $i == 1) { ?>
-					<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
-					<?php }	
-
-					//draw chart
-					include( HOME_PATH . '/lib/charts/chartcore.php');
-					?>
-
-				</td>
-
-				<?php 
-		        // Now draw separate chart for mean value display stacked bar chart
-		        // cool as we can also do pie charts etc using different flags
-				if ( isset($chartData['chart']['mean']) ) {  
-            		?> <td class="span1 hidden-phone" style="height: 170px">
-
-					<?php include( HOME_PATH . '/lib/charts/chartavg.php');
-														?> </td> <?php
-
-				} 
-				?> 
-
-				</tr>
-
-			</table>
 		
 		<?php } ?>
 		
