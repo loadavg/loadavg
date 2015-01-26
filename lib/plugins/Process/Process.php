@@ -70,7 +70,8 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 
         $procs = array();
 
-        var_dump ($heads);
+        //var_dump ($heads);
+		//see debug in public function arraySort($input,$sortkey){
 
         foreach($lines as $i => $line){
 

@@ -106,8 +106,8 @@ class Process extends LoadPlugins
     
 	public function arraySort($input,$sortkey){
 
-	var_dump ($sortkey);
-	var_dump ($input[0]);
+	//var_dump ($sortkey);
+	//var_dump ($input[0]);
 
 	  foreach ($input as $key=>$val) 
 	  	$output[$val[$sortkey]][]=$val;
