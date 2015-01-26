@@ -83,66 +83,7 @@ class Charts extends LoadModules
 	}
 
 
-	/**
-	 * checkRedline
-	 *
-	 * checks for redline in data point sent over via charting modules
-	 * and if it exists sets it to a null (0.0) data value for the chart
-	 *
-	 */
 
-
-	function cleanDataPoint (array &$data, $depth = 3 ) 
-	{
-
-
-		//now clean data item for bad data meaning missing a depth value
-		//we can put other rules in here...
-
-		//move this routine out into
-		//$this->getChartData ($chartArray, $contents );
-		//should be looking for bad data there really.
-	
-
-		$badData = false;
-		for ($x = 1; $x <= $depth; $x++) {
-
-			if (  (  !isset($data[$x]) )  )
-				$badData = true;
-		} 
-
-		if ($badData == true) {
-			//echo "nullit<br>";
-			//var_dump ($data);
-			//echo "<br>";
-			
-			$data = null;	
-			return false;	
-		}
-
-	
-		//if not bad data then 
-		// check for missing data and if missing data zero out variable...
-
-		$cleanData = false;
-		for ($x = 1; $x <= $depth; $x++) {
-
-			if (    (!isset($data[$x])) ||  ($data[$x] == null) || ($data[$x] == "")  ) {
-				
-				$data[$x]=0.0;	
-				$cleanData = true;
-			}
-		} 
-
-		if ($cleanData == true) {
-			//echo "cleanit<br>";
-			//var_dump ($data);
-			//echo "<br>";			
-			return false;	
-		}
-
-		return true;
-	}
 
 
 
@@ -241,165 +182,7 @@ class Charts extends LoadModules
 
 	}
 
-	/**
-	 * parseLogFileData
-	 *
-	 * returns data from inside log file in array
-	 * if $data is array then grabs multiple files of data and
-	 * uses array_merge when log files are across multiple days / ranges
-	 *
-	 */
 
-	public function parseLogFileData( $data, &$newDataArray  )
-	{
-
-		//do some checks first
-		if ( !$data || $data == null || !isset($data) )
-			return false;
-
-		//loop through all data files and add them up here		
-		//data is a array of log files to parse, the depth being used for multiple days
-		//for eg when we have a date range
-		//log file data is then read from disk and parsed into newDataArray
-
-		$contents = "";
-		$loop = 0;
-
-	   	//used to show log files that are being parsed
-	    //var_dump($data);
-
-		foreach ($data as $dataKey => $logFileArray) {
-	   
-	   		//now grab data from disk
-			$contents = $this->getLogFileDataFromDisk($logFileArray);
-
-			//merge results sequentially when more than one file is read in
-			$newDataArray = array_merge($newDataArray, $contents);
-		}
-
-			//echo '<pre>';
-			//print_r ($newDataArray);
-			//echo '</pre>';
-
-		//TODO: what if getLogFileDataFromDisk was false ? need to return false here
-		return true;
-
-	}
-
-
-	/**
-	 * getLogFileDataFromDisk
-	 *
-	 * $logFileArray is a array of log files to parse 
-	 * for a simple individual log file its a array of 1
-	 * for more complex log files that are split across separate files its a array of > 1
-	 *
-	 */
-
-	public function getLogFileDataFromDisk( $logFileArray  )
-	{
-
-		//first we need to loop through log file and build mycontents array which is newline exploded 
-		//array of data sets from each log file read from disk!
-
-		$arraysize = 0;
-		foreach ($logFileArray as $dataKey => $thelogFile) {
-
-			if ( file_exists( $thelogFile )) {
-
-				$mycontents[$arraysize] = file_get_contents($thelogFile);
-				$mycontents[$arraysize] = explode("\n", $mycontents[$arraysize]);
-
-				//used just for collectd to clean top of datasets where descriptions are
-				if (LOGGER == "collectd"){
-					array_shift($mycontents[$arraysize]);
-				}
-
-				//if last value is null or empty or ???? delete it
-				if ( end($mycontents[$arraysize]) == null || end($mycontents[$arraysize]) == "" )
-					array_pop($mycontents[$arraysize]);
-
-				$arraysize++;
-			}
-		}
-
-		//if its just a single log file we can return it now
-		//otherwise parse it and then return it
-		if ($arraysize == 1) {
-			return $mycontents[0];
-		} else {
-
-			$finaldata = $this->parseComplexLogFiles( $mycontents, $arraysize  );
-			return $finaldata;		
-		}
-	}
-
-	/**
-	 * parseComplexLogFiles
-	 *
-	 * when dealing with complex log files ie log data split across multiple files
-	 * we need to read in all parts, parse to arrays and then merge them togeather
-	 * into a single array as loadavg charts work with a single array of log data only!
-	 * currently a bit of a mission! 
-	 *
-	 */
-
-	public function parseComplexLogFiles( $mycontents, $arraysize  )
-	{
-
-		//fist we have to loop through each data set in each log file 
-		//as per the depth of the array (number of files) parse it and then
-		//stitch it back up into the newDataArray
-
-		//now we loop through multiple mycontents array break out data values
-		$thenewarray = array();
-
-		//delimiter is based on logger type 
-		$delimiter = $this->getDelimiter();
-
-		//main loop is number of datasets to me merged togeather
-		for ($dataloop = 0; $dataloop < $arraysize; $dataloop++) {
-		$finaldata = "";
-
-			//this builds the array 
-			$loop = 0;
-			foreach ($mycontents[$dataloop] as &$value) {
-
-				$thedata = explode($delimiter , $value);
-
-				//for first data set grab timestamp
-				if ($dataloop==0)
-					$thenewarray[0][$loop] = isset($thedata[0]) ? $thedata[0] : null;
-				
-				//all other data sets its the 2nd value
-				$thenewarray[$dataloop+1][$loop] = isset($thedata[1]) ? $thedata[1] : null;
-
-			    $loop++;
-			}
-			unset($value); 
-
-		} 
-
-		//now rebuild data into $thenewarray as a single array -  stitch it back up
-		$loop = 0;
-		foreach ($thenewarray[0] as &$value) {
-
-			$dataString = "";
-			for ($dataloop = 0; $dataloop <= $arraysize; $dataloop++) {
-				$dataString .= $thenewarray[$dataloop][$loop] . ",";
-			}
-			
-			//need to kill the last "," here as its not needed ?
-			$dataString = substr($dataString, 0, -1);
-			$finaldata[$loop] = $dataString;
-
-		    $loop++;
-		}
-		unset($value); 
-
-		return $finaldata;		
-		
-	}
 
 	/*
 	 * build the chart data array here and patch to check for downtime
@@ -428,7 +211,7 @@ class Charts extends LoadModules
 		//echo 'dataSet ' . $dataSet  .  '<br>';
 
 		//delimiter is based on logger type 
-		$delimiter = $this->getDelimiter();
+		$delimiter = LoadUtility::getDelimiter();
 
 		// this is based on logger interval of 5, 5 min = 300 aprox we add 100 to be safe
 		//$interval = 360;  // 5 minutes is 300 seconds + slippage of 20% aprox 
@@ -469,7 +252,7 @@ class Charts extends LoadModules
 		if ($totalContents == 1) {
 
 			$data = explode($delimiter, $contents[0]);
-			$this->cleanDataPoint ($data, $depth ); 
+			LoadUtility::cleanDataPoint ($data, $depth ); 
 			$chartData[0] = $data;
 
 		} else {
@@ -480,7 +263,7 @@ class Charts extends LoadModules
 			for ( $i = 0; $i <= $totalContents-1; ++$i) {
 
 				$data = explode($delimiter, $contents[$i]);
-				$this->cleanDataPoint ($data, $depth ); 
+				LoadUtility::cleanDataPoint ($data, $depth ); 
 				$chartData[$i] = $data;
 
 				/*
@@ -546,7 +329,7 @@ class Charts extends LoadModules
 	/**
 	 * buildChartDataset
 	 *
-	 * Takes array of filan chart data, sorts and prepares it for
+	 * Takes array of chart data, sorts and prepares it for
 	 * flot to render to screen
 	 */
 
@@ -574,13 +357,9 @@ class Charts extends LoadModules
 	/**
 	 * generateChart
 	 *
-	 * Function witch passes the data formatted for the chart view
-	 *
-	 * @param array @moduleSettings settings of the module
-	 * @param string @logdir path to logfiles folder
+	 * Generates and renders chart for module that is passed over
 	 *
 	 */
-
 	public function generateChart($module, $avgBar = true )
 	{
 
@@ -621,7 +400,6 @@ class Charts extends LoadModules
 
 			//read status of accordions from cookies so we can paint screen accordingly
 			$moduleCollapse = $moduleCollapseStatus  = "";
-			
 			$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
 			//check if we draw average minichart as well - makes no sense heh
@@ -674,7 +452,7 @@ class Charts extends LoadModules
 
 			$chartData = $this->parseInfo($moduleSettings['info']['line'], null, $module); 
 
-			$chartData['chart'] = $this->getEmptyChart();
+			$chartData['chart'] = LoadUtility::getEmptyChart();
 		}
 
 		return $chartData;
@@ -723,58 +501,6 @@ class Charts extends LoadModules
 	}
 
 
-	/**
-	 * getDelimiter
-	 *
-	 * Returns delimiter used for parsing log files
-	 *
-	 * LOGGER is globla defined in globals.php
-	 */
-
-	public function getDelimiter ( ) 
-	{
-		$delimiter = "";
-		switch ( LOGGER ) {
-
-			case "collectd": 	$delimiter = ",";				
-								break;
-
-			case "loadavg": 	$delimiter = "|";				
-								break;
-
-			default: 			$delimiter = "|";				
-								break;				
-		}
-
-		return $delimiter;
-
-	}
-
-
-	/**
-	 * getEmptyChart
-	 *
-	 * Returns data used to chart a empty chart for when there is no chart data
-	 *
-	 * @param array $emptyChart array with empty chart data
-	 */
-
-	public function getEmptyChart( )
-	{
-		$emptyChart = array(
-			'chart_format' => 'line',
-			'chart_avg' => 'avg',
-			'ymin' => 0,
-			'ymax' => 1,
-			'xmin' => date("Y/m/d 00:00:01"),
-			'xmax' => date("Y/m/d 23:59:59"),
-			'mean' => 0,
-			'dataset_1_label' => "No Data",
-			'dataset_1' => "[[0, '0.00']]"
-		);
-
-		return $emptyChart;
-	}
 
 
 }

@@ -123,7 +123,7 @@ class Memory extends Charts
 		 */
 
 		$contents = array();
-		$logStatus = $this->parseLogFileData($this->logfile, $contents);
+		$logStatus = LoadUtility::parseLogFileData($this->logfile, $contents);
 
 		/*
 		 * build the chartArray array here as array of arrays needed for charting
