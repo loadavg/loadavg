@@ -218,7 +218,7 @@ class loadModules
                 	&& $moduleSettings['module']['tabbed'] == "true") {
  
                     //uses the modules views/chart code
-                    $class->generateTabbedChart( $module, $drawAvg );
+                   $class->generateTabbedChart( $module, $drawAvg );
 
                 } else {
                 	//uses the global function in class.Charts.php
@@ -230,23 +230,17 @@ class loadModules
     }
 
 
-	public function renderSingleChart ( $module )
+	public function renderSingleChart ( $module, $drawAvg = true )
 	{
 
         if (!isset(LoadModules::$_settings->$module))
             return false;
-
-       // if ( $modue => $value === "false" ) 
-       // return false; // if modules is disabled ... moving on.
-
-        // if module is enabled ... get his settings
-        $moduleSettings = LoadModules::$_settings->$module; 
                         
         //get the class so we can call functions
         $class = LoadModules::$_classes[$module];
 
         //render the chart
-        $class->generateChart( $module, false );
+        $class->generateChart( $module, $drawAvg );
 
         return true;
 

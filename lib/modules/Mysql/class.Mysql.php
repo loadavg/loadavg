@@ -196,6 +196,8 @@ class Mysql extends Charts
 
 			$return['chart'] = array(
 				'chart_format' => 'line',
+				'chart_avg' 	  => 'avg',
+
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'xmin' => date("Y/m/d 00:00:01"),

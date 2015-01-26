@@ -581,7 +581,7 @@ class Charts extends LoadModules
 	 *
 	 */
 
-	public function generateChart($module, $drawAvg = true )
+	public function generateChart($module, $avgBar = true )
 	{
 
         $moduleSettings = LoadModules::$_settings->$module; 
@@ -625,7 +625,7 @@ class Charts extends LoadModules
 			$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
 			//check if we draw average minichart as well - makes no sense heh
-			$dontDrawAvg = !$drawAvg;
+			$drawAvg = $avgBar;
 
 			//now call template to draw chart to screen
 			include HOME_PATH . '/lib/charts/chart.php';
@@ -672,7 +672,8 @@ class Charts extends LoadModules
 
     		$moduleSettings = LoadModules::$_settings->$module; 
 
-			$chartData = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
+			$chartData = $this->parseInfo($moduleSettings['info']['line'], null, $module); 
+
 			$chartData['chart'] = $this->getEmptyChart();
 		}
 
@@ -684,30 +685,36 @@ class Charts extends LoadModules
 	/**
 	 * generateTabbedChart
 	 *
-	 * Function witch passes the data formatted for the chart view
+	 * USes the modules chart.php to render charts instead of genearic function
 	 *
 	 * @param array @moduleSettings settings of the module
 	 * @param string @logdir path to logfiles folder
 	 *
 	 */
 	
-	public function generateTabbedChart($module, $drawAvg = true )
+	public function generateTabbedChart($module, $avgBar = true )
 	{
 
         $moduleSettings = LoadModules::$_settings->$module; 
 
 		$charts = $moduleSettings['chart'];
 
-		$fileName = HOME_PATH . DIRECTORY_SEPARATOR . 'lib/modules' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'views/chart.php';
+		$templateName = HOME_PATH . DIRECTORY_SEPARATOR . 'lib/modules' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'views/chart.php';
 
-		//echo 'FILE : ' . $fileName . '<br>';
+		//echo 'FILE : ' . $templateName . '<br>';
+
+		//read status of accordions from cookies so we can paint screen accordingly
+		$moduleCollapse = $moduleCollapseStatus  = "";
+		
+		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
 		//check if we draw average minichart as well - makes no sense heh
-		$dontDrawAvg = !$drawAvg;
+			$drawAvg = $avgBar;
 
-		if ( file_exists( $fileName )) {
+
+		if ( file_exists( $templateName )) {
 			//echo 'YES';
-			include $fileName;
+			include $templateName;
 		} else {
 			//echo 'NO';
 			include HOME_PATH . '/lib/charts/chart.php';

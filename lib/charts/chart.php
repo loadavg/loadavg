@@ -13,23 +13,10 @@
 * later.
 */
 
-//called by charting modules module to render chart! 
-//in lib/modules/Cpu/class.Cpu.php for eg
-//really shoudl be a function... instead of located here
+//called by charting modules module to render charts! 
 
 ?>
 
-<?php
-	//used to set the table width for charts when rendered with or without AVG column at right
-	//need to move this over to CSS and loose php variables
-
-	//echo 'DrawAvg ' . $dontDrawAvg ;
-	$tableStyle = ( isset( $chartData['chart']['chart_avg'] )     ) ? 'span8' : 'span9'; 
-	
-	//dirty hack
-	if ($dontDrawAvg == true)
-		$tableStyle = 'span9';
-?>
 
 <div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
 		<div class="accordion-heading"> 

@@ -37,7 +37,7 @@
 	        $loadModules->setDateRange($range);
 
 	        //render chart
-	        $loadModules->renderSingleChart("Cpu");
+	        $loadModules->renderSingleChart("Cpu", false);
 
 	?>
 	</div>

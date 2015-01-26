@@ -17,14 +17,7 @@
 
 <?php	
 
-	$tableStyle = ( isset( $chartData['chart']['chart_avg'] )     ) ? 'span8' : 'span9'; 
-	$dontDrawAvg = false;
 
-	//read status of accordions from cookies so we can paint screen accordingly
-	$moduleCollapse = $moduleCollapseStatus  = "";
-
-	//grab it here
-	$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 ?>
 
 <div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >

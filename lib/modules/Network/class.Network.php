@@ -227,6 +227,8 @@ class Network extends Charts
 			//build chart object
 			$return['chart'] = array(
 				'chart_format' => 'line',
+				'chart_avg'    => 'avg',
+				
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'mean' => $net_mean,

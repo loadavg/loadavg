@@ -13,10 +13,18 @@
 * This file is licensed under the Affero General Public License version 3 or
 * later.
 */
+
+	$tableStyle = ( isset( $chartData['chart']['chart_avg'] )     ) ? 'span8' : 'span9'; 
+
+	//dirty hack
+	if ($drawAvg == false)
+		$tableStyle = 'span9';
+
+	//echo 'tableStyle ' . $tableStyle . '<br>';
 ?>
 
-		<table border="0" width="100%" cellspacing="0" cellpadding="0">
-			<tr>	
+	<table border="0" width="100%" cellspacing="0" cellpadding="0">
+		<tr>	
 
 	        <!--  Now we render the chart -->
 
@@ -47,12 +55,13 @@
 			<?php 
 	        // Now draw separate chart for mean value display stacked bar chart
 	        // cool as we can also do pie charts etc using different flags
-			if ( isset($chartData['chart']['chart_avg']) && ($dontDrawAvg == false)  ) {  
+			if ( isset($chartData['chart']['chart_avg']) && ($drawAvg == true)  ) {  
 
 				//$chartMode = $chartData['chart']['chart_avg'];
 				$chartMode = (isset($chartData['chart']['chart_avg']) ? $chartData['chart']['chart_avg'] : null);
 
-            ?> <td class="span1 hidden-phone" style="height: 170px">
+            ?> 
+            <td class="span1 hidden-phone" style="height: 170px">
             <?php
 				switch ( $chartMode) {
 
@@ -65,9 +74,11 @@
 					default: 		include( HOME_PATH . '/lib/charts/chartavg.php');				
 									break;				
 				}
-			?> </td> <?php
+			?> 
+			</td> 
+			<?php
 			} 
 			?> 
 			
-			</tr>
-		</table>
+		</tr>
+	</table>
