@@ -360,7 +360,9 @@ class Charts extends LoadModules
 	 * Generates and renders chart for module that is passed over
 	 *
 	 */
-	public function generateChart($module, $avgBar = true )
+	public function generateChart(	$module, $drawAvg = true, 
+									$drawLegend = true, 
+									$width = false, $height = false )
 	{
 
         $moduleSettings = LoadModules::$_settings->$module; 
@@ -402,8 +404,9 @@ class Charts extends LoadModules
 			$moduleCollapse = $moduleCollapseStatus  = "";
 			$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
-			//check if we draw average minichart as well - makes no sense heh
-			$drawAvg = $avgBar;
+			//check if we draw average minichart as well 
+			//$drawAvg = $avgBar;
+			//$drawLegend = $legend;
 
 			//now call template to draw chart to screen
 			include HOME_PATH . '/lib/charts/chart.php';
@@ -468,9 +471,11 @@ class Charts extends LoadModules
 	 * @param array @moduleSettings settings of the module
 	 * @param string @logdir path to logfiles folder
 	 *
-	 */
-	
-	public function generateTabbedChart($module, $avgBar = true )
+	 */	
+
+	public function generateTabbedChart($module, $drawAvg = true, 
+										$drawLegend = true, 
+										$width = false, $height = false )
 	{
 
         $moduleSettings = LoadModules::$_settings->$module; 
@@ -487,7 +492,7 @@ class Charts extends LoadModules
 		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
 		//check if we draw average minichart as well - makes no sense heh
-			$drawAvg = $avgBar;
+		//$drawAvg = $avgBar;
 
 
 		if ( file_exists( $templateName )) {

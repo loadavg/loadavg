@@ -29,11 +29,15 @@
 	        <!--  Now we render the chart -->
 
 	        <!-- this sections renders out chart left legend from .ini file -->
+	        <?php if ( $drawLegend ) { ?>
+
 			<td width="26%" align="right" style="padding-right: 15px;">
 
 				<?php include( HOME_PATH . '/lib/charts/legend.php'); ?>
 				
 			</td>
+			
+			<?php }	?>
 
 	        <!-- this sections renders main chart area -->
 			<td class="<?php echo $tableStyle ?> innerT"> 

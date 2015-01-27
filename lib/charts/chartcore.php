@@ -16,8 +16,11 @@
 * later.
 */
 
+//used for div heingt at end of page
 $chartHeight = 160;
 
+//if ($width) echo ' width is tru <br>';
+//if ($height) echo ' height is tru<br>';
 ?>
 
 
@@ -44,6 +47,9 @@ $chartHeight = 160;
 					data: <?php echo $chartData['chart']['dataset_1']; ?>,
 					ymin: <?php echo $chartData['chart']['ymin']; ?>,
 					ymax: <?php echo $chartData['chart']['ymax']; ?>
+					<?php if ($width) echo ', chartwidth: ' . $width .',';  ?>
+					<?php if ($height) echo 'chartheight: ' . $height;  ?>
+					//defualts are chartwidth: 530, chartheight: 160
 				};
 				chart_data.push(d1);
 			<?php } ?>

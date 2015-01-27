@@ -190,59 +190,39 @@ class loadModules
 
 
 	/**
-	 * renderCharts
+	 * renderSingleChart
 	 *
-	 * builds links for header when ranges are used to pass them around
+	 * draws a chart to the screen
+	 * @param string $module is the module to draw
+	 * @param bool $drawAvg will draw the averages bar if true
 	 */
-
-
-	public function renderCharts ( $chartList, $drawAvg = true )
-	{
-
-        foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
-            
-            //echo 'module: ' . $module . 'value: ' . $value ;
-
-            if ( $value === "false" ) continue; // if modules is disabled ... moving on.
-
-            //fix for issues with cookies
-            if (!isset(LoadModules::$_settings->$module))
-                continue;
-
-            $moduleSettings = LoadModules::$_settings->$module; // if module is enabled ... get his settings
-            
-            if ( $moduleSettings['module']['logable'] == "true" ) { // if module has loggable enabled it has a chart
-                
-                $class = LoadModules::$_classes[$module];
-
-                //tabbed modules have more than 1 chart in them
-                if (isset($moduleSettings['module']['tabbed']) 
-                	&& $moduleSettings['module']['tabbed'] == "true") {
- 
-                    //uses the modules views/chart code
-                   $class->generateTabbedChart( $module, $drawAvg );
-
-                } else {
-                	//uses the global function in class.Charts.php
-        			$class->generateChart( $module, $drawAvg );
-                }
-
-            }
-        }
-    }
-
-
-	public function renderSingleChart ( $module, $drawAvg = true )
+	public function renderSingleChart ( $module, $drawAvg = true, $legend = true, $width = false )
 	{
 
         if (!isset(LoadModules::$_settings->$module))
             return false;
                         
+        // if module is enabled ... get his settings
+        $moduleSettings = LoadModules::$_settings->$module; 
+
         //get the class so we can call functions
         $class = LoadModules::$_classes[$module];
 
         //render the chart
-        $class->generateChart( $module, $drawAvg );
+        //$class->generateChart( $module, $drawAvg );
+
+        //tabbed modules have more than 1 chart in them
+        if (isset($moduleSettings['module']['tabbed']) 
+        	&& $moduleSettings['module']['tabbed'] == "true") {
+
+            //uses the modules views/chart code
+           $class->generateTabbedChart( $module, $drawAvg, $legend, $width );
+
+        } else {
+        	//uses the global function in class.Charts.php
+			$class->generateChart( $module, $drawAvg, $legend, $width );
+        }
+
 
         return true;
 
