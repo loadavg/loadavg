@@ -15,6 +15,13 @@
 */
 ?>
 
+<?php
+		//only if usecookies is true ?
+
+		//read status of accordions from cookies so we can paint screen accordingly
+		$moduleCollapse = $moduleCollapseStatus  = "";
+		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+?>
 
 <div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
 	<div class="accordion-heading"> 		
@@ -28,11 +35,13 @@
 			<?php
 
 			//get data range we are looking at - need to do some validation in this routine
-			$dateRange = loadModules::$date_range;
+			//$dateRange = loadModules::$date_range;
 
 			//check if function takes settings via GET url_args 
 			$functionSettings =( (isset($moduleSettings['module']['url_args']) 
 				&& isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+
+        		//$class = self::$_classes[$module];
 
 			//show or skip last chart
 			$showqueries = $moduleSettings['settings']['show_queries'];
@@ -51,10 +60,10 @@
 
 				//get the log file NAME or names when there is a range
 				//returns multiple files when multiple log files
-				$this->setLogFile($chart->logfile,  $dateRange, $module );
+				$class->setLogFile($chart->logfile,  $dateRange, $module );
 
 				//get data needed to send to template to render chart
-				$chartData = $this->getChartRenderData( $chart, $functionSettings, $module );
+				$chartData = $class->getChartRenderData( $chart, $functionSettings, $module );
 
 				?>
 

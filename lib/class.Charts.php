@@ -357,40 +357,6 @@ class Charts extends LoadModules
 	/**
 	 * generateChart
 	 *
-	 * Generates and renders chart for module that is passed over
-	 *
-	 */
-	public function generateChart(	$module, $chart, $dateRange, $drawAvg = true, 
-									$drawLegend = true, 
-									$width = false, $height = false )
-	{
-
-        //$moduleSettings = LoadModules::$_settings->$module; 
-
-		//$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
-
-		//need to add defaults for url args for them to work this way
-		//as 2 is the default view for cpu module 
-		$functionSettings =( (isset($moduleSettings['module']['url_args']) 
-			&& isset($_GET[$moduleSettings['module']['url_args']])) 
-			? $_GET[$moduleSettings['module']['url_args']] : '2' );
-
-
-			//get the log file NAME or names when there is a range
-			//returns multiple files when multiple files make up a log file
-			$this->setLogFile($chart->logfile,  $dateRange, $module );
-
-			//get data needed to send to template to render chart
-			$chartData = $this->getChartRenderData( $chart, $functionSettings, $module );
-
-
-		return $chartData;
-
-	}
-
-	/**
-	 * generateChart
-	 *
 	 * Function witch passes the data formatted for the chart view
 	 *
 	 * @param array @moduleSettings settings of the module
@@ -447,9 +413,7 @@ class Charts extends LoadModules
 	 *
 	 */	
 
-	public function generateTabbedChart($module, $drawAvg = true, 
-										$drawLegend = true, 
-										$width = false, $height = false )
+	public function getChartTemplate($module )
 	{
 
 		echo 'genrate tabbed chart';
@@ -461,22 +425,6 @@ class Charts extends LoadModules
 		$templateName = HOME_PATH . DIRECTORY_SEPARATOR . 'lib/modules' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'views/chart.php';
 
 		//echo 'FILE : ' . $templateName . '<br>';
-
-		//read status of accordions from cookies so we can paint screen accordingly
-		$moduleCollapse = $moduleCollapseStatus  = "";
-		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
-
-		//check if we draw average minichart as well - makes no sense heh
-		//$drawAvg = $avgBar;
-
-
-		if ( file_exists( $templateName )) {
-			//echo 'YES';
-			include $templateName;
-		} else {
-			//echo 'NO';
-			include HOME_PATH . '/lib/charts/chart.php';
-		}	
 
 		return $templateName;	
 

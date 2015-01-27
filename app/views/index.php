@@ -145,9 +145,9 @@
         //echo '<pre> live settings'; var_dump( $chartList); echo '</pre>';
 
         //get the range of dates to be charted from the UI and 
-        //set the date range to be charted in the modules
         $range = $loadavg->getDateRange();
 
+        //set the date range to be charted in the modules
         $loadModules->setDateRange($range);
 
 
@@ -169,7 +169,7 @@
             if ( $moduleSettings['module']['logable'] == "true" ) { // if module has loggable enabled it has a chart
                 
         
-                $loadModules->renderSingleChart ( $module, true );
+                $loadModules->renderChart ( $module, true );
 
             }
         }

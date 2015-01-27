@@ -196,7 +196,7 @@ class loadModules
 	 * @param string $module is the module to draw
 	 * @param bool $drawAvg will draw the averages bar if true
 	 */
-	public function renderSingleChart ( $module, $drawAvg = true, 
+	public function renderChart ( $module, $drawAvg = true, 
 										$drawLegend = true, 
 										$width = false, $height = false )
 	{
@@ -205,21 +205,22 @@ class loadModules
             return false;
                         
         // if module is enabled ... get his settings
-        $moduleSettings = LoadModules::$_settings->$module; 
+        $moduleSettings = self::$_settings->$module; 
 
         //get the class so we can call functions
-        $class = LoadModules::$_classes[$module];
+        $class = self::$_classes[$module];
 
 		//get data range we are looking at - need to do some validation in this routine
-		//$dateRange = $this->getDateRange();
-		$dateRange = loadModules::$date_range;
+		$dateRange = self::$date_range;
 
-        //render the chart
+        //get data for chart/s to be rendered
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
-		//read status of accordions from cookies so we can paint screen accordingly
-		$moduleCollapse = $moduleCollapseStatus  = "";
-		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+
+		//check if chart has dynamic functions
+		$functionSettings =( (isset($moduleSettings['module']['url_args']) 
+			&& isset($_GET[$moduleSettings['module']['url_args']])) 
+			? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
 
 		/*
@@ -230,7 +231,16 @@ class loadModules
 
 	            //uses the modules views/chart code
 	            //move this code in here next
-	           $class->generateTabbedChart( $module, $drawAvg, $drawLegend, $width );
+	           $templateName = $class->getChartTemplate( $module );
+
+	       		//not sure if we need this as no template means it breaks
+				if ( file_exists( $templateName )) {
+					echo 'YES';
+					include $templateName;
+				} else {
+					echo 'NO';
+					include HOME_PATH . '/lib/charts/chart.php';
+				}
 
 	        } else {
 
@@ -239,8 +249,13 @@ class loadModules
 	        	$chart = $charts['args'][0];
 				$chart = json_decode($chart);
 
-	        	//uses the global function in class.Charts.php
-				$chartData = $class->generateChart( $module, $chart, $dateRange, $drawAvg, $drawLegend, $width );
+
+				//get the log file NAME or names when there is a range
+				//returns multiple files when multiple files make up a log file
+				$class->setLogFile($chart->logfile,  $dateRange, $module );
+
+				//get data needed to send to template to render chart
+				$chartData = $class->getChartRenderData( $chart, $functionSettings, $module );
 
 				$chartModules = 1;
 

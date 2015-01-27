@@ -15,6 +15,13 @@
 */
 ?>
 
+<?php
+		//only if usecookies is true ?
+
+		//read status of accordions from cookies so we can paint screen accordingly
+		$moduleCollapse = $moduleCollapseStatus  = "";
+		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+?>
 
 <?php
 
@@ -44,13 +51,15 @@
 				<div class="accordion-inner">
 					<?php
 					//get data range we are looking at - need to do some validation in this routine
-					$dateRange = loadModules::$date_range;
+					//$dateRange = loadModules::$date_range;
 					//$dateRange = $this->getDateRange();
 
 					//check if function takes settings via GET url_args 
 					$functionSettings =( (isset($moduleSettings['module']['url_args']) 
 						&& isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
+					//already passed over
+        			//$class = self::$_classes[$module];
 
 					/* draw charts for each subchart as per args will be Transmit and receive */
 					$chartModules = 0;
@@ -61,21 +70,21 @@
 
 						//get the log file NAME or names when there is a range
 						//returns multiple files when multiple log files
-						$this->setLogFile($chart->logfile,  $dateRange, $module, $interface );
+						$class->setLogFile($chart->logfile,  $dateRange, $module, $interface );
+
+
+						//get data needed to send to template to render chart
+						$chartData = $class->getChartRenderData( $chart, $functionSettings, $module );			
+
 
 						////////////////////////////////////////////////////////////////
 						//net interfaces have differnt id's ?
 						$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
 
-						//get data needed to send to template to render chart
-						$chartData = $this->getChartRenderData( $chart, $functionSettings, $module );			
+						include( HOME_PATH . '/lib/charts/chartmodule.php');
 
-						?>
-
-						<?php	include( HOME_PATH . '/lib/charts/chartmodule.php'); ?>
-
-						<?php } ?>
-
+					} 
+					?>
 				</div> <!-- // Accordion inner end -->
 			</div> <!-- // Accordion category end -->
 		</div> <!-- // Accordion end -->
