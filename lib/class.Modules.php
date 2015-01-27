@@ -221,6 +221,7 @@ class loadModules
         } else {
         	//uses the global function in class.Charts.php
 			$class->generateChart( $module, $drawAvg, $legend, $width );
+
         }
 
 

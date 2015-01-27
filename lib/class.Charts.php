@@ -412,6 +412,53 @@ class Charts extends LoadModules
 			include HOME_PATH . '/lib/charts/chart.php';
 
 		}
+		echo 'chartModules ' . 	$chartModules = 0;
+
+	}
+
+
+
+
+	/**
+	 * generateTabbedChart
+	 *
+	 * USes the modules chart.php to render charts instead of genearic function
+	 *
+	 * @param array @moduleSettings settings of the module
+	 * @param string @logdir path to logfiles folder
+	 *
+	 */	
+
+	public function generateTabbedChart($module, $drawAvg = true, 
+										$drawLegend = true, 
+										$width = false, $height = false )
+	{
+
+        $moduleSettings = LoadModules::$_settings->$module; 
+
+		$charts = $moduleSettings['chart'];
+
+		$templateName = HOME_PATH . DIRECTORY_SEPARATOR . 'lib/modules' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'views/chart.php';
+
+		//echo 'FILE : ' . $templateName . '<br>';
+
+		//read status of accordions from cookies so we can paint screen accordingly
+		$moduleCollapse = $moduleCollapseStatus  = "";
+		
+		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+
+		//check if we draw average minichart as well - makes no sense heh
+		//$drawAvg = $avgBar;
+
+
+		if ( file_exists( $templateName )) {
+			//echo 'YES';
+			include $templateName;
+		} else {
+			//echo 'NO';
+			include HOME_PATH . '/lib/charts/chart.php';
+		}		
+
 	}
 
 	/**
@@ -461,50 +508,6 @@ class Charts extends LoadModules
 		return $chartData;
 	
 	}
-
-
-	/**
-	 * generateTabbedChart
-	 *
-	 * USes the modules chart.php to render charts instead of genearic function
-	 *
-	 * @param array @moduleSettings settings of the module
-	 * @param string @logdir path to logfiles folder
-	 *
-	 */	
-
-	public function generateTabbedChart($module, $drawAvg = true, 
-										$drawLegend = true, 
-										$width = false, $height = false )
-	{
-
-        $moduleSettings = LoadModules::$_settings->$module; 
-
-		$charts = $moduleSettings['chart'];
-
-		$templateName = HOME_PATH . DIRECTORY_SEPARATOR . 'lib/modules' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'views/chart.php';
-
-		//echo 'FILE : ' . $templateName . '<br>';
-
-		//read status of accordions from cookies so we can paint screen accordingly
-		$moduleCollapse = $moduleCollapseStatus  = "";
-		
-		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
-
-		//check if we draw average minichart as well - makes no sense heh
-		//$drawAvg = $avgBar;
-
-
-		if ( file_exists( $templateName )) {
-			//echo 'YES';
-			include $templateName;
-		} else {
-			//echo 'NO';
-			include HOME_PATH . '/lib/charts/chart.php';
-		}		
-
-	}
-
 
 
 
