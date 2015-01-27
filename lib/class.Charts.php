@@ -412,7 +412,7 @@ class Charts extends LoadModules
 			include HOME_PATH . '/lib/charts/chart.php';
 
 		}
-		echo 'chartModules ' . 	$chartModules = 0;
+		//echo 'chartModules ' . 	$chartModules = 0;
 
 	}
 
