@@ -108,6 +108,17 @@ if (isset($_POST['update_settings'])) {
 
 ?>
 
+<!--
+		//if things get crazy for any reason then we need to just delete all cookies 
+		//maybe add to settings >
+
+		//dirty short term hack deleted cookie
+		//if(isset($_COOKIE['loadUIcookie'])) {
+		//	setcookie('loadUIcookie', null, -1, "/");
+    	//	unset($_COOKIE['loadUIcookie']);
+		//}
+-->
+
 
 <form action="" method="post">
 	<input type="hidden" name="update_settings" value="1" />

@@ -201,6 +201,8 @@ class loadModules
 
         foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
             
+            //echo 'module: ' . $module . 'value: ' . $value ;
+
             if ( $value === "false" ) continue; // if modules is disabled ... moving on.
 
             //fix for issues with cookies
@@ -335,19 +337,14 @@ class loadModules
 	}
 
 		
-	public static function getUIcookieSorting (&$returnArray) 
+	public  function getUIcookieSorting (&$returnArray) 
 	{
-		//if cookie exist greb it here
-		//if not we return default values above
-		if (isset($_COOKIE["loadUIcookie"]))
-			$myCookie = $_COOKIE["loadUIcookie"];
-		else
-			return false;
-		
-		$cookie = stripslashes($myCookie);
-		$cookieArray = json_decode($cookie, true);
+
+		$cookieArray = null;
+		$this->getModuleStatusCookie ($cookieArray);
 
 		//parse out as true so they can be shown
+		//as sorting just cares if modules are there
 		$returnArray = null;
 		foreach ($cookieArray as $key =>$value) {
 			$returnArray[$key]="true";
@@ -358,29 +355,26 @@ class loadModules
             return false;
         } 
 
+
+        //need to do a compare to this to see if things are not right
+		//$loadedModules = LoadModules::$_settings->general['modules']; 
+
+
 		return true;
 	}
+
 
 	//updates cookies according to new module settings
 	//for when modules are turned on or off
 
-	public static function updateUIcookieSorting ($newSettings) 
+	public function updateUIcookieSorting ($moduleSettings) 
 	{
 
-		//if cookie exist greb it here
-		//if not we return as false and cookie isnt used
-		if (isset($_COOKIE["loadUIcookie"]))
-			$myCookie = $_COOKIE["loadUIcookie"];
-		else
-			return false;
-		
-		//got cookie lets clean it up
-		$cookie = stripslashes($myCookie);
-		$currentCookie = json_decode($cookie, true);
+		echo "reparsing cookies<br>";
 
-		//now parse newSettings and drop all false values as cookies are only for true values
+		//parse moduleSettings and drop all false values 
 		$cleanSettings = null;
-		foreach ($newSettings as $key =>$value) {
+		foreach ($moduleSettings as $key =>$value) {
 
 			if ($value=="true") {
 				$cleanSettings[$key]="true";
@@ -388,9 +382,13 @@ class loadModules
 
 		}
 
-		//echo '<pre>cleanSettings'; var_dump( $cleanSettings); echo '</pre>';
+		echo '<pre>cleanSettings'; var_dump( $cleanSettings); echo '</pre>';
 
-		//echo '<pre>CoockieData'; var_dump( $currentCookie); echo '</pre>';
+		//get current cookie values
+		$currentCookie = null;
+		$this->getModuleStatusCookie ($currentCookie);
+
+		//echo '<pre>CookieData'; var_dump( $currentCookie); echo '</pre>';
 
 		// now we need to update cookie to remove or add items from cleanSettings....
 		//if item crossess over ski[p it
@@ -462,24 +460,27 @@ class loadModules
 
 		//here we need to rewrite the cookie
 		$cookietime = time() + (86400 * 365); // 1 year
-
 		$finalCookie = json_encode($finalCookie);
 
 		setcookie('loadUIcookie', $finalCookie, $cookietime, "/");
 
+		return true;
+	}
 
-		//if things get crazy for any reason then we need to just delete all cookies 
-		//maybe add to settings >
-
-		//dirty short term hack deleted cookie
-		//if(isset($_COOKIE['loadUIcookie'])) {
-		//	setcookie('loadUIcookie', null, -1, "/");
-    	//	unset($_COOKIE['loadUIcookie']);
-		//}
-
-
+	public function getModuleStatusCookie (&$cookie) 
+	{
+		//if cookie exist greb it here
+		//if not we return default values above
+		if (isset($_COOKIE["loadUIcookie"]))
+			$cookie = $_COOKIE["loadUIcookie"];
+		else
+			return false;
+		
+		$cookie = stripslashes($cookie);
+		$cookie = json_decode($cookie, true);
 
 		return true;
+
 	}
 
 	public static  function sortArrayByArray(Array $array, Array $orderArray) {

@@ -137,13 +137,14 @@ if (isset($_POST['update_settings'])) {
 //still old here mate
 //$settings = LoadAvg::$_settings->general;
 
-LoadModules::updateModuleSettings();
+$loadModules->updateModuleSettings();
+//LoadModules::updateModuleSettings();
 
 //not changed either as written to file above
-$loaded = LoadModules::$_settings->general['modules']; 
+$loadedModules = LoadModules::$_settings->general['modules']; 
 
 //now we need to update UI cookie used to hide and show modules by position
-LoadModules::updateUIcookieSorting ($loaded);
+$loadModules->updateUIcookieSorting ($loadedModules);
 
 //die;
 

@@ -547,13 +547,27 @@ class LoadUtility
 
 
 	/**
+	 * identical_values
+	 *
+	 * Returns data used to chart a empty chart for when there is no chart data
+	 *
+	 * @param array $emptyChart array with empty chart data
+	 */
+	public static function identical_values( $arrayA , $arrayB ) {
+
+	    sort( $arrayA );
+	    sort( $arrayB );
+
+	    return $arrayA == $arrayB;
+	} 
+
+	/**
 	 * getEmptyChart
 	 *
 	 * Returns data used to chart a empty chart for when there is no chart data
 	 *
 	 * @param array $emptyChart array with empty chart data
 	 */
-
 	public static function getEmptyChart( )
 	{
 		$emptyChart = array(
@@ -579,7 +593,6 @@ class LoadUtility
 	 *
 	 * LOGGER is globla defined in globals.php
 	 */
-
 	public static function getDelimiter ( ) 
 	{
 		$delimiter = "";

@@ -101,14 +101,46 @@
 
         <?php
 
-        //echo '<pre>'; var_dump( $loaded); echo '</pre>';
+        //this has become one hell of a mess need to revisit and clean up cookie code
+        //as system stores module status 
+        //but cookies storie if moudle is there or not
+        
+        //echo '<pre> system activated '; var_dump( $loadedModules); echo '</pre>';
 
         $cookieStatus = false;
-        $newArray;
-        $cookieStatus = LoadModules::getUIcookieSorting($newArray);
+        $cookieList;
+        $cookieStatus = $loadModules->getUIcookieSorting($cookieList);
 
+        //grab module settings and drop disabled modules here
+        $cleanSettings = null;
+        foreach ($loadedModules as $key =>$value) {
 
-       //echo '<pre>'; var_dump( $newArray); echo '</pre>';
+            if ($value=="true") {
+                $cleanSettings[$key]="true";
+            }
+        }
+
+        //these should match really
+        if (!LoadUtility::identical_values( $cleanSettings , $cookieList )) {
+            $loadModules->updateUIcookieSorting($loadedModules);
+        }
+
+       //echo '<pre>'; var_dump( $cookieList); echo '</pre>';
+
+        //now loop through the modules and draw them
+        $moduleNumber = 0;
+        $chartList = null;
+
+        if ($cookieStatus)
+            $chartList = $cookieList;
+        else
+            $chartList = $loadedModules;
+
+        //for old broken cookies
+        if ($chartList == null || !$chartList)
+            $chartList = $loadedModules;
+
+        //echo '<pre> live settings'; var_dump( $chartList); echo '</pre>';
 
         //get the range of dates to be charted from the UI and 
         //set the date range to be charted in the modules
@@ -116,21 +148,8 @@
 
         $loadModules->setDateRange($range);
 
-        //now loop through the modules and draw them
-        $moduleNumber = 0;
-        $chartList = null;
 
-        if ($cookieStatus)
-        $chartList = $newArray;
-            else
-        $chartList = $loaded;
-
-        //for old broken cookies
-        if ($chartList == null || !$chartList)
-            $chartList = $loaded;
-
-
-        //echo '<pre>'; var_dump( $chartList); echo '</pre>';
+        //now render the charts out
         $loadModules->renderCharts($chartList, $logdir);
 
 
