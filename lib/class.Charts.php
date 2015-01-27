@@ -360,33 +360,21 @@ class Charts extends LoadModules
 	 * Generates and renders chart for module that is passed over
 	 *
 	 */
-	public function generateChart(	$module, $drawAvg = true, 
+	public function generateChart(	$module, $chart, $dateRange, $drawAvg = true, 
 									$drawLegend = true, 
 									$width = false, $height = false )
 	{
 
-        $moduleSettings = LoadModules::$_settings->$module; 
+        //$moduleSettings = LoadModules::$_settings->$module; 
 
-		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
+		//$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
-		/*
-		 * some chart modules have multiple charts within them
-		 */
-
-		//get data range we are looking at - need to do some validation in this routine
-		//$dateRange = $this->getDateRange();
-		$dateRange = loadModules::$date_range;
-
-		//need to address this used for cpu module for render views ?
-		//check if function takes settings via GET url_args 
-		$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) 
+		//need to add defaults for url args for them to work this way
+		//as 2 is the default view for cpu module 
+		$functionSettings =( (isset($moduleSettings['module']['url_args']) 
+			&& isset($_GET[$moduleSettings['module']['url_args']])) 
 			? $_GET[$moduleSettings['module']['url_args']] : '2' );
 
-		$chartModules = 0;
-		foreach ( $charts['args'] as $chart ) {
-			$chartModules++;	
-
-			$chart = json_decode($chart);
 
 			//get the log file NAME or names when there is a range
 			//returns multiple files when multiple files make up a log file
@@ -396,68 +384,7 @@ class Charts extends LoadModules
 			$chartData = $this->getChartRenderData( $chart, $functionSettings, $module );
 
 
-			/*
-			 * set up chart specific interface options here
-			 */
-
-			//read status of accordions from cookies so we can paint screen accordingly
-			$moduleCollapse = $moduleCollapseStatus  = "";
-			$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
-
-			//check if we draw average minichart as well 
-			//$drawAvg = $avgBar;
-			//$drawLegend = $legend;
-
-			//now call template to draw chart to screen
-			include HOME_PATH . '/lib/charts/chart.php';
-
-		}
-		//echo 'chartModules ' . 	$chartModules = 0;
-
-	}
-
-
-
-
-	/**
-	 * generateTabbedChart
-	 *
-	 * USes the modules chart.php to render charts instead of genearic function
-	 *
-	 * @param array @moduleSettings settings of the module
-	 * @param string @logdir path to logfiles folder
-	 *
-	 */	
-
-	public function generateTabbedChart($module, $drawAvg = true, 
-										$drawLegend = true, 
-										$width = false, $height = false )
-	{
-
-        $moduleSettings = LoadModules::$_settings->$module; 
-
-		$charts = $moduleSettings['chart'];
-
-		$templateName = HOME_PATH . DIRECTORY_SEPARATOR . 'lib/modules' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'views/chart.php';
-
-		//echo 'FILE : ' . $templateName . '<br>';
-
-		//read status of accordions from cookies so we can paint screen accordingly
-		$moduleCollapse = $moduleCollapseStatus  = "";
-		
-		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
-
-		//check if we draw average minichart as well - makes no sense heh
-		//$drawAvg = $avgBar;
-
-
-		if ( file_exists( $templateName )) {
-			//echo 'YES';
-			include $templateName;
-		} else {
-			//echo 'NO';
-			include HOME_PATH . '/lib/charts/chart.php';
-		}		
+		return $chartData;
 
 	}
 
@@ -475,7 +402,7 @@ class Charts extends LoadModules
 	{
 
 		// find out main function from module args that generates chart data
-		// in this module its getUSageData above
+		// in this module its getUsageData above
 		$caller = $chart->function;
 
 		$logfileStatus = false;
@@ -508,6 +435,54 @@ class Charts extends LoadModules
 		return $chartData;
 	
 	}
+
+
+	/**
+	 * generateTabbedChart
+	 *
+	 * USes the modules chart.php to render charts instead of genearic function
+	 *
+	 * @param array @moduleSettings settings of the module
+	 * @param string @logdir path to logfiles folder
+	 *
+	 */	
+
+	public function generateTabbedChart($module, $drawAvg = true, 
+										$drawLegend = true, 
+										$width = false, $height = false )
+	{
+
+		echo 'genrate tabbed chart';
+
+        $moduleSettings = LoadModules::$_settings->$module; 
+
+		$charts = $moduleSettings['chart'];
+
+		$templateName = HOME_PATH . DIRECTORY_SEPARATOR . 'lib/modules' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'views/chart.php';
+
+		//echo 'FILE : ' . $templateName . '<br>';
+
+		//read status of accordions from cookies so we can paint screen accordingly
+		$moduleCollapse = $moduleCollapseStatus  = "";
+		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+
+		//check if we draw average minichart as well - makes no sense heh
+		//$drawAvg = $avgBar;
+
+
+		if ( file_exists( $templateName )) {
+			//echo 'YES';
+			include $templateName;
+		} else {
+			//echo 'NO';
+			include HOME_PATH . '/lib/charts/chart.php';
+		}	
+
+		return $templateName;	
+
+	}
+
+
 
 
 

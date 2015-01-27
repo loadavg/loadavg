@@ -196,7 +196,9 @@ class loadModules
 	 * @param string $module is the module to draw
 	 * @param bool $drawAvg will draw the averages bar if true
 	 */
-	public function renderSingleChart ( $module, $drawAvg = true, $legend = true, $width = false )
+	public function renderSingleChart ( $module, $drawAvg = true, 
+										$drawLegend = true, 
+										$width = false, $height = false )
 	{
 
         if (!isset(LoadModules::$_settings->$module))
@@ -208,22 +210,46 @@ class loadModules
         //get the class so we can call functions
         $class = LoadModules::$_classes[$module];
 
+		//get data range we are looking at - need to do some validation in this routine
+		//$dateRange = $this->getDateRange();
+		$dateRange = loadModules::$date_range;
+
         //render the chart
-        //$class->generateChart( $module, $drawAvg );
+		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
-        //tabbed modules have more than 1 chart in them
-        if (isset($moduleSettings['module']['tabbed']) 
-        	&& $moduleSettings['module']['tabbed'] == "true") {
+		//read status of accordions from cookies so we can paint screen accordingly
+		$moduleCollapse = $moduleCollapseStatus  = "";
+		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
-            //uses the modules views/chart code
-           $class->generateTabbedChart( $module, $drawAvg, $legend, $width );
 
-        } else {
-        	//uses the global function in class.Charts.php
-			$class->generateChart( $module, $drawAvg, $legend, $width );
+		/*
+		 * tabbed chart modules have multiple charts within them
+		 */
+	        if (isset($moduleSettings['module']['tabbed']) 
+	        	&& $moduleSettings['module']['tabbed'] == "true") {
 
-        }
+	            //uses the modules views/chart code
+	            //move this code in here next
+	           $class->generateTabbedChart( $module, $drawAvg, $drawLegend, $width );
 
+	        } else {
+
+	        	//single level chart data only
+	        	//should add this to chartData ?
+	        	$chart = $charts['args'][0];
+				$chart = json_decode($chart);
+
+	        	//uses the global function in class.Charts.php
+				$chartData = $class->generateChart( $module, $chart, $dateRange, $drawAvg, $drawLegend, $width );
+
+				$chartModules = 1;
+
+				//now call template to draw chart to screen
+				include HOME_PATH . '/lib/charts/chart.php';
+
+	        }
+
+	    //}
 
         return true;
 
