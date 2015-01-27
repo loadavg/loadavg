@@ -101,6 +101,8 @@
 
         <?php
 
+        $loadedModules = LoadModules::$_settings->general['modules']; 
+
         //this has become one hell of a mess need to revisit and clean up cookie code
         //as system stores module status 
         //but cookies storie if moudle is there or not

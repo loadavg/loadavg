@@ -213,7 +213,7 @@ class LoadAvg
  	function testLogs( $mode = true)
 	{
 
-			$loaded = self::$_settings->general['modules'];
+			$loadedModules = self::$_settings->general['modules'];
 			$logdir = HOME_PATH . '/' . self::$_settings->general['settings']['logs_dir'];
 
 			$test_worked = false;
@@ -222,13 +222,13 @@ class LoadAvg
 			if ( LoadUtility::is_dir_empty($logdir))
 				return false;
 
-			// Check for each module we have loaded
-			foreach ( $loaded as $module => $value ) {
+			// Check for each module we have loadedModules
+			foreach ( $loadedModules as $module => $value ) {
 				if ( $value == "false" ) continue;
 
 				$moduleSettings = LoadModules::$_settings->$module;
 
-				// Check if loaded module needs loggable capabilities
+				// Check if loadedModules module needs loggable capabilities
 				if ( $moduleSettings['module']['logable'] == "true" ) {
 					
 					foreach ( $moduleSettings['logging']['args'] as $args) {

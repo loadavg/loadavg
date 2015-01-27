@@ -55,7 +55,7 @@ if (DEBUG) $memory_usage['timer'] = memory_get_usage();
 $settings = LoadAvg::$_settings->general;
 
 //array of modules and status either on or off
-$loadedModules = LoadModules::$_settings->general['modules']; 
+//$loadedModules = LoadModules::$_settings->general['modules']; 
 //var_dump ($loadedModules);
 
 //get plugins//

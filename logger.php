@@ -25,7 +25,7 @@ $logger = new Logger(); // Initializing Main Controller
 include 'class.Timer.php'; // for logger module
 $timer = new Timer(); // Initializing Timer
 
-$loaded = Logger::$_settings->general['modules']; // Loaded modules
+$loadedModules = Logger::$_settings->general['modules']; // Loaded modules
 
 //grab the log diretory
 $logdir = LOG_PATH;
@@ -74,7 +74,7 @@ $logger->rotateLogFiles($logdir);
 if (!$testmode) {
 
 	// Check for each module we have loaded
-	foreach ( $loaded as $module => $value ) {
+	foreach ( $loadedModules as $module => $value ) {
 		if ( $value == "false" ) continue;
 
 		// Settings for each loaded modules
