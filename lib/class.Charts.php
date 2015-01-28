@@ -416,7 +416,7 @@ class Charts extends LoadModules
 	public function getChartTemplate($module )
 	{
 
-		echo 'genrate tabbed chart';
+		//echo 'genrate tabbed chart';
 
         $moduleSettings = LoadModules::$_settings->$module; 
 

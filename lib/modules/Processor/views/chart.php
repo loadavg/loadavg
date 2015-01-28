@@ -16,11 +16,15 @@
 ?>
 
 <?php
-		//only if usecookies is true ?
 
-		//read status of accordions from cookies so we can paint screen accordingly
-		$moduleCollapse = $moduleCollapseStatus  = "";
-		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+		//get status of interface ebefore rendering
+		$moduleCollapse = "accordion-body collapse in";
+		$moduleCollapseStatus = "true";
+
+		if ($cookies) {
+			$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+		}
+		
 ?>
 
 <div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >

@@ -16,11 +16,15 @@
 ?>
 
 <?php
-		//only if usecookies is true ?
 
-		//read status of accordions from cookies so we can paint screen accordingly
-		$moduleCollapse = $moduleCollapseStatus  = "";
+	//get status of interface ebefore rendering
+	$moduleCollapse = "accordion-body collapse in";
+	$moduleCollapseStatus = "true";
+
+	if ($cookies) {
 		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+	}
+		
 ?>
 
 <?php

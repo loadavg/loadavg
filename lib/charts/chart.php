@@ -17,25 +17,49 @@
 
 ?>
 
-<?php
-		//only if usecookies is true ?
 
-		//read status of accordions from cookies so we can paint screen accordingly
-		$moduleCollapse = $moduleCollapseStatus  = "";
-		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+<?php
+		//name of module here... for title ?
+		//var_dump ($module);
+	
+		//get status of interface ebefore rendering
+		$moduleCollapse = "accordion-body collapse in";
+		$moduleCollapseStatus = "true";
+
+		if ($cookies) {
+			$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+		}
 ?>
 
 <div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
 		<div class="accordion-heading"> 
 			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
-				<?php echo $chart->label; ?>				
+				<?php echo $moduleSettings['module']['name']; //$chart->label; ?>				
 			</a>
 		</div>
 
 		<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
 		<div class="accordion-inner">
 
-		<?php 	include( HOME_PATH . '/lib/charts/chartmodule.php'); ?>
+		<?php
+			$chartModules = 0;
+			foreach ( $charts['args'] as $chart ) {
+				$chartModules++;
+
+				$chart = json_decode($chart);
+
+				//get the log file NAME or names when there is a range
+				//returns multiple files when multiple log files
+				$class->setLogFile($chart->logfile,  $dateRange, $module );
+
+				//get data needed to send to template to render chart
+				$chartData = $class->getChartRenderData( $chart, $functionSettings, $module );
+
+				include( HOME_PATH . '/lib/charts/chartmodule.php'); 
+
+			} ?>
+
+		<?php 	//include( HOME_PATH . '/lib/charts/chartmodule.php'); ?>
 
 		</div> <!-- // Accordion inner end -->
 	</div> <!-- // Accordion category end -->
