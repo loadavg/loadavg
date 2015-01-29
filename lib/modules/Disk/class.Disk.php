@@ -167,7 +167,8 @@ class Disk extends Charts
 				$redline = ($this->checkRedline($data));
 
 				//remap data if it needs mapping based on different loggers
-				$this->reMapData($data);
+				if ( LOGGER == "collectd")
+					$this->reMapData($data);
 				
 				//usage is used to calculate view perspectives
 				if (!$redline) {

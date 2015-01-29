@@ -60,24 +60,20 @@ class Charts extends LoadModules
 	function checkRedline (array &$data) 
 	{
 
+		//$depth = self::$logFileDepth;
 		$depth = $this->logFileDepth;
 
-
 		// first check if its a readline and if it is clean data and set back to 0
-		//change redline form -1 to RED 
+		// TODO change redline form -1 to REDLINE moving ahead
 
-		$redline = (isset($data[1]) && $data[1] == "-1" ? true : false);
-
-		if ($redline) {
-
+		//if ($redline) {
+		if ( isset($data[1]) && $data[1] == "-1" ) {
 			//echo '<pre>PRE REDLINE '; print_r ($data); echo '</pre>';
-			for ($x = 1; $x <= $depth; $x++) {
-				$data[$x]=0.0;
-			} 
+			$newdata [0] = $data[0];
+			$data = array_pad($newdata, $depth+1, 0.0);
 			//echo '<pre>POST REDLINE '; print_r ($data); echo '</pre>';
 			return true;
 		}
-
 
 		return false;
 	}

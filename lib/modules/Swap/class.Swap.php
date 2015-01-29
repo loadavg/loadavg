@@ -177,7 +177,8 @@ class Swap extends Charts
 				$redline = ($this->checkRedline($data));
 
 				//remap data if it needs mapping based on different loggers
-				$this->reMapData($data);
+				if ( LOGGER == "collectd")
+					$this->reMapData($data);
 
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {

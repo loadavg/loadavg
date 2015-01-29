@@ -492,55 +492,28 @@ class LoadUtility
 	 *
 	 */
 
+	//TODO needs optimizing as its called for EVERY data point!
 
-		public static function cleanDataPoint (array &$data, $depth = 3 ) 
+	public static function cleanDataPoint (array &$data, $depth = 3 ) 
 	{
-
-
 		//now clean data item for bad data meaning missing a depth value
 		//we can put other rules in here...
 
-		//move this routine out into
-		//$this->getChartData ($chartArray, $contents );
-		//should be looking for bad data there really.
-	
-
-		$badData = false;
 		for ($x = 1; $x <= $depth; $x++) {
 
-			if (  (  !isset($data[$x]) )  )
-				$badData = true;
-		} 
+			//first see if all points are set according to depth of array	
+			//one bad element kills datapoint
+			if ( !isset($data[$x]) ) {
+				$data = null;	
+				return false;				
+			}
 
-		if ($badData == true) {
-			//echo "nullit<br>";
-			//var_dump ($data);
-			//echo "<br>";
-			
-			$data = null;	
-			return false;	
-		}
-
-	
-		//if not bad data then 
-		// check for missing data and if missing data zero out variable...
-
-		$cleanData = false;
-		for ($x = 1; $x <= $depth; $x++) {
-
-			if (    (!isset($data[$x])) ||  ($data[$x] == null) || ($data[$x] == "")  ) {
+			// now check for missing data and if missing data zero out missing data...
+			else if ( ($data[$x] == null) || ($data[$x] == "") ) {
 				
 				$data[$x]=0.0;	
-				$cleanData = true;
 			}
 		} 
-
-		if ($cleanData == true) {
-			//echo "cleanit<br>";
-			//var_dump ($data);
-			//echo "<br>";			
-			return false;	
-		}
 
 		return true;
 	}

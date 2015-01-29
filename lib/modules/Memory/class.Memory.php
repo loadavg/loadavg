@@ -162,7 +162,8 @@ class Memory extends Charts
 				$redline = ($this->checkRedline($data));
 
 				//remap data if it needs mapping based on different loggers
-				$this->reMapData($data);
+				if ( LOGGER == "collectd")
+					$this->reMapData($data);
 
 				//if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 				//	$data[1]=0.0;
