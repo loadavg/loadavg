@@ -50,6 +50,30 @@ class Charts extends LoadModules
 	}
 
 	/**
+	 * getLoggerInterval
+	 *
+	 * Gets the timing for the logger from system settings and returns it in seconds
+	 *
+	 */
+	public static function getLoggerInterval( ) 
+	{
+
+		$interval = LoadModules::$_settings->general['settings']['logger_interval'];
+
+		if  ( $interval ) {
+
+			$interval = $interval * 60;
+			return $interval;
+
+		} else {
+
+			//default is 5 minutes if no interval use that
+			return 300;
+		}
+
+	}
+
+	/**
 	 * checkRedline
 	 *
 	 * checks for redline in data point sent over via charting modules
@@ -209,7 +233,7 @@ class Charts extends LoadModules
 
 		// this is based on logger interval of 5, 5 min = 300 aprox we add 100 to be safe
 		//$interval = 360;  // 5 minutes is 300 seconds + slippage of 20% aprox 
-		$interval = LoadUtility::getLoggerInterval();
+		$interval = $this->getLoggerInterval();
 		$interval = $interval * 1.2; //add 20% to interval for system lag
 
 
@@ -223,7 +247,7 @@ class Charts extends LoadModules
 		{
 			//logger is every 5 min then $this->getLoggerInterval() / 60 = 5;
 			//so 300 / 60 = 5 min; 60 / 5 = 12 datasets per hour
-			$dataFrame = 60 / (LoadUtility::getLoggerInterval() / 60);  
+			$dataFrame = 60 / ($this->getLoggerInterval() / 60);  
 
 			$dataNeeded = $dataFrame * $dataSet; 
 

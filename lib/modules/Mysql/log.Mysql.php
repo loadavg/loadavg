@@ -120,7 +120,7 @@ class Mysql extends Logger
 			if ($elapsed == 0) {
 
 				//data needs to within the logging period limits to be accurate
-				$interval = LoadUtility::getLoggerInterval();
+				$interval = $this->getLoggerInterval();
 
 				if (!$interval)
 					$interval = 360;

@@ -170,7 +170,30 @@ class Logger
 		return $dates;
 	}
 
+	/**
+	 * getLoggerInterval
+	 *
+	 * Gets the timing for the logger from system settings and returns it in seconds
+	 *
+	 */
+	public  function getLoggerInterval( ) 
+	{
 
+		$interval = Logger::$_settings->general['settings']['logger_interval'];
+
+		if  ( $interval ) {
+
+			$interval = $interval * 60;
+			return $interval;
+
+		} else {
+
+			//default is 5 minutes if no interval use that
+			return 300;
+		}
+
+	}
+	
 
 	/**
 	 * rotateLogFiles
