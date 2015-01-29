@@ -314,19 +314,10 @@ class Charts extends LoadModules
 					//patch time is really patch key position in array
 					$patch_key_position = ( ($patch[$i][2]) + $i );
 					
-					$thepatch[0] = array (  strval  ( $patch[$i][0] )   );
-
-					// $newdata [0] = $data[0];
-					// $data = array_pad($newdata, $depth+1, 0.0);
-
-					//null data  points in patch
-					for ( $zz = 1; $zz <= $depth; ++$zz) {
-						$thepatch[0][$zz] = '0.0';
-					}
-
-					//add redline flag
+					$newdata[0]  = strval ($patch[$i][0]);
+					$thepatch[0] = array_pad($newdata, $depth+1, '0.0');
 					$thepatch[0]['redline'] = true;
-					
+
 					//echo '<pre>patch'; var_dump ($thepatch); echo '</pre>';
 
 					array_splice( $chartData, $patch_key_position, 0, $thepatch );
