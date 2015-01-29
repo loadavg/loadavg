@@ -117,6 +117,7 @@ class Processor extends Charts
 
 				$data = $chartArray[$i];
 
+				//if bad data point skip it
 				if ($data==null)
 					continue;
 

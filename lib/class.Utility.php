@@ -558,6 +558,29 @@ class LoadUtility
 		return $emptyChart;
 	}
 
+	/**
+	 * getLoggerInterval
+	 *
+	 * Gets the timing for the logger from system settings and returns it in seconds
+	 *
+	 */
+	public static function getLoggerInterval( ) 
+	{
+
+		$interval = LoadModules::$_settings->general['settings']['logger_interval'];
+
+		if  ( $interval ) {
+
+			$interval = $interval * 60;
+			return $interval;
+
+		} else {
+
+			//default is 5 minutes if no interval use that
+			return 300;
+		}
+
+	}
 
 	/**
 	 * getDelimiter

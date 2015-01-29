@@ -163,8 +163,12 @@ class Disk extends Charts
 				if ($data == null)
 					continue;
 
+				//echo '<pre>data'; var_dump ($data); echo '</pre>';
+
 				// clean data for missing values
-				$redline = ($this->checkRedline($data));
+				//$redline = false;
+				//if ($data[1]=="REDLINE")
+					$redline = ($this->checkRedline($data));
 
 				//remap data if it needs mapping based on different loggers
 				if ( LOGGER == "collectd")

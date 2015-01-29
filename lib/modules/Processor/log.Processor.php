@@ -54,7 +54,8 @@ class Processor extends Logger
 
 		$timestamp = time();
 
-		$core_nums = trim(shell_exec("grep -P '^processor' /proc/cpuinfo|wc -l"));
+		$core_nums = trim(exec("grep -P '^processor' /proc/cpuinfo|wc -l"));
+
 		//echo 'PROCS: ' . $core_nums . "\n";
 
 		$procStats = array();
@@ -105,7 +106,7 @@ class Processor extends Logger
 			if ($elapsed == 0) {
 
 				//data needs to within the logging period limits to be accurate
-				$interval = $this->getLoggerInterval();
+				$interval = LoadUtility::getLoggerInterval();
 
 				if (!$interval)
 					$interval = 360;

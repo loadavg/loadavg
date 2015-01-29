@@ -60,18 +60,18 @@ class Charts extends LoadModules
 	function checkRedline (array &$data) 
 	{
 
-		//$depth = self::$logFileDepth;
 		$depth = $this->logFileDepth;
 
 		// first check if its a readline and if it is clean data and set back to 0
-		// TODO change redline form -1 to REDLINE moving ahead
 
 		//if ($redline) {
-		if ( isset($data[1]) && $data[1] == "-1" ) {
+		if ( isset($data[1]) && $data[1] == "REDLINE" ) {
+			
 			//echo '<pre>PRE REDLINE '; print_r ($data); echo '</pre>';
 			$newdata [0] = $data[0];
 			$data = array_pad($newdata, $depth+1, 0.0);
 			//echo '<pre>POST REDLINE '; print_r ($data); echo '</pre>';
+			
 			return true;
 		}
 
@@ -199,37 +199,30 @@ class Charts extends LoadModules
 	function getChartData (array &$chartData, array &$contents, $patchIt = true ) 
 	{				
 
+		//need to know depth of log file (numer of data points)
 		$depth = $this->logFileDepth;
-		//echo 'getChartData depth : ' . $depth;
 
-		//select 6,12 or 24 hour charts
+		//select 6,12 or 24 hour charts, 24 is default
 		$dataSet = LoadAvg::$_settings->general['settings']['chart_type'];
 		//echo 'dataSet ' . $dataSet  .  '<br>';
 
-		//delimiter is based on logger type 
-		$delimiter = LoadUtility::getDelimiter();
-
 		// this is based on logger interval of 5, 5 min = 300 aprox we add 100 to be safe
 		//$interval = 360;  // 5 minutes is 300 seconds + slippage of 20% aprox 
-		$interval = $this->getLoggerInterval();
+		$interval = LoadUtility::getLoggerInterval();
+		$interval = $interval * 1.2; //add 20% to interval for system lag
 
-		if (!$interval)
-			$interval = 360; //default interval of 5 min
-		else
-			$interval = $interval * 1.2; //add 20% to interval for system lag
 
-		$patch = $chartData = array();
+		//get size of array for parsing
+		$totalContents= (int)count( $contents );
+		//echo 'TOTAL ' . $totalContents;
 
 		//trim the dataset if we are only reading 6 or 12 hours of info
 		//revise for 6 and 12 hour charts
 		if ( $dataSet == 6 || $dataSet == 12 )
 		{
-			$totalContents= (int)count( $contents );
-			//echo 'TOTAL ' . $totalContents;
-
 			//logger is every 5 min then $this->getLoggerInterval() / 60 = 5;
 			//so 300 / 60 = 5 min; 60 / 5 = 12 datasets per hour
-			$dataFrame = 60 / ($this->getLoggerInterval() / 60);  
+			$dataFrame = 60 / (LoadUtility::getLoggerInterval() / 60);  
 
 			$dataNeeded = $dataFrame * $dataSet; 
 
@@ -237,28 +230,32 @@ class Charts extends LoadModules
 			$contents = array_slice($contents, ($totalContents - $dataNeeded) );     
 		}
 
-		//contents is a array of strings for the dataset/logfile
-		//now we explode each value in each line of the array into datapoints in chartData 
-		//and send it back home as a array!
+		//contents is a array of strings for the dataset/logfile with the charts log data
+		//we explode each value in each line of the array into datapoints in chartData 
+		//and send it back as a array!
+		$patch = $chartData = array();
+		$numPatches = 0;
 
-		//get size of array for parsing
-		$totalContents= (int)count( $contents );
+		//delimiter is based on logger type used to explode data
+		$delimiter = LoadUtility::getDelimiter();
 
 		//if there is only one item in data set then we just chart it and return
 		if ($totalContents == 1) {
 
 			$data = explode($delimiter, $contents[0]);
+
 			LoadUtility::cleanDataPoint ($data, $depth ); 
+
 			$chartData[0] = $data;
 
 		} else {
 
 			//subtract one from totalContents as arrays start at 0 not 1
-			$numPatches = 0;
-
 			for ( $i = 0; $i <= $totalContents-1; ++$i) {
 
+				//grab the first dataset
 				$data = explode($delimiter, $contents[$i]);
+
 				LoadUtility::cleanDataPoint ($data, $depth ); 
 				$chartData[$i] = $data;
 
@@ -283,13 +280,20 @@ class Charts extends LoadModules
 					//difference in timestamps
 					$difference = $nextData[0] - $data[0];
 
+					//if more time that the logging interval has passed it means 
+					//the system was down as logger should send data every interval
 					if ( $difference >= $interval ) {
+
+						//$chartData[$i-1]['redline'] = true;
 
 						//echo 'patch difference:' . $difference;
 
-						//patches are spans ie fall between datapoints so have start and end
-						$patch[$numPatches] = array(  ($data[0]+$interval), "-1", $i);
-						$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "-1", $i);
+						//patches are spans ie fall between datapoints 
+						//so each patch has a start and end
+						$patch[$numPatches] = array(  ($data[0]+$interval), "REDLINE", $i);
+						//$patch[$numPatches]['redline'] = true;
+						$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "REDLINE", $i);
+						//$patch[$numPatches+1]['redline'] = true;
 
 						$numPatches += 2;
 					}	
@@ -298,9 +302,10 @@ class Charts extends LoadModules
 
 		}
 		
-		//if there are patches to be applied, we iterate through the patcharray and patch the dataset
-		//by adding patch spans to it
+		//if there are patches to be applied, we iterate through the patcharray 
+		//and patch the dataset by inserting patch spans into it based on time
 		$totalPatch= (int)count( $patch );
+		//echo "PATCHES: " .  $totalPatch  . "<br>";
 
 		if ($totalPatch >0 && ($patchIt == true) ) {
 
@@ -310,15 +315,16 @@ class Charts extends LoadModules
 					
 					$patch_time = ( ($patch[$i][2]) + $i );
 					
-					$thepatch[0] = array ( $patch[$i][0] , $patch[$i][1]   );
+					$thepatch[0] = array (  strval  ( $patch[$i][0] ) , $patch[$i][1]   );
+					$thepatch[0]['redline'] = true;
+					//echo '<pre>patch'; var_dump ($thepatch); echo '</pre>';
 
 					array_splice( $chartData, $patch_time, 0, $thepatch );
 	        		//echo "PATCHED: " . $patch_time . " count: " . count( $chartData ) . "<br>";
 			}
 		}
-		//echo "PATCHARRAYPATCHED: " . count( $chartData ) . "<br>";
 
-
+		//echo '<pre>'; var_dump ($chartData); echo '</pre>';
 	}
 
 

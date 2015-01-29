@@ -270,35 +270,6 @@ class loadModules
 
 
 
-
-	/**
-	 * getLoggerInterval
-	 *
-	 * User login, checks username and password from default settings to match.
-	 *
-	 * @param string $username the username
-	 * @param string $password the password
-	 */
-
-	public function getLoggerInterval( ) 
-	{
-
-		$interval = LoadModules::$_settings->general['settings']['logger_interval'];
-
-		if  ( $interval ) {
-
-			$interval = $interval * 60;
-			return $interval;
-
-		} else {
-
-			return false;
-		}
-
-	}
-
-
-
 	/**
 	 * getUIcookie
 	 *
