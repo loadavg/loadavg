@@ -144,8 +144,10 @@ class Network extends Charts
 				$data = $chartArray[$i];
 
 				//check for redline
-				$redline = ($this->checkRedline($data));
-
+				$redline = false;
+				if  ( isset ($data['redline']) && $data['redline'] == true )
+					$redline = true;
+				
 				// clean data for missing values
 				//if (  (!$data[$mode]) ||  ($data[$mode] == null) || ($data[$mode] == "") || (int)$data[$mode] < 0)
 				//	$data[$mode]=0;

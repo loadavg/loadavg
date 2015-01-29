@@ -174,8 +174,10 @@ class Swap extends Charts
 					continue;
 
 				//check for redline
-				$redline = ($this->checkRedline($data));
-
+				$redline = false;
+				if  ( isset ($data['redline']) && $data['redline'] == true )
+					$redline = true;
+				
 				//remap data if it needs mapping based on different loggers
 				if ( LOGGER == "collectd")
 					$this->reMapData($data);

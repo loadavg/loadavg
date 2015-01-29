@@ -130,8 +130,10 @@ class Ssh extends Charts
 					continue;
 
 				// clean data for missing values
-				$redline = ($this->checkRedline($data));
-
+				$redline = false;
+				if  ( isset ($data['redline']) && $data['redline'] == true )
+					$redline = true;
+				
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {
 					$usage[1][] = ( $data[1]  );

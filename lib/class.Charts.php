@@ -57,6 +57,7 @@ class Charts extends LoadModules
 	 *
 	 */
 
+/*
 	function checkRedline (array &$data) 
 	{
 
@@ -77,7 +78,7 @@ class Charts extends LoadModules
 
 		return false;
 	}
-
+*/
 
 
 
@@ -291,9 +292,7 @@ class Charts extends LoadModules
 						//patches are spans ie fall between datapoints 
 						//so each patch has a start and end
 						$patch[$numPatches] = array(  ($data[0]+$interval), "REDLINE", $i);
-						//$patch[$numPatches]['redline'] = true;
 						$patch[$numPatches+1] = array(  ($nextData[0]- ($interval/2)), "REDLINE", $i);
-						//$patch[$numPatches+1]['redline'] = true;
 
 						$numPatches += 2;
 					}	
@@ -305,7 +304,6 @@ class Charts extends LoadModules
 		//if there are patches to be applied, we iterate through the patcharray 
 		//and patch the dataset by inserting patch spans into it based on time
 		$totalPatch= (int)count( $patch );
-		//echo "PATCHES: " .  $totalPatch  . "<br>";
 
 		if ($totalPatch >0 && ($patchIt == true) ) {
 
@@ -313,14 +311,26 @@ class Charts extends LoadModules
 
 			for ( $i = 0; $i < $totalPatch ; ++$i) {
 					
-					$patch_time = ( ($patch[$i][2]) + $i );
+					//patch time is really patch key position in array
+					$patch_key_position = ( ($patch[$i][2]) + $i );
 					
-					$thepatch[0] = array (  strval  ( $patch[$i][0] ) , $patch[$i][1]   );
+					$thepatch[0] = array (  strval  ( $patch[$i][0] )   );
+
+					// $newdata [0] = $data[0];
+					// $data = array_pad($newdata, $depth+1, 0.0);
+
+					//null data  points in patch
+					for ( $zz = 1; $zz <= $depth; ++$zz) {
+						$thepatch[0][$zz] = '0.0';
+					}
+
+					//add redline flag
 					$thepatch[0]['redline'] = true;
+					
 					//echo '<pre>patch'; var_dump ($thepatch); echo '</pre>';
 
-					array_splice( $chartData, $patch_time, 0, $thepatch );
-	        		//echo "PATCHED: " . $patch_time . " count: " . count( $chartData ) . "<br>";
+					array_splice( $chartData, $patch_key_position, 0, $thepatch );
+	        		//echo "PATCHED: " . $patch_key_position . " count: " . count( $chartData ) . "<br>";
 			}
 		}
 

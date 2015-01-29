@@ -128,7 +128,9 @@ class Mysql extends Charts
 					continue;
 
 				//check for redline
-				$redline = ($this->checkRedline($data));
+				$redline = false;
+				if  ( isset ($data['redline']) && $data['redline'] == true )
+					$redline = true;
 
 				//when showing send and receive its bytes to MB
 				//when showing queries, mode 3, its 1 to 1

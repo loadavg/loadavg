@@ -101,8 +101,10 @@ class Uptime extends Charts
 					continue;
 
 				// clean data for missing values and check for redline
-				$redline = ($this->checkRedline($data));
-
+				$redline = false;
+				if  ( isset ($data['redline']) && $data['redline'] == true )
+					$redline = true;
+				
 				//we skip all redline data for this module
 				$redline = false;
 				

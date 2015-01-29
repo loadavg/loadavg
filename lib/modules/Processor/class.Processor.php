@@ -122,8 +122,9 @@ class Processor extends Charts
 					continue;
 
 				// clean data for missing values
-				$redline = ($this->checkRedline($data));
-
+				$redline = false;
+				if  ( isset ($data['redline']) && $data['redline'] == true )
+					$redline = true;
 				//if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
 				//	$data[1]=0.0;
 
