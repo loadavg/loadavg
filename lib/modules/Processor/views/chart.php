@@ -49,6 +49,8 @@
 
 
 			$chartModules = 0;
+			$loadJavascript = true;
+
 			foreach ( $charts['args'] as $chart ) {
 				$chartModules++;
 
@@ -64,9 +66,11 @@
 
 				?>
 
-				<?php	include( HOME_PATH . '/lib/charts/chartmodule.php'); ?>
+				<?php	include( HOME_PATH . '/lib/charts/chartmodule.php'); 
 
-			<?php } ?>
+				$loadJavascript = true;
+
+			} ?>
 
 			</div> <!-- // Accordion inner end -->
 		</div> <!-- // Accordion category end -->

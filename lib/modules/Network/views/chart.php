@@ -67,6 +67,8 @@
 
 					/* draw charts for each subchart as per args will be Transmit and receive */
 					$chartModules = 0;
+					$loadJavascript = true;
+
 					foreach ( $charts['args'] as $chart ) {
 						$chartModules++;
 
@@ -86,6 +88,8 @@
 						$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
 
 						include( HOME_PATH . '/lib/charts/chartmodule.php');
+
+						$loadJavascript = false;
 
 					} 
 					?>

@@ -46,7 +46,8 @@
 	       		     more than 1 in chartModules means multiple charts in the segment so we include js files just once
 	       		-->
 				<?php 
-				if ( $chartModules == 1) { ?>
+				if ( $loadJavascript) { 
+				?>
 				<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
 				<?php }	
 

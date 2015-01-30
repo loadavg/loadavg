@@ -42,6 +42,8 @@
 			$showqueries = $moduleSettings['settings']['show_queries'];
 
 			$chartModules = 0;
+			$loadJavascript = true;
+
 			foreach ( $charts['args'] as $chart ) {
 				$chartModules++;
 
@@ -53,6 +55,8 @@
 
 				$chart = json_decode($chart);
 
+				//var_dump ($chart);
+
 				//get the log file NAME or names when there is a range
 				//returns multiple files when multiple log files
 				$class->setLogFile($chart->logfile,  $dateRange, $module );
@@ -60,7 +64,12 @@
 				//get data needed to send to template to render chart
 				$chartData = $class->getChartRenderData( $chart, $functionSettings, $module );
 
+				//var_dump ($chartData);
+
+
 				include( HOME_PATH . '/lib/charts/chartmodule.php'); 
+			
+				$loadJavascript = false;
 
 			
 				} ?>

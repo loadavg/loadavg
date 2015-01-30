@@ -42,7 +42,14 @@
 		<div class="accordion-inner">
 
 		<?php
+
+			//keeps track of number of chart modules in a chart
 			$chartModules = 0;
+
+			//keeps track of first time loop us run - so javascript code 
+			//is only loaded the first time in chartmodule when rendering charts
+			$loadJavascript = true;
+
 			foreach ( $charts['args'] as $chart ) {
 				$chartModules++;
 
@@ -56,6 +63,8 @@
 				$chartData = $class->getChartRenderData( $chart, $functionSettings, $module );
 
 				include( HOME_PATH . '/lib/charts/chartmodule.php'); 
+
+				$loadJavascript = false;
 
 			} ?>
 

@@ -37,3 +37,22 @@ moving
 class network.php line 289 data is checked differently from redline now
 
 ssh mdule gives erros when less than 3 datasets in log files
+
+
+
+//install error
+
+
+Notice: Undefined variable: pageName in /var/www/loadavg/app/layout/footer.php on line 108
+
+disable login flooding when installing...
+
+
+	//TODO needs optimizing as its called for EVERY data point!
+	
+		public static function cleanDataPoint (array &$data, $depth = 3 ) 
+
+
+	//checkredline - optimized but very expensive!
+	//need to see if we can refactor code around this
+	
