@@ -370,6 +370,8 @@ class Charts extends LoadModules
 				//null kills chartcore and doesnt send variables over to be charted even when empty.
 				//$dataArray[$loop] = null; 
 				$dataArray[$loop] = 0; 
+				unset ($dataArray[$loop]); 
+
 			}
 			else 
 			{

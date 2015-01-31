@@ -114,19 +114,22 @@
         $cookieStatus = $loadModules->getUIcookieSorting($cookieList);
 
         //grab module settings and drop disabled modules here
-        $cleanSettings = null;
-        foreach ($loadedModules as $key =>$value) {
+        if ($cookieStatus) {
 
-            if ($value=="true") {
-                $cleanSettings[$key]="true";
+            $cleanSettings = null;
+            foreach ($loadedModules as $key =>$value) {
+
+                if ($value=="true") {
+                    $cleanSettings[$key]="true";
+                }
             }
-        }
 
-        //these should match really
-        if (!LoadUtility::identical_values( $cleanSettings , $cookieList )) {
-            $loadModules->updateUIcookieSorting($loadedModules);
-        }
+            //these should match really
+            if (!LoadUtility::identical_values( $cleanSettings , $cookieList )) {
+                $loadModules->updateUIcookieSorting($loadedModules);
+            }
 
+        }
        //echo '<pre>'; var_dump( $cookieList); echo '</pre>';
 
         //now loop through the modules and draw them
@@ -138,7 +141,7 @@
         else
             $chartList = $loadedModules;
 
-        //for old broken cookies
+        //for old broken cookies or issues with $cookieList
         if ($chartList == null || !$chartList)
             $chartList = $loadedModules;
 

@@ -207,8 +207,8 @@ class Mysql extends Charts
 				'mean' => $mysql_mean,
 				'avg' => "stack",
 
-				'dataset_1' 	  => $dataArray[0],
-				'dataset_1_label' => $dataArrayLabel[0]
+				'dataset'			=> $dataArray,
+				'dataset_labels'	=> $dataArrayLabel
 
 				//'overload' => $settings['settings']['overload']
 			);

@@ -223,24 +223,17 @@ class Ssh extends Charts
 			//build chart object
 			$return['chart'] = array(
 				'chart_format' => 'line',
+				'chart_avg' => 'stack',
 				
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 
-				'dataset_1' 	  => $dataArray[0],
-				'dataset_1_label' => $dataArrayLabel[0],
-
-				'dataset_2' 	  => $dataArray[1],
-				'dataset_2_label' => $dataArrayLabel[1],
-
-				'dataset_3' 	  => $dataArray[2],
-				'dataset_3_label' => $dataArrayLabel[2],
+				'dataset'			=> $dataArray,
+				'dataset_labels'	=> $dataArrayLabel,
 
 				'overload' => $settings['settings']['overload'],
-
-				'chart_avg' => 'stack',
 
 				//really need to send sorted array with labels for stacking
 				'variables' => $variables

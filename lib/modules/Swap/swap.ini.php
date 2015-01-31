@@ -20,7 +20,7 @@ line[] = '{"format":"Total : %s MB","args":"mem_total"}'
 line[] = '{"format":"Latest: %s MB","args":"mem_latest"}'
 [settings]
 overload = 90
-display_limiting = "true"
+display_limiting = "false"
 [collectd]
 depth = 3
 args[] = '{"name":"swap","functions":["swap-cached","swap-free","swap-used"]}'

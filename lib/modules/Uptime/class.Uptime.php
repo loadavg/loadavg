@@ -184,9 +184,9 @@ class Uptime extends Charts
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $uptime_mean,
 
-				'dataset_1' 	  => $dataArray[0],
-				'dataset_1_label' => $dataArrayLabel[0],
-				
+				'dataset'			=> $dataArray,
+				'dataset_labels'	=> $dataArrayLabel,
+
 				'overload' => $settings['settings']['overload']
 			);
 

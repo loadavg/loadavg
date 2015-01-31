@@ -20,7 +20,7 @@ line[] = '{"format":"Swap: %s","args":"mem_swap"}'
 line[] = '{"format":"Total : %s MB","args":"mem_total"}'
 line[] = '{"format":"Latest: %s MB","args":"mem_latest"}'
 [settings]
-overload = 95
+overload = 83
 display_limiting = "false"
 [collectd]
 depth = 4

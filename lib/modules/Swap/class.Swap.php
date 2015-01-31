@@ -287,15 +287,9 @@ class Swap extends Charts
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $mem_mean,
 
-				'dataset_1' 	  => $dataArray[0],  
-				'dataset_1_label' => $dataArrayLabel[0],
+				'dataset'			=> $dataArray,
+				'dataset_labels'	=> $dataArrayLabel,
 
-				//'dataset_2' 	  => $dataArray[1],
-				//'dataset_2_label' => $dataArrayLabel[1],
-				
-				//'dataset_4' 	  => $dataArray[2],				// how is it used
-				//'dataset_4_label' => $dataArrayLabel[2],
-				
 				'overload' => $settings['settings']['overload']
 			);
 

@@ -285,11 +285,8 @@ class Disk extends Charts
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $disk_mean,
 
-				'dataset_1' 	  => $dataArray[0],
-				'dataset_1_label' => $dataArrayLabel[0],
-
-				'dataset_2' 	  => $dataArray[1],
-				'dataset_2_label' => $dataArrayLabel[1],
+				'dataset'			=> $dataArray,
+				'dataset_labels'	=> $dataArrayLabel,
 				
 				'overload' => $settings['settings']['overload']
 			);

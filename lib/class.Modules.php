@@ -333,6 +333,9 @@ class loadModules
 		$cookieArray = null;
 		$this->getModuleStatusCookie ($cookieArray);
 
+		if ($cookieArray == null)
+			return false;
+		
 		//parse out as true so they can be shown
 		//as sorting just cares if modules are there
 		$returnArray = null;

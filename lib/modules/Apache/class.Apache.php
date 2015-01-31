@@ -168,12 +168,9 @@ class Apache extends Charts
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $apache_mean,
 
-				'dataset_1' => $dataArray[0],
-				'dataset_1_label' => 'CPU Usage',
-
-				'dataset_2' => $dataArray[1],
-				'dataset_2_label' => 'Overload',
-
+				'dataset'			=> $dataArray,
+				'dataset_labels'	=> $dataArrayLabel,
+				
 				'overload' => $settings['settings']['overload']
 			);
 

@@ -15,14 +15,31 @@
 * This file is licensed under the Affero General Public License version 3 or
 * later.
 */
-
-//used for div heingt at end of page
-$chartHeight = 160;
-
-//if ($width) echo ' width is tru <br>';
-//if ($height) echo ' height is tru<br>';
 ?>
 
+<?php
+
+//hardcoded for now - used for div height at end of page
+$chartHeight = 160;
+
+/*
+ * $chartModules is passed over by calling function in module and is used to track multiple modules in chart
+ * more than 1 in chartModules means multiple charts in the segment so we include js files just once
+ * and make calls to functions that need to be loaded or already loaded here
+ */
+?>
+
+<?php
+
+
+//var_dump( $chartData['chart']['dataset'] ) ;
+//var_dump( $chartData['chart']['dataset_labels'] ) ;
+
+?>
+
+	<!--
+	Fist function here builds the chart data object to send over to be charted
+	-->
 
 	<script type="text/javascript">
 	(function () {
@@ -34,75 +51,81 @@ $chartHeight = 160;
 			//core chart data here
 			// load core chart data here
 			var chart_data = new Array();
+			var chart_info = new Array();
 
 			//we can chart up to 4 data sets now need to move this to a array as well
-			var d1 = d2 = d3 = d4 = null;
+			//var d1 = d2 = d3 = d4 = null;
 
 			//primary dataset includes ymin and ymax - should separate this
 			<?php 
-			if ( isset($chartData['chart']['dataset_1']) ) { ?>
-				 //console.log('data 1');
-				 d1 = {
-					label: '<?php echo $chartData['chart']['dataset_1_label']; ?>',
-					data: <?php echo $chartData['chart']['dataset_1']; ?>,
+			if ( isset($chartData['chart']['dataset'][0])  ) { ?>
+				 chart_data[0] = {
+					label: '<?php echo $chartData['chart']['dataset_labels'][0]; ?>',
+					data: <?php echo $chartData['chart']['dataset'][0]; ?>,
+
+					//first dataset carries chart info as well
+					//need to change this
 					ymin: <?php echo $chartData['chart']['ymin']; ?>,
 					ymax: <?php echo $chartData['chart']['ymax']; ?>
 					<?php if ($width) echo ', chartwidth: ' . $width .',';  ?>
 					<?php if ($height) echo 'chartheight: ' . $height;  ?>
 					//defualts are chartwidth: 530, chartheight: 160
 				};
-				chart_data.push(d1);
 			<?php } ?>
+
 
 			//used for primary overload
 			<?php 
 			//if (    ( isset($chartData['chart']['dataset_2']))    ) {  
-			if (    isset($chartData['chart']['dataset_2'])  ) {  ?>
-				 d2 = {
-					label: '<?php echo $chartData['chart']['dataset_2_label']; ?>',
-					data: <?php echo $chartData['chart']['dataset_2']; ?>
+			//if (    isset($chartData['chart']['dataset'][1]) && ($chartData['chart']['dataset'][1] != 0)  ) {  
+			if (    isset($chartData['chart']['dataset'][1])   ) {  
+				?>
+				 chart_data[1] = {
+					label: '<?php echo $chartData['chart']['dataset_labels'][1]; ?>',
+					data: <?php echo $chartData['chart']['dataset'][1]; ?>
 				};
-				chart_data.push(d2);
 			<?php } ?>
 
 			//used for secondary overlaods
-			<?php if ( isset($chartData['chart']['dataset_3']) ) { 	?>
-				 d3 = {
-					label: '<?php echo $chartData['chart']['dataset_3_label']; ?>',
-					data: <?php echo $chartData['chart']['dataset_3']; ?>
+			<?php if ( isset($chartData['chart']['dataset'][2])  ) { 	?>
+				 chart_data[2] = {
+					label: '<?php echo $chartData['chart']['dataset_labels'][2]; ?>',
+					data: <?php echo $chartData['chart']['dataset'][2]; ?>
 				};
-				chart_data.push(d3);
 			<?php } ?>
 
 			//d3 is shareds! we need to have d4 for swap moving ahead
 			// new swap code
 			<?php 
-			if ( isset($chartData['chart']['dataset_4']) ) { ?>
-				 d4 = {
-					label: '<?php echo $chartData['chart']['dataset_4_label']; ?>',
-					data: <?php echo $chartData['chart']['dataset_4']; ?>
+			if ( isset($chartData['chart']['dataset'][3])  ) { ?>
+				 chart_data[3] = {
+					label: '<?php echo $chartData['chart']['dataset_labels'][3]; ?>',
+					data: <?php echo $chartData['chart']['dataset'][3]; ?>
 				};
-				chart_data.push(d4);
-			<?php } ?>
+			<?php } ?> 
 
-			//great for debugging!
-			//sends entire array to console for inspection
-			///console.info(chart_data);
+			<?php 
+			if ( isset($chartData['chart']['dataset'][4])  ) { ?>
+				 chart_data[4] = {
+					label: '<?php echo $chartData['chart']['dataset_labels'][4]; ?>',
+					data: <?php echo $chartData['chart']['dataset'][4]; ?>
+				};
+			<?php } ?> 
 
+			//great for debugging! sends entire array to console for inspection
+			//console.info(chart_data); 
 
-			// CLEAN ME UP PLEASE!!!
-
-	        // render the chart using the chart.js data
-	        // for error message until we can figure out how to render error message 
-	        // on top of blank chart we override the label  :)
+			//
+			// This function calls the charts flot javascript code to render out chart
+			//
 
 			$(function () {
 
-
 				<?php 
+				//used to set things up for differrent chart views ie 6 / 12 hour charts
 				$chartType = LoadAvg::$_settings->general['settings']['chart_type'];
-				$changeRange = false;				
-				//uses current time needs to use time of last log file entry ?
+				$changeRange = false;	
+
 				if ( $chartType == "6" || $chartType == "12" ) {
 
 					$rangeHours = $chartType; //we can change this
@@ -113,15 +136,10 @@ $chartHeight = 160;
 				} 
 				?>
 
-				//not sure whats going on below but when i == 1 we do
-				// $chart->chart_function
-
-				//and when i > 1 we do
-				// $chart->id
-
-				//tied to this line at start of the loop for when i > 1
-				// $chart->id; ?> = $.extend({}, charts.<?php echo $chart->chart_function; ?>);
-
+				/*
+				 * first time we use a charts code we have to initialize it using the charts function
+				 * other calls can just use the charts id
+				 */
 
 				<?php if ( $chartModules == 1) 
 				{ ?>
@@ -163,10 +181,7 @@ $chartHeight = 160;
 
 		})();
 
-	//console.log('end');
-
 	</script>
-
 
 	<div id="<?php echo $chart->id; ?>_legend" class="pull-right innerLR" style="right: 22px;"></div>
 	<div class="clearfix"></div>

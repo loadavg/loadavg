@@ -13,7 +13,9 @@
 * This file is licensed under the Affero General Public License version 3 or
 * later.
 */
+?>
 
+<?php
 	$tableStyle = ( isset( $chartData['chart']['chart_avg'] )     ) ? 'span8' : 'span9'; 
 
 	//dirty hack
@@ -42,9 +44,6 @@
 	        <!-- this sections renders main chart area -->
 			<td class="<?php echo $tableStyle ?> innerT"> 
 				
-	       		<!-- $chartModules is passed over by calling function in module and is used to track multiple modules in chart
-	       		     more than 1 in chartModules means multiple charts in the segment so we include js files just once
-	       		-->
 				<?php 
 				if ( $loadJavascript) { 
 				?>

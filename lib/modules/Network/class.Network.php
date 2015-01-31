@@ -235,11 +235,9 @@ class Network extends Charts
 				'ymax' => $ymax,
 				'mean' => $net_mean,
 
-				'dataset_1' 	  => $dataArray[0],
-				'dataset_1_label' => $dataArrayLabel[0],
-
-				'dataset_2' 	  => $dataArray[1],
-				'dataset_2_label' => $dataArrayLabel[1]
+				'dataset'			=> $dataArray,
+				'dataset_labels'	=> $dataArrayLabel,
+				
 			);
 
 			return $return;
