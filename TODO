@@ -58,6 +58,9 @@ disable login flooding when installing...
 	
 
 xdebug - profiling
+
+important - xdebug needs to store data in /xdebug or home dir not in /tmp
+
 http://www.xdebug.org/docs/profiler
 
 install kcachegrind for visual profiling
