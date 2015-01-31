@@ -49,19 +49,15 @@ $chartHeight = 160;
 		<?php }?>
 
 			//core chart data here
-			// load core chart data here
+			//chart_Data[0] to carry core chart info
+			//chart_Data[1]+ to carry charing info
 			var chart_data = new Array();
 			var chart_info = new Array();
 
-			//we can chart up to 4 data sets now need to move this to a array as well
-			//var d1 = d2 = d3 = d4 = null;
-
-			//primary dataset includes ymin and ymax - should separate this
+			//primary dataset includes ymin and ymax
 			<?php 
 			if ( isset($chartData['chart']['dataset'][0])  ) { ?>
-				 chart_data[0] = {
-					label: '<?php echo $chartData['chart']['dataset_labels'][0]; ?>',
-					data: <?php echo $chartData['chart']['dataset'][0]; ?>,
+				 chart_info = {
 
 					//first dataset carries chart info as well
 					//need to change this
@@ -73,31 +69,40 @@ $chartHeight = 160;
 				};
 			<?php } ?>
 
+			//used for primary dataset
+			<?php 
+			if ( isset($chartData['chart']['dataset'][0])  ) { ?>
+				 chart_data[0] = {
+					label: '<?php echo $chartData['chart']['dataset_labels'][0]; ?>',
+					data: <?php echo $chartData['chart']['dataset'][0]; ?>
+				};
+			<?php } ?>
+
 
 			//used for primary overload
 			<?php 
-			//if (    ( isset($chartData['chart']['dataset_2']))    ) {  
-			//if (    isset($chartData['chart']['dataset'][1]) && ($chartData['chart']['dataset'][1] != 0)  ) {  
 			if (    isset($chartData['chart']['dataset'][1])   ) {  
-				?>
+			?>
 				 chart_data[1] = {
 					label: '<?php echo $chartData['chart']['dataset_labels'][1]; ?>',
 					data: <?php echo $chartData['chart']['dataset'][1]; ?>
 				};
 			<?php } ?>
 
-			//used for secondary overlaods
-			<?php if ( isset($chartData['chart']['dataset'][2])  ) { 	?>
+			//used for secondary overloads
+			<?php 
+			if ( isset($chartData['chart']['dataset'][2])  ) { 	
+			?>
 				 chart_data[2] = {
 					label: '<?php echo $chartData['chart']['dataset_labels'][2]; ?>',
 					data: <?php echo $chartData['chart']['dataset'][2]; ?>
 				};
 			<?php } ?>
 
-			//d3 is shareds! we need to have d4 for swap moving ahead
-			// new swap code
+			//used for swap in memory moudle
 			<?php 
-			if ( isset($chartData['chart']['dataset'][3])  ) { ?>
+			if ( isset($chartData['chart']['dataset'][3])  ) { 
+			?>
 				 chart_data[3] = {
 					label: '<?php echo $chartData['chart']['dataset_labels'][3]; ?>',
 					data: <?php echo $chartData['chart']['dataset'][3]; ?>
@@ -105,7 +110,8 @@ $chartHeight = 160;
 			<?php } ?> 
 
 			<?php 
-			if ( isset($chartData['chart']['dataset'][4])  ) { ?>
+			if ( isset($chartData['chart']['dataset'][4])  ) { 
+			?>
 				 chart_data[4] = {
 					label: '<?php echo $chartData['chart']['dataset_labels'][4]; ?>',
 					data: <?php echo $chartData['chart']['dataset'][4]; ?>
@@ -145,7 +151,7 @@ $chartHeight = 160;
 				{ ?>
 
 					//send chart data over first	
-					charts.<?php echo $chart->chart_function; ?>.setData(chart_data);
+					charts.<?php echo $chart->chart_function; ?>.setData(chart_data,chart_info);
 
 					//code to override the date and time for zooming in
 					//has issues if start time is before start of series mon
@@ -164,7 +170,7 @@ $chartHeight = 160;
 
 				{ ?>
 					//send chart data over first	
-					charts.<?php echo $chart->id; ?>.setData(chart_data);		
+					charts.<?php echo $chart->id; ?>.setData(chart_data,chart_info);		
 
 					//code to override the date and time for zooming in
 					//has issues if start time is before start of series mon
