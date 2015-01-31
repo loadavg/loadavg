@@ -143,7 +143,6 @@ class Logger
 	 *
 	 * Gets date range from logfiles to populate the select box from topbar
 	 * Also used to check for old log files in logger
-	 * NOTE: Was changed to static
 	 *
 	 * @return array $return array with list of dates
 	 */
@@ -153,12 +152,14 @@ class Logger
 	public static function getDates()
 	{
 		$dates = array();
+		foreach ( glob( HOME_PATH . "/logs/*.log") as $file ) {
 
-		foreach ( glob(dirname(__FILE__) . "/../logs/*.log") as $file ) {
+			//find files with number format only
 			preg_match("/([0-9-]+)/", basename($file), $output_array);
 		
 			if ( isset( $output_array[0] ) && !empty( $output_array[0] ) )
 				$dates[] = $output_array[0];
+
 		}
 
  		//get rid of all duplicate dates
@@ -198,11 +199,9 @@ class Logger
 	/**
 	 * rotateLogFiles
 	 *
-	 * parses /proc/stat and returns line $theLine
-	 * move this out into utility functions later on
+	 * rotates the log files out by deleting old files older than @daystokeep
 	 *
 	 */
-
 	public function rotateLogFiles ($logdir) 
 	{
 		

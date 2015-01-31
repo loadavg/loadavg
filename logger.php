@@ -15,7 +15,8 @@
 
 // initialize LoadAvg and grab data
 
-require_once dirname(__FILE__) . '/globals.php'; // including required globals
+require_once './globals.php'; // including required globals
+//require_once dirname(__FILE__) . '/globals.php'; // including required globals
 
 include 'class.Utility.php'; // for logger module
 

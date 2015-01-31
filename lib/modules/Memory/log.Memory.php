@@ -71,7 +71,6 @@ class Memory extends Logger
 
 		$memory = $totalmemory - $freememory - $bufferedmemory - $cachedmemory;
 
-
 		//calculate swap usage
 		$swapcached = $sysmemory[4];
 		$totalswap = $sysmemory[5];
@@ -79,10 +78,10 @@ class Memory extends Logger
 
 		$swap = $totalswap - ($freeswap + $swapcached);
 
+		//pull log data togeather
 	    $string = $timestamp . '|' . $memory . '|' . $swap . '|' . $totalmemory . "\n";
 
-	    //echo 'DATA:'  . $string .  "\n" ;
-
+	    //append log data to log file
 		$filename = sprintf($this->logfile, date('Y-m-d'));
 		LoadUtility::safefilerewrite($filename,$string,"a",true);
 
