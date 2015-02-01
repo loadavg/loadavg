@@ -22,19 +22,15 @@
 //hardcoded for now - used for div height at end of page
 $chartHeight = 160;
 
+	//echo 'chartModules : ' . $chartModules;
+
+	
+
 /*
  * $chartModules is passed over by calling function in module and is used to track multiple modules in chart
  * more than 1 in chartModules means multiple charts in the segment so we include js files just once
  * and make calls to functions that need to be loaded or already loaded here
  */
-?>
-
-<?php
-
-
-//var_dump( $chartData['chart']['dataset'] ) ;
-//var_dump( $chartData['chart']['dataset_labels'] ) ;
-
 ?>
 
 	<!--
@@ -44,23 +40,20 @@ $chartHeight = 160;
 	<script type="text/javascript">
 	(function () {
 	
+		//if greater than 1 then extend chart id with chart function
 		<?php if ( $chartModules > 1) { ?>
 		charts.<?php echo $chart->id; ?> = $.extend({}, charts.<?php echo $chart->chart_function; ?>);
 		<?php }?>
 
 			//core chart data here
-			//chart_Data[0] to carry core chart info
-			//chart_Data[1]+ to carry charing info
 			var chart_data = new Array();
 			var chart_info = new Array();
 
-			//primary dataset includes ymin and ymax
+			//chart_info has all core chart data
 			<?php 
 			if ( isset($chartData['chart']['dataset'][0])  ) { ?>
 				 chart_info = {
 
-					//first dataset carries chart info as well
-					//need to change this
 					ymin: <?php echo $chartData['chart']['ymin']; ?>,
 					ymax: <?php echo $chartData['chart']['ymax']; ?>
 					<?php if ($width) echo ', chartwidth: ' . $width .',';  ?>
@@ -69,61 +62,36 @@ $chartHeight = 160;
 				};
 			<?php } ?>
 
-			//used for primary dataset
 			<?php 
-			if ( isset($chartData['chart']['dataset'][0])  ) { ?>
-				 chart_data[0] = {
-					label: '<?php echo $chartData['chart']['dataset_labels'][0]; ?>',
-					data: <?php echo $chartData['chart']['dataset'][0]; ?>
+
+			//loop through sets in chartData and if they are viable
+			//send them over to be charted via chart_Data
+			
+			foreach ( $chartData['chart']['dataset'] as $dataKey => $dataSet ) { ?>
+				chart_data[<?php echo $dataKey; ?>] = {
+					label: '<?php echo $chartData['chart']['dataset_labels'][$dataKey]; ?>',
+					data: <?php echo $dataSet; ?>
 				};
-			<?php } ?>
-
-
-			//used for primary overload
 			<?php 
-			if (    isset($chartData['chart']['dataset'][1])   ) {  
+			}
+
+
+			/*	is foreach above faster than the loop ? seems so
+			for ( $dataLoop = 0; $dataLoop <= 4; ++$dataLoop ) {
+
+				if ( isset($chartData['chart']['dataset'][$dataLoop])  ) { ?>
+					 chart_data[<?php echo $dataLoop; ?>] = {
+						label: '<?php echo $chartData['chart']['dataset_labels'][$dataLoop]; ?>',
+						data: <?php echo $chartData['chart']['dataset'][$dataLoop]; ?>
+					};
+				<?php } 
+			} */
 			?>
-				 chart_data[1] = {
-					label: '<?php echo $chartData['chart']['dataset_labels'][1]; ?>',
-					data: <?php echo $chartData['chart']['dataset'][1]; ?>
-				};
-			<?php } ?>
-
-			//used for secondary overloads
-			<?php 
-			if ( isset($chartData['chart']['dataset'][2])  ) { 	
-			?>
-				 chart_data[2] = {
-					label: '<?php echo $chartData['chart']['dataset_labels'][2]; ?>',
-					data: <?php echo $chartData['chart']['dataset'][2]; ?>
-				};
-			<?php } ?>
-
-			//used for swap in memory moudle
-			<?php 
-			if ( isset($chartData['chart']['dataset'][3])  ) { 
-			?>
-				 chart_data[3] = {
-					label: '<?php echo $chartData['chart']['dataset_labels'][3]; ?>',
-					data: <?php echo $chartData['chart']['dataset'][3]; ?>
-				};
-			<?php } ?> 
-
-			<?php 
-			if ( isset($chartData['chart']['dataset'][4])  ) { 
-			?>
-				 chart_data[4] = {
-					label: '<?php echo $chartData['chart']['dataset_labels'][4]; ?>',
-					data: <?php echo $chartData['chart']['dataset'][4]; ?>
-				};
-			<?php } ?> 
 
 			//great for debugging! sends entire array to console for inspection
 			//console.info(chart_data); 
 
-			//
 			// This function calls the charts flot javascript code to render out chart
-			//
 
 			$(function () {
 
@@ -166,7 +134,8 @@ $chartHeight = 160;
 				<?php 
 				} 
 
-				elseif ($chartModules > 1) 
+				//elseif ($chartModules > 1) 
+				else
 
 				{ ?>
 					//send chart data over first	
