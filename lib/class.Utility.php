@@ -543,6 +543,10 @@ class LoadUtility
 	 */
 	public static function getEmptyChart( )
 	{
+
+		$labels[0]="No Data";
+		$data[0]="[[0, '0.00']]";
+
 		$emptyChart = array(
 			'chart_format' => 'line',
 			'chart_avg' => 'avg',
@@ -551,8 +555,8 @@ class LoadUtility
 			'xmin' => date("Y/m/d 00:00:01"),
 			'xmax' => date("Y/m/d 23:59:59"),
 			'mean' => 0,
-			'dataset_1_label' => "No Data",
-			'dataset_1' => "[[0, '0.00']]"
+			'dataset_labels' => $labels,
+			'dataset' => $data
 		);
 
 		return $emptyChart;

@@ -23,8 +23,7 @@
 $chartHeight = 160;
 
 	//echo 'chartModules : ' . $chartModules;
-
-	
+	//var_dump ($chartData['chart']);
 
 /*
  * $chartModules is passed over by calling function in module and is used to track multiple modules in chart
