@@ -31,3 +31,5 @@ Network = "true"
 Ssh = "false"
 [plugins]
 Server = "true"
+Process = "true"
+
