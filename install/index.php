@@ -35,6 +35,10 @@ $settings = LoadAvg::$_settings->general; // Default settings
 
 $flooding = false;
 
+//first lets see if a name has been set...
+$pageName = "installer";
+
+
 // Including header view
 require_once APP_PATH . '/layout/header.php'; 
 
