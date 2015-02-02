@@ -54,6 +54,16 @@ if (DEBUG) $memory_usage['timer'] = memory_get_usage();
 //grab core settings
 $settings = LoadAvg::$_settings->general;
 
+/* 
+ * Force https when in https mode
+ * really needs to be a function called on all pages... to really force it
+ * 
+ */
+
+if ( $settings['settings']['https'] == "true" && !isset($_SERVER["HTTPS"])) {
+	header("Location: https://" . $_SERVER['SERVER_NAME'] .$_SERVER['REQUEST_URI']);
+} 
+
 //array of modules and status either on or off
 //$loadedModules = LoadModules::$_settings->general['modules']; 
 //var_dump ($loadedModules);

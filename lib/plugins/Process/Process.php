@@ -69,35 +69,34 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 
 $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 
-        $lines = explode("\n", trim($data));
-        $heads = preg_split('/\s+/', strToLower(trim(array_shift($lines))));
-        $count = count($heads) + 1;
+    $lines = explode("\n", trim($data));
+    $heads = preg_split('/\s+/', strToLower(trim(array_shift($lines))));
+    
+    $count = count($heads) + 1;
 
-        $procs = array();
+    $procs = array();
 
-        //var_dump ($heads);
-		//see debug in public function arraySort($input,$sortkey){
+    //var_dump ($procs);
+	//see debug in public function arraySort($input,$sortkey){
 
-        foreach($lines as $i => $line){
+    foreach($lines as $i => $line){
 
-            $parts = preg_split('/\s+/', trim($line), $count);
-        
-        	//deal with dual command title headings here in row 0
-        	//when creating keys for array
-        	$command = 0;
-            foreach ($heads as $j => $head) {
+        $parts = preg_split('/\s+/', trim($line), $count);
+    
+    	//deal with dual command title headings here in row 0
+    	//when creating keys for array
+    	$command = 0;
+        foreach ($heads as $j => $head) {
 
-	            	if ($head == 'command') {
-	            		$head = $head . $command;
-	            		$command++;
-	            	}
-            	
-                $procs[$i][$head] = str_replace('"', '\"', $parts[$j]);
-
-            }
-
+            	if ($head == 'command') {
+            		$head = $head . $command;
+            		$command++;
+            	}
+        	
+            $procs[$i][$head] = str_replace('"', '\"', $parts[$j]);
 
         }
+    }
 
 
 ?>
