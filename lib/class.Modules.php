@@ -375,7 +375,7 @@ class loadModules
 
 		}
 
-		echo '<pre>cleanSettings'; var_dump( $cleanSettings); echo '</pre>';
+		//echo '<pre>cleanSettings'; var_dump( $cleanSettings); echo '</pre>';
 
 		//get current cookie values
 		$currentCookie = null;
