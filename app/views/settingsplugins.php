@@ -103,8 +103,8 @@ if (isset($_POST['update_settings'])) {
 
 			//grab settings data for module
     		$pluginSettings = LoadUtility::getSettings($plugin, 'plugins' );
-
         	?>
+
 			<div class="separator bottom"></div>
 			<div class="row-fluid">
 
@@ -113,13 +113,11 @@ if (isset($_POST['update_settings'])) {
 			    </div>
 
 			    <div class="span9 right">
-			        <div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-			            <input name="formsettings[plugins][<?php echo $plugin; ?>]" value="true" type="checkbox"
-			            	<?php if ( isset($settings['plugins'][$plugin]) && $settings['plugins'][$plugin] == "true" )
-			            		{ ?>checked="checked"<?php }
-			            	?>
-			            >
-			        </div>
+		            <input name="formsettings[plugins][<?php echo $plugin; ?>]" checkbox-type="my-checkbox" value="true" type="checkbox"
+		            	<?php if ( isset($settings['plugins'][$plugin]) && $settings['plugins'][$plugin] == "true" )
+		            		{ ?>checked="checked"<?php }
+		            	?>
+		            >
 			    </div>
 
 			</div>

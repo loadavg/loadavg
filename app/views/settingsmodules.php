@@ -89,13 +89,6 @@ if (isset($_POST['update_settings'])) {
 	//updates all the modules settings here
 
 	//these are dirty dirty hacks! until we can rewrite the settings using proper api	
-	$_POST['Disk_settings']['settings']['display_limiting'] = ( !isset($_POST['Disk_settings']['settings']['display_limiting']) ) ? "false" : "true";
-	$_POST['Memory_settings']['settings']['display_limiting'] = ( !isset($_POST['Memory_settings']['settings']['display_limiting']) ) ? "false" : "true";
-	$_POST['Cpu_settings']['settings']['display_limiting'] = ( !isset($_POST['Cpu_settings']['settings']['display_limiting']) ) ? "false" : "true";
-
-	$_POST['Network_settings']['settings']['transfer_limiting'] = ( !isset($_POST['Network_settings']['settings']['transfer_limiting']) ) ? "false" : "true";
-	$_POST['Network_settings']['settings']['receive_limiting'] = ( !isset($_POST['Network_settings']['settings']['receive_limiting']) ) ? "false" : "true";
-
 	$_POST['Mysql_settings']['settings']['show_queries'] = ( !isset($_POST['Mysql_settings']['settings']['show_queries']) ) ? "false" : "true";
 
 	//echo '<pre>';var_dump($_POST);echo'</pre>';
@@ -295,45 +288,45 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 						        
 		                        foreach ($moduleSettings['settings'] as $setting => $value) {
 
-		                        	//if ($setting == "display_limiting")
-		                        	//better if $settings ends in limiting as also gets network settings 
-		                        	// hack this in better so we skip the divs below but data is still recorded for POST
+		                        	//filter out ui settings but keep data for POST
+									if ( LoadUtility::endswith ($setting, "limiting") ) { 
 
-		                        	?>
-		                        	<div class="row-fluid">
-		                        		<div class="span3">
-		                        			<strong><?php echo ucwords(str_replace("_"," ",$setting)); ?></strong>
-		                        		</div>
-		                        		<div class="span9 right">
+										//ucwords(str_replace("_"," ",$setting));
+			                        	
+			                        	//echo 'limiting : ' . $value; ?>
 
-		                        			<?php 
+                        			<?php } else { ?>
+		                        	
+			                        	<div class="row-fluid">
+			                        		<div class="span3">
+			                        			<strong><?php echo ucwords(str_replace("_"," ",$setting)); ?></strong>
+			                        		</div>
+			                        		<div class="span9 right">
 
-											if ($setting == "display_limiting") { ?>
+			                        			<?php 
 
-													<input type = "hidden" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>"  data-size="small" type="checkbox" value="<?php echo $value; ?>" 
-													<?php if ( $value == "true" ) { ?>checked="checked"<?php } ?>>
+												if ( $value == 'true' || $value == 'false') { ?>
 
+			                        				<!-- means its a checkbox -->
 
-		                        			<?php } else if ( $value == 'true' || $value == 'false') { ?>
+														<input name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" checkbox-type="my-checkbox" data-size="small" type="checkbox" value="<?php echo $value; ?>" 
+														<?php if ( $value == "true" ) { ?>checked="checked"<?php } ?>>
 
-		                        				<!-- means its a checkbox -->
+			                        			<?php } else { ?>
 
-													<input name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" checkbox-type="my-checkbox" data-size="small" type="checkbox" value="<?php echo $value; ?>" 
-													<?php if ( $value == "true" ) { ?>checked="checked"<?php } ?>>
+			                        				<!-- means its a regular data settings -->
 
-		                        			<?php } else { ?>
+			                        				<div class="pull-right">
+			                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">	                        					
+			                        				</div>  
 
-		                        				<!-- means its a regular data settings -->
+			                        			<?php } ?>
 
-		                        				<div class="pull-right">
-		                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">	                        					
-		                        				</div>  
+			                        		</div>
+			                        	</div>
 
-		                        			<?php } ?>
-
-		                        		</div>
-		                        	</div>
-		                        	<?php
+		                        	<?php 
+		                        	}
 		                        }
 		                        ?>
 

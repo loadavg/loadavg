@@ -83,10 +83,12 @@ if (isset($_POST['update_settings'])) {
   				<strong>Connect to API</strong>
   			</div>
   			<div class="span9 right">
-  				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-  					<input name="formsettings[settings][apiserver]" type="checkbox" value="true" <?php if ( $settings['settings']['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
-  				</div>
-  			</div>
+
+        <div>
+            <input name="formsettings[settings][apiserver]" checkbox-type="my-checkbox" type="checkbox" value="true" <?php if ( $settings['settings']['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
+        </div>
+  			
+        </div>
   		</div>
 
       <div class="row-fluid">

@@ -554,6 +554,26 @@ class LoadUtility
 	    return $arrayA == $arrayB;
 	} 
 
+
+	/**
+	 * endswith
+	 *
+	 * Returns data used to chart a empty chart for when there is no chart data
+	 *
+	 * @param array $emptyChart array with empty chart data
+	 */
+	public static function endswith($string, $test) {
+
+	    $strlen = strlen($string);
+	    $testlen = strlen($test);
+	    
+	    if ($testlen > $strlen) 
+	    	return false;
+	    
+	    return substr_compare($string, $test, $strlen - $testlen, $testlen) === 0;
+	}
+
+
 	/**
 	 * getEmptyChart
 	 *
