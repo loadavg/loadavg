@@ -38,7 +38,7 @@ class Apache extends Charts
 	 *
 	 * @return array $return data retrived from logfile
 	 *
-	 */
+	 */ 
 
 	public function getUsageData( )
 	{
@@ -46,8 +46,11 @@ class Apache extends Charts
 		$settings = loadModules::$_settings->$class;
 
 		//define some core variables here
-		$dataArray = null;
+		$dataArray = $dataArrayLabel = array();
 		$dataRedline = $usage = array();
+
+		//define datasets
+		$dataArrayLabel[0] = 'CPU Usage';
 
 		//display switch used to switch between view modes - data or percentage
 		// true - show MB
