@@ -183,9 +183,10 @@ if (isset($_POST['update_settings'])) {
 			</div>
 			<div class="span9 right">
 
-					<input name="formsettings[settings][checkforupdates]" type="checkbox" checkbox-type="my-checkbox" 
-					value="true" <?php if ( $settings['settings']['checkforupdates'] == "true" ) { ?>checked="checked"<?php } ?>>
-				
+				<input name="formsettings[settings][checkforupdates]" type="checkbox" checkbox-type="my-checkbox" 
+				value="true" <?php if ( $settings['settings']['checkforupdates'] == "true" ) { ?>checked="checked"<?php } ?>>
+			    <div class="separator bottom"></div>
+
 			</div>
 		</div>
 
@@ -216,8 +217,9 @@ if (isset($_POST['update_settings'])) {
 			</div>
 			<div class="span8 right">		
 
-					<input name="formsettings[settings][https]" type="checkbox" checkbox-type="my-checkbox" 
-					value="true" <?php if ( $settings['settings']['https'] == "true" ) { ?>checked="checked"<?php } ?>>
+				<input name="formsettings[settings][https]" type="checkbox" checkbox-type="my-checkbox" 
+				value="true" <?php if ( $settings['settings']['https'] == "true" ) { ?>checked="checked"<?php } ?>>
+	            <div class="separator bottom"></div>
 
 			</div>
 		</div>
@@ -228,8 +230,9 @@ if (isset($_POST['update_settings'])) {
 			</div>
 			<div class="span8 right">
 
-					<input name="formsettings[settings][allow_anyone]" type="checkbox" checkbox-type="my-checkbox" 
-					value="true" <?php if ( $settings['settings']['allow_anyone'] == "true" ) { ?>checked="checked"<?php } ?>>
+				<input name="formsettings[settings][allow_anyone]" type="checkbox" checkbox-type="my-checkbox" 
+				value="true" <?php if ( $settings['settings']['allow_anyone'] == "true" ) { ?>checked="checked"<?php } ?>>
+        		<div class="separator bottom"></div>
 
 			</div>
 		</div>
@@ -240,8 +243,9 @@ if (isset($_POST['update_settings'])) {
 			</div>
 			<div class="span8 right">
 
-					<input name="formsettings[settings][ban_ip]" type="checkbox" checkbox-type="my-checkbox" 
-					value="true" <?php if ( $settings['settings']['ban_ip'] == "true" ) { ?>checked="checked"<?php } ?>>
+				<input name="formsettings[settings][ban_ip]" type="checkbox" checkbox-type="my-checkbox" 
+				value="true" <?php if ( $settings['settings']['ban_ip'] == "true" ) { ?>checked="checked"<?php } ?>>
+            	<div class="separator bottom"></div>
 
 			</div>
 		</div>

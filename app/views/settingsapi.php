@@ -31,12 +31,11 @@ else {
 
 if (isset($_POST['update_settings'])) {
 
-
 	/////////////////////////////////////////////////////////////////////
 	//updates the general settings here as api settings are stored there
 
 	//we clean input here for items with checkbox values for some reason not sure if we still need to
-	$_POST['formsettings']['apiserver'] = ( !isset($_POST['formsettings']['apiserver']) ) ? "false" : "true";
+	$_POST['formsettings']['settings']['apiserver'] = ( !isset($_POST['formsettings']['settings']['apiserver']) ) ? "false" : "true";
 
     // Loop throught settings
     $settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
@@ -84,9 +83,9 @@ if (isset($_POST['update_settings'])) {
   			</div>
   			<div class="span9 right">
 
-        <div>
-            <input name="formsettings[settings][apiserver]" checkbox-type="my-checkbox" type="checkbox" value="true" <?php if ( $settings['settings']['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
-        </div>
+            <input name="formsettings[settings][apiserver]" checkbox-type="my-checkbox" type="checkbox" 
+            value="true" <?php if ( $settings['settings']['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
+            <div class="separator bottom"></div>
   			
         </div>
   		</div>
