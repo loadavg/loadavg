@@ -363,7 +363,7 @@ class loadModules
 	public function updateUIcookieSorting ($moduleSettings) 
 	{
 
-		echo "reparsing cookies<br>";
+		//echo "reparsing cookies<br>";
 
 		//parse moduleSettings and drop all false values 
 		$cleanSettings = null;
