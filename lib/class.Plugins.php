@@ -90,7 +90,7 @@ class loadPlugins
 
 				//generate list of all modules
 		//$this->generateModuleList('modules');
-		LoadUtility::generateExtensionList( 'plugins', self::$_modules );
+		LoadUtility::generateExtensionList( 'plugins', self::$_plugins );
 
 		//load all charting modules that are enabled
 		//$this->loadModules('modules');
@@ -117,7 +117,6 @@ class loadPlugins
 			}
 		}
 	}
-
 
 
 

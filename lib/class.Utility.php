@@ -105,6 +105,26 @@ class LoadUtility
 			}
 		}
 	}
+
+	/**
+	 * getSettings
+	 *
+	 * loads settings data for a plugin or module and returns.
+	 *
+	 * @param string $module name of modiule to load
+	 * @param string $mode type - modules or plugins
+	 */
+	public static function getSettings( $module, $mode = "plugins" ) {
+
+		$moduleLocation = HOME_PATH . '/lib/' . $mode .  '/' . $module . '/'  ; 
+
+		$moduleSettings = ( parse_ini_file( $moduleLocation  . strtolower( $module ) . '.ini.php', true) );
+
+		return $moduleSettings;
+
+	}
+
+
 	/**
 	 * checkWritePermissions
 	 *

@@ -34,8 +34,6 @@ moving
     echo "MAX " . $todaymaxval . "\n";
 */
 
-class network.php line 289 data is checked differently from redline now
-
 ssh mdule gives erros when less than 3 datasets in log files
 
 
@@ -48,43 +46,6 @@ Notice: Undefined variable: pageName in /var/www/loadavg/app/layout/footer.php o
 disable login flooding when installing...
 
 
-	//TODO needs optimizing as its called for EVERY data point!
-	
-		public static function cleanDataPoint (array &$data, $depth = 3 ) 
 
 
-	//checkredline - optimized but very expensive!
-	//need to see if we can refactor code around this
-	
 
-xdebug - profiling
-
-important - xdebug needs to store data in /xdebug or home dir not in /tmp
-
-http://www.xdebug.org/docs/profiler
-
-install kcachegrind for visual profiling
-install webgrind if you dont have x
-
->> get browser profile data
-
-use chrome or firefox plugins to enable / disable profiling
-
-get logger profile data
-
-php -d xdebug.profiler_enable=On logger.php 
-
-
-[xdebug]
-zend_extension="/usr/lib64/php/modules/xdebug.so"
-
-xdebug.profiler_enable = 0
-xdebug.profiler_enable_trigger = 1
-
-xdebug.profiler_output_dir = "/xdebug/"
-xdebug.output_name = "cachegrind.out.%t-%s"
-
-xdebug.remote_enable= 0
-xdebug.remote_host="localhost"
-xdebug.remote_port=9000
-xdebug.remote_handler="dbgp"

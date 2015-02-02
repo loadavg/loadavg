@@ -196,117 +196,163 @@ header('Location: '.$_SERVER['REQUEST_URI']);
       * and deal with their individual settings
 	-->	
 
-	<div class="well">
+
+        <?php 
+        $modules = LoadModules::$_modules; 
+		$interfaces = LoadUtility::getNetworkInterfaces(); 
+		
+        foreach ($modules as $module => $moduleName) { 
+
+        	//with this we can now move over to AJAX settings
+        	//as settings are now loaded per moduel weather on or off
+    		$moduleSettings = LoadUtility::getSettings($module, 'modules' );
+
+        	// if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" )
+        	$moduleStatus = $settings['modules'][$module];
+   			?>
+			
+			<div class="well">
+
+				<!--
+				module name is rendered here along with checkbox for status
+				-->
+		    	<div class="row-fluid">
+		            <div class="span3">
+		                    <h4> <?php echo $module; ?> Module</h4>
+		            </div>
+		            <div class="span9 right">
+
+						<!--
+						here we create the check box / on off slider
+						name is used to submit data to form needs cleaning up
+						-->
+
+						<input type="checkbox" checkbox-type="my-checkbox-databox" data-target="<?php echo $module; ?>" 
+						name="formsettings[modules][<?php echo $module; ?>]" <?php if ( $moduleStatus == "true" ) { ?>checked="checked"<?php } ?> >
+
+		            </div>
+		        </div>
+
+				<!--
+				module description is done here
+				-->
+				<div>
+		        <?php 
+		        echo $moduleSettings['module']['description'];
+		        ?> 
+				</div>
 
 
+				<!--
+				module settings is done here
+				-->
+				<div class="viewdetails_<?php echo $module; ?>" <?php if ( $moduleStatus == "false" ) { ?>style="display:none"<?php } ?> >
 
-                <?php 
-                	$modules = LoadModules::$_modules; 
-					$interfaces = LoadUtility::getNetworkInterfaces(); 
-				?>
-                
-                <?php foreach ($modules as $module => $moduleName) { ?>
 				<div class="separator bottom"></div>
-            	<div class="row-fluid">
-                    <div class="span3">
-                            <h4> <?php echo $module; ?> Module</h4>
-                    </div>
-                    <div class="span9 right">
-                        <div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-                            <input name="formsettings[modules][<?php echo $module; ?>]" value="true" type="checkbox"
-                            	<?php if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" )
-                            		{ ?>checked="checked"<?php }
-                            	?>
-                            >
-                        </div>
-                    </div>
 
-                </div>
-				<div class="separator bottom"></div>
-                <?php
-                //indiviudual module settings here
-                //need a way to load this dynamically when the module is activated above!
-                if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" ) {
+		            <?php
+		           
+		            //indiviudual module settings here
+		            //if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" ) {
+		           
+		            if ( isset($settings['modules'][$module]) ) {
 
-                	$moduleSettings = LoadModules::$_settings->$module;
-                	
-                	if ( isset($moduleSettings['module']['has_settings']) && $moduleSettings['module']['has_settings'] == "true") {
-                		?>
+		            	//$moduleSettings = LoadModules::$_settings->$module;
+		            	
+		            	if ( isset($moduleSettings['module']['has_settings']) && $moduleSettings['module']['has_settings'] == "true") {
+		            		?>
 
-                		<div class="well">
+			    				<div class="row-fluid">
 
-                		<?php
-
-                		if ($module == "Network") {
-
-                			echo "<strong>Network Interfaces</strong><br><br>";
-
-							foreach ($interfaces as $interface) { ?>
-							<div class="row-fluid">
-								<div class="span3">
-									<strong>Monitor: <?php echo trim($interface['name']); ?></strong>
-								</div>
-								<div class="span9 right">
-									<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					                    <input name="formsettings[network_interface][<?php echo trim($interface['name']); ?>]" value="true" type="checkbox"
-					                    	<?php
-					                    		if ( isset($settings['network_interface'][trim($interface['name'])]) && $settings['network_interface'][trim($interface['name'])] == "true" )
-					                    		{ ?>checked="checked"<?php }
-					                    	?>
-					                    >
-					                </div>
-								</div>
-							</div>
-							<?php } 
-							echo "<br>";
-                			echo "<strong>Network Settings</strong><br><br>";						
-						}
-				        ?>
+		                		<?php
+		                		if ($module == "Network") {
 
 
+		                			echo "<strong>Network Interfaces</strong><br><br>";
 
-	                        <?php
-	                        foreach ($moduleSettings['settings'] as $setting => $value) {
-	                        	?>
-	                        	<div class="row-fluid">
-	                        		<div class="span3">
-	                        			<strong><?php echo ucwords(str_replace("_"," ",$setting)); ?></strong>
-	                        		</div>
-	                        		<div class="span9 right">
+									foreach ($interfaces as $interface) { 
 
-	                        			<?php if ( $value == 'true' || $value == 'false') { ?>
+										$interface_name = trim($interface['name']); ?>
 
-											<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-												<input name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" type="checkbox" value="<?php echo $value; ?>" 
-												<?php if ( $value == "true" ) { ?>checked="checked"<?php } ?>>
-											</div>	  
+										<div class="row-fluid">
+											<div class="span3">
+												<strong>Monitor: <?php echo trim($interface['name']); ?></strong>
+											</div>
+											<div class="span9 right">
 
-	                        			<?php } else { ?>
+							                    <input name="formsettings[network_interface][<?php echo $interface_name; ?>]" checkbox-type="my-checkbox" value="true" type="checkbox"
+							                    	<?php
+							                    		if ( isset($settings['network_interface'][trim($interface['name'])]) && $settings['network_interface'][trim($interface['name'])] == "true" )
+							                    		{ ?>checked="checked"<?php }
+							                    	?>
+							                    >
 
-	                        				<div class="pull-right">
-	                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">	                        					
-	                        				</div>  
+											</div>
+										</div>
+									<?php } 
+									echo "<br><strong>Network Settings</strong><br><br>";						
+								}
+						        
+		                        foreach ($moduleSettings['settings'] as $setting => $value) {
 
-	                        			<?php } ?>
+		                        	//if ($setting == "display_limiting")
+		                        	//better if $settings ends in limiting as also gets network settings 
+		                        	// hack this in better so we skip the divs below but data is still recorded for POST
 
-	                        		</div>
-	                        	</div>
-	                        	<?php
-	                        }
-	                        ?>
+		                        	?>
+		                        	<div class="row-fluid">
+		                        		<div class="span3">
+		                        			<strong><?php echo ucwords(str_replace("_"," ",$setting)); ?></strong>
+		                        		</div>
+		                        		<div class="span9 right">
+
+		                        			<?php 
+
+											if ($setting == "display_limiting") { ?>
+
+													<input type = "hidden" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>"  data-size="small" type="checkbox" value="<?php echo $value; ?>" 
+													<?php if ( $value == "true" ) { ?>checked="checked"<?php } ?>>
 
 
+		                        			<?php } else if ( $value == 'true' || $value == 'false') { ?>
 
+		                        				<!-- means its a checkbox -->
 
+													<input name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" checkbox-type="my-checkbox" data-size="small" type="checkbox" value="<?php echo $value; ?>" 
+													<?php if ( $value == "true" ) { ?>checked="checked"<?php } ?>>
 
+		                        			<?php } else { ?>
 
-                		</div>
-                		<?php
-                	}
-                }
-                ?>
-                <?php } ?>
-        </div>
+		                        				<!-- means its a regular data settings -->
+
+		                        				<div class="pull-right">
+		                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">	                        					
+		                        				</div>  
+
+		                        			<?php } ?>
+
+		                        		</div>
+		                        	</div>
+		                        	<?php
+		                        }
+		                        ?>
+
+		            		</div> <!-- close well -->
+		            	<?php
+		            	}
+		            }
+
+		    		?>
+
+				</div> <!-- close out the viewdetails section -->
+
+		    </div> <!-- close well -->
+
+    <div class="separator bottom"></div>
+
+	<?php
+    } 
+    ?>
 
 	<div class="separator bottom"></div>
 

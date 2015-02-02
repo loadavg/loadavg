@@ -15,7 +15,7 @@ checkforupdates = "true"
 apiserver = "false"
 logger_interval = 5
 rememberme_interval = 5
-ban_ip = "false"
+ban_ip = "true"
 autoreload = "true"
 [api]
 url = ""
@@ -36,5 +36,6 @@ Apache = "false"
 Mysql = "false"
 Ssh = "false"
 [plugins]
-Process = "true"
 Server = "true"
+Process = "true"
+

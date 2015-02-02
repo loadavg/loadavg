@@ -182,9 +182,10 @@ if (isset($_POST['update_settings'])) {
 				<strong>Check for updates</strong>
 			</div>
 			<div class="span9 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="formsettings[settings][checkforupdates]" type="checkbox" value="true" <?php if ( $settings['settings']['checkforupdates'] == "true" ) { ?>checked="checked"<?php } ?>>
-				</div>
+
+					<input name="formsettings[settings][checkforupdates]" type="checkbox" checkbox-type="my-checkbox" 
+					value="true" <?php if ( $settings['settings']['checkforupdates'] == "true" ) { ?>checked="checked"<?php } ?>>
+				
 			</div>
 		</div>
 
@@ -213,10 +214,11 @@ if (isset($_POST['update_settings'])) {
 			<div class="span4">
 				<strong>Force secure connection</strong>
 			</div>
-			<div class="span8 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="formsettings[settings][https]" type="checkbox" value="true" <?php if ( $settings['settings']['https'] == "true" ) { ?>checked="checked"<?php } ?>>
-				</div>
+			<div class="span8 right">		
+
+					<input name="formsettings[settings][https]" type="checkbox" checkbox-type="my-checkbox" 
+					value="true" <?php if ( $settings['settings']['https'] == "true" ) { ?>checked="checked"<?php } ?>>
+
 			</div>
 		</div>
 
@@ -225,9 +227,10 @@ if (isset($_POST['update_settings'])) {
 				<strong>Allow anyone to view charts</strong>
 			</div>
 			<div class="span8 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="formsettings[settings][allow_anyone]" type="checkbox" value="true" <?php if ( $settings['settings']['allow_anyone'] == "true" ) { ?>checked="checked"<?php } ?>>
-				</div>
+
+					<input name="formsettings[settings][allow_anyone]" type="checkbox" checkbox-type="my-checkbox" 
+					value="true" <?php if ( $settings['settings']['allow_anyone'] == "true" ) { ?>checked="checked"<?php } ?>>
+
 			</div>
 		</div>
 
@@ -236,9 +239,10 @@ if (isset($_POST['update_settings'])) {
 				<strong>Ban blocked IP's</strong>
 			</div>
 			<div class="span8 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="formsettings[settings][ban_ip]" type="checkbox" value="true" <?php if ( $settings['settings']['ban_ip'] == "true" ) { ?>checked="checked"<?php } ?>>
-				</div>
+
+					<input name="formsettings[settings][ban_ip]" type="checkbox" checkbox-type="my-checkbox" 
+					value="true" <?php if ( $settings['settings']['ban_ip'] == "true" ) { ?>checked="checked"<?php } ?>>
+
 			</div>
 		</div>
 
@@ -263,9 +267,10 @@ if (isset($_POST['update_settings'])) {
 				<strong>Auto reload page</strong>
 			</div>
 			<div class="span8 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="formsettings[settings][autoreload]" type="checkbox" value="true" <?php if ( $settings['settings']['autoreload'] == "true" ) { ?>checked="checked"<?php } ?>>
-				</div>
+
+					<input name="formsettings[settings][autoreload]" type="checkbox" checkbox-type="my-checkbox" 
+					value="true" <?php if ( $settings['settings']['autoreload'] == "true" ) { ?>checked="checked"<?php } ?>>
+
 			</div>
 		</div>
 

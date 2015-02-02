@@ -91,10 +91,14 @@
 	<!-- Bootstrap Script -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/js/bootstrap.min.js"></script>
 
-	<!-- Bootstrap Toggle Buttons Script -->
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-toggle-buttons/static/js/jquery.toggle.buttons.js"></script>
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-switch-master/dist/js/bootstrap-switch.min.js"></script>
 
+
+	<!-- Bootstrap Toggle Buttons Script 
 	<script>$(function () { $('.toggle-button').toggleButtons(); })</script>
+	-->
+
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/buttons.js"></script>
 
 	<!-- Common script 
 		 Only include for chart/index right now as conflicts with opther modules

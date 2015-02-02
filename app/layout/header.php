@@ -66,9 +66,13 @@ if (isset($_POST['login'])  ) {
 	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
 
-	<!-- Bootstrap Toggle Buttons Script -->
+	<!-- Bootstrap Toggle Buttons Script 
 	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-toggle-buttons/static/stylesheets/bootstrap-toggle-buttons.css">
+	-->
+	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-switch-master/dist/css/bootstrap2/bootstrap-switch.min.css">
 	
+
+
 	<!-- JQueryUI v1.11.1 -->
 	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.css" />
 
@@ -200,6 +204,7 @@ if (isset($_POST['login'])  ) {
 					<ul class="dropdown-menu pull-right">
 						<li><a href="?page=settings">System <i class="fa fa-cog pull-right"></i></a></li>
 						<li><a href="?page=settingsmodules">Modules <i class="fa fa-cog pull-right"></i></a></li>
+						<li><a href="?page=settingsplugins">Plugins <i class="fa fa-cog pull-right"></i></a></li>
 						<li><a href="?page=settingsapi">API <i class="fa fa-cog pull-right"></i></a></li>
 						<li><a href="?page=settingslogger">Logger <i class="fa fa-cog pull-right"></i></a></li>
 						<?php if ( $loadavg->isLoggedIn() ): ?>
