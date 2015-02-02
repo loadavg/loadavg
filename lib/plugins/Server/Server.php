@@ -30,7 +30,7 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 <div class="well lh70-style">
     <b>Server Data</b>
     <div class="pull-right">
-	<?php echo $server->getData("uptime"); ?>
+	<?php echo 'Uptime: ' . $server->getData("uptime"); ?>
     </div>
 </div>
 

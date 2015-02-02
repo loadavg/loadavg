@@ -14,14 +14,18 @@
 */
 ?>
 
-<?php if ($loadavg->isLoggedIn()) { 
-
-    ?>
+<?php 
+if (    (   $loadavg->isLoggedIn() 
+        || ( isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true" ) )
+     && ( $banned == false ) 
+    ) 
+{ 
+?>
 
 <table class="well lh70 lh70-style" width="100%" border="0" cellspacing="1" cellpadding="3">
     <tr>
         <td width="30%">
-            <b>Today</b> - <?php echo date("l, M. j H:i a", (time()-300)); ?>  <!--  need to add log file dates here when overriden   -->
+            <b>Today</b> - <?php echo date("l, M. j h:i a", (time())); ?>  <!--  need to add log file dates here when overriden   -->
 
 
 
