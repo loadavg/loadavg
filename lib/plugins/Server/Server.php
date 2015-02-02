@@ -14,6 +14,12 @@
 */
 ?>
 
+<?php 
+//open logged in
+if ( $loadavg->isLoggedIn() )
+{ 
+?>
+
 <?php $server = LoadPlugins::$_classes['Server']; ?>
 
 <!--
@@ -269,3 +275,12 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 	</div>
 </div>
 
+<?php 
+} // close logged in 
+else
+{
+
+	include( APP_PATH . '/views/login.php');
+
+}
+?>

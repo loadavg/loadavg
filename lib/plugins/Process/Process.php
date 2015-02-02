@@ -14,6 +14,11 @@
 */
 ?>
 
+<?php 
+//open logged in
+if ( $loadavg->isLoggedIn() )
+{ 
+?>
 
 <?php $process = LoadPlugins::$_classes['Process']; ?>
 
@@ -199,4 +204,12 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 </div> <!-- // inner all end -->
 
 
-	
+<?php 
+} // close logged in 
+else
+{
+
+	include( APP_PATH . '/views/login.php');
+
+}
+?>
