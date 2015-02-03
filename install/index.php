@@ -331,7 +331,8 @@ switch ( $step )
 					$settings['settings']['version'] = SCRIPT_VERSION;
 
 				//var_dump($settings);
-				$loadavg->write_php_ini( $settings, $settings_file);
+				LoadUtility::write_php_ini( $settings, $settings_file);
+				//adds a new line at end - why ?
 				$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
 				?>
 
