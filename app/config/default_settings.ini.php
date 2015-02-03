@@ -16,6 +16,7 @@ apiserver = "false"
 logger_interval = '5'
 rememberme_interval = '5'
 ban_ip = "true"
+autoreload = "true"
 [api]
 url = ""
 key = ""
