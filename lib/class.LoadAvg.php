@@ -20,11 +20,6 @@ class LoadAvg
 	public static $settings_ini; //location of settings.ini file
 	public static $_settings; // storing standard settings and/or loaded modules settings
 	
-	//public static $_classes; // storing loaded modules classes
-	//public static $_modules; // storing and managing modules
-
-	//public static $_plugins; // storing and managing plugins
-
 	public static $current_date; // current date
 	private static $_timezones; // Cache of timezones
 
@@ -224,9 +219,11 @@ class LoadAvg
 
 			// Check for each module we have loadedModules
 			foreach ( $loadedModules as $module => $value ) {
-				if ( $value == "false" ) continue;
+				if ( $value == "false" || ( !isset(LoadModules::$_settings->$module)    )  ) continue;
+
 
 				$moduleSettings = LoadModules::$_settings->$module;
+
 
 				// Check if loadedModules module needs loggable capabilities
 				if ( $moduleSettings['module']['logable'] == "true" ) {
