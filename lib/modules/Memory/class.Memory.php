@@ -174,7 +174,11 @@ class Memory extends Charts
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {
 					$usage[] = ( $data[1] / 1024 );
-					$percentage_used =  ( $data[1] / $data[3] ) * 100; // DIV 0 REDLINE
+
+					if ($data[3]>0)
+						$percentage_used =  ( $data[1] / $data[3] ) * 100; // DIV 0 REDLINE
+					else
+						$percentage_used = 0;
 				} else {
 					$percentage_used = 0;
 				}
@@ -208,7 +212,7 @@ class Memory extends Charts
 					//swapping
 					if ( isset($data[2])  ) {
 
-						if (!$redline) 
+						if (!$redline && ($data[3]>0) ) 
 							$swap_percentage = ( ($data[2] / $data[3])  * 100); // DIV 0 REDLINE
 						else
 							$swap_percentage = 0;
@@ -246,9 +250,16 @@ class Memory extends Charts
 
 			} else {
 
-				$mem_high=   ( max($usage) / $memorySize ) * 100 ;				
-				$mem_low =   ( min($usage) / $memorySize ) * 100 ;
-				$mem_mean =  ( (array_sum($usage) / count($usage)) / $memorySize ) * 100 ;
+				//fix for division by zero
+				if ($memorySize>0) {
+					$mem_high=   ( max($usage) / $memorySize ) * 100 ;				
+					$mem_low =   ( min($usage) / $memorySize ) * 100 ;
+					$mem_mean =  ( (array_sum($usage) / count($usage)) / $memorySize ) * 100 ;
+				}
+				else
+				{
+					$mem_high = $mem_low = $mem_mean = 0;
+				}
 
 				//these are the min and max values used when drawing the charts
 				//can be used to zoom into datasets

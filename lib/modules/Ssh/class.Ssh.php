@@ -195,7 +195,12 @@ class Ssh extends Charts
 			if (count ($time) > 1)
 				$ssh_latest_login  = (    $time[   $usage[1][count($usage)-1]  ]    )    ;		
 			else
-				$ssh_latest_login  = (    $time[  $usage[1][1]  ]   )    ;		
+			{
+				if (   isset($usage[1][1]) &&  isset($time[$usage[1][1]])   )
+					$ssh_latest_login  = (    $time[$usage[1][1]]   )    ;	
+				else	
+					$ssh_latest_login  = 0;
+			}
 
 
 			$variables = array(
