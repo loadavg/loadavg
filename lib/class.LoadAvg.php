@@ -129,8 +129,6 @@ class LoadAvg
 
 			//add new plugins section
 			array_push($settingsFile, '[plugins]');
-			array_push($settingsFile, 'Server = "true"');
-			array_push($settingsFile, 'Process = "false"');
 
 			//var_dump ($settingsFile);
 			//die;
