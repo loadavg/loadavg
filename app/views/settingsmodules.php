@@ -201,7 +201,10 @@ header('Location: '.$_SERVER['REQUEST_URI']);
     		$moduleSettings = LoadUtility::getSettings($module, 'modules' );
 
         	// if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" )
-        	$moduleStatus = $settings['modules'][$module];
+        	if (isset($settings['modules'][$module]))
+        		$moduleStatus = $settings['modules'][$module];
+        	else
+	        	$moduleStatus = false;
    			?>
 			
 			<div class="well">
