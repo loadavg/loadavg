@@ -1,4 +1,4 @@
-<?php 
+<?php
 // *************************************************************************
 // This file is part of LoadAvg, the server monitoring & analytics platform
 // http://www.loadavg.com
@@ -19,9 +19,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 // *************************************************************************
-?>
 
-<?php
 /**
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
@@ -41,17 +39,21 @@ require_once 'globals.php';
 
 ob_start(); 
 
+/* Initialize LoadAvg Utility Class */ 
+include 'class.Utility.php';
+
 /* Initialize LoadAvg */ 
 include 'class.LoadAvg.php';
 $loadavg = new LoadAvg();
 
+
 $settings = LoadAvg::$_settings->general;
 
 /* Force https when in https mode */
-if ( $settings['https'] == "true" && !isset($_SERVER["HTTPS"])) {
+if ( $settings['settings']['https'] == "true" && !isset($_SERVER["HTTPS"])) {
 	header("Location: https://" . $_SERVER['SERVER_NAME'] .$_SERVER['REQUEST_URI']);
 } else {
 	header("Location: public/");
 }
-?>
 
+?>

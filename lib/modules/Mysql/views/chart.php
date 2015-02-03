@@ -15,146 +15,68 @@
 */
 ?>
 
-
-
-<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
-
-<!-- draw charts for each interface -->
-
-<div class="widget" data-toggle="collapse-widget" data-collapse-closed="false">
-	
-
-	<div class="widget-head"><h4 class="heading"><strong>MySql Usage</strong></h4></div>
-	<div class="widget-body collapse in" style="height: auto;">
-		<?php
-		$j = 0;
-
-		//show or skip last chart
-		$showqueries = $moduleSettings['settings']['show_queries'];
-
-		/* draw charts for each subchart as per args will be Transmit and receive */
-
-		foreach ( $charts['args'] as $chart ) {
-			$j++;
-
-			//this is to switch between differet chart modes
-			//if set to show queries skip charts 1 and 2
-			if ( ( ( $showqueries == "true" ) && ( $j == 1 || $j == 2) ) || ( $showqueries == "false" && $j == 3) )
-				continue;
-
-			$chart = json_decode($chart);
-
-			// note that this will probably need to be fixed for PERIODS
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
-
-			// find out main function from module args that generates chart data
-			// in this module its getData above
-			$caller = $chart->function;
-
-			//check if function takes settings via GET url_args 
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
-
-			if ( file_exists( $this->logfile )) {
-				$i++;				
-				$logfileStatus = false;
-
-				//call modules main function and pass over functionSettings
-				if ($functionSettings) {
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
-				} else {
-					$stuff = $this->$caller( $logfileStatus );
-				}
-
-			} else {
-				//no log file so draw empty charts
-				$i++;				
-				$logfileStatus = true;
-			}
-
-			?>
-
-
 <?php
 
-	//if there is no logfile or error from the caller (stuff is false) 
-	//then we just build empty charts
-	if ( !isset($stuff) || $stuff == false || $logfileStatus == true ) {
+	//get status of interface ebefore rendering
+	$moduleCollapse = "accordion-body collapse in";
+	$moduleCollapseStatus = "true";
 
-		$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
-
-		////////////////////////////////////////////////////////////////////////////
-		//this data can be created in charts.php really if $datastring is null ?
-		//or add a flag to the array for chartdata here...
-		$stuff['chart'] = array(
-			'chart_format' => 'line',
-			'ymin' => 0,
-			'ymax' => 1,
-			'xmin' => date("Y/m/d 00:00:01"),
-			'xmax' => date("Y/m/d 23:59:59"),
-			'mean' => 0,
-			'dataset_1_label' => "No Data",
-			'dataset_1' => "[[0, '0.00']]"
-		);
-	
+	if ($cookies) {
+		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 	}
 
 ?>
 
+<div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
+	<div class="accordion-heading"> 		
+		<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
+			<?php echo $moduleSettings['module']['name']; //$chart->label; ?>				
+		</a>
+	</div>
+	<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
+		<div class="accordion-inner">
 
-		<!-- <div class="row-fluid"> -->
-		<table border="0" width="100%" cellspacing="0" cellpadding="0">
-			<tr>
-			<!-- <div class="span3 right"> -->
-			<td width="26%" align="right" style="padding-right: 15px">
-				<?php if ( $stuff ) { ?>
-				<ul class="unstyled">
-					<?php
-					foreach ($stuff['info']['line'] as $line) {
-						switch ($line['type']) {
-							case "file":
-								echo '<li>'; include $line['file']; echo '</li>';
-								break;
-							case "line":
-								echo '<li>' . $line['formatted_line'] . '</li>';
-						}
-					}
-					?>
-				</ul>
-				<?php } ?>
-			<!-- </div> -->
-			</td>
+			<?php
 
-			<!-- used to change  if we have the Avg chart on right or not -->
-			<td class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
-				
-	       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
-	       		     more than 1 in i means multiple charts in the segment so we include js files just once
-	       		-->
-				<?php if ( $i == 1) { ?>
-				<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
-				<?php }	
+			//show or skip last chart
+			$showqueries = $moduleSettings['settings']['show_queries'];
 
-				//draw chart
-				include( HOME_PATH . '/lib/charts/chartcore.php');
-				?>
+			$chartModules = 0;
+			$loadJavascript = true;
 
-			</td>
+			foreach ( $charts['args'] as $chart ) {
+				$chartModules++;
 
-			<?php 
-	        // Now draw separate chart for mean value display stacked bar chart
-	        // cool as we can also do pie charts etc using different flags
-			if ( isset($stuff['chart']['mean']) ) {  
+				//this is to switch between differet chart modes
+				//if set to show queries skip charts 1 and 2
+				if ( ( ( $showqueries == "true" ) && ( $chartModules == 1 || $chartModules == 2) ) 
+					|| ( $showqueries == "false" && $chartModules == 3) )
+					continue;
 
-				include( HOME_PATH . '/lib/charts/chartavg.php');
-			} 
-			?> 
+				$chart = json_decode($chart);
 
-			</tr>
-		</table>
-		<?php } ?>
-	</div> <!-- // Accordion end -->
-	
-</div> <!-- // Accordion group -->
+				//var_dump ($chart);
+
+				//get the log file NAME or names when there is a range
+				//returns multiple files when multiple log files
+				$class->setLogFile($chart->logfile,  $dateRange, $module );
+
+				//get data needed to send to template to render chart
+				$chartData = $class->getChartRenderData( $chart, $functionSettings, $module );
+
+				//var_dump ($chartData);
+
+
+				include( HOME_PATH . '/lib/charts/chartmodule.php'); 
+			
+				$loadJavascript = false;
+
+			
+				} ?>
+			
+		</div> <!-- // Accordion inner end -->
+	</div> <!-- // Accordion category end -->
+</div> <!-- // Accordion end -->
 
 <div class="separator bottom"></div>
 

@@ -20,14 +20,60 @@ require_once '../globals.php';
 ob_start(); 
 session_start();
 
+if (DEBUG) $memory_usage['start'] = memory_get_usage();
+
+
+/* Initialize LoadAvg Utility Class */ 
+include_once 'class.Utility.php';
+if (DEBUG) $memory_usage['utility'] = memory_get_usage();
+
 /* Initialize LoadAvg */ 
-include 'class.LoadAvg.php';
+
+include_once 'class.LoadAvg.php';
 $loadavg = new LoadAvg();
+if (DEBUG) $memory_usage['loadavg'] = memory_get_usage();
+
+
+/* Initialize LoadAvg Charts module */ 
+include_once 'class.Modules.php';
+$loadModules = new LoadModules();
+if (DEBUG) $memory_usage['modules'] = memory_get_usage();
+
+/* Initialize LoadAvg Charts module */ 
+include_once 'class.Plugins.php';
+$loadPlugins = new loadPlugins();
+if (DEBUG) $memory_usage['plugins'] = memory_get_usage();
+
+
+/* initialize timer */
+include_once 'class.Timer.php';
+$timer = new Timer();
+if (DEBUG) $memory_usage['timer'] = memory_get_usage();
+
 
 //grab core settings
 $settings = LoadAvg::$_settings->general;
 
+/* 
+ * Force https when in https mode
+ * really needs to be a function called on all pages... to really force it
+ * 
+ */
 
+if ( $settings['settings']['https'] == "true" && !isset($_SERVER["HTTPS"])) {
+	header("Location: https://" . $_SERVER['SERVER_NAME'] .$_SERVER['REQUEST_URI']);
+} 
+
+//array of modules and status either on or off
+//$loadedModules = LoadModules::$_settings->general['modules']; 
+//var_dump ($loadedModules);
+
+//get plugins//
+$plugins = LoadPlugins::$_settings->general['plugins']; 
+//var_dump ($plugins);
+
+if (DEBUG)
+	$loadavg->memoryDebugData($memory_usage);
 
 //draw the header
 require_once APP_PATH . '/layout/header.php';
@@ -45,36 +91,22 @@ if ( isset( $_GET['check'] ) )
 	$loadavg->checkInstall();
 }
 
-/* 
- * Grab the current period if a period has been selected
- */
-
-if ( 
-	( isset($_GET['minDate']) && !empty($_GET['minDate']) ) &&
-	( isset($_GET['maxDate']) && !empty($_GET['maxDate']) )
-	) 
-{
-	LoadAvg::$period = true;
-	LoadAvg::$period_minDate = date("Y-m-d", strtotime($_GET['minDate']));
-	LoadAvg::$period_maxDate = date("Y-m-d", strtotime($_GET['maxDate']));
-}
-
 
 /*
  * start polling time to generate charts
  */
 
-$loadavg->setStartTime(); // Setting page load start time
+$timer->setStartTime(); // Setting page load start time
 
 /*
  * draw the current page view
  */
 
-//array of modules and status either on or off
-$loaded = LoadAvg::$_settings->general['modules']; 
 
-//grab the log diretory
-$logdir = HOME_PATH . '/logs/';
+
+//grab the log diretory - needs to be dynamic really
+//as this is also set in settings.ini.php !!!
+$logdir = LOG_PATH;
 
 
 //check to see if ip is banned before going on
@@ -102,20 +134,39 @@ if (  (!isset($_SESSION['logged_in']) || ($_SESSION['logged_in'] == false)) && (
 	}
 }
 
+	//first lets see if a name has been set...
+	$pageName = "";
 
 //security check for all access
-if ( (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "false" && !$loadavg->isLoggedIn())  || ($banned == true)   ) 
+if ( (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "false" && !$loadavg->isLoggedIn())  || ($banned == true)   ) 
 {
 	include( APP_PATH . '/views/login.php');
 } 
 else 
 {
-	//draw current page
-	if (isset($_GET['page']) && file_exists( APP_PATH . '/views/' . $_GET['page'] . '.php' ) ) 
+
+
+
+	if ( isset($_GET['page']) && ($_GET['page'] != "") ) 
+		$pageName = $_GET['page'];
+
+
+	//first check to see if its a plugin
+	//if (in_array($pageName, $plugins))  array_key_exists
+	if (array_key_exists($pageName, $plugins))  
+    {
+		require_once PLUGIN_PATH .  $pageName  . '/' . $pageName . '.php';
+    }
+
+	//if not check to see if its a view page
+	else if ( file_exists( APP_PATH . '/views/' . $pageName . '.php' ) ) 
 	{
-		require_once APP_PATH . '/views/' . $_GET['page'] . '.php';
+		//echo 'PAGE: ' . $pageName . '<br>';
+		require_once APP_PATH . '/views/' . $pageName . '.php';
 	} 
-	else 
+
+	//if not draw default index page
+	else
 	{
 		//if page doesnt exist redirect to index, can be modified to a page not found if need be
 		require_once APP_PATH . '/views/index.php';
@@ -127,10 +178,10 @@ else
  */
 
 // set page load finish time
-$loadavg->setFinishTime(); 
+$timer->setFinishTime(); 
 
 // Calculating total page load time
-$page_load = $loadavg->getPageLoadTime(); 
+$page_load = $timer->getPageLoadTime(); 
 
 //draw the footer
 require_once APP_PATH . '/layout/footer.php'; 

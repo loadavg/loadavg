@@ -19,23 +19,12 @@
 <?php
 
 	//clean up links first
-	if (
-		(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
-		(isset($_GET['maxDate']) && !empty($_GET['maxDate'])) &&
-		(isset($_GET['logdate']) && !empty($_GET['logdate']))
-		) {
-		$links = "?minDate=" . $_GET['minDate'] . "&maxDate=" . $_GET['maxDate'] . "&logdate=" . $_GET['logdate'] ."&";
-	} elseif (
-		(isset($_GET['logdate']) && !empty($_GET['logdate']))
-		) {
-		$links = "?logdate=" . $_GET['logdate'] . "&";
-	} else {
-		$links = "?";
-	}
 
+	//get date range links for header here
+	$links = loadModules::getRangeLinks();
 
 	//get settings for this module
-	$networkSettings = LoadAvg::$_settings->$module;
+	$modSettings = loadModules::$_settings->$module;
 
 
 	//currently we dont store settings per network interface but we need to!
@@ -46,7 +35,7 @@
 	if ( $chart->type == "Transmit") {
 
 		//get the displaymode setting from the settings subsection for this module
-		$thedata = $networkSettings['settings']['transfer_limiting'];
+		$thedata = $modSettings['settings']['transfer_limiting'];
 
 		//if we are changing mode
 		if  ( isset($_GET[$interface . 'transfermode']) || !empty($_GET[$interface . 'transfermode']))  {
@@ -55,14 +44,14 @@
 
 			switch ( $newmode) {
 				case "true": 	$mydata['settings']['transfer_limiting'] = "true";
-							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
-							LoadAvg::write_module_ini($mergedsettings, $module);
+							$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+							LoadUtility::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 
 				case "false": 	$mydata['settings']['transfer_limiting'] = "false";
-							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
-							LoadAvg::write_module_ini($mergedsettings, $module);
+							$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+							LoadUtility::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 			}		
@@ -80,7 +69,7 @@
 	if ( $chart->type == "Receive") {
 
 		//get the displaymode setting from the settings subsection for this module
-		$thedata = $networkSettings['settings']['receive_limiting'];
+		$thedata = $modSettings['settings']['receive_limiting'];
 
 		//if we are changing mode
 		if  ( isset($_GET[$interface . 'receivemode']) || !empty($_GET[$interface . 'receivemode']))  {
@@ -89,14 +78,14 @@
 
 			switch ( $newmode) {
 				case "true": 	$mydata['settings']['receive_limiting'] = "true";
-							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
-							LoadAvg::write_module_ini($mergedsettings, $module);
+							$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+							LoadUtility::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 
 				case "false": 	$mydata['settings']['receive_limiting'] = "false";
-							$mergedsettings = LoadAvg::ini_merge ($networkSettings, $mydata);
-							LoadAvg::write_module_ini($mergedsettings, $module);
+							$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+							LoadUtility::write_module_ini($mergedsettings, $module);
 							header("Location: " . $links);						
 							break;
 			}		

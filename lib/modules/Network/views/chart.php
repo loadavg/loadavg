@@ -15,160 +15,88 @@
 */
 ?>
 
-
-
-<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
-
-<!-- loop through each interface -->
-
 <?php
 
-$i = 0; 
+	//get status of interface ebefore rendering
+	$moduleCollapse = "accordion-body collapse in";
+	$moduleCollapseStatus = "true";
 
-foreach (LoadAvg::$_settings->general['network_interface'] as $interface => $value) { 
-
-	$i++;
-
-	//skip disabled interfaces
-	if (  !( isset(LoadAvg::$_settings->general['network_interface'][$interface]) 
-		&& LoadAvg::$_settings->general['network_interface'][$interface] == "true" ) )
-		continue;
-
-?>
-
-
-<!-- draw charts for each interface -->
-
-<div class="widget" data-toggle="collapse-widget" data-collapse-closed="false">
-	<div class="widget-head"><h4 class="heading"><strong>Network</strong> Interface: <?php echo $interface; ?></h4></div>
-	<div class="widget-body collapse in" style="height: auto;">
-		<?php
-		$j = 0;
-
-		/* draw charts for each subchart as per args will be Transmit and receive */
-		foreach ( $charts['args'] as $chart ) {
-			$j++;
-			$chart = json_decode($chart);
-
-			// note that this will probably need to be fixed for PERIODS
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date, $interface);
-
-			$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
-
-			// find out main function from module args that generates chart data
-			// in this module its getData above
-			$caller = $chart->function;
-
-			//check if function takes settings via GET url_args 
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
-
-			if ( file_exists( $this->logfile )) {
-				$i++;				
-				$logfileStatus = false;
-
-				//call modules main function and pass over functionSettings
-				if ($functionSettings) {
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
-				} else {
-					$stuff = $this->$caller( $logfileStatus );
-				}
-
-			} else {
-				//no log file so draw empty charts
-				$i++;				
-				$logfileStatus = true;
-			}
-
-			?>
-
-
-<?php
-
-	//if there is no logfile or error from the caller (stuff is false) 
-	//then we just build empty charts
-	if ( !isset($stuff) || $stuff == false || $logfileStatus == true ) {
-
-		$stuff = $this->parseInfo($moduleSettings['info']['line'], null, $module); // module was __CLASS__
-
-		////////////////////////////////////////////////////////////////////////////
-		//this data can be created in charts.php really if $datastring is null ?
-		//or add a flag to the array for chartdata here...
-		$stuff['chart'] = array(
-			'chart_format' => 'line',
-			'ymin' => 0,
-			'ymax' => 1,
-			'xmin' => date("Y/m/d 00:00:01"),
-			'xmax' => date("Y/m/d 23:59:59"),
-			'mean' => 0,
-			'dataset_1_label' => "No Data",
-			'dataset_1' => "[[0, '0.00']]"
-		);
-
-
-	
+	if ($cookies) {
+		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 	}
+		
+?>
+
+<?php
+
+	//loop through each interface as we may have multiple interfaces
+	foreach (loadModules::$_settings->general['network_interface'] as $interface => $value) 
+	{ 
+
+		//skip disabled interfaces
+		if (  !( isset(loadModules::$_settings->general['network_interface'][$interface]) 
+			&& loadModules::$_settings->general['network_interface'][$interface] == "true" ) )
+			continue;
+
+		//we only have one cookie for all interfaces!!! need to fix this to have separate ones
+		//$moduleCollapse = $moduleCollapseStatus  = "";
+		//$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
 ?>
 
+		<div id="accordion-<?php echo $module;?>" class="accordion-group" data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
+			<div class="accordion-heading"> 
+				<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $interface; ?>" >
+				Network Interface: <?php echo $interface; ?>
+				</a>
+			</div>
 
-		<!-- <div class="row-fluid"> -->
-		<table border="0" width="100%" cellspacing="0" cellpadding="0">
-			<tr>
-			<?php
-
-			?>
-			<!-- <div class="span3 right"> -->
-			<td width="26%" align="right" style="padding-right: 15px">
-				<?php if ( $stuff ) { ?>
-				<ul class="unstyled">
+			<div id="category<?php echo $interface; ?>" class="<?php echo $moduleCollapse;?>">
+				<div class="accordion-inner">
 					<?php
-					foreach ($stuff['info']['line'] as $line) {
-						switch ($line['type']) {
-							case "file":
-								echo '<li>'; include $line['file']; echo '</li>';
-								break;
-							case "line":
-								echo '<li>' . $line['formatted_line'] . '</li>';
-						}
-					}
+					//get data range we are looking at - need to do some validation in this routine
+					//$dateRange = loadModules::$date_range;
+					//$dateRange = $this->getDateRange();
+
+					//check if function takes settings via GET url_args 
+					$functionSettings =( (isset($moduleSettings['module']['url_args']) 
+						&& isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
+
+					//already passed over
+        			//$class = self::$_classes[$module];
+
+					/* draw charts for each subchart as per args will be Transmit and receive */
+					$chartModules = 0;
+					$loadJavascript = true;
+
+					foreach ( $charts['args'] as $chart ) {
+						$chartModules++;
+
+						$chart = json_decode($chart);
+
+						//get the log file NAME or names when there is a range
+						//returns multiple files when multiple log files
+						$class->setLogFile($chart->logfile,  $dateRange, $module, $interface );
+
+
+						//get data needed to send to template to render chart
+						$chartData = $class->getChartRenderData( $chart, $functionSettings, $module );			
+
+
+						////////////////////////////////////////////////////////////////
+						//net interfaces have differnt id's ?
+						$chart->id = 'chart_network_' . $interface . '_' . $chart->type;
+
+						include( HOME_PATH . '/lib/charts/chartmodule.php');
+
+						$loadJavascript = false;
+
+					} 
 					?>
-				</ul>
-				<?php } ?>
-			<!-- </div> -->
-			</td>
+				</div> <!-- // Accordion inner end -->
+			</div> <!-- // Accordion category end -->
+		</div> <!-- // Accordion end -->
 
-			<!-- used to change  if we have the Avg chart on right or not -->
-			<td class="<?php echo ( isset( $stuff['chart']['mean'] ) ) ? 'span8' : 'span9'; ?> innerT"> 
-				
-	       		<!-- $i is passed over by calling function in module and is used to track multiple modules in chart
-	       		     more than 1 in i means multiple charts in the segment so we include js files just once
-	       		-->
-				<?php if ( $i == 1) { ?>
-				<script type="text/javascript" src= "<?php echo SCRIPT_ROOT; ?>lib/modules/<?php echo $module; ?>/<?php echo strtolower($module); ?>.js"></script>
-				<?php }	
-
-				//draw chart
-				include( HOME_PATH . '/lib/charts/chartcore.php');
-				?>
-
-			</td>
-
-			<?php 
-	        // Now draw separate chart for mean value display stacked bar chart
-	        // cool as we can also do pie charts etc using different flags
-			if ( isset($stuff['chart']['mean']) ) {  
-
-				include( HOME_PATH . '/lib/charts/chartavg.php');
-			} 
-			?> 
-
-			</tr>
-		</table>
-		<?php } ?>
-	</div> <!-- // Accordion end -->
-	
-</div> <!-- // Accordion group -->
-
-<div class="separator bottom"></div>
+	<div class="separator bottom"></div>
 
 <?php } ?>

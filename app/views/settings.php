@@ -37,19 +37,22 @@ if (isset($_POST['update_settings'])) {
 	//updates the general settings here
 
 	//check to see if password was updated
-	if ( !empty($_POST['formsettings']['password']) && strlen($_POST['formsettings']['password']) > 0 ) {
-		$_POST['formsettings']['password'] = md5($_POST['formsettings']['password']);
+	if ( !empty($_POST['formsettings']['settings']['password']) && strlen($_POST['formsettings']['settings']['password']) > 0 ) {
+		$_POST['formsettings']['settings']['password'] = md5($_POST['formsettings']['settings']['password']);
 	} else {
-		$_POST['formsettings']['password'] = $_POST['formsettings']['password2'];
+		$_POST['formsettings']['settings']['password'] = $_POST['formsettings']['settings']['password2'];
 	}
 
-	unset($_POST['formsettings']['password2']);
+	//remove password 2 as its not stored just aproxy to update password
+	unset($_POST['formsettings']['settings']['password2']);
 
-	$_POST['formsettings']['https'] = ( !isset($_POST['formsettings']['https']) ) ? "false" : "true";
-	$_POST['formsettings']['checkforupdates'] = ( !isset($_POST['formsettings']['checkforupdates']) ) ? "false" : "true";
-	$_POST['formsettings']['allow_anyone'] = ( !isset($_POST['formsettings']['allow_anyone']) ) ? "false" : "true";
-	$_POST['formsettings']['ban_ip'] = ( !isset($_POST['formsettings']['ban_ip']) ) ? "false" : "true";
-	$_POST['formsettings']['apiserver'] = ( !isset($_POST['formsettings']['apiserver']) ) ? "false" : "true";
+
+	$_POST['formsettings']['settings']['https'] = ( !isset($_POST['formsettings']['settings']['https']) ) ? "false" : "true";
+	$_POST['formsettings']['settings']['checkforupdates'] = ( !isset($_POST['formsettings']['settings']['checkforupdates']) ) ? "false" : "true";
+	$_POST['formsettings']['settings']['allow_anyone'] = ( !isset($_POST['formsettings']['settings']['allow_anyone']) ) ? "false" : "true";
+	$_POST['formsettings']['settings']['ban_ip'] = ( !isset($_POST['formsettings']['settings']['ban_ip']) ) ? "false" : "true";
+	$_POST['formsettings']['settings']['apiserver'] = ( !isset($_POST['formsettings']['settings']['apiserver']) ) ? "false" : "true";
+	$_POST['formsettings']['settings']['autoreload'] = ( !isset($_POST['formsettings']['settings']['autoreload']) ) ? "false" : "true";
 
 	// Loop throught settings
 	$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
@@ -57,15 +60,34 @@ if (isset($_POST['update_settings'])) {
 	//get current settings from memory
 	$settings = LoadAvg::$_settings->general;
 
+	//need to remove password 2 from this fucker ?
 	$postsettings = $_POST['formsettings'];
 
 	//what is better here - ini_merge or array_replace ?
 	//need to test instances where we add new variables to the mix
-	
-	//$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
-	$replaced_settings = array_replace($settings, $postsettings);
 
-	LoadAvg::write_php_ini($replaced_settings, $settings_file);
+	/*
+	echo '<pre>File Settings:';
+	print_r($settings);
+	echo '</pre>';
+
+	echo '<pre>Posted settings';
+	print_r($postsettings);
+	echo '</pre>';
+	*/
+
+	$replaced_settings = LoadUtility::ini_merge ($settings, $postsettings);
+	//$replaced_settings = array_replace($settings, $postsettings);
+	
+	/*
+	echo '<pre>';
+	print_r($replaced_settings);
+	echo '</pre>';
+
+	die;
+	*/
+	
+	LoadUtility::write_php_ini($replaced_settings, $settings_file);
 
 
 	///////////////////////////////////////////////////
@@ -78,13 +100,6 @@ if (isset($_POST['update_settings'])) {
 	 */
 
 	$settings = LoadAvg::$_settings->general;
-	//LoadAvg::$_settings->general = $settings;
-
-	/* rebuild logs
-	 * needed for when you turn a module on that has no logs
-	 * this needs to only rebuild logs for modules that have been turned on
-	 */
-	//$loadavg->rebuildLogs();
 
 	/* force reload settings page now */
 	header('Location: '.$_SERVER['REQUEST_URI']);
@@ -93,11 +108,22 @@ if (isset($_POST['update_settings'])) {
 
 ?>
 
+<!--
+		//if things get crazy for any reason then we need to just delete all cookies 
+		//maybe add to settings >
+
+		//dirty short term hack deleted cookie
+		//if(isset($_COOKIE['loadUIcookie'])) {
+		//	setcookie('loadUIcookie', null, -1, "/");
+    	//	unset($_COOKIE['loadUIcookie']);
+		//}
+-->
+
 
 <form action="" method="post">
 	<input type="hidden" name="update_settings" value="1" />
 
-	<input type="hidden" name="formsettings[password2]" value="<?php echo $settings['password']; ?>" />
+	<input type="hidden" name="formsettings[settings][password2]" value="<?php echo $settings['settings']['password']; ?>" />
 	
 <div class="innerAll">
 
@@ -116,7 +142,7 @@ if (isset($_POST['update_settings'])) {
 				<strong>Server name</strong>
 			</div>
 			<div class="span9 right">
-				<input type="text" name="formsettings[title]" value="<?php echo $settings['title']; ?>" >
+				<input type="text" name="formsettings[settings][title]" value="<?php echo $settings['settings']['title']; ?>" >
 			</div>
 		</div>
 
@@ -130,7 +156,7 @@ if (isset($_POST['update_settings'])) {
 
 			<?php
 			$timezones = LoadAvg::getTimezones();
-			print '<select name="formsettings[timezone]" id="timezone">';
+			print '<select name="formsettings[settings][timezone]" id="timezone">';
 
 			foreach($timezones as $region => $list)
 			{
@@ -138,7 +164,7 @@ if (isset($_POST['update_settings'])) {
 				foreach($list as $thetimezone => $name)
 				{
 					print '<option name="' . $thetimezone . '"';
-					$check = $settings['timezone'];
+					$check = $settings['settings']['timezone'];
 					if (  $check == $thetimezone )  { print ' selected="selected"'; }
 					print '>' . $thetimezone . '</option>' . "\n";
 				}
@@ -156,9 +182,11 @@ if (isset($_POST['update_settings'])) {
 				<strong>Check for updates</strong>
 			</div>
 			<div class="span9 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="formsettings[checkforupdates]" type="checkbox" value="true" <?php if ( $settings['checkforupdates'] == "true" ) { ?>checked="checked"<?php } ?>>
-				</div>
+
+				<input name="formsettings[settings][checkforupdates]" type="checkbox" checkbox-type="my-checkbox" 
+				value="true" <?php if ( $settings['settings']['checkforupdates'] == "true" ) { ?>checked="checked"<?php } ?>>
+			    <div class="separator bottom"></div>
+
 			</div>
 		</div>
 
@@ -167,9 +195,10 @@ if (isset($_POST['update_settings'])) {
 				<strong>Chart(s) format</strong>
 			</div>
 			<div class="span9 right">
-				<select name="formsettings[chart_type]">
-					<option value="1" <?php if ( $settings['chart_type'] == "1" ) { ?>selected="selected"<?php } ?>>Hourly</option>
-					<option value="24" <?php if ( $settings['chart_type'] == "24" ) { ?>selected="selected"<?php } ?>>All day</option>
+				<select name="formsettings[settings][chart_type]">
+					<option value="24" <?php if ( $settings['settings']['chart_type'] == "24" ) { ?>selected="selected"<?php } ?>>All day</option>
+					<option value="12" <?php if ( $settings['settings']['chart_type'] == "12" ) { ?>selected="selected"<?php } ?>>12 Hour</option>
+					<option value="6" <?php if ( $settings['settings']['chart_type'] == "16" ) { ?>selected="selected"<?php } ?>>6 Hour</option>
 				</select>
 			</div>
 		</div>
@@ -186,10 +215,12 @@ if (isset($_POST['update_settings'])) {
 			<div class="span4">
 				<strong>Force secure connection</strong>
 			</div>
-			<div class="span8 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="formsettings[https]" type="checkbox" value="true" <?php if ( $settings['https'] == "true" ) { ?>checked="checked"<?php } ?>>
-				</div>
+			<div class="span8 right">		
+
+				<input name="formsettings[settings][https]" type="checkbox" checkbox-type="my-checkbox" 
+				value="true" <?php if ( $settings['settings']['https'] == "true" ) { ?>checked="checked"<?php } ?>>
+	            <div class="separator bottom"></div>
+
 			</div>
 		</div>
 
@@ -198,9 +229,11 @@ if (isset($_POST['update_settings'])) {
 				<strong>Allow anyone to view charts</strong>
 			</div>
 			<div class="span8 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="formsettings[allow_anyone]" type="checkbox" value="true" <?php if ( $settings['allow_anyone'] == "true" ) { ?>checked="checked"<?php } ?>>
-				</div>
+
+				<input name="formsettings[settings][allow_anyone]" type="checkbox" checkbox-type="my-checkbox" 
+				value="true" <?php if ( $settings['settings']['allow_anyone'] == "true" ) { ?>checked="checked"<?php } ?>>
+        		<div class="separator bottom"></div>
+
 			</div>
 		</div>
 
@@ -209,9 +242,11 @@ if (isset($_POST['update_settings'])) {
 				<strong>Ban blocked IP's</strong>
 			</div>
 			<div class="span8 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-					<input name="formsettings[ban_ip]" type="checkbox" value="true" <?php if ( $settings['ban_ip'] == "true" ) { ?>checked="checked"<?php } ?>>
-				</div>
+
+				<input name="formsettings[settings][ban_ip]" type="checkbox" checkbox-type="my-checkbox" 
+				value="true" <?php if ( $settings['settings']['ban_ip'] == "true" ) { ?>checked="checked"<?php } ?>>
+            	<div class="separator bottom"></div>
+
 			</div>
 		</div>
 
@@ -220,12 +255,30 @@ if (isset($_POST['update_settings'])) {
 				<strong>Days to remember me for (when active)</strong>
 			</div>
 			<div class="span9 right">
-				<input type="text" name="formsettings[rememberme_interval]" value="<?php echo $settings['rememberme_interval']; ?>" >
+				<input type="text" name="formsettings[settings][rememberme_interval]" value="<?php echo $settings['settings']['rememberme_interval']; ?>" >
 			</div>
 		</div>
 
 	</div>
 
+	<div class="separator bottom"></div>
+
+	<div class="well">
+    <h4>Interface settings</h4>
+
+		<div class="row-fluid">
+			<div class="span4">
+				<strong>Auto reload page</strong>
+			</div>
+			<div class="span8 right">
+
+					<input name="formsettings[settings][autoreload]" type="checkbox" checkbox-type="my-checkbox" 
+					value="true" <?php if ( $settings['settings']['autoreload'] == "true" ) { ?>checked="checked"<?php } ?>>
+
+			</div>
+		</div>
+
+	</div>	
 
 	<div class="separator bottom"></div>
 
@@ -237,7 +290,7 @@ if (isset($_POST['update_settings'])) {
 				<strong>Username</strong>
 			</div>
 			<div class="span9 right">
-				<input type="text" name="formsettings[username]" value="<?php echo $settings['username']; ?>" >
+				<input type="text" name="formsettings[settings][username]" value="<?php echo $settings['settings']['username']; ?>" >
 			</div>
 		</div>
 
@@ -246,7 +299,7 @@ if (isset($_POST['update_settings'])) {
 				<strong>Password</strong>
 			</div>
 			<div class="span9 right">
-				<input type="text" name="formsettings[password]" />
+				<input type="text" name="formsettings[settings][password]" />
 			</div>
 		</div>
 

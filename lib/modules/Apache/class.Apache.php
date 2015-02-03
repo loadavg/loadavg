@@ -14,9 +14,8 @@
 * later.
 */
 
-class Apache extends LoadAvg
+class Apache extends Charts
 {
-	public $logfile; // Stores the logfile name & path
 
 	/**
 	 * __construct
@@ -29,77 +28,8 @@ class Apache extends LoadAvg
 		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
 	}
 
-	/**
-	 * logApacheUsageData
-	 *
-	 * Retrives data and logs it to file
-	 *
-	 * @param string $type type of logging default set to normal but it can be API too.
-	 * @return string $string if type is API returns data as string
-	 *
-	 */
-
-	public function logData( $type = false )
-	{
-		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
-
-		//$url = "http://localhost/server-status";
-		$url = $settings['settings']['serverstatus'];
-
-		$parseUrl = $url . "/?auto";
-
-		$locate = "CPULoad";
-
-		$dataValue = $this->getApacheDataValue($parseUrl, $locate);
-
-		if ($dataValue == null)
-			$dataValue = 0;
-
-	    $string = time() . '|' . $dataValue . "\n";
-
-		$filename = sprintf($this->logfile, date('Y-m-d'));
-		$this->safefilerewrite($filename,$string,"a",true);
-
-		if ( $type == "api")
-			return $string;
-		else
-			return true;	
-
-	}
 
 
-	/**
-	 * getApacheDataValue
-	 *
-	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
-	 *
-	 * @return array $dataValue data retrived from mod_status
-	 *
-	 */
-
-	public function getApacheDataValue($parseurl, $locate) 
-	{
-
-
-		$f = implode(file($parseurl."?dat=".time()),"");
-
-		$active = explode("\n", $f );
-
-		$dataValue = false;
-
-		foreach ($active as $i => $value) {
-
-			$pieces = explode(": ", $active[$i]);
-
-			if ($pieces[0]==$locate) {
-				$dataValue = $pieces[1];
-			}
-
-		}
-
-		return($dataValue);
-    }
     
 	/**
 	 * getApacheUsageData
@@ -108,65 +38,68 @@ class Apache extends LoadAvg
 	 *
 	 * @return array $return data retrived from logfile
 	 *
-	 */
+	 */ 
 
-	public function getUsageData( $logfileStatus )
+	public function getUsageData( )
 	{
 		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
+		$settings = loadModules::$_settings->$class;
 
-		$contents = null;
+		//define some core variables here
+		$dataArray = $dataArrayLabel = array();
+		$dataRedline = $usage = array();
 
-		$replaceDate = self::$current_date;
-			
-		if ($logfileStatus == false ) {
-		
-			if ( LoadAvg::$period ) {
-				$dates = self::getDates();
-				foreach ( $dates as $date ) {
-					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-						$replaceDate = $date;
-						if ( file_exists( $this->logfile ) )
-							$contents .= file_get_contents($this->logfile);
-					}
-				}
-			} else {
-				$contents = file_get_contents($this->logfile);
-			}
+		//define datasets
+		$dataArrayLabel[0] = 'CPU Usage';
 
-		} else {
+		//display switch used to switch between view modes - data or percentage
+		// true - show MB
+		// false - show percentage
+		$displayMode =	$settings['settings']['display_limiting'];	
 
-			$contents = 0;
+		/*
+		 * grab the log file data needed for the charts as array of strings
+		 * takes logfiles(s) and gives us back contents
+		 */
+
+		$contents = array();
+		$logStatus = LoadUtility::parseLogFileData($this->logfile, $contents);
+
+		/*
+		 * build the chartArray array here as array of arrays needed for charting
+		 * takes in contents and gives us back chartArray
+		 */
+
+		$chartArray = array();
+		$sizeofChartArray = 0;
+
+		if ($logStatus) {
+
+			//takes the log file and parses it into chartable data 
+			$this->getChartData ($chartArray, $contents );
+			$sizeofChartArray = (int)count($chartArray);
 		}
 
-		if ( strlen($contents) > 1 ) {
-			
-			$contents = explode("\n", $contents);
-			$return = $usage = $args = array();
+		/*
+		 * now we loop through the dataset and build the chart
+		 * uses chartArray which contains the dataset to be charted
+		 */
 
-			$usageCount = array();
-			$dataArray = $dataArrayOver = array();
-
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-				$timestamps = array();
-
-			$chartArray = array();
-
-			$this->getChartData ($chartArray, $contents);
-
-			$totalchartArray = (int)count($chartArray);
+		if ( $sizeofChartArray > 0 ) {
 
 			// main loop to build the chart data
-			for ( $i = 0; $i < $totalchartArray; ++$i) {	
+			for ( $i = 0; $i < $sizeofChartArray; ++$i) {	
+
 				$data = $chartArray[$i];
 
+				if ($data==null)
+					continue;
+
 				// clean data for missing values
-				$redline = ($this->checkRedline($data));
-
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
-					$data[1]=0.0;
-
+				$redline = false;
+				if  ( isset ($data['redline']) && $data['redline'] == true )
+					$redline = true;
+				
 				//used to filter out redline data from usage data as it skews it
 				//usage is used to calculate view perspectives
 				if (!$redline) 
@@ -177,16 +110,18 @@ class Apache extends LoadAvg
 
 				$usageCount[] = ($data[0]*1000);
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
-
-				$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] ) ."]";
+				$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] ) ."]";
 
 				if ( (float) $data[1] > $settings['settings']['overload'])
-					$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
+					$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1]  ) ."]";
 
 			}
-			
+
+			/*
+			 * now we collect data used to build the chart legend 
+			 * 
+			 */
+
 			$apache_high = max($usage);
 			$apache_low  = min($usage); 
 			$apache_mean = array_sum($usage) / count($usage);
@@ -200,21 +135,6 @@ class Apache extends LoadAvg
 
 			$apache_latest = ( ( $usage[count($usage)-1]  )    )    ;		
 
-
-
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				end($timestamps);
-				$key = key($timestamps);
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-				$lastTimeString = $timestamps[$key];
-				$difference = ( $endTime - $lastTimeString );
-				$loops = ( $difference / 300 );
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++ ) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-				}
-			}
 		
 			$variables = array(
 				'apache_high' => number_format($apache_high,4),
@@ -224,30 +144,36 @@ class Apache extends LoadAvg
 				'apache_mean' => number_format($apache_mean,4),
 				'apache_latest' => number_format($apache_latest,4),
 			);
-		
+
+			/*
+			 * all data to be charted is now cooalated into $return
+			 * and is returned to be charted
+			 * 
+			 */
+
+			$return  = array();
+
+			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
+			//parse, clean and sort data
+			$depth=2; //number of datasets
+			$this->buildChartDataset($dataArray,$depth);
 
-			ksort($dataArray);
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-
-			$dataString = "[" . implode(",", $dataArray) . "]";
-			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-
+			//build chart object
 			$return['chart'] = array(
 				'chart_format' => 'line',
+				'chart_avg' => 'avg',
+
 				'ymin' => $ymin,
 				'ymax' => $ymax,
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $apache_mean,
-				'dataset_1' => $dataString,
-				'dataset_1_label' => 'CPU Usage',
 
-				'dataset_2' => $dataOverString,
-				'dataset_2_label' => 'Overload',
-
+				'dataset'			=> $dataArray,
+				'dataset_labels'	=> $dataArrayLabel,
+				
 				'overload' => $settings['settings']['overload']
 			);
 
@@ -263,57 +189,6 @@ class Apache extends LoadAvg
 
 	
 
-
-	/**
-	 * genChart
-	 *
-	 * Function witch passes the data formatted for the chart view
-	 *
-	 * @param array @moduleSettings settings of the module
-	 * @param string @logdir path to logfiles folder
-	 *
-	 */
-
-	public function genChart($moduleSettings, $logdir)
-	{
-		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
-
-		$module = __CLASS__;
-		$i = 0;
-		foreach ( $charts['args'] as $chart ) {
-			$chart = json_decode($chart);
-
-			//grab the log file for current date (current date can be overriden to show other dates)
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
-
-			// find out main function from module args that generates chart data
-			// in this module its getData above
-			$caller = $chart->function;
-
-			//check if function takes settings via GET url_args 
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
-
-			if ( file_exists( $this->logfile )) {
-				$i++;				
-				$logfileStatus = false;
-
-				//call modules main function and pass over functionSettings
-				if ($functionSettings) {
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
-				} else {
-					$stuff = $this->$caller( $logfileStatus );
-				}
-
-			} else {
-				//no log file so draw empty charts
-				$i++;				
-				$logfileStatus = true;
-			}
-
-			//now draw chart to screen
-			include APP_PATH . '/views/chart.php';
-		}
-	}
 	
 }
 

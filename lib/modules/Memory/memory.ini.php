@@ -6,6 +6,7 @@ status = "true"
 has_settings = "true"
 has_menu = "false"
 logable = "true"
+depth = 3
 [logging]
 args[] = '{"logfile":"memory_usage_%s.log","function":"logData"}'
 [chart]
@@ -19,5 +20,8 @@ line[] = '{"format":"Swap: %s","args":"mem_swap"}'
 line[] = '{"format":"Total : %s MB","args":"mem_total"}'
 line[] = '{"format":"Latest: %s MB","args":"mem_latest"}'
 [settings]
-overload = 90
+overload = 83
 display_limiting = "false"
+[collectd]
+depth = 4
+args[] = '{"name":"memory","functions":["memory-buffered","memory-cached","memory-used","memory-free"]}'

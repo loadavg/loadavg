@@ -28,29 +28,18 @@ switch ( ( isset($_GET['ssh']) || !empty($_GET['ssh'])) ? $_GET['ssh'] : '1' ) {
 		$ssh_mode = "Accepted"; $ssh = 1; break;
 }
 
+	//get date range links for header here
+	$links = loadModules::getRangeLinks();
 
-if (
-	(isset($_GET['minDate']) && !empty($_GET['minDate'])) &&
-	(isset($_GET['maxDate']) && !empty($_GET['maxDate'])) &&
-	(isset($_GET['logdate']) && !empty($_GET['logdate']))
-	) {
-	$links = "?minDate=" . $_GET['minDate'] . "&maxDate=" . $_GET['maxDate'] . "&logdate=" . $_GET['logdate'] ."&";
-} elseif (
-	(isset($_GET['logdate']) && !empty($_GET['logdate']))
-	) {
-	$links = "?logdate=" . $_GET['logdate'] . "&";
-} else {
-	$links = "?";
-}
-
+	//can we kill this now ? as per CPU ?
 	$displaylinks = $links;
 
 
 	//get settings for this module
-	$loadSettings = LoadAvg::$_settings->$module;
+	$modSettings = loadModules::$_settings->$module;
 
 	//get the display_limiting setting from the settings subsection for this module
-	$thedata = $loadSettings['settings']['display_limiting'];
+	$thedata = $modSettings['settings']['display_limiting'];
 
 
 	//if we are changing mode
@@ -60,14 +49,14 @@ if (
 
 		switch ( $newmode) {
 			case "true": 	$mydata['settings']['display_limiting'] = "true";
-						$mergedsettings = LoadAvg::ini_merge ($loadSettings, $mydata);
-						LoadAvg::write_module_ini($mergedsettings, $module);
+						$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+						LoadUtility::write_module_ini($mergedsettings, $module);
 						header("Location: " . $displaylinks);						
 						break;
 
 			case "false": 	$mydata['settings']['display_limiting'] = "false";
-						$mergedsettings = LoadAvg::ini_merge ($loadSettings, $mydata);
-						LoadAvg::write_module_ini($mergedsettings, $module);
+						$mergedsettings = LoadUtility::ini_merge ($modSettings, $mydata);
+						LoadUtility::write_module_ini($mergedsettings, $module);
 						header("Location: " . $displaylinks);						
 						break;
 		}		

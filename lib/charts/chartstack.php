@@ -22,14 +22,14 @@
 			(function () {
 
 			    var myData = [
-			        { color:'#8ec657', data: [ [1,    <?php  echo $stuff['chart']['variables']['ssh_accept'];  ?>   ] ]},
-			        { color:'#c65757', data: [ [1,    <?php  echo $stuff['chart']['variables']['ssh_failed'];  ?>   ] ]},
-			        { color:'#ebc824', data: [ [1,    <?php  echo $stuff['chart']['variables']['ssh_invalid'];  ?>   ] ]}
+			        { color:'#8ec657', data: [ [1,    <?php  echo $chartData['chart']['variables']['ssh_accept'];  ?>   ] ]},
+			        { color:'#c65757', data: [ [1,    <?php  echo $chartData['chart']['variables']['ssh_failed'];  ?>   ] ]},
+			        { color:'#ebc824', data: [ [1,    <?php  echo $chartData['chart']['variables']['ssh_invalid'];  ?>   ] ]}
 			    ];
 
-			    var myTotal = 	<?php  echo $stuff['chart']['variables']['ssh_accept'];  ?> +
-			    				<?php  echo $stuff['chart']['variables']['ssh_failed'];  ?> +
-			    				<?php  echo $stuff['chart']['variables']['ssh_invalid'];  ?>;
+			    var myTotal = 	<?php  echo $chartData['chart']['variables']['ssh_accept'];  ?> +
+			    				<?php  echo $chartData['chart']['variables']['ssh_failed'];  ?> +
+			    				<?php  echo $chartData['chart']['variables']['ssh_invalid'];  ?>;
 
 			    var options =  {
 
@@ -97,7 +97,5 @@
 			})();
 			</script>
 
-            <td class="span1 hidden-phone" style="height: 170px">
                 <div id="minmax_<?php echo $chart->id; ?>" style="width:35px;height:140px;top: 18px;right: 5px;"></div>
                 <div style="position: relative; top: 13px;font-size: 11px;left: 3px;">Sum</div>
-        	</td>

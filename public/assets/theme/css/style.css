@@ -2866,7 +2866,7 @@ textarea {
   left: 6px;
 }
 .accordion {
-  margin: 0 0 10px;
+  margin: 0 0 0px;
   position: relative;
 }
 .accordion .tab-content {
@@ -2879,8 +2879,8 @@ textarea {
   border-radius: 0 0 0 0;
 }
 .accordion .accordion-inner {
-  font-size: 13px;
-  background: #fff;
+  font-size: 12px;
+  background: #222;
   -webkit-border-radius: 0 0 0 0;
   -moz-border-radius: 0 0 0 0;
   border-radius: 0 0 0 0;

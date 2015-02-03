@@ -31,28 +31,24 @@ else {
 
 if (isset($_POST['update_settings'])) {
 
-
 	/////////////////////////////////////////////////////////////////////
 	//updates the general settings here as api settings are stored there
 
 	//we clean input here for items with checkbox values for some reason not sure if we still need to
-	$_POST['formsettings']['apiserver'] = ( !isset($_POST['formsettings']['apiserver']) ) ? "false" : "true";
+	$_POST['formsettings']['settings']['apiserver'] = ( !isset($_POST['formsettings']['settings']['apiserver']) ) ? "false" : "true";
 
-	// Loop throught settings
-	$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
-	
-	$settings = LoadAvg::$_settings->general;
+    // Loop throught settings
+    $settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
+    
+    $settings = LoadAvg::$_settings->general;
 
-	$postsettings = $_POST['formsettings'];
+    $postsettings = $_POST['formsettings'];
 
-  //$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
-  $replaced_settings = array_replace($settings, $postsettings);
+    $replaced_settings = LoadUtility::ini_merge ($settings, $postsettings);
 
-  //LoadAvg::write_php_ini($mergedsettings, $settings_file);
-  LoadAvg::write_php_ini($replaced_settings, $settings_file);
+    LoadUtility::write_php_ini($replaced_settings, $settings_file);
 
-  //dont work only page reload work
-  //$settings = LoadAvg::$_settings->general;
+    $settings = LoadAvg::$_settings->general;
 
 
     /////////////////////////////////////////////////////////////////////
@@ -86,10 +82,12 @@ if (isset($_POST['update_settings'])) {
   				<strong>Connect to API</strong>
   			</div>
   			<div class="span9 right">
-  				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-  					<input name="formsettings[apiserver]" type="checkbox" value="true" <?php if ( $settings['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
-  				</div>
-  			</div>
+
+            <input name="formsettings[settings][apiserver]" checkbox-type="my-checkbox" type="checkbox" 
+            value="true" <?php if ( $settings['settings']['apiserver'] == "true" ) { ?>checked="checked"<?php } ?>>
+            <div class="separator bottom"></div>
+  			
+        </div>
   		</div>
 
       <div class="row-fluid">
@@ -120,7 +118,7 @@ if (isset($_POST['update_settings'])) {
       </div>
 
 
-      <?php if ( $settings['apiserver'] == "false" ) { ?>
+      <?php if ( $settings['settings']['apiserver'] == "false" ) { ?>
       <div class="row-fluid">
         <div class="center">
           <br>

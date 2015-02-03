@@ -17,137 +17,146 @@
 */
 ?>
 
+<?php
+
+//hardcoded for now - used for div height at end of page
+$chartHeight = 160;
+
+	//echo 'chartModules : ' . $chartModules;
+	//var_dump ($chartData['chart']);
+
+/*
+ * $chartModules is passed over by calling function in module and is used to track multiple modules in chart
+ * more than 1 in chartModules means multiple charts in the segment so we include js files just once
+ * and make calls to functions that need to be loaded or already loaded here
+ */
+?>
+
+	<!--
+	Fist function here builds the chart data object to send over to be charted
+	-->
 
 	<script type="text/javascript">
 	(function () {
-		<?php if ( $i > 1) { ?>
+	
+		//if greater than 1 then extend chart id with chart function
+		<?php if ( $chartModules > 1) { ?>
 		charts.<?php echo $chart->id; ?> = $.extend({}, charts.<?php echo $chart->chart_function; ?>);
 		<?php }?>
 
-		var d1 = {
-			//label: '<?php echo $chart->label; ?>',
-			label: '<?php echo $stuff['chart']['dataset_1_label']; ?>',
-			data: <?php echo $stuff['chart']['dataset_1']; ?>,
-			ymin: <?php echo $stuff['chart']['ymin']; ?>,
-			ymax: <?php echo $stuff['chart']['ymax']; ?>
-		};
-
-		<?php 
-
-
-		//we either have over or we have swap - need to fix this really
-		//as swap is over in charting engine
-		//swap should be just aanother dataset rendered differently ?
-		//but we have scenarios when there is dataset 1 and 2 or 1 and 2 and 3 but not 1 and 3 ?
-
-		//have_over means we have a primary overload
-		//chart_data_over
-		if ( !isset( $stuff['chart']['dataset_2'] ) || $stuff['chart']['dataset_2'] == null ) 
-			$have_over = false;
-		else
-			$have_over = true;
-		
-
-		if ( !isset( $stuff['chart']['dataset_4'] ) || $stuff['chart']['dataset_4'] == null ) 
-			$have_swap = false;
-		else
-			$have_swap = true;		
-		?>
-
-		// we work when there is overload and no swap
-		// but die when there is swap and no overloard!
-
-		<?php
-		if ( !$have_over && !$have_swap  ) { 
-			?>
-
-			var chart_data = d1;
-		
-		<?php } 
-
-		//elseif (strlen($stuff['chart']['chart_data_over']) > 1) { 
-		else { 
-			?>
-			
-			// load core chart data here
+			//core chart data here
 			var chart_data = new Array();
-			chart_data.push(d1);
+			var chart_info = new Array();
 
-			//used for primary overload
-			<?php if ( isset($stuff['chart']['dataset_2']) ) { ?>
-
-				var d2 = {
-					label: '<?php echo $stuff['chart']['dataset_2_label']; ?>',
-					data: <?php echo $stuff['chart']['dataset_2']; ?>
-				};
-				chart_data.push(d2);
-			
-			<?php } ?>
-
-			//used for secondary overlaods
-			<?php if ( isset($stuff['chart']['dataset_3']) ) { ?>
-				var d3 = {
-					label: '<?php echo $stuff['chart']['dataset_3_label']; ?>',
-					data: <?php echo $stuff['chart']['dataset_3']; ?>
-				};
-				chart_data.push(d3);
-			<?php } ?>
-
-			//d3 is shareds! we need to have a data type instead ?
-			//or have d4 for swap
-			// new swap code
+			//chart_info has all core chart data
 			<?php 
-			if ( isset($stuff['chart']['dataset_4']) ) { ?>
-				var d3 = {
-					label: '<?php echo $stuff['chart']['dataset_4_label']; ?>',
-					data: <?php echo $stuff['chart']['dataset_4']; ?>
+			if ( isset($chartData['chart']['dataset'][0])  ) { ?>
+				 chart_info = {
+
+					ymin: <?php echo $chartData['chart']['ymin']; ?>,
+					ymax: <?php echo $chartData['chart']['ymax']; ?>
+					<?php if ($width) echo ', chartwidth: ' . $width .',';  ?>
+					<?php if ($height) echo 'chartheight: ' . $height;  ?>
+					//defualts are chartwidth: 530, chartheight: 160
 				};
-				chart_data.push(d3);
-			<?php } 
+			<?php } ?>
+
+			<?php 
+
+			//loop through sets in chartData and if they are viable
+			//send them over to be charted via chart_Data
+			
+			foreach ( $chartData['chart']['dataset'] as $dataKey => $dataSet ) { ?>
+				chart_data[<?php echo $dataKey; ?>] = {
+					label: '<?php echo $chartData['chart']['dataset_labels'][$dataKey]; ?>',
+					data: <?php echo $dataSet; ?>
+				};
+			<?php 
+			}
+
+
+			/*	is foreach above faster than the loop ? seems so
+			for ( $dataLoop = 0; $dataLoop <= 4; ++$dataLoop ) {
+
+				if ( isset($chartData['chart']['dataset'][$dataLoop])  ) { ?>
+					 chart_data[<?php echo $dataLoop; ?>] = {
+						label: '<?php echo $chartData['chart']['dataset_labels'][$dataLoop]; ?>',
+						data: <?php echo $chartData['chart']['dataset'][$dataLoop]; ?>
+					};
+				<?php } 
+			} */
 			?>
 
-		<?php } ?>
+			//great for debugging! sends entire array to console for inspection
+			//console.info(chart_data); 
 
+			// This function calls the charts flot javascript code to render out chart
 
-        // render the chart using the chart.js data
-        // for error message until we can figure out how to render error message 
-        // on top of blank chart we override the label  :)
+			$(function () {
 
-		$(function () {
-			<?php if ( $i == 1) { ?>
-			charts.<?php echo $chart->chart_function; ?>.setData(chart_data);
-			<?php if ($logfileStatus == true) { 
-				$errorMessage = 'No logfile data to generate charts for module ' . $module;
+				<?php 
+				//used to set things up for differrent chart views ie 6 / 12 hour charts
+				$chartType = LoadAvg::$_settings->general['settings']['chart_type'];
+				$changeRange = false;	
+
+				if ( $chartType == "6" || $chartType == "12" ) {
+
+					$rangeHours = $chartType; //we can change this
+					$rangeMax =  (   time()  *1000); 
+					$rangeMin =  $rangeMax - (3600 * $rangeHours * 1000); //3600 seconds per hour
+					//$chartWidth = 60*3*1000;
+					$changeRange = true;
+				} 
 				?>
-				charts.<?php echo $chart->chart_function; ?>.setLabel("<?php echo $errorMessage; ?>");
-			<?php } ?>
 
-			charts.<?php echo $chart->chart_function; ?>.init('<?php echo $chart->id; ?>');
+				/*
+				 * first time we use a charts code we have to initialize it using the charts function
+				 * other calls can just use the charts id
+				 */
 
-			<?php } elseif ($i > 1) { ?>
+				<?php if ( $chartModules == 1) 
+				{ ?>
 
-			charts.<?php echo $chart->id; ?>.setData(chart_data);							
-			<?php if ($logfileStatus == true) { 
-				$errorMessage = 'No logfile data to generate charts for module ' . $module . ' check your logger';
-				?>
-				charts.<?php echo $chart->chart_function; ?>.setLabel("<?php echo $errorMessage; ?>");
-			<?php } ?>
+					//send chart data over first	
+					charts.<?php echo $chart->chart_function; ?>.setData(chart_data,chart_info);
 
-			charts.<?php echo $chart->id; ?>.init('<?php echo $chart->id; ?>');
-			<?php } ?>
+					//code to override the date and time for zooming in
+					//has issues if start time is before start of series mon
+					<?php if ($changeRange == true) { ?>
+					charts.<?php echo $chart->chart_function; ?>.setRange(  <?php echo $rangeMin; ?> , <?php echo $rangeMax; ?> , <?php echo ($chartType/2); ?>  );
+					<?php } ?>
+				
+					//initalize chart here
+					charts.<?php echo $chart->chart_function; ?>.init('<?php echo $chart->id; ?>');
 
 
+				<?php 
+				} 
 
-		})
-	})();
+				//elseif ($chartModules > 1) 
+				else
+
+				{ ?>
+					//send chart data over first	
+					charts.<?php echo $chart->id; ?>.setData(chart_data,chart_info);		
+
+					//code to override the date and time for zooming in
+					//has issues if start time is before start of series mon
+					<?php if ($changeRange == true) { ?>
+					charts.<?php echo $chart->chart_function; ?>.setRange(  <?php echo $rangeMin; ?> , <?php echo $rangeMax; ?> , <?php echo ($chartType/2); ?>  );
+					<?php } ?>
+
+					//initalize chart here
+					charts.<?php echo $chart->id; ?>.init('<?php echo $chart->id; ?>');
+
+				<?php } ?>
+
+			})
+
+		})();
+
 	</script>
-
 
 	<div id="<?php echo $chart->id; ?>_legend" class="pull-right innerLR" style="right: 22px;"></div>
 	<div class="clearfix"></div>
-	<div id="<?php echo $chart->id; ?>" style="height: 160px;" class="chart-holder"></div>
-
-
-
-
-
+	<div id="<?php echo $chart->id; ?>" style="height: <?php echo $chartHeight;?>px;" class="chart-holder"></div>

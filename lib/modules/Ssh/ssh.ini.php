@@ -7,6 +7,7 @@ has_settings = "true"
 has_menu = "false"
 url_args = "ssh"
 logable = "true"
+depth = 3
 [logging]
 args[] = '{"logfile":"ssh_usage_%s.log","function":"logData"}'
 [chart]
@@ -20,4 +21,4 @@ line[] = '{"format":"Last login: (%s)","args":"ssh_latest_login"}'
 [settings]
 overload = 10
 log_location = "/var/log/secure"
-display_limiting = "true"
+display_limiting = "false"

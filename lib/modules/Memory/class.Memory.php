@@ -14,9 +14,8 @@
 * later.
 */
 
-class Memory extends LoadAvg
+class Memory extends Charts
 {
-	public $logfile; // Stores the logfile name & path
 
 	/**
 	 * __construct
@@ -29,59 +28,65 @@ class Memory extends LoadAvg
 		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
 	}
 
+
 	/**
-	 * logMemoryUsageData
+	 * getDiskSize
 	 *
-	 * Retrives data and logs it to file
+	 * Gets size of disk based on logger and offsets
 	 *
-	 * @param string $type type of logging default set to normal but it can be API too.
-	 * @return string $string if type is API returns data as string
+	 * @return the disk size
 	 *
 	 */
-
-	public function logData( $type = false )
+	
+	public function getMemorySize( $chartArray, $sizeofChartArray  )
 	{
-		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
 
-		$timestamp = time();
+			//need to get memory size in order to process data properly
+			//is it better before loop or in loop
+			//what happens if you resize disk on the fly ? in loop would be better
+			$memorySize = 0;
 
-		/* 
-			need to optimize by grab this data directly from /proc/meminfo in a single call
-			egrep --color 'Mem|Cache|Swap' /proc/meminfo
-		*/
-		
-		exec( "egrep 'MemTotal|MemFree|SwapTotal|SwapFree' /proc/meminfo | awk -F' ' '{print $2}'", $sysmemory );
+			//map the collectd disk size to our disk size here
+			//subtract 1 from size of array as a array first value is 0 but gives count of 1
+			if ( LOGGER == "collectd")
+			{	
+				$memorySize = ( $chartArray[$sizeofChartArray-1][1] + 
+								$chartArray[$sizeofChartArray-1][2] + 
+								$chartArray[$sizeofChartArray-1][3] ) / 1024;
+			} else {
 
-		$totalmemory = $sysmemory[0];
-		$freememory = $sysmemory[1];
-		$memory = $totalmemory - $freememory;
+				$memorySize = $chartArray[$sizeofChartArray-1][3] / 1024;
+			}
 
-		$totalswap = $sysmemory[2];
-		$freeswap = $sysmemory[3];
-		$swap = $totalswap - $freeswap;
+			return $memorySize;
 
-
-		/*
-		old way of getting memory usage
-
-		$memory = exec("free -o | grep Mem | awk -F' ' '{print $3}'");
-		$totalmemory = exec("free -o | grep Mem | awk -F' ' '{print $2}'");
-		$swap = exec("free -o | grep Swap | awk -F' ' '{print $3}'");
-		*/
-	    
-	    $string = $timestamp . '|' . $memory . '|' . $swap . '|' . $totalmemory . "\n";
-
-	    //echo 'DATA:'  . $string .  "\n" ;
-
-		$filename = sprintf($this->logfile, date('Y-m-d'));
-		$this->safefilerewrite($filename,$string,"a",true);
-
-		if ( $type == "api")
-			return $string;
-		else
-			return true;
 	}
+
+	/**
+	 * reMapData
+	 *
+	 * remap data based on loogger
+	 *
+	 * @data sent over by caller
+	 * @return none
+	 *
+	 */
+	
+	public function reMapData( &$data )
+	{
+		if ( LOGGER == "collectd")
+		{
+
+			$dmemory =  $data[1] + $data[2] + $data[3]; 
+
+			$dtotalmemory = $data[1] + $data[2] + $data[3] + $data[4];
+
+			$data[1] = $dmemory;
+			$data[2] = 0;  //used for swap in loadavgd... not used in collectd
+			$data[3] = $dtotalmemory;
+		}
+	}
+
 
 	/**
 	 * getMemoryUsageData
@@ -92,91 +97,79 @@ class Memory extends LoadAvg
 	 *
 	 */
 	
-	public function getUsageData( $logfileStatus)
+	public function getUsageData( )
 	{
 		$class = __CLASS__;
-		$settings = LoadAvg::$_settings->$class;
+		$settings = LoadModules::$_settings->$class;
 
-		$contents = null;
-
-		$replaceDate = self::$current_date;
+		//define some core variables here
+		$dataArray = $dataArrayLabel = array();
+		$dataRedline = $usage = array();
+		$swap = array();
 		
-		if ($logfileStatus == false ) {
-		
-			if ( LoadAvg::$period ) {
-				$dates = self::getDates();
-				foreach ( $dates as $date ) {
-					if ( $date >= self::$period_minDate && $date <= self::$period_maxDate ) {
-						$this->logfile = str_replace($replaceDate, $date, $this->logfile);
-						$replaceDate = $date;
-						if ( file_exists( $this->logfile ) )
-							$contents .= file_get_contents($this->logfile);
-					}
-				}
-			} else {
-				$contents = file_get_contents($this->logfile);
-			}
+		//display switch used to switch between view modes - data or percentage
+		// true - show MB
+		// false - show percentage
+		$displayMode =	$settings['settings']['display_limiting'];	
 
-		} else {
+		//define datasets
+		$dataArrayLabel[0] = 'Memory Usage';
+		$dataArrayLabel[1] = 'Overload';
+		$dataArrayLabel[2] = 'Swap';
 
-			$contents = 0;
+		/*
+		 * grab the log file data needed for the charts as array of strings
+		 * takes logfiles(s) and gives us back contents
+		 */
+
+		$contents = array();
+		$logStatus = LoadUtility::parseLogFileData($this->logfile, $contents);
+
+		/*
+		 * build the chartArray array here as array of arrays needed for charting
+		 * takes in contents and gives us back chartArray
+		 */
+
+		$chartArray = array();
+		$sizeofChartArray = 0;
+
+		if ($logStatus) {
+
+			//takes the log file and parses it into chartable data 
+			$this->getChartData ($chartArray, $contents );
+			$sizeofChartArray = (int)count($chartArray);
 		}
 
-		if ( strlen($contents) > 1 ) {
-			$contents = explode("\n", $contents);
-			$return = $usage = $args = array();
+		/*
+		 * now we loop through the dataset and build the chart
+		 * uses chartArray which contains the dataset to be charted
+		 */
 
-			$swap = array();
-			$usageCount = array();
-			$dataArray = $dataArrayOver = $dataArraySwap = array();
+		if ( $sizeofChartArray > 0 ) {
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) $timestamps = array();
+			//get the size of memory we are charting
+			$memorySize = $this->getMemorySize($chartArray, $sizeofChartArray);
 
-			$chartArray = array();
-
-			$this->getChartData ($chartArray, $contents);
-
-			$totalchartArray = (int)count($chartArray);
-
-			//need to get disk size in order to process data properly
-			//is it better before loop or in loop
-			//what happens if you resize disk on the fly ? in loop would be better
-			$memorySize = 0;
-
-			//need to start logging total memory
-			//what happens if this is -1 ???
-			$memorySize = $chartArray[$totalchartArray-1][3] / 1024;
-
-			// get from settings here for module
-			// true - show MB
-			// false - show percentage
+			// main loop to build the chart data
+			for ( $i = 0; $i < $sizeofChartArray; ++$i) {				
 				
-			//data[0] = time
-			//data[1] = mem used
-			//data[2] = swap
-			//data[3] = total mem
-
-			$displayMode =	$settings['settings']['display_limiting'];
-
-			for ( $i = 0; $i < $totalchartArray; ++$i) {				
 				$data = $chartArray[$i];
 
-				// clean data for missing values
-				/*
-				$redline = ($data[1] == "-1" ? true : false);
+				if ($data == null)
+					continue;
 
-				if ($redline) {
-					$data[1]=0.0;
-					$data[2]=0.0;
-					$data[3]=0.0;
-				}
-*/
-				
 				//check for redline
-				$redline = ($this->checkRedline($data));
+				// clean data for missing values
+				$redline = false;
+				if  ( isset ($data['redline']) && $data['redline'] == true )
+					$redline = true;
 
-				if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
-					$data[1]=0.0;
+				//remap data if it needs mapping based on different loggers
+				if ( LOGGER == "collectd")
+					$this->reMapData($data);
+
+				//if (  (!$data[1]) ||  ($data[1] == null) || ($data[1] == "")  )
+				//	$data[1]=0.0;
 
 				//used to filter out redline data from usage data as it skews it
 				if (!$redline) {
@@ -191,29 +184,26 @@ class Memory extends LoadAvg
 
 				$usageCount[] = ($data[0]*1000);
 
-				if ( LoadAvg::$_settings->general['chart_type'] == "24" ) 
-					$timestamps[] = $data[0];
-
 				if ($displayMode == 'true' ) {
 					// display data using MB
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
 					if ( $percentage_used > $settings['settings']['overload'] )
-						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
+						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1024 ) ."]";
 
 					//swapping
-					if ( isset($data[2])  ) {
-						$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
+					if ( isset($data[2])  ) {						
+						$dataArray[2][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[2] / 1024 ) ."]";
 						$swap[] = ( $data[2] / 1024 );
 
 					}
 
 				} else {
 					// display data using percentage
-					$dataArray[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 
 					if ( $percentage_used > $settings['settings']['overload'])
-						$dataArrayOver[$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 
 					//swapping
 					if ( isset($data[2])  ) {
@@ -223,23 +213,23 @@ class Memory extends LoadAvg
 						else
 							$swap_percentage = 0;
 						
-						$dataArraySwap[$data[0]] = "[". ($data[0]*1000) .", ". $swap_percentage ."]";
+						$dataArray[2][$data[0]] = "[". ($data[0]*1000) .", ". $swap_percentage ."]";
 						$swap[] = $swap_percentage;
 					}
-
 				}
-
 			}
 
-			//echo $percentage_used; die;
+			/*
+			 * now we collect data used to build the chart legend 
+			 * 
+			 */
 
+			//echo $percentage_used; die;
 			end($swap);
 			$swapKey = key($swap);
 			$swap = $swap[$swapKey];
 
-			//check for displaymode as we show data in MB or %
 			if ($displayMode == 'true' )
-
 			{
 				$mem_high = max($usage);
 				$mem_low  = min($usage); 
@@ -277,19 +267,6 @@ class Memory extends LoadAvg
 			$mem_total = $memorySize;
 			$mem_free = $mem_total - $mem_latest;
 
-			if ( LoadAvg::$_settings->general['chart_type'] == "24" ) {
-				end($timestamps);
-				$key = key($timestamps);
-				$endTime = strtotime(LoadAvg::$current_date . ' 24:00:00');
-				$lastTimeString = $timestamps[$key];
-				$difference = ( $endTime - $lastTimeString );
-				$loops = ( $difference / 300 );
-
-				for ( $appendTime = 0; $appendTime <= $loops; $appendTime++ ) {
-					$lastTimeString = $lastTimeString + 300;
-					$dataArray[$lastTimeString] = "[". ($lastTimeString*1000) .", 0]";
-				}
-			}
 		
 			// values used to draw the legend
 			$variables = array(
@@ -303,24 +280,23 @@ class Memory extends LoadAvg
 				'mem_swap' => number_format($swap,2),
 			);
 		
+			/*
+			 * all data to be charted is now cooalated into $return
+			 * and is returned to be charted
+			 * 
+			 */
+
+			$return  = array();
+
 			// get legend layout from ini file
 			$return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
-			if (count($dataArrayOver) == 0) { $dataArrayOver = null; }
-
-			ksort($dataArray);
-			if (!is_null($dataArrayOver)) ksort($dataArrayOver);
-			if (!is_null($dataArraySwap)) ksort($dataArraySwap);
+			//parse, clean and sort data
+			$depth=3; //number of datasets
+			$this->buildChartDataset($dataArray,$depth);			
 
 
-			// dataString is cleaned data used to draw the chart
-			// dataSwapString is the swap usage
-			// dataOverString is if we are in overload
-
-			$dataString = "[" . implode(",", $dataArray) . "]";
-			$dataOverString = is_null($dataArrayOver) ? null : "[" . implode(",", $dataArrayOver) . "]";
-			$dataSwapString = is_null($dataArraySwap) ? null : "[" . implode(",", $dataArraySwap) . "]";
-
+			//build chart object
 			$return['chart'] = array(
 				'chart_format' => 'line',
 				'chart_avg' => 'avg',
@@ -330,14 +306,9 @@ class Memory extends LoadAvg
 				'xmin' => date("Y/m/d 00:00:01"),
 				'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $mem_mean,
-				'dataset_1' => $dataString,  
-				'dataset_1_label' => 'Memory Usage',
 
-				'dataset_2' => $dataOverString,
-				'dataset_2_label' => 'Overload',
-				
-				'dataset_4' => $dataSwapString,				// how is it used
-				'dataset_4_label' => 'Swap',
+				'dataset'			=> $dataArray,
+				'dataset_labels'	=> $dataArrayLabel,
 				
 				'overload' => $settings['settings']['overload']
 			);
@@ -349,54 +320,5 @@ class Memory extends LoadAvg
 		}
 	}
 
-	/**
-	 * genChart
-	 *
-	 * Function witch passes the data formatted for the chart view
-	 *
-	 * @param array @moduleSettings settings of the module
-	 * @param string @logdir path to logfiles folder
-	 *
-	 */
-
-	public function genChart($moduleSettings, $logdir)
-	{
-		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
-
-		$module = __CLASS__;
-		$i = 0;
-		foreach ( $charts['args'] as $chart ) {
-			$chart = json_decode($chart);
-
-			//grab the log file for current date (current date can be overriden to show other dates)
-			$this->logfile = $logdir . sprintf($chart->logfile, self::$current_date);
-
-			// find out main function from module args that generates chart data
-			// in this module its getData above
-			$caller = $chart->function;
-
-			//check if function takes settings via GET url_args 
-			$functionSettings =( (isset($moduleSettings['module']['url_args']) && isset($_GET[$moduleSettings['module']['url_args']])) ? $_GET[$moduleSettings['module']['url_args']] : '2' );
-
-			if ( file_exists( $this->logfile )) {
-				$i++;				
-				$logfileStatus = false;
-
-				//call modules main function and pass over functionSettings
-				if ($functionSettings) {
-					$stuff = $this->$caller( $logfileStatus, $functionSettings );
-				} else {
-					$stuff = $this->$caller( $logfileStatus );
-				}
-
-			} else {
-				//no log file so draw empty charts
-				$i++;				
-				$logfileStatus = true;
-			}
-
-			//now draw chart to screen
-			include APP_PATH . '/views/chart.php';
-		}
-	}
+	
 }

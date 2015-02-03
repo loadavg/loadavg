@@ -48,8 +48,8 @@
 			        },
 			        yaxis: {
 			        	show: false, 
-			        	max: <?php echo $stuff['chart']['ymax']; ?>, 
-			        	min: <?php echo $stuff['chart']['ymin'];?>, 
+			        	max: <?php echo $chartData['chart']['ymax']; ?>, 
+			        	min: <?php echo $chartData['chart']['ymin'];?>, 
 			        	reserveSpace: false, 
 			        	labelWidth: 15
 			        },
@@ -76,14 +76,13 @@
 				$(function () {
                  
                 	$("#minmax_<?php echo $chart->id; ?>").width(35).height(140);
-                	$.plot($("#minmax_<?php echo $chart->id; ?>"),[[[1, <?php echo $stuff['chart']['mean']; ?>]]],options);
+                	$.plot($("#minmax_<?php echo $chart->id; ?>"),[[[1, <?php echo $chartData['chart']['mean']; ?>]]],options);
 
 				})
 
 			})();
 			</script>
 
-            <td class="span1 hidden-phone" style="height: 170px">
                 <div id="minmax_<?php echo $chart->id; ?>" style="width:35px;height:140px;top: 18px;right: 5px;"></div>
                 <div style="position: relative; top: 13px;font-size: 11px;left: 3px;">Avg</div>
-        	</td>
+

@@ -7,6 +7,7 @@ has_settings = "true"
 has_menu = "false"
 url_args = "load"
 logable = "true"
+depth = 3
 [logging]
 args[] = '{"logfile":"cpu_%s.log","function":"logData"}'
 [chart]
@@ -22,3 +23,6 @@ overload_1 = 0.2
 overload_2 = 0.3
 display_cutoff = 0.3
 display_limiting = "false"
+[collectd]
+depth = 3
+args[] = '{"name":"load","functions":["load"]}'

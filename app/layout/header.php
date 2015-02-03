@@ -53,10 +53,8 @@ if (isset($_POST['login'])  ) {
 <!--[if IE 8]>    <html class="lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html> <!--<![endif]-->
 <head>
-	<!--
-	<title><?php echo 'LoadAvg ' . sprintf($settings['title'], $settings['version'], ''); ?></title>
-	-->
-	<title><?php echo 'Server ' . $settings['title'] . ' | LoadAvg ' . $settings['version']; ?></title>
+
+	<title><?php echo 'Server ' . $settings['settings']['title'] . ' | LoadAvg ' . $settings['settings']['version']; ?></title>
 	
 	<!-- Meta -->
 	<meta charset="UTF-8" />
@@ -68,9 +66,13 @@ if (isset($_POST['login'])  ) {
 	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
 	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet" />
 
-	<!-- Bootstrap Toggle Buttons Script -->
-	<link href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-toggle-buttons/static/stylesheets/bootstrap-toggle-buttons.css" rel="stylesheet">
+	<!-- Bootstrap Toggle Buttons Script 
+	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-toggle-buttons/static/stylesheets/bootstrap-toggle-buttons.css">
+	-->
+	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/bootstrap/extend/bootstrap-switch-master/dist/css/bootstrap2/bootstrap-switch.min.css">
 	
+
+
 	<!-- JQueryUI v1.11.1 -->
 	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.css" />
 
@@ -88,9 +90,10 @@ if (isset($_POST['login'])  ) {
 	<!-- Theme -->
 	<link rel="stylesheet" href="<?php echo SCRIPT_ROOT ?>public/assets/theme/css/style.css?<?php echo time(0); ?>" />
 	
-	<!-- LESS 2 CSS -->
+	<!-- LESS 2 CSS 
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/less-1.3.3.min.js"></script>
-	
+	-->
+
 	<!--[if IE]><script type="text/javascript" src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/other/excanvas/excanvas.js"></script><![endif]-->
 
 	<script type="text/javascript">
@@ -102,20 +105,64 @@ if (isset($_POST['login'])  ) {
 		$min = $_GET['logdate'];
 		$max = $_GET['logdate'];
 	}
+	
 	if (isset($_GET['minDate']) && !empty($_GET['minDate']) && isset($_GET['maxDate']) && !empty($_GET['maxDate']))
 	{
 		$min = $_GET['minDate'];
 		$max = $_GET['maxDate'];
 	}
+
 	$min = strtotime($min);
 	$max = strtotime($max);
 	?>
+
 	var today_min = <?php echo mktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;
 	var today_max = <?php echo mktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
+
+	//fix for min range only (to current)
+
+	//fix for 6 and 12 hours need to grab data from log file before
+
+	//$nextWeek = time() + ( 24 * 60 * 60);
+    // 24 hours; 60 mins; 60 secs
+
+	//get current time if we want end time to be current time
+	//today_max =  <?php echo (   time()  *1000); ?>;
+	//today_min =  today_max - (3600 * 6 * 1000);
+
 	</script>
+
+	<!-- force a refreash every (logger = 5 default) minutes to update charts 
+	     need to set up settings for this make it optional 
+		 only do this if day is today as otherwise we dont need to refreash for ranges
+
+		 problem with below is when you choose today from log menu then logdate is also set
+		 need to fix that in form not here
+	-->
+
+	<?php
+	if ( (!isset($_GET['minDate'])) || (!isset($_GET['maxDate'])) || (!isset($_GET['logdate'])) ) 
+	{ 
+		//if (    ($settings['settings']['title'] == "true") )
+		if (   (isset($settings['settings']['autoreload']))  && ($settings['settings']['autoreload'] == "true") )
+		{
+		?>
+		<meta http-equiv="refresh" content="300">
+		<?php
+		}
+	}
+	?>
+	
+
 </head>
 <body>
-	
+
+<?php
+
+		if ( LoadAvg::$period ) { echo 'PERIOD'; die; }
+
+?>
+
 	<!-- Start Content -->
 	<div class="container fixed">
 		
@@ -123,26 +170,41 @@ if (isset($_POST['login'])  ) {
 			
 			<a href="index.php" class="appbrand"><img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;"><span>LoadAvg<span>Advanced Server Analytics</span></span></a>
 			
-			<?php if ($loadavg->isLoggedIn() || (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "true")) { ?>
+			<?php if ($loadavg->isLoggedIn() || (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true")) { ?>
 
 			<ul class="topnav pull-right">
 				<li<?php if (isset($_GET['page']) && $_GET['page'] == '') : ?> class="active"<?php endif; ?>><a href="index.php"><i class="fa fa-bar-chart-o"></i> Charts</a></li>
 
-				<li <?php if (isset($_GET['page']) && $_GET['page'] == 'server') : ?> class="active"<?php endif; ?>><a href="?page=server"><i class="fa fa-gears"></i> Server</a></li>
-				
-
 
 				<?php if ( $loadavg->isLoggedIn() ) { ?>
+
+
+				<?php 
+
+				foreach ( $plugins as $module => $value ) { // looping through all the modules in the settings.ini file
+	            	if ( $value === "true" ) {
+
+						$class = LoadPlugins::$_classes[$module];
+						$pluginData =  $class->getPluginData();
+
+						?>
+						<li <?php if (isset($_GET['page']) && $_GET['page'] == $pluginData[0]) : ?> class="active"<?php endif; ?>><a href="?page=<?php echo $pluginData[0]?>"><i class="fa <?php echo $pluginData[1]?>"></i> <?php echo $pluginData[0]?></a></li>
+						<?php
+					}
+				}
+				?>
+
 
 				<li class="account <?php if (isset($_GET['page']) && $_GET['page'] == 'settings') : ?> active<?php endif; ?>">
 					<a data-toggle="dropdown" href="" class="logout"><span class="hidden-phone text">
 
-					<?php echo (isset($settings['allow_anyone']) && $settings['allow_anyone'] == "true" ) ? 'Settings' : 'Settings' /* $settings['username']; */ ?></span> 
+					<?php echo (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true" ) ? 'Settings' : 'Settings' /* $settings['username']; */ ?></span> 
 						<i class="fa fa-unlock-alt"></i></a>
 					
 					<ul class="dropdown-menu pull-right">
 						<li><a href="?page=settings">System <i class="fa fa-cog pull-right"></i></a></li>
 						<li><a href="?page=settingsmodules">Modules <i class="fa fa-cog pull-right"></i></a></li>
+						<li><a href="?page=settingsplugins">Plugins <i class="fa fa-cog pull-right"></i></a></li>
 						<li><a href="?page=settingsapi">API <i class="fa fa-cog pull-right"></i></a></li>
 						<li><a href="?page=settingslogger">Logger <i class="fa fa-cog pull-right"></i></a></li>
 						<?php if ( $loadavg->isLoggedIn() ): ?>

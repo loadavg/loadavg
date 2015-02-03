@@ -29,7 +29,7 @@ else {
 	<?php
 	if (isset($_POST['Run_Logger'])) {
 
-		$loadavg->rebuildLogs();
+		$loadavg->runLogger();
 
 		/* force reload settings page now */
 		header('Location: '. '/public/index.php?page=settingslogger'  );
@@ -38,7 +38,7 @@ else {
 	if (isset($_POST['update_settings'])) {
 
 		/////////////////////////////////////////////////////////////////////
-		//updates the general settings here as api settings are stored there
+		//updates the logger settings here with what is posted
 
 		// Loop throught settings
 		$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
@@ -47,15 +47,13 @@ else {
 
 		$postsettings = $_POST['formsettings'];
 
-		//$mergedsettings = LoadAvg::ini_merge ($settings, $postsettings);
-		$replaced_settings = array_replace($settings, $postsettings);
+		$replaced_settings = LoadUtility::ini_merge ($settings, $postsettings);
 
-		//LoadAvg::write_php_ini($mergedsettings, $settings_file);
-		LoadAvg::write_php_ini($replaced_settings, $settings_file);
+		LoadUtility::write_php_ini($replaced_settings, $settings_file);
 
-		/* force reload settings page now */
+		$settings = LoadAvg::$_settings->general;
 
-		//echo 'URI ' . $_SERVER['REQUEST_URI'] ;
+		//now reload the page
     	header('Location: '. strtok($_SERVER["REQUEST_URI"],'&') );
 
 	}
@@ -90,7 +88,7 @@ else {
 				?>
 		    </div>
 
-			<b>Logging in LoadAvg <?php echo $settings['version']; ?></b>
+			<b>Logging in LoadAvg <?php echo $settings['settings']['version']; ?></b>
 			<br><br>
 			<p>
 			LoadAvg records log data at the system level using a file called logger.php that is located in the root of your LoadAvg installation. 
@@ -106,7 +104,7 @@ else {
 		    			<strong>Days to keep</strong>
 		    		</div>
 		        	<div class="span9 right">
-		        		<input type="text" name="formsettings[daystokeep]" value="<?php echo $settings['daystokeep']; ?>" size="4" class="span6 left">
+		        		<input type="text" name="formsettings[settings][daystokeep]" value="<?php echo $settings['settings']['daystokeep']; ?>" size="4" class="span6 left">
 		        	</div>
 		    	</div>
 
@@ -115,7 +113,7 @@ else {
 		    			<strong>Logger interval</strong>
 		    		</div>
 		    		<div class="span9 right">
-		        		<input type="text" name="formsettings[logger_interval]" value="<?php echo $settings['logger_interval']; ?>" size="4" class="span6 left">
+		        		<input type="text" name="formsettings[settings][logger_interval]" value="<?php echo $settings['settings']['logger_interval']; ?>" size="4" class="span6 left">
 		        	</div>
 		    	</div>
 
@@ -149,7 +147,7 @@ else {
 			<br>
 			It should have opened up your crontab in your editor, insert this line and save your changes<br>
 			<br>
-			<span class="label label-info">*/<?php echo $settings['logger_interval'] ?> * * * * <?php echo $php_location; ?> -q <?php echo dirname(APP_PATH); ?>/logger.php /dev/null 2>1</span>
+			<span class="label label-info">*/<?php echo $settings['settings']['logger_interval'] ?> * * * * <?php echo $php_location; ?> -q <?php echo dirname(APP_PATH); ?>/logger.php /dev/null 2>1</span>
 			</p>
 
 		</div>

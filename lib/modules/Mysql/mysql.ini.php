@@ -3,9 +3,11 @@
 name = "Mysql Usage"
 description = "This module is used to display and log mysql usage data."
 status = "true"
+tabbed = "true"
 has_settings = "true"
 has_menu = "false"
 logable = "true"
+depth = 3
 [logging]
 args[] = '{"logfile":"mysql_usage_%s.log","function":"logData"}'
 [chart]
@@ -22,5 +24,5 @@ line[] = '{"format":"Latest: %s MB","args":"mysql_latest"}'
 overload = 2048
 mysqlserver = "localhost"
 mysqluser = "root"
-mysqlpassword = "root"
-show_queries = "true"
+mysqlpassword = "vision7"
+show_queries = "false"

@@ -42,7 +42,7 @@ if (isset($_POST['update_settings'])) {
 
 	//need to check all modules status first
 	//as form drops unchecked values when posted for some reason
-	$modules = LoadAvg::$_modules;
+	$modules = LoadModules::$_modules;
 
 	foreach ($modules as $module => $moduleName) { 
 
@@ -55,7 +55,7 @@ if (isset($_POST['update_settings'])) {
 
 	/* Need to loop thorugh interfaces as well as when all off all dispapear */
 
-	$interfaces = LoadAvg::getNetworkInterfaces();
+	$interfaces = LoadUtility::getNetworkInterfaces();
 
 	foreach ($interfaces as $interface) { 
 
@@ -82,25 +82,18 @@ if (isset($_POST['update_settings'])) {
 
 	//die;
 
-	LoadAvg::write_php_ini($mergedsettings, $settings_file);
+	LoadUtility::write_php_ini($mergedsettings, $settings_file);
 
 
 	///////////////////////////////////////////////////
 	//updates all the modules settings here
 
 	//these are dirty dirty hacks! until we can rewrite the settings using proper api	
-	$_POST['Disk_settings']['settings']['display_limiting'] = ( !isset($_POST['Disk_settings']['settings']['display_limiting']) ) ? "false" : "true";
-	$_POST['Memory_settings']['settings']['display_limiting'] = ( !isset($_POST['Memory_settings']['settings']['display_limiting']) ) ? "false" : "true";
-	$_POST['Cpu_settings']['settings']['display_limiting'] = ( !isset($_POST['Cpu_settings']['settings']['display_limiting']) ) ? "false" : "true";
-
-	$_POST['Network_settings']['settings']['transfer_limiting'] = ( !isset($_POST['Network_settings']['settings']['transfer_limiting']) ) ? "false" : "true";
-	$_POST['Network_settings']['settings']['receive_limiting'] = ( !isset($_POST['Network_settings']['settings']['receive_limiting']) ) ? "false" : "true";
-
 	$_POST['Mysql_settings']['settings']['show_queries'] = ( !isset($_POST['Mysql_settings']['settings']['show_queries']) ) ? "false" : "true";
 
-	echo '<pre>';var_dump($_POST);echo'</pre>';
+	//echo '<pre>';var_dump($_POST);echo'</pre>';
 
-	$modules = LoadAvg::$_modules;
+	$modules = LoadModules::$_modules;
 
     foreach ($modules as $module => $moduleName) {
     
@@ -115,9 +108,9 @@ if (isset($_POST['update_settings'])) {
 			//the array replace is deleting out missing data on posts
 			//when the data has not been modified
 			//$replaced_settings = array_replace($module_config_ini, $_POST[$module . '_settings']);
-  			$replaced_settings = LoadAvg::ini_merge ($module_config_ini, $_POST[$module . '_settings']);
+  			$replaced_settings = LoadUtility::ini_merge ($module_config_ini, $_POST[$module . '_settings']);
 
-			LoadAvg::write_php_ini($replaced_settings, $module_config_file);
+			LoadUtility::write_php_ini($replaced_settings, $module_config_file);
 
 			//why is this here ?
 			//$fh = fopen($module_config_file, "a"); fwrite($fh, "\n"); fclose($fh);
@@ -134,7 +127,21 @@ if (isset($_POST['update_settings'])) {
  * as for some reason after a post the data isnt updated internally
  */
 
-$settings = LoadAvg::$_settings->general;
+//still old here mate
+//$settings = LoadAvg::$_settings->general;
+
+$loadModules->updateModuleSettings();
+//LoadModules::updateModuleSettings();
+
+//not changed either as written to file above
+$loadedModules = LoadModules::$_settings->general['modules']; 
+
+//now we need to update UI cookie used to hide and show modules by position
+$loadModules->updateUIcookieSorting ($loadedModules);
+
+//die;
+
+
 //LoadAvg::$_settings->general = $settings;
 
 /* rebuild logs
@@ -143,7 +150,7 @@ $settings = LoadAvg::$_settings->general;
  */
 
 //why dont this work ?
-//$loadavg->rebuildLogs();
+$loadavg->runLogger();
 
 /* force reload settings page now */
 header('Location: '.$_SERVER['REQUEST_URI']);
@@ -180,106 +187,168 @@ header('Location: '.$_SERVER['REQUEST_URI']);
     <!-- 
       * this is where we loop through all the modules
       * and deal with their individual settings
-	-->
-
-	<div class="well">
-		<h4>Network interfaces</h4>
-		<?php $interfaces = LoadAvg::getNetworkInterfaces(); ?>
-		<?php foreach ($interfaces as $interface) { ?>
-		<div class="row-fluid">
-			<div class="span3">
-				<strong>Monitor: <?php echo trim($interface['name']); ?></strong>
-			</div>
-			<div class="span9 right">
-				<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-                    <input name="formsettings[network_interface][<?php echo trim($interface['name']); ?>]" value="true" type="checkbox"
-                    	<?php
-                    		if ( isset($settings['network_interface'][trim($interface['name'])]) && $settings['network_interface'][trim($interface['name'])] == "true" )
-                    		{ ?>checked="checked"<?php }
-                    	?>
-                    >
-                </div>
-			</div>
-		</div>
-		<?php } ?>
-	</div>
+	-->	
 
 
+        <?php 
+        $modules = LoadModules::$_modules; 
+		$interfaces = LoadUtility::getNetworkInterfaces(); 
+		
+        foreach ($modules as $module => $moduleName) { 
 
-	<div class="separator bottom"></div>
+        	//with this we can now move over to AJAX settings
+        	//as settings are now loaded per moduel weather on or off
+    		$moduleSettings = LoadUtility::getSettings($module, 'modules' );
 
-	<div class="well">
+        	// if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" )
+        	if (isset($settings['modules'][$module]))
+        		$moduleStatus = $settings['modules'][$module];
+        	else
+	        	$moduleStatus = false;
+   			?>
+			
+			<div class="well">
 
+				<!--
+				module name is rendered here along with checkbox for status
+				-->
+		    	<div class="row-fluid">
+		            <div class="span3">
+		                    <h4> <?php echo $module; ?> Module</h4>
+		            </div>
+		            <div class="span9 right">
 
-
-                <?php $modules = LoadAvg::$_modules; ?>
-                <?php foreach ($modules as $module => $moduleName) { ?>
-				<div class="separator bottom"></div>
-            	<div class="row-fluid">
-                    <div class="span3">
-                            <h4> <?php echo $module; ?> Module</h4>
-                    </div>
-                    <div class="span9 right">
-                        <div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-                            <input name="formsettings[modules][<?php echo $module; ?>]" value="true" type="checkbox"
-                            	<?php if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" )
-                            		{ ?>checked="checked"<?php }
-                            	?>
-                            >
-                        </div>
-                    </div>
-                </div>
-				<div class="separator bottom"></div>
-                <?php
-                //indiviudual module settings here
-                //need a way to load this dynamically when the module is activated above!
-                if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" ) {
-
-                	$moduleSettings = LoadAvg::$_settings->$module;
-                	
-                	if ( isset($moduleSettings['module']['has_settings']) && $moduleSettings['module']['has_settings'] == "true") {
-                		?>
-                		<div class="well">
-
-                		<!--
-            				<strong><?php echo $module; ?> module settings:</strong>
+						<!--
+						here we create the check box / on off slider
+						name is used to submit data to form needs cleaning up
 						-->
-	                        <?php
-	                        foreach ($moduleSettings['settings'] as $setting => $value) {
-	                        	?>
-	                        	<div class="row-fluid">
-	                        		<div class="span3">
-	                        			<strong><?php echo ucwords(str_replace("_"," ",$setting)); ?></strong>
-	                        		</div>
-	                        		<div class="span9 right">
 
-	                        			<?php if ( $value == 'true' || $value == 'false') { ?>
+						<input type="checkbox" checkbox-type="my-checkbox-databox" data-target="<?php echo $module; ?>" 
+						name="formsettings[modules][<?php echo $module; ?>]" <?php if ( $moduleStatus == "true" ) { ?>checked="checked"<?php } ?> >
 
-											<div class="toggle-button" data-togglebutton-style-enabled="success" style="width: 100px; height: 25px;">
-												<input name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" type="checkbox" value="<?php echo $value; ?>" 
-												<?php if ( $value == "true" ) { ?>checked="checked"<?php } ?>>
-											</div>	  
+		            </div>
+		        </div>
 
-	                        			<?php } else { ?>
+				<!--
+				module description is done here
+				-->
+				<div>
+		        <?php 
+		        echo $moduleSettings['module']['description'];
+		        ?> 
+				</div>
 
-	                        				<div class="pull-right">
-	                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">	                        					
-	                        				</div>  
 
-	                        			<?php } ?>
+				<!--
+				module settings is done here
+				-->
+				<div class="viewdetails_<?php echo $module; ?>" <?php if ( $moduleStatus == "false" ) { ?>style="display:none"<?php } ?> >
 
-	                        		</div>
-	                        	</div>
-	                        	<?php
-	                        }
-	                        ?>
-                		</div>
-                		<?php
-                	}
-                }
-                ?>
-                <?php } ?>
-        </div>
+				<div class="separator bottom"></div>
+
+		            <?php
+		           
+		            //indiviudual module settings here
+		            //if ( isset($settings['modules'][$module]) && $settings['modules'][$module] == "true" ) {
+		           
+		            if ( isset($settings['modules'][$module]) ) {
+
+		            	//$moduleSettings = LoadModules::$_settings->$module;
+		            	
+		            	if ( isset($moduleSettings['module']['has_settings']) && $moduleSettings['module']['has_settings'] == "true") {
+		            		?>
+
+			    				<div class="row-fluid">
+
+		                		<?php
+		                		if ($module == "Network") {
+
+
+		                			echo "<strong>Network Interfaces</strong><br><br>";
+
+									foreach ($interfaces as $interface) { 
+
+										$interface_name = trim($interface['name']); ?>
+
+										<div class="row-fluid">
+											<div class="span3">
+												<strong>Monitor: <?php echo trim($interface['name']); ?></strong>
+											</div>
+											<div class="span9 right">
+
+							                    <input name="formsettings[network_interface][<?php echo $interface_name; ?>]" checkbox-type="my-checkbox" value="true" type="checkbox"
+							                    	<?php
+							                    		if ( isset($settings['network_interface'][trim($interface['name'])]) && $settings['network_interface'][trim($interface['name'])] == "true" )
+							                    		{ ?>checked="checked"<?php }
+							                    	?>
+							                    >
+
+											</div>
+										</div>
+									<?php } 
+									echo "<br><strong>Network Settings</strong><br><br>";						
+								}
+						        
+		                        foreach ($moduleSettings['settings'] as $setting => $value) {
+
+		                        	//filter out ui settings but keep data for POST
+									if ( LoadUtility::endswith ($setting, "limiting") ) { 
+
+										//ucwords(str_replace("_"," ",$setting));
+			                        	
+			                        	//echo 'limiting : ' . $value; ?>
+
+                        			<?php } else { ?>
+		                        	
+			                        	<div class="row-fluid">
+			                        		<div class="span3">
+			                        			<strong><?php echo ucwords(str_replace("_"," ",$setting)); ?></strong>
+			                        		</div>
+			                        		<div class="span9 right">
+
+			                        			<?php 
+
+												if ( $value == 'true' || $value == 'false') { ?>
+
+			                        				<!-- means its a checkbox -->
+
+														<input name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" checkbox-type="my-checkbox" data-size="small" type="checkbox" value="<?php echo $value; ?>" 
+														<?php if ( $value == "true" ) { ?>checked="checked"<?php } ?>>
+
+			                        			<?php } else { ?>
+
+			                        				<!-- means its a regular data settings -->
+
+			                        				<div class="pull-right">
+			                        					<input type="text" name="<?php echo $module.'_settings[settings]['.$setting.']'; ?>" value="<?php echo $value; ?>" size="40" class="span6 left">	                        					
+			                        				</div>  
+
+			                        			<?php } ?>
+
+			                        		</div>
+			                        	</div>
+
+		                        	<?php 
+		                        	}
+		                        }
+		                        ?>
+
+		            		</div> <!-- close well -->
+		            	<?php
+		            	}
+		            }
+
+		    		?>
+
+				</div> <!-- close out the viewdetails section -->
+
+		    </div> <!-- close well -->
+
+    <div class="separator bottom"></div>
+
+	<?php
+    } 
+    ?>
 
 	<div class="separator bottom"></div>
 

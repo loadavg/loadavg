@@ -14,17 +14,18 @@
 */
 ?>
 
-<?php if ($loadavg->isLoggedIn()) { 
-
-//if (!isset($_GET['page'])) {
-//    $_SET['page'] = '';
-//}
-    ?>
+<?php 
+if (    (   $loadavg->isLoggedIn() 
+        || ( isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true" ) )
+     && ( $banned == false ) 
+    ) 
+{ 
+?>
 
 <table class="well lh70 lh70-style" width="100%" border="0" cellspacing="1" cellpadding="3">
     <tr>
         <td width="30%">
-            <b>Today</b> - <?php echo date("l, M. j H:i a", (time()-300)); ?>  <!--  need to add log file dates here when overriden   -->
+            <b>Today</b> - <?php echo date("l, M. j h:i a", (time())); ?>  <!--  need to add log file dates here when overriden   -->
 
 
 
@@ -44,7 +45,7 @@
                 <div class="control-group margin-none">
                     <label class="control-label"><b>Period:</b></label>
                     <div class="controls">
-                        <input type="hidden" id="minDateValue" value="<?php echo date("Y-m-d", strtotime("-". LoadAvg::$_settings->general['daystokeep'] ." days 00:00:00")); ?>">
+                        <input type="hidden" id="minDateValue" value="<?php echo date("Y-m-d", strtotime("-". LoadAvg::$_settings->general['settings']['daystokeep'] ." days 00:00:00")); ?>">
                         <input type="hidden" id="maxDateValue" value="<?php echo date("Y-m-d"); ?>">
                         
                         <input type="text" id="minDate" name="minDate" value="<?php echo (isset($_GET['minDate']) && !empty($_GET['minDate'])) ? $_GET['minDate'] : ''; ?>" placeholder="Period from" style="width: 70px;height: 18px;">
@@ -55,7 +56,6 @@
                         <b class="innerL">Log file:</b>
                         <select name="logdate" onchange="this.submit()" style="width: 110px;height: 28px;">
                         <?php
-
 
                         $dates = LoadAvg::getDates();
 
@@ -93,30 +93,97 @@
 } 
 ?>
 
-<div class="innerAll">
-    <?php
-    foreach ( $loaded as $module => $value ) { // looping through all the modules in the settings.ini file
-        if ( $value === "false" ) continue; // if modules is disabled ... moving on.
+    <!--
+        We render all the chart modules here
+    -->
 
-        $moduleSettings = LoadAvg::$_settings->$module; // if module is enabled ... get his settings
+    <div class="innerAll">
+
+    <div id="accordion" class="accordion">
+
+
+
+        <?php
+
+        $loadedModules = LoadModules::$_settings->general['modules']; 
+
+        //this has become one hell of a mess need to revisit and clean up cookie code
+        //as system stores module status 
+        //but cookies storie if moudle is there or not
         
-        if ( $moduleSettings['module']['logable'] == "true" ) { // if module has loggable enabled it has a chart
+        //echo '<pre> system activated '; var_dump( $loadedModules); echo '</pre>';
+
+        $cookieStatus = false;
+        $cookieList;
+        $cookieStatus = $loadModules->getUIcookieSorting($cookieList);
+
+        //grab module settings and drop disabled modules here
+        if ($cookieStatus) {
+
+            $cleanSettings = null;
+            foreach ($loadedModules as $key =>$value) {
+
+                if ($value=="true") {
+                    $cleanSettings[$key]="true";
+                }
+            }
+
+            //these should match really
+            if (!LoadUtility::identical_values( $cleanSettings , $cookieList )) {
+                $loadModules->updateUIcookieSorting($loadedModules);
+            }
+
+        }
+       //echo '<pre>'; var_dump( $cookieList); echo '</pre>';
+
+        //now loop through the modules and draw them
+        $moduleNumber = 0;
+        $chartList = null;
+
+        if ($cookieStatus)
+            $chartList = $cookieList;
+        else
+            $chartList = $loadedModules;
+
+        //for old broken cookies or issues with $cookieList
+        if ($chartList == null || !$chartList)
+            $chartList = $loadedModules;
+
+        //echo '<pre> live settings'; var_dump( $chartList); echo '</pre>';
+
+        //get the range of dates to be charted from the UI and 
+        $range = $loadavg->getDateRange();
+
+        //set the date range to be charted in the modules
+        $loadModules->setDateRange($range);
+
+
+        //now render the charts out
+        //$loadModules->renderCharts($chartList, true);
+
+        foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
             
-            $class = LoadAvg::$_classes[$module];
+            //echo 'module: ' . $module . 'value: ' . $value ;
 
-            $i = 0;
+            if ( $value === "false" ) continue; // if modules is disabled ... moving on.
 
-            if (isset($moduleSettings['module']['tabbed']) && $moduleSettings['module']['tabbed'] == "true") {
-                if ($i == 1) break;
+            //fix for issues with cookies
+            if (!isset(LoadModules::$_settings->$module))
+                continue;
 
-                //echo 'NESTEDCHARTS:';
-                $class->genChart( $moduleSettings, $logdir );
-                $i++; //will this ever be hit ? as i = 1 breaks things
-            } else {
-                //echo 'CORECHART:';
-                $class->genChart( $moduleSettings, $logdir );
+            $moduleSettings = LoadModules::$_settings->$module; // if module is enabled ... get his settings
+            
+            if ( $moduleSettings['module']['logable'] == "true" ) { // if module has loggable enabled it has a chart
+                
+        
+                $loadModules->renderChart ( $module, true );
+
             }
         }
-    }
-    ?>
-</div>
+
+
+
+        ?>
+
+    </div>    
+    </div>
