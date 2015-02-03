@@ -108,9 +108,32 @@ class LoadAvg
 			$settingsFile = file_get_contents($settingsFileLocation);
 			$settingsFile = explode("\n", $settingsFile);
 
+			//var_dump ($settingsFile);
+
 			//insert settings moduel header
 			$inserted = "[settings]";
 			array_splice( $settingsFile, 1, 0, $inserted ); // splice in at position 3
+			
+			//delete server setting from modules
+			$needle = 'Server';
+			foreach($settingsFile as $key => $item) {
+  				if(strpos($item,$needle)!== false) {
+					$item = (int)$key;
+    					unset ($settingsFile[$key]);
+  				}
+			}
+
+			//delete blank line form end of file
+			if ( end($settingsFile) == "" || end($settingsFile) == null )
+				array_pop($settingsFile);
+
+			//add new plugins section
+			array_push($settingsFile, '[plugins]');
+			array_push($settingsFile, 'Server = "true"');
+			array_push($settingsFile, 'Process = "false"');
+
+			//var_dump ($settingsFile);
+			//die;
 
 			//now wite settings back out
 		    if ($fp = fopen($settingsFileLocation, 'w') ) {
@@ -123,7 +146,6 @@ class LoadAvg
 				parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 			);		    
 		}
-
 	}
 
 	public function memoryDebugData( $memory_usage) {
