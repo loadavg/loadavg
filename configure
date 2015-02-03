@@ -64,6 +64,13 @@ else
                 echo  "    Install folder already removed"
         fi
 
+        if [  -d "lib/modules/Server" ]; then
+                rm -vr lib/modules/Server
+        else
+                echo  "    Old server not present = good"
+        fi
+
+
         echo -n "[+] Checking for /logs folder ... "
         if [ ! -d "logs" ]; then
                 echo "NOT FOUND"
