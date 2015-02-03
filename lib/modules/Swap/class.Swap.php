@@ -183,13 +183,26 @@ class Swap extends Charts
 					$this->reMapData($data);
 
 				//used to filter out redline data from usage data as it skews it
+				/*
 				if (!$redline) {
 					$usage[] = ( $data[4] / 1024 );
 					$percentage_used =  ( $data[4] / $data[2] ) * 100; // DIV 0 REDLINE
 				} else {
 					$percentage_used = 0;
 				}
-			
+*/
+                //used to filter out redline data from usage data as it skews it
+                if (!$redline) {
+                        $usage[] = ( $data[4] / 1024 );
+                        if ($data[2] > 0)
+                                $percentage_used =  ( $data[4] / $data[2] ) * 100; // DIV 0 REDLINE
+                        else
+                                $percentage_used = 0;
+                } else {
+                        $percentage_used = 0;
+                }
+
+
 				$timedata = (int)$data[0];
 				$time[( $data[4] / 1024 )] = date("H:ia", $timedata);
 
@@ -217,8 +230,11 @@ class Swap extends Charts
 			{
 				$mem_high = max($usage);
 				$mem_low  = min($usage); 
-				$mem_mean = array_sum($usage) / count($usage);
 
+				if (count($usage) > 0)
+					$mem_mean = array_sum($usage) / count($usage);
+				else
+					$mem_mean = 0;
 				
 				$ymax = $memorySize;
 				$ymin = 1;
@@ -226,9 +242,16 @@ class Swap extends Charts
 
 			} else {
 
-				$mem_high=   ( max($usage) / $memorySize ) * 100 ;				
-				$mem_low =   ( min($usage) / $memorySize ) * 100 ;
-				$mem_mean =  ( (array_sum($usage) / count($usage)) / $memorySize ) * 100 ;
+				if ($memorySize > 0)
+				{
+					$mem_high=   ( max($usage) / $memorySize ) * 100 ;				
+					$mem_low =   ( min($usage) / $memorySize ) * 100 ;
+					$mem_mean =  ( (array_sum($usage) / count($usage)) / $memorySize ) * 100 ;
+				}
+				else
+				{
+					$mem_high = $mem_low = $mem_mean = 0;
+				}
 
 				//these are the min and max values used when drawing the charts
 				//can be used to zoom into datasets
