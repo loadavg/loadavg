@@ -156,7 +156,7 @@ if (isset($_POST['update_settings'])) {
 
 			<?php
 			$timezones = LoadAvg::getTimezones();
-			print '<select name="formsettings[settings][timezone]" id="timezone">';
+			print '<select name="formsettings[settings][clienttimezone]" id="timezone">';
 
 			foreach($timezones as $region => $list)
 			{
@@ -164,7 +164,7 @@ if (isset($_POST['update_settings'])) {
 				foreach($list as $thetimezone => $name)
 				{
 					print '<option name="' . $thetimezone . '"';
-					$check = $settings['settings']['timezone'];
+					$check = $settings['settings']['clienttimezone'];
 					if (  $check == $thetimezone )  { print ' selected="selected"'; }
 					print '>' . $thetimezone . '</option>' . "\n";
 				}

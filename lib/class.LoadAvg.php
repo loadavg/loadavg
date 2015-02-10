@@ -53,7 +53,8 @@ class LoadAvg
 
 
 		//set timezone and load in settings
-		date_default_timezone_set("UTC");
+		//date_default_timezone_set("UTC");
+		
 		self::$settings_ini = "settings.ini.php";
 
 		$this->setSettings('general',
@@ -68,7 +69,7 @@ class LoadAvg
 		}
 
 		//get the date and timezone
-		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
+		date_default_timezone_set(self::$_settings->general['settings']['clienttimezone']);
 
 		//if no log date is set then use todays date
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");

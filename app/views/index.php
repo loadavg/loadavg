@@ -34,7 +34,8 @@ if (    (   $loadavg->isLoggedIn()
             echo '<br>Viewing ' . date("l, M. j", strtotime($_GET['logdate'])); 
             } else {
             ?> 
-            <br>Zone <?php echo date("(e)", (time()-300)); 
+            <br>Server <?php echo LoadAvg::$_settings->general['settings']['timezone']; ?>
+            <br>Client <?php echo date("e", (time()-300)); 
             }
             ?>  
             

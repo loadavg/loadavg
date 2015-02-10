@@ -98,6 +98,9 @@ if (isset($_POST['login'])  ) {
 
 	<script type="text/javascript">
 	<?php 
+	
+	//date_default_timezone_set(LoadAvg::$_settings->general['settings']['clienttimezone']);
+
 	$min = date('Y-m-d');
 	$max = date('Y-m-d');
 	if (isset($_GET['logdate']) && !empty($_GET['logdate']) && $_GET['logdate'] !== date('Y-m-d'))
@@ -112,17 +115,61 @@ if (isset($_POST['login'])  ) {
 		$max = $_GET['maxDate'];
 	}
 
-	$min = strtotime($min);
-	$max = strtotime($max);
+	$min = strtotime($min) ;
+	$max = strtotime($max) ;
 	?>
 
-	var today_min = <?php echo mktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;
-	var today_max = <?php echo mktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
+	console.log (">> header");
+
+	var start = new Date( <?php echo $min * 1000 ?> );
+	//console.log ("js min date ", start.getTime());
+	start.setHours(0,0,0,0);
+	//console.log ("js min date after set hours ", start.getTime());
+
+	var end = new Date( <?php echo $max * 1000 ?>);
+	//console.log ("js max date", end.getTime());
+	//end.setHours(23,59,59,999);
+	//end.setHours(24);
+	end.setHours(24,0,0,0);
+	//end.setHours(end.getHours() + 24);
+	//console.log ("js max date after set hours", end.getTime());
+
+	var today_min = start;
+	var today_max = end;
+
+	//php way of doing this
+	//var today_min = <?php echo mktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;
+	//var today_max = <?php echo mktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
+
+
+	console.log ("min in header ", today_min.getTime());
+	formattedTime = timeConverter(today_min   );
+	console.log (" ", formattedTime);
+
+	console.log ("max in header", today_max.getTime());
+	formattedTime = timeConverter(today_max   );
+	console.log (" ", formattedTime);
+
+	console.log (">> timezone");
+
+
+	var d = new Date()
+	var n = d.getTimezoneOffset();
+
+	console.log ("offset from UTC", n/60);
+
+	console.log (">> header");
+
+
+	function timeConverter (UNIX_timestamp){
+
+		var dt = new Date([UNIX_timestamp] );
+		data = (dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds() + ' -- ' + dt );
+		return data;
+	};
+
 
 	//fix for min range only (to current)
-
-	//fix for 6 and 12 hours need to grab data from log file before
-
 	//$nextWeek = time() + ( 24 * 60 * 60);
     // 24 hours; 60 mins; 60 secs
 

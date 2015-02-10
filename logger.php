@@ -20,8 +20,34 @@ require_once dirname(__FILE__) . '/globals.php'; // including required globals
 
 include 'class.Utility.php'; // for logger module
 
+///////////////////////////////////////////////////////////////
+//
+
+//for testing the system
+$timemode = false;
+
+if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'timezone'))   ) {
+	$timemode = true;
+}
+
+if ($timemode) {
+
+$systemTimeZone = exec('date +%Z');
+echo 'Server time : '.  $systemTimeZone ."\n";
+
+//$timestamp = time();
+//echo 'PHP time : ' . date("Y-m-d H:i:s", $timestamp ) . "\n";
+echo 'PHP Core timezone : ' . date_default_timezone_get() . "\n";
+
+}
+//
+/////////////////////////////////////////////////////////////
+
 include 'class.Logger.php'; // for logger module
 $logger = new Logger(); // Initializing Main Controller
+
+if ($timemode) 
+echo 'Logger time: ' . date_default_timezone_get() ."\n";
 
 include 'class.Timer.php'; // for logger module
 $timer = new Timer(); // Initializing Timer
