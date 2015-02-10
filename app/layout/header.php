@@ -191,15 +191,15 @@ if (isset($_POST['login'])  ) {
 	//end.setHours(end.getHours() + 24);
 	//console.log ("js max date after set hours", end.getTime());
 
-	var today_min = start;
-	var today_max = end;
+	var today_min_js = start;
+	var today_max_js = end;
 
 
-	formattedTime = timeConverter( today_min.getTime()   );
-	console.log ("min : ", today_min.getTime() + " " + formattedTime);
+	formattedTime = timeConverter( today_min_js.getTime()   );
+	console.log ("min : ", today_min_js.getTime() + " " + formattedTime);
 
-	formattedTime = timeConverter( today_max.getTime()   );
-	console.log ("max : ", today_max.getTime() + " " + formattedTime);
+	formattedTime = timeConverter( today_max_js.getTime()   );
+	console.log ("max : ", today_max_js.getTime() + " " + formattedTime);
 
 	console.log (" ");
 
@@ -213,6 +213,9 @@ if (isset($_POST['login'])  ) {
 
 	console.log (" ");
 
+
+	var today_min = today_min_php;
+	var today_max = today_max_php;
 
 	/////////////////////////////////////////////////////
 	// functions
