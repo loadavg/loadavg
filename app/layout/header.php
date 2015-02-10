@@ -138,11 +138,14 @@ if (isset($_POST['login'])  ) {
 
 	console.log (" ");
 
-	console.log (">> PHP min/max");
+	console.log (">> PHP GM min/max");
 
-	var today_min_php = <?php echo mktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;	
-	var today_max_php = <?php echo mktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
+	var today_min_php = <?php echo gmmktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;	
+	var today_max_php = <?php echo gmmktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
 	
+	today_min_php = today_min_php + ( <?php echo $timeoffset ?> * ( 60 * 60 * 1000 ) );
+	today_max_php = today_max_php + ( <?php echo $timeoffset ?> * ( 60 * 60 * 1000 ) );
+
 	formattedTime = timeConverter( today_min_php   );
 	console.log ("min : ", today_min_php + " " + formattedTime);
 
@@ -162,6 +165,7 @@ if (isset($_POST['login'])  ) {
 //	var today_min = today_min_php;
 //	var today_max = today_max_php;
 
+/*
 	console.log (">> javascript min offset test ");
 
 
@@ -170,7 +174,7 @@ if (isset($_POST['login'])  ) {
 	formattedTime = timeConverter( d.getTime()   );
 	console.log ("test : ", d.getTime() + " " + formattedTime);
 	console.log (" ");
-
+*/
 
 	console.log (">> javascript min/max");
 
