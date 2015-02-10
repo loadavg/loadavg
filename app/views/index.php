@@ -35,7 +35,7 @@ if (    (   $loadavg->isLoggedIn()
             } else {
             ?> 
             <br>Server <?php echo LoadAvg::$_settings->general['settings']['timezone']; ?>
-            <br>Client <?php echo date("e", (time()-300)); 
+            <br>Client <?php echo date("e", (time())); 
             }
             ?>  
             

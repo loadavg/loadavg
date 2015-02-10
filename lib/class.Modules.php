@@ -62,7 +62,7 @@ class loadModules
 
 
 		//get the date and timezone
-		date_default_timezone_set(self::$_settings->general['settings']['clienttimezone']);
+		//date_default_timezone_set(self::$_settings->general['settings']['clienttimezone']);
 
 		//self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
 

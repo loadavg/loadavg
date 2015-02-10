@@ -119,6 +119,8 @@ if (isset($_POST['login'])  ) {
 	$max = strtotime($max) ;
 
 
+	//so timezone is taken from the server !
+	//client timezone is used to offset javascript only...
     $phptimezone = date_default_timezone_get();
 
 	$timeoffset = LoadUtility::get_timezone_offset($phptimezone,'UTC');
