@@ -119,7 +119,35 @@ if (isset($_POST['login'])  ) {
 	$max = strtotime($max) ;
 	?>
 
-	console.log (">> header");
+///////////////////////////////////////////////////
+
+
+	console.log (">> Source min/max from php app");
+
+	console.log ("source min ", <?php echo $min ?> );
+	console.log ("source max ", <?php echo $max ?> );
+
+	console.log (" ");
+
+	console.log (">> PHP min/max");
+
+	var today_min_php = <?php echo mktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;	
+	var today_max_php = <?php echo mktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
+	
+	formattedTime = timeConverter( today_min_php   );
+	console.log ("min : ", today_min_php + " " + formattedTime);
+
+	formattedTime = timeConverter(today_max_php   );
+	console.log ("max : ", today_max_php + " " + formattedTime);
+
+	console.log (" ");
+
+
+//	var today_min = today_min_php;
+//	var today_max = today_max_php;
+
+
+	console.log (">> javascript min/max");
 
 	var start = new Date( <?php echo $min * 1000 ?> );
 	//console.log ("js min date ", start.getTime());
@@ -137,20 +165,16 @@ if (isset($_POST['login'])  ) {
 	var today_min = start;
 	var today_max = end;
 
-	//php way of doing this
-	//var today_min = <?php echo mktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;
-	//var today_max = <?php echo mktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
 
+	formattedTime = timeConverter( today_min.getTime()   );
+	console.log ("min : ", today_min.getTime() + " " + formattedTime);
 
-	console.log ("min in header ", today_min.getTime());
-	formattedTime = timeConverter(today_min   );
-	console.log (" ", formattedTime);
+	formattedTime = timeConverter( today_max.getTime()   );
+	console.log ("max : ", today_max.getTime() + " " + formattedTime);
 
-	console.log ("max in header", today_max.getTime());
-	formattedTime = timeConverter(today_max   );
-	console.log (" ", formattedTime);
+	console.log (" ");
 
-	console.log (">> timezone");
+	console.log (">> javascript timezone");
 
 
 	var d = new Date()
@@ -158,16 +182,30 @@ if (isset($_POST['login'])  ) {
 
 	console.log ("offset from UTC", n/60);
 
-	console.log (">> header");
+	console.log (" ");
 
 
-	function timeConverter (UNIX_timestamp){
+	/////////////////////////////////////////////////////
+	// functions
+	////////////////////////////////////////////////////
 
-		var dt = new Date([UNIX_timestamp] );
+	function timeConverter ( ts ){
+
+		//console.log ("data type : ", toType(ts));
+		//console.log ("data      : ", ts );
+
+		//var timestamp = parseInt(ts);
+		var timestamp = ts;
+
+
+		var dt = new Date( timestamp );
 		data = (dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds() + ' -- ' + dt );
 		return data;
 	};
 
+	function toType (obj) {
+  		return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+	};
 
 	//fix for min range only (to current)
 	//$nextWeek = time() + ( 24 * 60 * 60);
