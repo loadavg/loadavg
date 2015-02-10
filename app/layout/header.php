@@ -121,10 +121,10 @@ if (isset($_POST['login'])  ) {
 
     $phptimezone = date_default_timezone_get();
 
-	$offset = LoadUtility::get_timezone_offset($phptimezone,'UTC');
+	$timeoffset = LoadUtility::get_timezone_offset($phptimezone,'UTC');
 	//$offset = LoadUtility::get_timezone_offset('America/New_York','UTC');
 	
-	$offset = $offset / ( 60 * 60 );
+	$timeoffset = $timeoffset / ( 60 * 60 );
 
 	?>
 
@@ -155,7 +155,7 @@ if (isset($_POST['login'])  ) {
 
 
 	console.log ("timezone ", "<?php echo $phptimezone ?>" );
-	console.log ("offset from UTC ", "<?php echo $offset ?>" );
+	console.log ("offset from UTC ", "<?php echo $timeoffset ?>" );
 
 	console.log (" ");
 
