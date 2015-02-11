@@ -140,6 +140,11 @@ if (isset($_POST['login'])  ) {
 
 	console.log (" ");
 
+	console.log (">> php/server timezone");
+	console.log ("timezone ", "<?php echo $phptimezone ?>" );
+	console.log ("offset from UTC ", "<?php echo $timeoffset ?>" );
+	console.log (" ");
+
 	console.log (">> PHP GM min/max");
 
 	var today_min_php = <?php echo gmmktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;	
@@ -153,31 +158,13 @@ if (isset($_POST['login'])  ) {
 
 	formattedTime = timeConverter(today_max_php   );
 	console.log ("max : ", today_max_php + " " + formattedTime);
-
-	console.log (" ");
-
-	console.log (">> php timezone");
-
-
-	console.log ("timezone ", "<?php echo $phptimezone ?>" );
-	console.log ("offset from UTC ", "<?php echo $timeoffset ?>" );
-
 	console.log (" ");
 
 //	var today_min = today_min_php;
 //	var today_max = today_max_php;
 
+
 /*
-	console.log (">> javascript min offset test ");
-
-
-	var d = new Date( <?php echo $min * 1000 ?> );
-	d.setTime( d.getTime() + d.getTimezoneOffset()*60*1000 );
-	formattedTime = timeConverter( d.getTime()   );
-	console.log ("test : ", d.getTime() + " " + formattedTime);
-	console.log (" ");
-*/
-
 	console.log (">> javascript min/max");
 
 	var start = new Date( <?php echo $min * 1000 ?> );
@@ -214,10 +201,21 @@ if (isset($_POST['login'])  ) {
 	console.log ("offset from UTC", n/60);
 
 	console.log (" ");
-
+*/
 
 	var today_min = today_min_php;
 	var today_max = today_max_php;
+
+
+/*
+	console.log (">> javascript min offset test ");
+	var d = new Date( <?php echo $min * 1000 ?> );
+	d.setTime( d.getTime() + d.getTimezoneOffset()*60*1000 );
+	formattedTime = timeConverter( d.getTime()   );
+	console.log ("test : ", d.getTime() + " " + formattedTime);
+	console.log (" ");
+*/
+
 
 	/////////////////////////////////////////////////////
 	// functions

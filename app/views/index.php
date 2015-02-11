@@ -22,6 +22,13 @@ if (    (   $loadavg->isLoggedIn()
 { 
 ?>
 
+<script type="text/javascript">
+    //get the offset for the client timezone 
+    var d = new Date()
+    var n = d.getTimezoneOffset();
+    var tz_offset = n/60;
+</script>
+
 <table class="well lh70 lh70-style" width="100%" border="0" cellspacing="1" cellpadding="3">
     <tr>
         <td width="30%">
@@ -35,7 +42,15 @@ if (    (   $loadavg->isLoggedIn()
             } else {
             ?> 
             <br>Server <?php echo LoadAvg::$_settings->general['settings']['timezone']; ?>
-            <br>Client <?php echo date("e", (time())); 
+            <br>Client <?php //echo date("e", (time())); ?>
+
+
+            <?php
+            $tz_offset = '<script type="text/javascript">document.write(tz_offset);</script>';
+            echo "Offset " . $tz_offset . "\n";
+            ?>
+
+            <?php
             }
             ?>  
             
