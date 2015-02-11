@@ -23,37 +23,64 @@ if (    (   $loadavg->isLoggedIn()
 ?>
 
 <script type="text/javascript">
+
     //get the offset for the client timezone 
-    var d = new Date()
-    var n = d.getTimezoneOffset();
-    var tz_offset = n/60;
+    var currentTime = new Date()
+
+    var tz_offset = currentTime.getTimezoneOffset()/60;
+
+    var hours = currentTime.getHours()
+    var minutes = currentTime.getMinutes()
+    var ampm = "";
+
+    if (minutes < 10) minutes = "0" + minutes
+
+    if(hours > 12) { hours = hours - 12; ampm = "pm"; }
+    else ampm = "am";
+
+    var browserTime = hours + ":" + minutes + " " + ampm;
+
 </script>
 
 <table class="well lh70 lh70-style" width="100%" border="0" cellspacing="1" cellpadding="3">
     <tr>
         <td width="30%">
-            <b>Today</b> - <?php echo date("l, M. j h:i a", (time())); ?>  <!--  need to add log file dates here when overriden   -->
 
 
 
             <?php if ( (isset($_GET['logdate'])) && !empty($_GET['logdate']) ) 
             {
-            echo '<br>Viewing ' . date("l, M. j", strtotime($_GET['logdate'])); 
-            } else {
-            ?> 
-            <br>Server Timezone <?php echo LoadAvg::$_settings->general['settings']['timezone']; ?>
-            <br>Client <?php //echo date("e", (time())); ?>
-
-
-            <?php
-            $tz_offset = '<script type="text/javascript">document.write(tz_offset);</script>';
-            echo "Offset " . $tz_offset . "\n";
-            ?>
-
+            echo '<strong>Viewing</strong> ' . date("l, M. j", strtotime($_GET['logdate'])); 
+            } else { ?>
+            <b>Viewing </b> <?php echo date("l, M. j h:i a", (time())); ?>  <!--  need to add log file dates here when overriden   -->
             <?php
             }
-            ?>  
-            
+            ?> 
+
+            <br>TZ <?php echo LoadAvg::$_settings->general['settings']['timezone']; ?>
+           
+            <br>
+            <?php 
+            //get server time in UTC
+            $gmtimenow = time() - (int)substr(date('O'),0,3)*60*60; 
+            echo date("h:i a", $gmtimenow) . " UTC";
+            ?>
+
+            <?php 
+            //get server time in set timezone
+            $dateTime = new DateTime();
+            $timenow =  date("h:i a", (time()) );
+            echo $timenow . " " . $dateTime->format('T');;
+            ?>
+
+            <br>Browser <?php //echo date("e", (time())); ?>
+            <?php
+            $tz_offset = '<script type="text/javascript">document.write(tz_offset);</script>';
+            $browserTime = '<script type="text/javascript">document.write(browserTime);</script>';
+            echo  $browserTime  . " (" . $tz_offset . " hr" . ")"  ;
+            ?>
+
+
         </td>
         <td width="70%" align="right">
             <form action="" method="get" class="margin-none form-horizontal">
