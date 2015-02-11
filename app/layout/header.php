@@ -118,15 +118,17 @@ if (isset($_POST['login'])  ) {
 	$min = strtotime($min) ;
 	$max = strtotime($max) ;
 
-
-	//so timezone is taken from the server !
-	//client timezone is used to offset javascript only...
+	//timezone is taken from the server and UTC offset is recorded for normalization
+	//client timezone is used to offset browser via javascript only...
     $phptimezone = date_default_timezone_get();
 
-	$timeoffset = LoadUtility::get_timezone_offset($phptimezone,'UTC');
-	//$offset = LoadUtility::get_timezone_offset('America/New_York','UTC');
+    //normalize all server time to UTC
+	$timeoffset = LoadUtility::get_timezone_offset($phptimezone,'UTC');	
 	
-	$timeoffset = $timeoffset / ( 60 * 60 );
+	if ($timeoffset > 0)
+		$timeoffset = $timeoffset / ( 60 * 60 );
+	else
+		$timeoffset = 1;
 
 	?>
 
@@ -197,7 +199,6 @@ if (isset($_POST['login'])  ) {
 
 	var d = new Date()
 	var n = d.getTimezoneOffset();
-
 	console.log ("offset from UTC", n/60);
 
 	console.log (" ");
@@ -205,16 +206,6 @@ if (isset($_POST['login'])  ) {
 
 	var today_min = today_min_php;
 	var today_max = today_max_php;
-
-
-/*
-	console.log (">> javascript min offset test ");
-	var d = new Date( <?php echo $min * 1000 ?> );
-	d.setTime( d.getTime() + d.getTimezoneOffset()*60*1000 );
-	formattedTime = timeConverter( d.getTime()   );
-	console.log ("test : ", d.getTime() + " " + formattedTime);
-	console.log (" ");
-*/
 
 
 	/////////////////////////////////////////////////////

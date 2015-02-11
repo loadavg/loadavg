@@ -21,7 +21,7 @@ class LoadAvg
 	public static $_settings; // storing standard settings and/or loaded modules settings
 	
 	public static $current_date; // current date
-	private static $_timezones; // Cache of timezones
+	//private static $_timezones; // Cache of timezones
 
 	// Periodas
 	public static $period;
@@ -878,50 +878,5 @@ public function getLinuxDistro()
 
 
 
-	/**
-	 * getTimezones
-	 *
-	 * Get the (cached) list of all possible timezones
-	 *
-	 */
-
-	public static function getTimezones()
-	{
-		if (is_array(LoadAvg::$_timezones)) {
-			return LoadAvg::$_timezones;
-		}
-
-		LoadAvg::$_timezones = array();
-
-		$regions = array(
-		    'Africa' => DateTimeZone::AFRICA,
-		    'America' => DateTimeZone::AMERICA,
-		    'Antarctica' => DateTimeZone::ANTARCTICA,
-		    'Aisa' => DateTimeZone::ASIA,
-		    'Atlantic' => DateTimeZone::ATLANTIC,
-		    'Europe' => DateTimeZone::EUROPE,
-		    'Indian' => DateTimeZone::INDIAN,
-		    'Pacific' => DateTimeZone::PACIFIC
-		);
-
-		foreach ($regions as $name => $mask)
-		{
-		    $zones = DateTimeZone::listIdentifiers($mask);
-		    foreach($zones as $timezone)
-		    {
-				// Lets sample the time there right now
-				$time = new DateTime(NULL, new DateTimeZone($timezone));
-
-				// Us dumb Americans can't handle millitary time
-				$ampm = $time->format('H') > 12 ? ' ('. $time->format('g:i a'). ')' : '';
-
-				// Remove region name and add a sample time
-				LoadAvg::$_timezones[$name][$timezone] = substr($timezone, strlen($name) + 1) . ' - ' . $time->format('H:i') . $ampm;
-			}
-		}
-
-		return LoadAvg::$_timezones;
-
-	}
 
 }

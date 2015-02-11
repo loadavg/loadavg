@@ -22,6 +22,11 @@
 //hardcoded for now - used for div height at end of page
 $chartHeight = 160;
 
+
+//global timezone data - can be overriden per chart later on
+$chartTimezoneMode = LoadAvg::$_settings->general['settings']['timezonemode'];
+$chartTimezone = LoadAvg::$_settings->general['settings']['clienttimezone'];
+
 	//echo 'chartModules : ' . $chartModules;
 	//var_dump ($chartData['chart']);
 
@@ -54,7 +59,11 @@ $chartHeight = 160;
 				 chart_info = {
 
 					ymin: <?php echo $chartData['chart']['ymin']; ?>,
-					ymax: <?php echo $chartData['chart']['ymax']; ?>
+					ymax: <?php echo $chartData['chart']['ymax']; ?>,
+
+					timezonemode: "<?php echo $chartTimezoneMode; ?>",
+					timezone: "<?php echo $chartTimezone; ?>"
+					
 					<?php if ($width) echo ', chartwidth: ' . $width .',';  ?>
 					<?php if ($height) echo 'chartheight: ' . $height;  ?>
 					//defualts are chartwidth: 530, chartheight: 160

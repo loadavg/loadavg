@@ -149,36 +149,6 @@ if (isset($_POST['update_settings'])) {
 
 		<div class="row-fluid">
 			<div class="span3">
-				<strong>Select time-zone</strong>
-			</div>
-			<div class="span9 right">
-
-
-			<?php
-			$timezones = LoadAvg::getTimezones();
-			print '<select name="formsettings[settings][clienttimezone]" id="timezone">';
-
-			foreach($timezones as $region => $list)
-			{
-				print '<optgroup label="' . $region . '">' . "\n";
-				foreach($list as $thetimezone => $name)
-				{
-					print '<option name="' . $thetimezone . '"';
-					$check = $settings['settings']['clienttimezone'];
-					if (  $check == $thetimezone )  { print ' selected="selected"'; }
-					print '>' . $thetimezone . '</option>' . "\n";
-				}
-				print '<optgroup>' . "\n";
-			}
-			print '</select>';
-			?>
-
-
-			</div>
-		</div>
-
-		<div class="row-fluid">
-			<div class="span3">
 				<strong>Check for updates</strong>
 			</div>
 			<div class="span9 right">
@@ -202,6 +172,61 @@ if (isset($_POST['update_settings'])) {
 				</select>
 			</div>
 		</div>
+
+
+	</div>
+
+	<div class="separator bottom"></div>
+
+	<div class="well">
+
+		<h4>Timezone settings</h4>
+
+		<div class="row-fluid">
+			<div class="span3">
+				<strong>Timezone mode</strong>
+			</div>
+			<div class="span9 right">
+				<select name="formsettings[settings][timezonemode]">
+					<option value="UTC" <?php if ( $settings['settings']['timezonemode'] == "UTC" ) { ?>selected="selected"<?php } ?>>UTC</option>
+					<option value="Browser" <?php if ( $settings['settings']['timezonemode'] == "Browser" ) { ?>selected="selected"<?php } ?>>Browser</option>
+					<option value="Timezone" <?php if ( $settings['settings']['timezonemode'] == "Timezone" ) { ?>selected="selected"<?php } ?>>Timezone</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="row-fluid">
+			<div class="span3">
+				<strong>Override time-zone</strong>
+			</div>
+			<div class="span9 right">
+
+
+			<?php
+			$timezones = LoadUtility::getTimezones();
+			print '<select name="formsettings[settings][clienttimezone]" id="timezone">';
+
+			foreach($timezones as $region => $list)
+			{
+				print '<optgroup label="' . $region . '">' . "\n";
+				foreach($list as $thetimezone => $name)
+				{
+					print '<option name="' . $thetimezone . '"';
+					$check = $settings['settings']['clienttimezone'];
+					if (  $check == $thetimezone )  { print ' selected="selected"'; }
+					print '>' . $thetimezone . '</option>' . "\n";
+				}
+				print '<optgroup>' . "\n";
+			}
+			print '</select>';
+			?>
+
+
+			</div>
+		</div>
+
+
+
 
 
 	</div>

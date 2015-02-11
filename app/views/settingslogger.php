@@ -125,7 +125,7 @@ else {
 
 
 			<?php
-			$timezones = LoadAvg::getTimezones();
+			$timezones = LoadUtility::getTimezones();
 			print '<select name="formsettings[settings][timezone]" id="timezone">';
 
 			foreach($timezones as $region => $list)

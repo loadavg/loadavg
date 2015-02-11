@@ -23,7 +23,7 @@ class loadModules
 	public static $_classes; // storing loaded modules classes
 	public static $_modules; // storing and managing modules
 
-	private static $_timezones; // Cache of timezones
+	//private static $_timezones; // Cache of timezones
 
 	public static $date_range; // range of data to be charted
 
@@ -530,7 +530,7 @@ class loadModules
 	 * Get the (cached) list of all possible timezones
 	 *
 	 */
-
+/*
 	public static function getTimezones()
 	{
 		if (is_array(LoadModules::$_timezones)) {
@@ -569,5 +569,5 @@ class loadModules
 		return LoadModules::$_timezones;
 
 	}
-
+*/
 }
