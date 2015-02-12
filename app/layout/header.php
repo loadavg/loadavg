@@ -101,8 +101,25 @@ if (isset($_POST['login'])  ) {
 
 	<script type="text/javascript">
 
+/*
+    var thiis  = $this,
+        href   = thiis.attr('href'),
+        split_results = href.split('/')[1];
+        target = split_results[split_results.length-1].split('.')[0];
 
-		timezoneJS.timezone.zoneFileBasePath = "/tz";
+    console.log(target);
+*/
+
+//alert(document.URL);
+
+/*
+var str = window.location.href;    
+str.slice(0,str.lastIndexOf('/')+1);
+
+    console.log(str);
+*/
+
+		timezoneJS.timezone.zoneFileBasePath = "../tz";
 		timezoneJS.timezone.defaultZoneFile = [];
 		timezoneJS.timezone.init({async: false});
 
