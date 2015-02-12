@@ -72,6 +72,9 @@
 
 	<!-- Javascript for Period -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/period.js"></script>
+
+
+	<!-- Javascript for TimezoneJS -->
 	
 	<!-- JQueryUI Touch Punch -->
 	<!-- small hack that enables the use of touch events on sites using the jQuery UI user interface library -->

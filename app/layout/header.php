@@ -83,6 +83,8 @@ if (isset($_POST['login'])  ) {
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-1.11.1.min.js"></script>
 
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery.cookie.js"></script>
+
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/timezoneJS/date.js"></script>
 	
 	<!-- Modernizr -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/modernizr.custom.09032.js"></script>
@@ -95,6 +97,17 @@ if (isset($_POST['login'])  ) {
 	-->
 
 	<!--[if IE]><script type="text/javascript" src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/other/excanvas/excanvas.js"></script><![endif]-->
+
+
+	<script type="text/javascript">
+
+
+		timezoneJS.timezone.zoneFileBasePath = "/tz";
+		timezoneJS.timezone.defaultZoneFile = [];
+		timezoneJS.timezone.init({async: false});
+
+	</script>
+
 
 	<script type="text/javascript">
 	<?php 

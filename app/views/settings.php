@@ -190,7 +190,7 @@ if (isset($_POST['update_settings'])) {
 				<select name="formsettings[settings][timezonemode]">
 					<option value="UTC" <?php if ( $settings['settings']['timezonemode'] == "UTC" ) { ?>selected="selected"<?php } ?>>UTC</option>
 					<option value="Browser" <?php if ( $settings['settings']['timezonemode'] == "Browser" ) { ?>selected="selected"<?php } ?>>Browser</option>
-					<option value="Timezone" <?php if ( $settings['settings']['timezonemode'] == "Timezone" ) { ?>selected="selected"<?php } ?>>Timezone</option>
+					<option value="Override" <?php if ( $settings['settings']['timezonemode'] == "Override" ) { ?>selected="selected"<?php } ?>>Override</option>
 				</select>
 			</div>
 		</div>
