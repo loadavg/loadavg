@@ -119,7 +119,7 @@ str.slice(0,str.lastIndexOf('/')+1);
     console.log(str);
 */
 
-		timezoneJS.timezone.zoneFileBasePath = "../tz";
+		timezoneJS.timezone.zoneFileBasePath = "tz";
 		timezoneJS.timezone.defaultZoneFile = [];
 		timezoneJS.timezone.init({async: false});
 
