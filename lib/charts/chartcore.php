@@ -19,13 +19,13 @@
 
 <?php
 
-//hardcoded for now - used for div height at end of page
-$chartHeight = 160;
+	//hardcoded for now - used for div height at end of page
+	$chartHeight = 160;
 
 
-//global timezone data - can be overriden per chart later on
-$chartTimezoneMode = LoadAvg::$_settings->general['settings']['timezonemode'];
-$chartTimezone = LoadAvg::$_settings->general['settings']['clienttimezone'];
+	//global timezone data - can be overriden per chart later on
+	$chartTimezoneMode = LoadAvg::$_settings->general['settings']['timezonemode'];
+	$chartTimezone = LoadAvg::$_settings->general['settings']['clienttimezone'];
 
 	//echo 'chartModules : ' . $chartModules;
 	//var_dump ($chartData['chart']);
