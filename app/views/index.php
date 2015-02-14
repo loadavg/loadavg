@@ -48,6 +48,9 @@ if (    (   $loadavg->isLoggedIn()
         <td width="30%">
 
             <?php 
+            
+            //Let them know what log fiels they are seeing
+            
             if    ( ( isset($_GET['minDate'])  && !empty($_GET['minDate']) ) &&         
                     ( isset($_GET['maxDate'])  && !empty($_GET['maxDate']) ) )
             {
@@ -62,6 +65,9 @@ if (    (   $loadavg->isLoggedIn()
             { 
                 echo '<strong>Viewing </strong>' . date("l, M. j "); 
             }
+
+
+            //print time zone and local time
 
             echo '<br>Server zone ' . LoadAvg::$_settings->general['settings']['timezone'];
 
