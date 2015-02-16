@@ -67,36 +67,59 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 // view 
 // ps -Ao %cpu,%mem,pid,user,comm,args | sort -r -k1 | less
 
-$data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
+//$data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
+$data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args');
+
+    echo '<pre>';
 
     $lines = explode("\n", trim($data));
+
+    echo 'lines0:' . $lines[0] . "\n";
+    echo 'lines1:' . $lines[1] . "\n";
+    echo "\n";
+
     $heads = preg_split('/\s+/', strToLower(trim(array_shift($lines))));
     
     $count = count($heads) + 1;
+    //$count = 6;
 
     $procs = array();
 
-    //var_dump ($procs);
+    
+    if ($heads[5] != "command")
+    	var_dump ($heads);
+
+    echo 'heads:' . $heads[4] . "\n";
+    echo 'heads:' . $heads[5] . "\n";
+
+    //fix for dual COMMAND columns in output makes sorting impossible
+    $heads[5] = $heads[5] . '0';
+
+    echo 'heads:' . $heads[5] . "\n";
+	echo '</pre>';
+
 	//see debug in public function arraySort($input,$sortkey){
 
     foreach($lines as $i => $line){
+
+    //if ($heads[5] != "command0")
+        //echo 'line :' . $line . "\n";
 
         $parts = preg_split('/\s+/', trim($line), $count);
     
     	//deal with dual command title headings here in row 0
     	//when creating keys for array
-    	$command = 0;
         foreach ($heads as $j => $head) {
 
-            	if ($head == 'command') {
-            		$head = $head . $command;
-            		$command++;
-            	}
-        	
             $procs[$i][$head] = str_replace('"', '\"', $parts[$j]);
 
         }
     }
+
+
+//	$procs = $process->arraySort($procs,'%cpu');
+
+//$procs = $process->sortArray( $procs, '%cpu' );
 
 
 ?>
@@ -117,7 +140,28 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
     <div id="accordion" class="accordion">
 						
 	<?php
-	$myNewArray = $process->arraySort($procs,'command0');
+
+	//arraySort error here ?
+	//Notice: Undefined index: command0 in /var/www/vhosts/load.loadavg.com/httpdocs/lib/plugins/Process/class.Process.php on line 117
+
+	//echo '<pre>'; var_dump ($procs); echo '</pre>';
+
+
+
+	//DIRTY HACK
+	//sort by cpu column to start off with
+	//really need to srt the groups after the arraySort below to be more acurate
+	
+	function cmp($a, $b)
+	{
+	    return strcmp($b["%cpu"], $a["%cpu"]);
+	}
+	usort($procs, "cmp");
+	
+
+	//now sort by command0 ? (would be more accurate than command !)
+	$myNewArray = $process->arraySort($procs,'command');
+
 
 	//gives each module a id in accordions
 	$module = 0;
@@ -144,18 +188,7 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 		if ( ($value[0]['%cpu'] == 0) && ($value[0]['%mem'] == 0) )
 			continue;
 
-
-		/*
-		  //status data used from common.js 
-		  if ($value == "open") {
-			$moduleCollapse = "accordion-body collapse in";
-		    $moduleCollapseStatus = "true";
-
-		  if ($value == "closed") {
-			$moduleCollapse = "accordion-body collapse";
-		    $moduleCollapseStatus = "false";
-		*/
-
+		//override some values here to close accordians
 		$moduleCollapse = "accordion-body collapse";
 	    $moduleCollapseStatus = "false";
 
@@ -167,7 +200,7 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 			<div class="accordion-heading"> 
 				<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 					<?php
-					echo '<strong>Process:</strong> ' . $value[0]['command0'];
+					echo '<strong>Process:</strong> ' . $value[0]['command'];
 					echo ' Number Running: ' . $numProcs;
 					echo "<span style='float:right;display:inline'>";
 					echo ' Cpu: ' . $totalProcesCpu;
@@ -180,7 +213,7 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 			<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
 				<div class="accordion-inner">
 					<?php
-						echo '<strong>Command:</strong> ' . $value[0]['command1'] . '<br>';
+						echo '<strong>Command:</strong> ' . $value[0]['command0'] . '<br>';
 
 						foreach ($value as $items) {
 							echo ' ID: ' . $items['pid'];
