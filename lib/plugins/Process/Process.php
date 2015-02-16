@@ -70,13 +70,10 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 //$data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
 $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args');
 
-    echo '<pre>';
 
     $lines = explode("\n", trim($data));
 
-    echo 'lines0:' . $lines[0] . "\n";
-    echo 'lines1:' . $lines[1] . "\n";
-    echo "\n";
+
 
     $heads = preg_split('/\s+/', strToLower(trim(array_shift($lines))));
     
@@ -86,17 +83,22 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args');
     $procs = array();
 
     
-    if ($heads[5] != "command")
+    if ($heads[5] != "command") {
+
+	    echo '<pre>';
+
+	    echo 'lines0:' . $lines[0] . "\n";
+	    echo 'lines1:' . $lines[1] . "\n";
+	    echo "\n";
+
     	var_dump ($heads);
+		echo '</pre>';
 
-    echo 'heads:' . $heads[4] . "\n";
-    echo 'heads:' . $heads[5] . "\n";
+    }
 
-    //fix for dual COMMAND columns in output makes sorting impossible
+    //fix for dual COMMAND columns in ps output makes sorting impossible
     $heads[5] = $heads[5] . '0';
 
-    echo 'heads:' . $heads[5] . "\n";
-	echo '</pre>';
 
 	//see debug in public function arraySort($input,$sortkey){
 
@@ -159,9 +161,11 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args');
 	usort($procs, "cmp");
 	
 
-	//now sort by command0 ? (would be more accurate than command !)
+	//sorts data by command key into myNewArray
 	$myNewArray = $process->arraySort($procs,'command');
 
+	//now we should sory myNewArray by totals but dont have them yet!!!
+	//would be great if the arraySort did this as well, totaled up cpu and mem as it sorted...
 
 	//gives each module a id in accordions
 	$module = 0;
