@@ -48,14 +48,22 @@ class Process extends Logger
 		$class = __CLASS__;
 		$settings = Logger::$_settings->$class;
 				
-		$ps_args = '-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1';
+		$ps_args = '-Ao %cpu,%mem,pid,user,comm,args';
 
         putenv('COLUMNS=1000');
         $processData = shell_exec("ps $ps_args");
 
 		
-	    $string = time() . '|' . $processData . "\n";
+	    $string[0] = time() . "\n";
 		
+		$data = explode("\n", trim ($processData));
+
+		array_push ($string, $data);
+
+		//string[0] - timestamp
+		//string[1] - collection data
+
+
 		$filename = sprintf($this->logfile, date('Y-m-d'));
 		LoadUtility::safefilerewrite($filename,$string,"a",true);
 
@@ -69,3 +77,28 @@ class Process extends Logger
 
 
 }
+
+//compress files
+
+
+//file_put_contents ($filename, $data)
+
+//file_put_contents ("compress.zlib:///myphp/test.txt.gz", $data)
+
+//file_get_contents ("compress.zlib:///myphp/test.txt.gz" 
+
+/*
+or
+
+gzopen(filename, mode))
+gzwrite
+gzclose
+
+
+and
+
+$lines = gzfile ($filename);
+
+	foreach ($lines as $line)
+		echo line;
+*/

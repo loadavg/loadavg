@@ -23,21 +23,20 @@ include 'class.Utility.php'; // for logger module
 ///////////////////////////////////////////////////////////////
 //
 
-//for testing the system
-$timemode = false;
-
+//for testing the system timzeone info
+$timezone = false;
 if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'timezone'))   ) {
-	$timemode = true;
+	$timezone = true;
 }
 
-if ($timemode) {
+if ($timezone) {
 
-$systemTimeZone = exec('date +%Z');
-echo 'Server time : '.  $systemTimeZone ."\n";
+	$systemTimeZone = exec('date +%Z');
+	echo 'Server time : '.  $systemTimeZone ."\n";
 
-//$timestamp = time();
-//echo 'PHP time : ' . date("Y-m-d H:i:s", $timestamp ) . "\n";
-echo 'PHP Core timezone : ' . date_default_timezone_get() . "\n";
+	//$timestamp = time();
+	//echo 'PHP time : ' . date("Y-m-d H:i:s", $timestamp ) . "\n";
+	echo 'PHP Core timezone : ' . date_default_timezone_get() . "\n";
 
 }
 //
@@ -46,13 +45,17 @@ echo 'PHP Core timezone : ' . date_default_timezone_get() . "\n";
 include 'class.Logger.php'; // for logger module
 $logger = new Logger(); // Initializing Main Controller
 
-if ($timemode) 
-echo 'Logger time: ' . date_default_timezone_get() ."\n";
+if ($timezone) 
+	echo 'Logger time: ' . date_default_timezone_get() ."\n";
 
 include 'class.Timer.php'; // for logger module
 $timer = new Timer(); // Initializing Timer
 
-$loadedModules = Logger::$_settings->general['modules']; // Loaded modules
+// List of modules and thier status 
+$loadedModules = Logger::$_settings->general['modules']; 
+//var_dump($loadedModules);
+
+var_dump(Logger::$_modules);
 
 //grab the log diretory
 $logdir = LOG_PATH;
@@ -63,7 +66,6 @@ $logdir = LOG_PATH;
 
 //for testing the system
 $testmode = false;
-
 if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'status'))   ) {
 	$testmode = true;
 }
@@ -125,15 +127,22 @@ if (!$testmode) {
 					$st = $timer->getTime();
 
 				//we can add 3 different modes to caller
-				//log - log data
-				//api - send back for api only no logging
-				//logapi - log and send back for api
-				$logMode = "api";
+				//disk - log data to disk, default
+				//apionly - send back for api only no logging
+				//api - log to disk and send back for api
+				$logMode = "disk";
+
+				if ( $api ) 
+					$logMode = "api";
+
+				//run modules logger
+				$responseData = $class->$caller($logMode);
 
 				// collect data for API server
 				if ( $api ) {
-					$responseData = $class->$caller($logMode);
 
+					//deal with modules that return more than one dataset for api
+					//this is for networking
 					if (is_array($responseData))
 					{
 						$timestamp = "";
@@ -152,8 +161,7 @@ if (!$testmode) {
 						$response[$module] = array("data" => $responseData, "timestamp" => $timestamp); // Populating response array
 					}
 				}
-				else
-					$class->$caller(); 
+
 
 				if  ( $timemode  ) {
 					$et = $timer->getTime();

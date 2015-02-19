@@ -41,10 +41,14 @@ class LoadUtility
 	 * @param string $dir path to directory
 	 */
 
-	public static function loadExtensions( $mode, &$settings, &$classes) {
+	public static function loadExtensions( $mode, &$settings, &$classes, &$modules, $logger = false) {
 		
+
 		//loads modules code
-		$class = 'class.';
+		if ($logger)
+				$class = 'log.';
+		else
+				$class = 'class.';
 
 		$previous = null;
 
@@ -64,6 +68,10 @@ class LoadUtility
 					require_once $loadModule;
 
 					$classes[$key] = new $key;
+
+					$modules[$key] = $settings->general[$mode][$key];
+
+					//$settings->general[$mode]["Cpu"]
 
 				} catch (Exception $e) {
 					throw Exception( $e->getMessage() );
@@ -87,24 +95,37 @@ class LoadUtility
 	public static function  generateExtensionList( $mode, &$dataStore) {
 
 		//loads in all modules names
-		//so users can turn them on and off !
+		//needs to also grab status (on/off)
+		//currently thats managed via settngs so its MESSY
 
+		//first vaidate extension directory
 		if (is_dir(HOME_PATH . '/lib/' . $mode . '/')) {
 
+			//set template to search for extensions in/with
 			$searchpath = HOME_PATH . '/lib/' . $mode . '/*/class.*.php';
 
+			//search searchpath for extensions
 			foreach (glob($searchpath) as $filename) {
+
 				$filename = explode(".", basename($filename));
 
-				if ($mode == 'modules')
-					$dataStore[$filename[1]] = strtolower($filename[1]);
+				if ($mode == 'modules') {
 
-				if ($mode == 'plugins')
-					$dataStore[$filename[1]] = $filename[1];
+					$dataStore[$filename[1]] = "false";
+					//$dataStore[$filename[1]] = strtolower($filename[1]);
+				}
+
+				if ($mode == 'plugins') {
+					$dataStore[$filename[1]] = "false";
+					//$dataStore[$filename[1]] = $filename[1];
+				}
 
 			}
 		}
+
+		//var_dump ($dataStore);
 	}
+
 
 	/**
 	 * getSettings

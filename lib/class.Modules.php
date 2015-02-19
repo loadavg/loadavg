@@ -53,7 +53,6 @@ class loadModules
 	{
 
 		//set timezone and load in settings
-		//ate_default_timezone_set("UTC");
 		self::$settings_ini = "settings.ini.php";
 
 		$this->setSettings('general',
@@ -61,21 +60,14 @@ class loadModules
 		);
 
 
-		//get the date and timezone
-		//date_default_timezone_set(self::$_settings->general['settings']['clienttimezone']);
-
-		//self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
-
-
 		//generate list of all modules
-		//$this->generateModuleList('modules');
 		LoadUtility::generateExtensionList( 'modules', self::$_modules );
 
 		//load all charting modules that are enabled
-		//$this->loadModules('modules');
-		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes);
+		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes, self::$_modules);
 
 
+		//echo '<pre>'; var_dump(self::$_modules); echo '</pre>';
 
 	}
 
@@ -107,13 +99,11 @@ class loadModules
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
-				//generate list of all modules
-		//$this->generateModuleList('modules');
+		//generate list of all modules
 		LoadUtility::generateExtensionList( 'modules', self::$_modules );
 
 		//load all charting modules that are enabled
-		//$this->loadModules('modules');
-		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes);
+		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes, self::$_modules);
 	}
 
 	/**

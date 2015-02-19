@@ -20,6 +20,7 @@ class Logger
 	public static $_classes; // storing loaded modules classes
 
 	public static $_modules; // storing and managing modules
+	public static $_plugins; // storing and managing modules
 
 	public static $current_date; // current date
 
@@ -56,87 +57,35 @@ class Logger
 
 
 		//generate list of all modules
-		$this->generateModuleList('modules');
+		//$this->generateModuleList('modules');
+
+		//generate list of all modules
+		LoadUtility::generateExtensionList( 'modules', self::$_modules );
 
 		//load all charting modules that are enabled
-		$this->loadModules('modules');
+		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes, self::$_modules, true);
 
-	}
+		//load all charting modules that are enabled
+		//$this->loadModules('modules');
 
-	/**
-	 * generatePluginList
-	 *
-	 * searches plugins directory for all plugins and adds them to list _plugins
-	 *
-	 */
 
-	private function generateModuleList( $mode) {
+/*
+		//generate list of all modules
+		//$this->generateModuleList('modules');
 
-		//loads in all modules names
-		//so users can turn them on and off !
+		//generate list of all modules
+		LoadUtility::generateExtensionList( 'plugins', self::$_plugins );
 
-		if (is_dir(HOME_PATH . '/lib/' . $mode . '/')) {
+		//load all charting modules that are enabled
+		LoadUtility::loadExtensions( 'plugins', self::$_settings, self::$_classes, self::$_plugins, true);
 
-			$searchpath = HOME_PATH . '/lib/' . $mode . '/*/class.*.php';
-
-			foreach (glob($searchpath) as $filename) {
-				$filename = explode(".", basename($filename));
-
-				if ($mode == 'modules')
-					self::$_modules[$filename[1]] = strtolower($filename[1]);
-
-				//if ($mode == 'plugins')
-				//	self::$_plugins[$filename[1]] = $filename[1];
-
-			}
-		}
-
+		//load all charting modules that are enabled
+		//$this->loadModules('modules');
+*/
 	}
 
 
 
-
-	/**
-	 * loadModules
-	 *
-	 * load in modules by calling main scripts, will load moth core modules and plugins
-	 *
-	 * @param string $dir path to directory
-	 */
-
-	private function loadModules( $mode) {
-
-		//loads modules code
-		
-		//first figure out if we are loading for dashboard or logger
-		$class = 'log.';
-
-		//if module is true in settings.ini file then we load it in 
-		foreach ( self::$_settings->general[$mode] as $key => &$value ) {
-
-			//echo 'VALUE: ' . $value . '   ' . 'KEY: ' . $key . '\n';
-
-			if ( $value == "true" ) {
-				try {
-					$loadModule = $key . DIRECTORY_SEPARATOR . $class . $key . '.php';
-					
-					//echo 'loading:' . $loadModule;
-
-					//this doesnt work as its defined as in the path... set in globals
-					//maybe we should change this to not be relative ?
-					require_once $loadModule;
-					self::$_classes[$key] = new $key;
-
-				} catch (Exception $e) {
-					throw Exception( $e->getMessage() );
-				}
-			}
-
-		}
-
-
-
-	}
 
 	/**
 	 * getDates

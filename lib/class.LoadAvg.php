@@ -51,10 +51,7 @@ class LoadAvg
 	public function __construct()
 	{
 
-
-		//set timezone and load in settings
-		//date_default_timezone_set("UTC");
-		
+		//load in settings.ini file
 		self::$settings_ini = "settings.ini.php";
 
 		$this->setSettings('general',
@@ -69,27 +66,14 @@ class LoadAvg
 		}
 
 		//get the date and timezone
-		//date_default_timezone_set(self::$_settings->general['settings']['clienttimezone']);
+		//date_default_timezone_set("UTC");
 		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
 
 		//if no log date is set then use todays date
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
 
 
-		//generate list of all plugins
-		//LoadUtility::generateExtensionList( 'plugins', self::$_plugins );
-
-
-		//load all charting modules that are enabled
-		//LoadUtility::loadExtensions( 'plugins', self::$_settings, self::$_classes);
-
 	}
-
-
-
-	//needs to build array with menu items and have front end deraw it really...
-
-
 
 
 
