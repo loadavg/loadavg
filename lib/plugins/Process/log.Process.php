@@ -20,8 +20,6 @@
 class Process extends Logger
 {
 
-
-
 	/**
 	 * __construct
 	 *

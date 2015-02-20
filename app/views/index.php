@@ -146,26 +146,33 @@ if (    (   $loadavg->isLoggedIn()
 
     <div class="innerAll">
 
-    <div id="accordion" class="accordion">
+        <div id="accordion" class="accordion">
 
 
 
         <?php
 
-        $loadedModules = LoadModules::$_settings->general['modules']; 
+        //get a list of all modules and their status (on or off)
+        $loadedModules = LoadModules::$_modules; 
+        //echo '<pre> system modules '; var_dump( $loadedModules); echo '</pre>';
 
-        //this has become one hell of a mess need to revisit and clean up cookie code
-        //as system stores module status 
-        //but cookies storie if moudle is there or not
-        
-        //echo '<pre> system activated '; var_dump( $loadedModules); echo '</pre>';
+        //now check for cookies - used to store layout sorting and open/close       
+        $cookieList = false;
 
-        $cookieStatus = false;
-        $cookieList;
-        $cookieStatus = $loadModules->getUIcookieSorting($cookieList);
+        $cookieList = $loadModules->getUIcookieSorting();
+        //echo '<pre>Cookie list'; var_dump( $cookieList); echo '</pre>';
 
         //grab module settings and drop disabled modules here
-        if ($cookieStatus) {
+        $chartList = null;
+
+        if ($cookieList != false) {
+
+            //so lets go with the cookieList
+            $chartList = $cookieList;
+
+            //but we need to test it out first make sire its ok ?
+            //me thinks this shoudl be done in getUIcookieSorting ? not here ?
+            //any issues getting cookie should just return false
 
             $cleanSettings = null;
             foreach ($loadedModules as $key =>$value) {
@@ -175,38 +182,37 @@ if (    (   $loadavg->isLoggedIn()
                 }
             }
 
-            //these should match really
+            //these should match really but if not dont we need to do something ?
             if (!LoadUtility::identical_values( $cleanSettings , $cookieList )) {
+
+                echo '<pre>MISSMATCH</pre>';
+
                 $loadModules->updateUIcookieSorting($loadedModules);
             }
 
         }
-       //echo '<pre>'; var_dump( $cookieList); echo '</pre>';
-
-        //now loop through the modules and draw them
-        $moduleNumber = 0;
-        $chartList = null;
-
-        if ($cookieStatus)
-            $chartList = $cookieList;
-        else
+        else {
             $chartList = $loadedModules;
+        }
 
-        //for old broken cookies or issues with $cookieList
+
+
+        //for old broken cookies or issues with $chartList
         if ($chartList == null || !$chartList)
             $chartList = $loadedModules;
 
-        //echo '<pre> live settings'; var_dump( $chartList); echo '</pre>';
+        //echo '<pre>Chart list'; var_dump( $chartList); echo '</pre>';
 
         //get the range of dates to be charted from the UI and 
+        //set the date range to be charted in the modules
         $range = $loadavg->getDateRange();
 
-        //set the date range to be charted in the modules
         $loadModules->setDateRange($range);
 
 
+
+        //now loop through the modules and draw them
         //now render the charts out
-        //$loadModules->renderCharts($chartList, true);
 
         foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
             

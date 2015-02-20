@@ -268,7 +268,7 @@ class loadModules
 	 *
 	 */
 
-	public function getUIcookie ( &$data1,  &$data2, $module) 
+	public function getUIaccordionCookie ( &$data1,  &$data2, $module) 
 	{
 
 		//these are the default values 
@@ -317,13 +317,14 @@ class loadModules
 	}
 
 		
-	public  function getUIcookieSorting (&$returnArray) 
+	//public  function getUIcookieSorting (&$returnArray) 
+	public  function getUIcookieSorting () 
 	{
 
 		$cookieArray = null;
-		$this->getModuleStatusCookie ($cookieArray);
+		$cookieArray = $this->getModuleChartUICookie();
 
-		if ($cookieArray == null)
+		if ($cookieArray == false)
 			return false;
 		
 		//parse out as true so they can be shown
@@ -338,17 +339,33 @@ class loadModules
             return false;
         } 
 
+		//return true;
+		return $returnArray;
+	}
 
-        //need to do a compare to this to see if things are not right
-		//$loadedModules = LoadModules::$_settings->general['modules']; 
+	//gets the loadUIcookie if its set 
+	//returns value in &$cookie
+	//if not returns false
 
+	public function getModuleChartUICookie () 
+	{
+		//if cookie exist greb it here
+		//if not we return default values above
+		if (isset($_COOKIE["loadUIcookie"]))
+			$cookie = $_COOKIE["loadUIcookie"];
+		else
+			return false;
+		
+		$cookie = stripslashes($cookie);
+		$cookie = json_decode($cookie, true);
 
-		return true;
+		return $cookie;
+
 	}
 
 
 	//updates cookies according to new module settings
-	//for when modules are turned on or off
+	//for when modules are turned on or off in settings
 
 	public function updateUIcookieSorting ($moduleSettings) 
 	{
@@ -369,7 +386,7 @@ class loadModules
 
 		//get current cookie values
 		$currentCookie = null;
-		$this->getModuleStatusCookie ($currentCookie);
+		$currentCookie = $this->getModuleChartUICookie ();
 
 		//echo '<pre>CookieData'; var_dump( $currentCookie); echo '</pre>';
 
@@ -450,21 +467,7 @@ class loadModules
 		return true;
 	}
 
-	public function getModuleStatusCookie (&$cookie) 
-	{
-		//if cookie exist greb it here
-		//if not we return default values above
-		if (isset($_COOKIE["loadUIcookie"]))
-			$cookie = $_COOKIE["loadUIcookie"];
-		else
-			return false;
-		
-		$cookie = stripslashes($cookie);
-		$cookie = json_decode($cookie, true);
 
-		return true;
-
-	}
 
 	public static  function sortArrayByArray(Array $array, Array $orderArray) {
     

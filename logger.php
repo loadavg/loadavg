@@ -52,16 +52,18 @@ include 'class.Timer.php'; // for logger module
 $timer = new Timer(); // Initializing Timer
 
 // List of modules and thier status 
-$loadedModules = Logger::$_settings->general['modules']; 
+//$loadedModules = Logger::$_settings->general['modules']; 
+$loadedModules = Logger::$_modules; 
 //var_dump($loadedModules);
 
-var_dump(Logger::$_modules);
+//var_dump(Logger::$_modules);
 
 //grab the log diretory
-$logdir = LOG_PATH;
-
 //need to grab from system settings.ini instead
 //$logdir = LoadAvg::$_settings->general['logs_dir']; // Loaded modules
+$logdir = LOG_PATH;
+
+
 
 
 //for testing the system
@@ -104,6 +106,9 @@ if (!$testmode) {
 
 	// Check for each module we have loaded
 	foreach ( $loadedModules as $module => $value ) {
+
+		echo 'Module : ' . $module . ' status ' . $value . "\n";
+
 		if ( $value == "false" ) continue;
 
 		// Settings for each loaded modules
