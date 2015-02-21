@@ -48,7 +48,8 @@ class Process extends Logger
 		$settings = Logger::$_settings->$class;
 
 		$timestamp = time();
-	
+
+		//get process data here	
 		$ps_args = '-Ao %cpu,%mem,pid,user,comm,args';
 
         putenv('COLUMNS=1000');
@@ -56,6 +57,7 @@ class Process extends Logger
 
 		//$string = explode("\n", trim ($processData));
 
+        //get log location
 		$logdirname = sprintf($this->logdir, date('Y-m-d'));
 		$logpath = LOG_PATH . $logdirname;
 
@@ -69,6 +71,9 @@ class Process extends Logger
 		if (!file_exists($logpath)) {
 		    mkdir( $logpath, 0777 );
 		}
+
+		//read me on encoding array to disk instead
+		//https://www.safaribooksonline.com/library/view/php-cookbook/1565926811/ch05s08.html
 
 		//write out process data to file
 		LoadUtility::safefilerewrite($filename,$string,"w",true);

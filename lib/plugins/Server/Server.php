@@ -48,7 +48,7 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 	        $loadModules->setDateRange($range);
 
 	        //render chart
-	        $loadModules->renderChart("Uptime", false, false, false, 770 );
+	        $loadModules->renderChart("Uptime", false, false, false, false, 770 );
 
 	?>
 	</div>

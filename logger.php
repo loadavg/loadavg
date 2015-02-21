@@ -121,7 +121,9 @@ if (!$testmode) {
 		// Check if loaded module needs loggable capabilities
 		if ( $moduleSettings['module']['logable'] == "true" ) {
 
-			foreach ( $moduleSettings['logging']['args'] as $args) { // loop trought module logging arguments
+			// loop through module logging arguments
+			//multiple args mean multiple charts
+			foreach ( $moduleSettings['logging']['args'] as $args) { 
 
 
 				$args = json_decode($args); // decode arguments

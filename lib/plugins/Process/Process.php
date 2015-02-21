@@ -20,118 +20,106 @@ if ( $loadavg->isLoggedIn() )
 { 
 ?>
 
-<?php $process = LoadPlugins::$_classes['Process']; ?>
+<?php
 
-<div class="well lh70-style">
-    <b>Process Data</b>
-    <div class="pull-right">
-	<?php echo $process->getData("uptime"); ?>
-    </div>
-</div>
+	//used for callbacks to main plugin to select timestamp to display
+	//we are also passing back chart time
+
+	$timeStamp = false;
+	if (isset($_GET['timestamp'])) {
+		$timeStamp = $_GET['timestamp'];
+	}
+
+	$chartTime = false;
+	if (isset($_GET['charttime'])) {
+		$chartTime = $_GET['charttime'];
+	}
+
+	//get plugin class
+	$process = LoadPlugins::$_classes['Process'];
+
+	//get the range of dates to be charted from the UI and 
+	//set the date range to be charted in the plugin
+	$range = $loadavg->getDateRange();
+	$loadModules->setDateRange($range);
+
+    //set url for callback
+    //do this better - get current url and add timestamp to end
+    $callback = 'public/index.php?page=Process&timestamp=';
+    //$callback = 'public/index.php?page=Process&timestamp=%scharttime=%s';
+?>
+
+
+	<div class="well lh70-style">
+	    <b>Process Data</b>
+	    <div class="pull-right">
+		<?php echo $process->getData("uptime"); ?>
+	    </div>
+	</div>
 
 <div class="innerAll">
 
-
-
-
     <div id="accordion" class="accordion">	
 	<?php
-	        //get the range of dates to be charted from the UI and 
-	        //set the date range to be charted in the modules
-	        $range = $loadavg->getDateRange();
-	        $loadModules->setDateRange($range);
-
-	        //render chart
-	        $loadModules->renderChart("Cpu", false, false, false, 770 );
-
+	    //render chart
+	    $loadModules->renderChart("Cpu", false, false, false, $callback, 770 );
 	?>
 	</div>
 
-<!--
-widget stytles can be found here but need cleaning up
-http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
--->
-<?php
+	<!--
+	widget stytles can be found here but need cleaning up
+	http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
+	-->
 
-//ps -Ao %cpu,%mem,user,time,comm,args | sort -r -k1 | head -n 30
+	<?php
 
+	// get and parse process data here
+	// to view on your system in console:
+	// ps -Ao %cpu,%mem,pid,user,comm,args | sort -r -k1 | less
 
-//code form here
-//https://github.com/pear/System_ProcWatch/blob/master/System/ProcWatch/Parser.php
+	//grab process data from log file for timeStamp
+	$data = false;
+	$gotLog = false;
 
-//provblems with part of data - command1
-//we truncate all data passed to command for some reason when parsing
+	if ($timeStamp) {
+		$data = $process->fetchProcessLogData($timeStamp);		
+	}
 
-//also bug when sorting with command0 check it out
+	//grab process data from system (LIVE)
+	if ( !$timeStamp || $data == false) {
+		$data = $process->fetchProcessData('-Ao %cpu,%mem,pid,user,comm,args');
+	}
+	else
+	{
+		$gotLog = true;
+	}
 
-// view 
-// ps -Ao %cpu,%mem,pid,user,comm,args | sort -r -k1 | less
+	//explode data into array
+	$lines = explode("\n", trim($data));
 
-//$data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args | sort -r -k1');
-$data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args');
+	//parse out process data for display
+    $procs = $process->parseProcessData($lines);
 
-
-    $lines = explode("\n", trim($data));
-
-
-
-    $heads = preg_split('/\s+/', strToLower(trim(array_shift($lines))));
-    
-    $count = count($heads) + 1;
-    //$count = 6;
-
-    $procs = array();
-
-    
-    if ($heads[5] != "command") {
-
-	    echo '<pre>';
-
-	    echo 'lines0:' . $lines[0] . "\n";
-	    echo 'lines1:' . $lines[1] . "\n";
-	    echo "\n";
-
-    	var_dump ($heads);
-		echo '</pre>';
-
-    }
-
-    //fix for dual COMMAND columns in ps output makes sorting impossible
-    $heads[5] = $heads[5] . '0';
-
-
-	//see debug in public function arraySort($input,$sortkey){
-
-    foreach($lines as $i => $line){
-
-    //if ($heads[5] != "command0")
-        //echo 'line :' . $line . "\n";
-
-        $parts = preg_split('/\s+/', trim($line), $count);
-    
-    	//deal with dual command title headings here in row 0
-    	//when creating keys for array
-        foreach ($heads as $j => $head) {
-
-            $procs[$i][$head] = str_replace('"', '\"', $parts[$j]);
-
-        }
-    }
-
-
-//	$procs = $process->arraySort($procs,'%cpu');
-
-//$procs = $process->sortArray( $procs, '%cpu' );
-
-
-?>
+	?>
 
 
 	<div class="row-fluid">
 		<div class="span12">
 			<div class="widget widget-4">
 				<div class="widget-head">
-					<h4 class="heading">Running Processess</h4>
+					<h4 class="heading">
+
+						<?php
+							if ($gotLog)
+								$title = 'Running Processess at ' . date('H:i:s', $timeStamp);
+							else
+								$title = 'Running Processess (live)';
+
+							echo $title . "\n";
+						?>
+
+
+					</h4>
 				</div>
 			</div>
 		</div>
@@ -170,18 +158,27 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args');
 	//gives each module a id in accordions
 	$module = 0;
 
+	//dont work as we get these at the end! hmm...
+	$grandTotalProcesCpu = 0;
+	$grandTotalProcesMem = 0;
+
 	foreach ($myNewArray as $value) {
 		
 		$module++;
 
+		//loop thorugh each group 
 		$totalProcesCpu = $totalProcesMem = 0;
 		$numProcs = 0;
 
 		foreach ($value as $items) {
 			$totalProcesCpu += $items['%cpu'];
-			$totalProcesMem += $items['%mem'];
+			$totalProcesMem += $items['%mem'];			
 			$numProcs++;
 		}
+
+		//increment grand totals
+		$grandTotalProcesCpu += $totalProcesCpu;
+		$grandTotalProcesMem += $totalProcesMem;
 
 		//skip rcuo - kernel threads
 		//$pos = strpos($value[0]['command0'], "rcuo");
@@ -236,6 +233,30 @@ $data = $process->fetchData('-Ao %cpu,%mem,pid,user,comm,args');
 		}
 		?>
 	</div> <!-- // Accordion group end -->
+
+	<div id="separator" class="separator bottom"></div>
+
+	<div class="row-fluid">
+		<div class="span12">
+			<div class="widget widget-4">
+				<div class="widget-head">
+					<h4 class="heading">
+
+						<?php
+
+							$title = 'Total CPU ' . $grandTotalProcesCpu . ' Total memory ' . $grandTotalProcesMem;
+
+							echo $title . "\n";
+						?>
+
+
+					</h4>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
 
 </div> <!-- // inner all end -->
 

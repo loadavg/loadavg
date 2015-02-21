@@ -170,8 +170,16 @@
 	<div class="clearfix"></div>
 	<div id="<?php echo $chart->id; ?>" style="height: <?php echo $chartHeight;?>px;" class="chart-holder"></div>
 
+
+	
+
+<?php
+	//enable on click events used to trigger chart callbacks for plugins
+	if ($chartCallback != false) {
+?>
+
 	<script>
-	/*
+	
 	//OnClick Code
 	//used to add a redirect to url on-click on chart!
 	//see if we can move into module .js code
@@ -184,13 +192,21 @@
 	 	console.log(item.series.label);
 	 	console.log(item.dataIndex);
 	 	console.log(item.datapoint);
+	 	console.log(item.datapoint[0]);
 
-	 	//window.open("/index.php","_self");
+	 	timeData = item.datapoint[0] / 1000;
+
+	 	callbackLocation = "/" +   "<?php echo $chartCallback; ?>"  + timeData;
+
+	 	window.open(callbackLocation  ,"_self");
 	 }
 	 
 	 //http://www.benknowscode.com/2013/02/adding-interaction-to-flot-graphs_7028.html
 	 
 	});
-	*/
+	
 	</script>
 
+<?php
+	}
+?>

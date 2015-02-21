@@ -11,6 +11,5 @@ hasownlogdir = "true"
 args[] = '{"logfile":"%s/%s.log","logdir":"process_usage_%s","function":"logData"}'
 [cmd]
 uptime = "uptime"
-
-
-
+[settings]
+enable_logging = "true"

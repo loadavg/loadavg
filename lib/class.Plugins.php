@@ -22,6 +22,8 @@ class loadPlugins
 	public static $_classes; // storing loaded modules classes
 	public static $_plugins; // storing and managing plugins
 
+	public static $date_range; // range of data to be charted
+
 
 	/**
 	 * setSettings
@@ -110,6 +112,17 @@ class loadPlugins
 	}
 
 
+	/**
+	 * setDateRange
+	 *
+	 * Sets the range for which we want data to be charted
+	 *
+	 * @param dateRange array of dates and times
+	 */
 
+	public function setDateRange($dateRange)
+	{
+		@self::$date_range = $dateRange;
+	}
 
 }

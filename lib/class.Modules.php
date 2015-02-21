@@ -23,8 +23,6 @@ class loadModules
 	public static $_classes; // storing loaded modules classes
 	public static $_modules; // storing and managing modules
 
-	//private static $_timezones; // Cache of timezones
-
 	public static $date_range; // range of data to be charted
 
 
@@ -186,9 +184,11 @@ class loadModules
 	 * @param string $module is the module to draw
 	 * @param bool $drawAvg will draw the averages bar if true
 	 */
-	public function renderChart ( 	$module, $drawAvg = true, 
+	public function renderChart ( 	$module, 
+									$drawAvg = true, 
 									$drawLegend = true, 
 									$cookies = true,
+									$callback = false,
 									$width = false, $height = false )
 	{
 
@@ -207,6 +207,9 @@ class loadModules
         //get data for chart/s to be rendered
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
+		//see if there is a callback - used to trigger onclick events in chart
+		$chartCallback = $callback;
+
 		//check if chart has dynamic functions
 		$functionSettings =( (isset($moduleSettings['module']['url_args']) 
 			&& isset($_GET[$moduleSettings['module']['url_args']])) 
@@ -216,42 +219,37 @@ class loadModules
 		/*
 		 * tabbed chart modules have multiple charts within them
 		 */
-	        if (isset($moduleSettings['module']['tabbed']) 
-	        	&& $moduleSettings['module']['tabbed'] == "true") 
-	        {
+        if (isset($moduleSettings['module']['tabbed']) 
+        	&& $moduleSettings['module']['tabbed'] == "true") 
+        {
+
+			$templateName = HOME_PATH 	. DIRECTORY_SEPARATOR . 'lib/modules' 
+										. DIRECTORY_SEPARATOR . $module 
+										. DIRECTORY_SEPARATOR . 'views/chart.php';
 
 
+            //uses the modules views/chart code
+            //move this code in here next
+           //$templateName = $class->getChartTemplate( $module );
 
-        //$moduleSettings = LoadModules::$_settings->$module; 
+       		//not sure if we need this as no template means it breaks
+			if ( file_exists( $templateName )) 
+				include $templateName;
+			else 
+				return false;
+			
 
-		//$charts = $moduleSettings['chart'];
+        } else {
 
-		$templateName = HOME_PATH . DIRECTORY_SEPARATOR . 'lib/modules' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'views/chart.php';
+        	//single level chart data only
+        	//should add this to chartData ?
+        	//$chart = $charts['args'][0];
+			//$chart = json_decode($chart);
 
+			//now call template to draw chart to screen
+			include HOME_PATH . '/lib/charts/chart.php';
 
-
-	            //uses the modules views/chart code
-	            //move this code in here next
-	           //$templateName = $class->getChartTemplate( $module );
-
-	       		//not sure if we need this as no template means it breaks
-				if ( file_exists( $templateName )) 
-					include $templateName;
-				else 
-					return false;
-				
-
-	        } else {
-
-	        	//single level chart data only
-	        	//should add this to chartData ?
-	        	//$chart = $charts['args'][0];
-				//$chart = json_decode($chart);
-
-				//now call template to draw chart to screen
-				include HOME_PATH . '/lib/charts/chart.php';
-
-	        }
+        }
 
         return true;
 
