@@ -356,7 +356,7 @@ class LoadUtility
 	 {
 
 		$absolute_url = LoadUtility::full_url($_SERVER);
-		echo 'absolute_url ' . $absolute_url . "<br>";
+		//echo 'absolute_url ' . $absolute_url . "<br>";
 
 		//ge thepage root
 		$slash = explode('?', $absolute_url);
@@ -364,7 +364,7 @@ class LoadUtility
 		$current_filename = $slash[count($slash) - 1]; 
 
 		$host_url = str_replace($current_filename, "", $absolute_url);
-		echo 'host_url ' . $host_url . "<br>";
+		//echo 'host_url ' . $host_url . "<br>";
 
 		 return $host_url;
 	 }
