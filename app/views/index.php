@@ -141,94 +141,63 @@ if (    (   $loadavg->isLoggedIn()
 ?>
 
     <!--
-        We render all the chart modules here
+        We render all the chart modules out here
     -->
 
     <div class="innerAll">
 
         <div id="accordion" class="accordion">
 
-
-
         <?php
+        //for debuggin show internal list of all modules and their status (on or off)
+        //echo '<pre> system modules '; var_dump( LoadModules::$_modules); echo '</pre>';
 
-        //get a list of all modules and their status (on or off)
-        $loadedModules = LoadModules::$_modules; 
-        //echo '<pre> system modules '; var_dump( $loadedModules); echo '</pre>';
-
-        //now check for cookies - used to store layout sorting and open/close       
+        //first check to see if list is stored in cookies
+        //used to store layout sorting / render order       
         $cookieList = false;
 
         $cookieList = $loadModules->getUIcookieSorting();
-        //echo '<pre>Cookie list'; var_dump( $cookieList); echo '</pre>';
+        //echo '<pre>Cookie list'; var_dump( $chartList); echo '</pre>';
 
-        //grab module settings and drop disabled modules here
-        $chartList = null;
 
-        if ($cookieList != false) {
+        //for no cookie, old broken cookies or issues with cookies
+        //we use internal list of loaded Modules 
+        $chartList = false;
 
-            //so lets go with the cookieList
+        if ($cookieList == false)
+            $chartList = LoadModules::$_modules; 
+        else
             $chartList = $cookieList;
-
-            //but we need to test it out first make sire its ok ?
-            //me thinks this shoudl be done in getUIcookieSorting ? not here ?
-            //any issues getting cookie should just return false
-
-            $cleanSettings = null;
-            foreach ($loadedModules as $key =>$value) {
-
-                if ($value=="true") {
-                    $cleanSettings[$key]="true";
-                }
-            }
-
-            //these should match really but if not dont we need to do something ?
-            if (!LoadUtility::identical_values( $cleanSettings , $cookieList )) {
-
-                echo '<pre>MISSMATCH</pre>';
-
-                $loadModules->updateUIcookieSorting($loadedModules);
-            }
-
-        }
-        else {
-            $chartList = $loadedModules;
-        }
+        //echo '<pre> chartList  '; var_dump( $chartList); echo '</pre>';
 
 
-
-        //for old broken cookies or issues with $chartList
-        if ($chartList == null || !$chartList)
-            $chartList = $loadedModules;
-
-        //echo '<pre>Chart list'; var_dump( $chartList); echo '</pre>';
-
-        //get the range of dates to be charted from the UI and 
+        //get the  range of dates to be charted from the UI and 
         //set the date range to be charted in the modules
         $range = $loadavg->getDateRange();
 
         $loadModules->setDateRange($range);
 
-
-
-        //now loop through the modules and draw them
-        //now render the charts out
+        // now render the charts out
+        // loop through the chartlist of modules and draw them
 
         foreach ( $chartList as $module => $value ) { // looping through all the modules in the settings.ini file
             
-            //echo 'module: ' . $module . 'value: ' . $value ;
+            //echo 'module: ' . $module . ' value: ' . $value . "\n" ;
 
-            if ( $value === "false" ) continue; // if modules is disabled ... moving on.
+            // if modules is disabled then move on
+            // cookie sorting will be all true even though values are open/close
+            if ( $value == "false" )
+                continue; 
 
-            //fix for issues with cookies
-            if (!isset(LoadModules::$_settings->$module))
+            //make sure module loaded before using it
+            if (isset(LoadModules::$_settings->$module))
+                $moduleSettings = LoadModules::$_settings->$module; // if module is enabled ... get his settings
+            else
                 continue;
 
-            $moduleSettings = LoadModules::$_settings->$module; // if module is enabled ... get his settings
-            
+            //now draw the chart
             if ( $moduleSettings['module']['logable'] == "true" ) { // if module has loggable enabled it has a chart
                 
-        
                 $loadModules->renderChart ( $module, true );
 
             }

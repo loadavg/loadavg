@@ -61,16 +61,25 @@ class LoadUtility
 				try {
 					$loadModule = $key . DIRECTORY_SEPARATOR . $class . $key . '.php';
 					
-					if (DEBUG) echo $loadModule . "<br>";
+					//if (LOGDEBUG) echo 'Loading module ' . $loadModule . "\n";
 
 					//this doesnt work as its defined as in the path... set in globals
 					//maybe we should change this to not be relative ?
-					require_once $loadModule;
+					//if ( file_exists ( $loadModule ))
+					//{
 
-					$classes[$key] = new $key;
+					if ( LoadUtility::fileExists ( $loadModule ))
+					{
+						//echo "Module File Exists \n";
 
-					$modules[$key] = $settings->general[$mode][$key];
+						require_once $loadModule;
 
+						$classes[$key] = new $key;
+
+						$modules[$key] = $settings->general[$mode][$key];
+					} else {
+						//echo "Module File Doesnt Exists \n";						
+					}
 					//$settings->general[$mode]["Cpu"]
 
 				} catch (Exception $e) {
@@ -95,8 +104,7 @@ class LoadUtility
 	public static function  generateExtensionList( $mode, &$dataStore) {
 
 		//loads in all modules names
-		//needs to also grab status (on/off)
-		//currently thats managed via settngs so its MESSY
+		//sets status to false (off)
 
 		//first vaidate extension directory
 		if (is_dir(HOME_PATH . '/lib/' . $mode . '/')) {
@@ -109,23 +117,33 @@ class LoadUtility
 
 				$filename = explode(".", basename($filename));
 
-				if ($mode == 'modules') {
-
+				if ($mode == 'modules' || $mode == 'plugins' ) {
 					$dataStore[$filename[1]] = "false";
-					//$dataStore[$filename[1]] = strtolower($filename[1]);
 				}
-
-				if ($mode == 'plugins') {
-					$dataStore[$filename[1]] = "false";
-					//$dataStore[$filename[1]] = $filename[1];
-				}
-
 			}
 		}
 
 		//var_dump ($dataStore);
 	}
 
+
+	/**
+	 * fileExists
+	 *
+	 * checks if a file exists using the include path list set in globals.php
+	 *
+	 */
+	public static  function fileExists($file) {
+	    if(function_exists('stream_resolve_include_path'))
+	        return stream_resolve_include_path($file);
+	    else {
+	        $include_path = explode(PATH_SEPARATOR, get_include_path());
+	        foreach($include_path as $path)
+	            if(file_exists($path.DS.$file))
+	                return true;
+	        return false;
+	    }
+	}
 
 	/**
 	 * getSettings

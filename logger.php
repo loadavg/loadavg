@@ -55,10 +55,9 @@ $timer = new Timer(); // Initializing Timer
 //$loadedModules = Logger::$_settings->general['modules']; 
 $loadedModules = Logger::$_modules; 
 //var_dump($loadedModules);
-
 //var_dump(Logger::$_modules);
 
-//grab the log diretory
+//grab the log directory properly
 //need to grab from system settings.ini instead
 //$logdir = LoadAvg::$_settings->general['logs_dir']; // Loaded modules
 $logdir = LOG_PATH;
@@ -94,7 +93,7 @@ if (Logger::$_settings->general['settings']['apiserver'] == "true") {
 $response = array();
 
 ////////////////////////////////////////////////
-// Delete old log files
+// Delete/rotate out old log files
 
 $logger->rotateLogFiles($logdir);
 
@@ -102,20 +101,26 @@ $logger->rotateLogFiles($logdir);
 //when sending api data we call data gathering 2x this is unnecssary
 //we only need to call 1x and return data as string or true/false
 
+
 if (!$testmode) {
+
+	if (LOGDEBUG) echo "Start Main LOOP \n"; 
 
 	// Check for each module we have loaded
 	foreach ( $loadedModules as $module => $value ) {
 
-		echo 'Module : ' . $module . ' status ' . $value . "\n";
+		if (LOGDEBUG) echo 'Module : ' . $module . ' status ' . $value . "\n";
 
-		if ( $value == "false" ) continue;
+		if ( $value == "false" ) 
+			continue;
 
 		// Settings for each loaded modules
 		$moduleSettings = Logger::$_settings->$module;
 
+
 		// Check if loaded module needs loggable capabilities
 		if ( $moduleSettings['module']['logable'] == "true" ) {
+
 			foreach ( $moduleSettings['logging']['args'] as $args) { // loop trought module logging arguments
 
 
@@ -127,7 +132,13 @@ if (!$testmode) {
 
 				$class->logfile = $logdir . $args->logfile; // the modules logfile si read from args
 
+				//check for logdir
+				if ( isset($moduleSettings['module']['hasownlogdir']) && 
+					$moduleSettings['module']['hasownlogdir'] == "true" ) {
+					$class->logdir =  $args->logdir; // the modules logdir as read from args
+				}
 
+				//see if we are timing, if so set start time
 				if  ( $timemode  ) 
 					$st = $timer->getTime();
 

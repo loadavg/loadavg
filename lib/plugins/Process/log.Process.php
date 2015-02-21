@@ -43,27 +43,35 @@ class Process extends Logger
 
 	public function logData( $type = false )
 	{
+
 		$class = __CLASS__;
 		$settings = Logger::$_settings->$class;
-				
+
+		$timestamp = time();
+	
 		$ps_args = '-Ao %cpu,%mem,pid,user,comm,args';
 
         putenv('COLUMNS=1000');
-        $processData = shell_exec("ps $ps_args");
+        $string = shell_exec("ps $ps_args");
 
-		
-	    $string[0] = time() . "\n";
-		
-		$data = explode("\n", trim ($processData));
+		//$string = explode("\n", trim ($processData));
 
-		array_push ($string, $data);
+		$logdirname = sprintf($this->logdir, date('Y-m-d'));
+		$logpath = LOG_PATH . $logdirname;
 
-		//string[0] - timestamp
-		//string[1] - collection data
+		//echo "LOG_PATH : " . $logpath . " \n";
+
+		$filename = sprintf($this->logfile, $logdirname, $timestamp);
+		//echo "FILENAME : " . $filename . " \n";
 
 
-		$filename = sprintf($this->logfile, date('Y-m-d'));
-		LoadUtility::safefilerewrite($filename,$string,"a",true);
+		//great log folder if it doesnt exist
+		if (!file_exists($logpath)) {
+		    mkdir( $logpath, 0777 );
+		}
+
+		//write out process data to file
+		LoadUtility::safefilerewrite($filename,$string,"w",true);
 
 		if ( $type == "api")
 			return $string;

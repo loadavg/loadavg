@@ -317,30 +317,60 @@ class loadModules
 	}
 
 		
-	//public  function getUIcookieSorting (&$returnArray) 
 	public  function getUIcookieSorting () 
 	{
 
+		//first grab the cookie
 		$cookieArray = null;
 		$cookieArray = $this->getModuleChartUICookie();
 
-		if ($cookieArray == false)
+		//if no cookie then return
+		if ($cookieArray == false || $cookieArray == null || !$cookieArray  )
 			return false;
-		
-		//parse out as true so they can be shown
-		//as sorting just cares if modules are there
-		$returnArray = null;
-		foreach ($cookieArray as $key =>$value) {
-			$returnArray[$key]="true";
-		}
 
-        //checks for problems with cookies 
-        if (  array_keys($returnArray) == range(0, count($returnArray) - 1)  ) {
+        //checks if cookie is there but its empty ie no values
+        if (  array_keys($cookieArray) == range(0, count($cookieArray) - 1)  ) {
+
+        //echo '<pre>cookie issues </pre>';
+
+		/*
+        //code that tests cookies against whats active to look for errors
+		//do we need this ? if bad cookie maybe just delete it ?
+
+        $loadedModules = LoadModules::$_modules; 
+
+        if ($chartList != false) {
+
+            $cleanSettings = null;
+            foreach ($loadedModules as $key =>$value) {
+
+                if ($value=="true") {
+                    $cleanSettings[$key]="true";
+                }
+            }
+    
+            //echo '<pre> chartList  '; var_dump( $chartList); echo '</pre>';
+            //echo '<pre> cleanSettings  '; var_dump( $cleanSettings); echo '</pre>';
+
+            //sorts and then compares arrays
+            //these should match really but if not dont we need to do something ?
+
+            if (!LoadUtility::identical_values( $cleanSettings , $chartList )) {
+
+                $loadModules->updateUIcookieSorting($loadedModules);
+                $chartList = $loadedModules;
+
+            }
+
+        }
+	    */ 
+
             return false;
         } 
 
-		//return true;
-		return $returnArray;
+		//all is good return cookie;
+		return $cookieArray;
+
 	}
 
 	//gets the loadUIcookie if its set 
@@ -370,62 +400,48 @@ class loadModules
 	public function updateUIcookieSorting ($moduleSettings) 
 	{
 
-		//echo "reparsing cookies<br>";
 
-		//parse moduleSettings and drop all false values 
-		$cleanSettings = null;
+		//first check if there is a cookie there if there is none 
+		//return to caller with false
+
+		$currentCookie = false;
+		$currentCookie = $this->getModuleChartUICookie ();
+
+		echo '<pre>CookieData '; var_dump( $currentCookie); echo '</pre>';
+
+		if ($currentCookie == false)
+		{
+			return false;
+		}
+
+
+		//echo '<pre>Updating Cookie</pre>';
+
+		//now parse moduleSettings sent over and drop all false values 
+		//then replace true values with open/close status
+		//as cookies only store active modules and status - gives us newCookie
+		$newCookie = null;
 		foreach ($moduleSettings as $key =>$value) {
 
 			if ($value=="true") {
-				$cleanSettings[$key]="true";
+
+				if (isset($currentCookie[$key]))
+					$newCookie[$key]=$currentCookie[$key];
+				else
+					$newCookie[$key]="open";
+
 			}
 
 		}
-
-		//echo '<pre>cleanSettings'; var_dump( $cleanSettings); echo '</pre>';
-
-		//get current cookie values
-		$currentCookie = null;
-		$currentCookie = $this->getModuleChartUICookie ();
-
-		//echo '<pre>CookieData'; var_dump( $currentCookie); echo '</pre>';
-
-		// now we need to update cookie to remove or add items from cleanSettings....
-		//if item crossess over ski[p it
-
-		$newCookie = null;
-		foreach ($cleanSettings as $key =>$value) {
-
-			//if value is in currentCookie
-			//grab from currentCookie
- 			$newvalue = false;
-			//check if key is already in cookies
-			foreach ($currentCookie as $cookiekey => $cookievalue) {
-			  if ( $key == $cookiekey ) {
-			    $newvalue = $cookievalue;
-			  }
-			}
-
-			if ($newvalue) {
-				$newCookie[$key]=$newvalue;
-			}
-
-			else
-				$newCookie[$key]="open";
-		}
-
 
 		//echo '<pre>newCookie'; var_dump( $newCookie); echo '</pre>';
 
-		//now we need to preserve the sorting!!!
-		//as sorting is in the cookie...!!
+		/*
+		 * now we need to sort the new cookie based on original cookie
+		 */
 
-		//easy way ? compare old coockie against new cookie...
-
-		//so clean out oldcookie
-		//then add missing data to old cookie
-
-		$finalCookie = null;
+		//first compare old cookie against new cookie...
+		$sortedCookie = null;
 
 		foreach ($currentCookie as $key =>$value) {
 
@@ -433,40 +449,45 @@ class loadModules
 			foreach ($newCookie as $cookiekey => $cookievalue) {
 
 			  if ( $key == $cookiekey ) {
-			    $finalCookie[$key]= $cookievalue;
+			    $sortedCookie[$key]= $cookievalue;
 			  }
 
 			}
 		}
 
-		//now go thorugh the new cookie and see if we left anything out
+		//now go thorugh the new cookie and see if we left anything out after comparison
+		//(ie new modules) and add it to the end
 		foreach ($newCookie as $key =>$value) {
 
 			//check if key is there
 			$foundit = false;
-			foreach ($finalCookie as $cookiekey => $cookievalue) {
+			foreach ($sortedCookie as $cookiekey => $cookievalue) {
 			  if ( $key == $cookiekey ) 
 			  		$foundit = true;
 			}
 
 			if (!$foundit)
-			    $finalCookie[$key]= $value;
+			    $sortedCookie[$key]= $value;
 
 		}
-	
 
+		//echo '<pre>sortedCookie '; var_dump( $sortedCookie); echo '</pre>';
 
-		//echo '<pre>finalCookie'; var_dump( $finalCookie); echo '</pre>';
-
-		//here we need to rewrite the cookie
-		$cookietime = time() + (86400 * 365); // 1 year
-		$finalCookie = json_encode($finalCookie);
-
-		setcookie('loadUIcookie', $finalCookie, $cookietime, "/");
+		$this->saveUICookie($sortedCookie);
 
 		return true;
 	}
 
+
+	public static  function saveUICookie($cookie) {
+
+		//here we need to rewrite the cookie
+		$cookietime = time() + (86400 * 365); // 1 year
+		$finalCookie = json_encode($cookie);
+
+		setcookie('loadUIcookie', $finalCookie, $cookietime, "/");
+
+	}
 
 
 	public static  function sortArrayByArray(Array $array, Array $orderArray) {
@@ -515,52 +536,4 @@ class loadModules
 
 	
 
-
-
-	/**
-	 * getTimezones
-	 *
-	 * Get the (cached) list of all possible timezones
-	 *
-	 */
-/*
-	public static function getTimezones()
-	{
-		if (is_array(LoadModules::$_timezones)) {
-			return LoadModules::$_timezones;
-		}
-
-		LoadModules::$_timezones = array();
-
-		$regions = array(
-		    'Africa' => DateTimeZone::AFRICA,
-		    'America' => DateTimeZone::AMERICA,
-		    'Antarctica' => DateTimeZone::ANTARCTICA,
-		    'Aisa' => DateTimeZone::ASIA,
-		    'Atlantic' => DateTimeZone::ATLANTIC,
-		    'Europe' => DateTimeZone::EUROPE,
-		    'Indian' => DateTimeZone::INDIAN,
-		    'Pacific' => DateTimeZone::PACIFIC
-		);
-
-		foreach ($regions as $name => $mask)
-		{
-		    $zones = DateTimeZone::listIdentifiers($mask);
-		    foreach($zones as $timezone)
-		    {
-				// Lets sample the time there right now
-				$time = new DateTime(NULL, new DateTimeZone($timezone));
-
-				// Us dumb Americans can't handle millitary time
-				$ampm = $time->format('H') > 12 ? ' ('. $time->format('g:i a'). ')' : '';
-
-				// Remove region name and add a sample time
-				LoadModules::$_timezones[$name][$timezone] = substr($timezone, strlen($name) + 1) . ' - ' . $time->format('H:i') . $ampm;
-			}
-		}
-
-		return LoadModules::$_timezones;
-
-	}
-*/
 }

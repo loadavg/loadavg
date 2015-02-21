@@ -14,10 +14,17 @@
 * later.
 */
 
+//for debug
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
-    
+//defined('DEBUG') || define('DEBUG', true );
+//defined('LOGDEBUG') || define('LOGDEBUG', true );
+
+//for release
+//ini_set('display_errors', 'Off');
+//error_reporting(0);
 defined('DEBUG') || define('DEBUG', false );
+defined('LOGDEBUG') || define('LOGDEBUG', false );
 
 
 /* Find out where are we on the server*/

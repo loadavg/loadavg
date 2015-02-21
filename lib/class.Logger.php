@@ -50,14 +50,12 @@ class Logger
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
-		//get the date and timezone
+		//get the date and timezone - logger uses server time or override
 		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
 
+		//do we use this ? loggger is always current ? 
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
 
-
-		//generate list of all modules
-		//$this->generateModuleList('modules');
 
 		//generate list of all modules
 		LoadUtility::generateExtensionList( 'modules', self::$_modules );
@@ -65,8 +63,11 @@ class Logger
 		//load all charting modules that are enabled
 		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes, self::$_modules, true);
 
+		//generate list of all modules
+		LoadUtility::generateExtensionList( 'plugins', self::$_modules );
+
 		//load all charting modules that are enabled
-		//$this->loadModules('modules');
+		LoadUtility::loadExtensions( 'plugins', self::$_settings, self::$_classes, self::$_modules, true);
 
 
 /*

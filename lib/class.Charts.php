@@ -17,6 +17,7 @@ class Charts extends LoadModules
 {
 
 	public  $logfile; // Stores the logfile name & path
+	public  $logdir; // Stores the logdir name & path for modules that have their own logdir
 	public  $logFileDepth; // Stores the data depth based on logger for parsing
 
 
