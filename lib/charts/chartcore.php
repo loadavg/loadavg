@@ -196,7 +196,7 @@
 
 	 	timeData = item.datapoint[0] / 1000;
 
-	 	callbackLocation = "/" +   "<?php echo $chartCallback; ?>"  + timeData;
+	 	callbackLocation = "<?php echo $chartCallback; ?>"  + timeData;
 
 	 	window.open(callbackLocation  ,"_self");
 	 }

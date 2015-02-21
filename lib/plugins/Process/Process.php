@@ -43,9 +43,15 @@ if ( $loadavg->isLoggedIn() )
 	$range = $loadavg->getDateRange();
 	$loadModules->setDateRange($range);
 
+
+	$host_url = LoadUtility::get_module_url();
+
     //set url for callback
     //do this better - get current url and add timestamp to end
-    $callback = 'public/index.php?page=Process&timestamp=';
+    $callback =  $host_url . 'page=Process&timestamp=';
+    //$callback =  'public/index.php?page=Process&timestamp=';
+
+
     //$callback = 'public/index.php?page=Process&timestamp=%scharttime=%s';
 ?>
 

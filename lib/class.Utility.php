@@ -347,6 +347,53 @@ class LoadUtility
 	 	return $config_ini;
 	 }
 
+	/**
+	 * get_module_url
+	 *
+	 */
+
+	 public static function get_module_url () 
+	 {
+
+		$absolute_url = LoadUtility::full_url($_SERVER);
+		echo 'absolute_url ' . $absolute_url . "<br>";
+
+		//ge thepage root
+		$slash = explode('?', $absolute_url);
+
+		$current_filename = $slash[count($slash) - 1]; 
+
+		$host_url = str_replace($current_filename, "", $absolute_url);
+		echo 'host_url ' . $host_url . "<br>";
+
+		 return $host_url;
+	 }
+
+
+
+
+	public static  function url_origin($s, $use_forwarded_host=false)
+	{
+	    $ssl = (!empty($s['HTTPS']) && $s['HTTPS'] == 'on') ? true:false;
+	    $sp = strtolower($s['SERVER_PROTOCOL']);
+	    $protocol = substr($sp, 0, strpos($sp, '/')) . (($ssl) ? 's' : '');
+	    $port = $s['SERVER_PORT'];
+	    $port = ((!$ssl && $port=='80') || ($ssl && $port=='443')) ? '' : ':'.$port;
+	    $host = ($use_forwarded_host && isset($s['HTTP_X_FORWARDED_HOST'])) ? $s['HTTP_X_FORWARDED_HOST'] : (isset($s['HTTP_HOST']) ? $s['HTTP_HOST'] : null);
+	    $host = isset($host) ? $host : $s['SERVER_NAME'] . $port;
+	    return $protocol . '://' . $host;
+	}
+
+	public static function full_url($s, $use_forwarded_host=false)
+	{
+	    return LoadUtility::url_origin($s, $use_forwarded_host) . $s['REQUEST_URI'];
+	}
+
+
+
+
+
+
 
 	/**
 	 * getNetworkInteraces
