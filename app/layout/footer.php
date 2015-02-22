@@ -101,6 +101,9 @@
 	<script>$(function () { $('.toggle-button').toggleButtons(); })</script>
 	-->
 
+	<!-- Loadavg chart utilities --> 
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/loadcharts.js"></script>
+
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/buttons.js"></script>
 
 	<!-- Common script 
