@@ -1,7 +1,7 @@
 
 //chart utility functions
 
-//get item time
+//get item time in hh : mm : am/pm 
 //needs to be updated to account for timezone overrides
 function getItemTime ($itemTime)
 {
@@ -9,7 +9,8 @@ function getItemTime ($itemTime)
     var minutes = $itemTime.getMinutes()
     var ampm = "";
 
-    if (minutes < 10) minutes = "0" + minutes
+    if (minutes < 10) 
+    	minutes = "0" + minutes
 
     if(hours > 12) { hours = hours - 12; ampm = "pm"; }
         else ampm = "am";
