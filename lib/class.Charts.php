@@ -16,6 +16,7 @@
 class Charts extends LoadModules
 {
 
+	public  $chartDataArray; // Stores the chart data
 	public  $logfile; // Stores the logfile name & path
 	public  $logdir; // Stores the logdir name & path for modules that have their own logdir
 	public  $logFileDepth; // Stores the data depth based on logger for parsing
@@ -277,7 +278,7 @@ class Charts extends LoadModules
 		} else {
 
 			//subtract one from totalContents as arrays start at 0 not 1
-			for ( $i = 0; $i <= $totalContents-1; ++$i) {
+			for ( $i = 0; $i < $totalContents; ++$i) {
 
 				//grab the first dataset
 				$data = explode($delimiter, $contents[$i]);
@@ -385,12 +386,13 @@ class Charts extends LoadModules
 
 
 	/**
-	 * generateChart
+	 * getChartRenderData
 	 *
-	 * Function witch passes the data formatted for the chart view
+	 * Function which gets the raw chart data from the module
 	 *
-	 * @param array @moduleSettings settings of the module
-	 * @param string @logdir path to logfiles folder
+	 * @param array @chart settings of the chart
+	 * @param array @functionSettings settings of the chart
+	 * @param string @module module to look up
 	 *
 	 */
 

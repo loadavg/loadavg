@@ -19,7 +19,7 @@ line[] = '{"format":"Mean: %s","args":"mem_mean"}'
 line[] = '{"format":"Total : %s MB","args":"mem_total"}'
 line[] = '{"format":"Latest: %s MB","args":"mem_latest"}'
 [settings]
-overload = 90
+overload_1 = 25
 display_limiting = "false"
 [collectd]
 depth = 3

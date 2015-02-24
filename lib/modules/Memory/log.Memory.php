@@ -64,12 +64,13 @@ class Memory extends Logger
 		*/
 
 		//calculate memory usage
+		$memory = 0;
 		$totalmemory = $sysmemory[0];
 		$freememory = $sysmemory[1];
 		$bufferedmemory = $sysmemory[2];
 		$cachedmemory = $sysmemory[3];
 
-		$memory = $totalmemory - $freememory - $bufferedmemory - $cachedmemory;
+		$memory = $totalmemory - ( $freememory + $bufferedmemory + $cachedmemory);
 
 		//calculate swap usage
 		$swapcached = $sysmemory[4];
@@ -85,10 +86,71 @@ class Memory extends Logger
 		$filename = sprintf($this->logfile, date('Y-m-d'));
 		LoadUtility::safefilerewrite($filename,$string,"a",true);
 
+		//If alerts are enabled, check for alerts
+		if (ALERTS)
+			$this->checkAlerts($timestamp, $memory, $totalmemory, $settings);
+
 		if ( $type == "api")
 			return $string;
 		else
 			return true;
+	}
+
+
+	/**
+	 * checkAlerts
+	 *
+	 * Check if we hit a alert and act on it here
+	 *
+	 * @param string $type type of logging default set to normal but it can be API too.
+	 * @return string $string if type is API returns data as string
+	 *
+	 */
+
+	public function checkAlerts( $timestamp, $data1, $data2, $settings )
+	{
+
+		//grab module name
+		$module = __CLASS__;
+
+		//for writing alert out
+		$alert = null;
+
+		//grab overloads
+		$overload[1] = $settings['settings']['overload_1'];
+
+		//echo 'memory: ' . $data1 . "\n";
+		//echo 'totalmemory: ' . $data2 . "\n";
+
+		//check overloads against data using percentage for disk
+		$percentage = ( $data1 / $data2 ) *100;
+
+
+
+		//echo 'perc: ' . $percentage . "\n";
+		//echo 'overload: ' . $overload[1] . "\n";
+
+		if ( $percentage > $overload[1] )
+		{
+			$alert[0][0] = "memory";
+			$alert[0][1] = (float)$overload[1];
+			$alert[0][2] = $data[0];
+		}
+
+
+		if ( $alert != null )
+		{
+			//var_dump($alert);
+			//var_dump(json_encode($alert));		
+
+			//build file name
+			$filename =  LOG_PATH . "events_" . date('Y-m-d') . ".log";
+			
+			//need to build this out
+			$string = $timestamp . '|' . $module . "|" . json_encode($alert) . "\n";
+
+			LoadUtility::safefilerewrite($filename,$string,"a",true);
+		}
 	}
 
 

@@ -26,6 +26,8 @@ error_reporting(E_ALL);
 defined('DEBUG') || define('DEBUG', false );
 defined('LOGDEBUG') || define('LOGDEBUG', false );
 
+/* For alerts - experimental */
+defined('ALERTS') || define('ALERTS', true );
 
 /* Find out where are we on the server*/
 

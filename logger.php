@@ -98,8 +98,17 @@ $response = array();
 $logger->rotateLogFiles($logdir);
 
 
-//when sending api data we call data gathering 2x this is unnecssary
+//TODO when sending api data we call data gathering 2x this is unnecssary
 //we only need to call 1x and return data as string or true/false
+
+//we can add 3 different modes to caller
+//disk - log data to disk, default
+//apionly - send back for api only no logging
+//api - log to disk and send back for api
+$logMode = "disk";
+
+if ( $api ) 
+	$logMode = "api";
 
 
 if (!$testmode) {
@@ -130,7 +139,7 @@ if (!$testmode) {
 				$class = Logger::$_classes[$module]; // load module information
 
 				//the modules logging function is read from the args
-				$caller = $args->function;
+				//$caller = $args->function;
 
 				$class->logfile = $logdir . $args->logfile; // the modules logfile si read from args
 
@@ -144,17 +153,10 @@ if (!$testmode) {
 				if  ( $timemode  ) 
 					$st = $timer->getTime();
 
-				//we can add 3 different modes to caller
-				//disk - log data to disk, default
-				//apionly - send back for api only no logging
-				//api - log to disk and send back for api
-				$logMode = "disk";
-
-				if ( $api ) 
-					$logMode = "api";
 
 				//run modules logger
-				$responseData = $class->$caller($logMode);
+				//$responseData = $class->$caller($logMode);
+				$responseData = $class->logData($logMode);
 
 				// collect data for API server
 				if ( $api ) {

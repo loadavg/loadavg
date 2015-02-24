@@ -44,6 +44,8 @@ class Network extends Logger
 		$class = __CLASS__;
 		$settings = Logger::$_settings->$class;
 
+		$timestamp = time();
+
 		//need to collect data from multiple interfaces here
 		$apiString = "";
 
@@ -82,7 +84,7 @@ class Network extends Logger
 			// $trans = exec("cat /proc/net/dev | grep ".$interface." | awk -F' ' '{print $10}'");
 
 			if ( $logfile && file_exists($logfile) )
-				$elapsed = time() - filemtime($logfile);
+				$elapsed = $timestamp - filemtime($logfile);
 			else
 				$elapsed = 0;  //meaning new logfile
 
@@ -101,7 +103,7 @@ class Network extends Logger
 				
 				$last = explode("|", file_get_contents(  $netLatestLocation ) );
 
-				$netlatestElapsed =  ( time() - filemtime($netLatestLocation));
+				$netlatestElapsed =  ( $timestamp - filemtime($netLatestLocation));
 
 				//if its a new logfile check to see if there is previous netlatest data
 				if ($elapsed == 0) {
@@ -132,13 +134,13 @@ class Network extends Logger
 				}
 				$recv_rate = round(($recv_diff/$elapsed),2);
 				
-				$string = time() . "|" . $trans_rate . "|" . $recv_rate . "\n";
+				$string = $timestamp . "|" . $trans_rate . "|" . $recv_rate . "\n";
 			} else {
 				//if this is the first value in the set and there is no previous data then its null
 				
 				$lastlogdata = "|0.0|0.0";
 
-				$string = time() . $lastlogdata . "\n" ;
+				$string = $timestamp . $lastlogdata . "\n" ;
 
 			}
 
@@ -152,15 +154,21 @@ class Network extends Logger
 				LoadUtility::safefilerewrite($fh,$last_string,"w",true);
 
 
+				//If alerts are enabled, check for alerts
+				if (@$last && $elapsed) {
+					if (ALERTS)
+						$this->checkAlerts($timestamp, $trans_rate, $recv_rate, $settings);
+				}
+
 				//figure out how to send back data for multiple interfaces here
 				//echo "STRING:" . $string;
 
 				$apiString[$interface] = $string;
-/*
+				/*
 				if ($apiString == "")
 				else
 					$apiString += "|" . $string;
-*/
+				*/
 		}
 
 		if ( $type == "api")
@@ -168,6 +176,66 @@ class Network extends Logger
 		else
 			return true;
 
+	}
+
+
+	/**
+	 * checkAlerts
+	 *
+	 * Check if we hit a alert and act on it here
+	 *
+	 * @param string $type type of logging default set to normal but it can be API too.
+	 * @return string $string if type is API returns data as string
+	 *
+	 */
+
+	public function checkAlerts( $timestamp, $data1, $data2, $settings )
+	{
+
+		//grab module name
+		$module = __CLASS__;
+
+		//for writing alert out
+		$alert = null;
+
+		//grab overloads
+		$overload[1] = $settings['settings']['overload_transfer'];
+		$overload[2] = $settings['settings']['overload_receive'];
+
+		//echo 'memory: ' . $data1 . "\n";
+		//echo 'totalmemory: ' . $data2 . "\n";
+
+		$trackVal = 0;
+
+		if ( $data1 > $overload[1] )
+		{
+			$alert[$trackVal][0] = "transfer";
+			$alert[$trackVal][1] = (float)$overload[1];
+			$alert[$trackVal][2] = $data1;
+			$trackVal++;
+		}
+
+		if ( $data2 > $overload[2] )
+		{
+			$alert[$trackVal][0] = "receive";
+			$alert[$trackVal][1] = (float)$overload[2];
+			$alert[$trackVal][2] = $data2;
+		}
+
+
+		if ( $alert != null )
+		{
+			//var_dump($alert);
+			//var_dump(json_encode($alert));		
+
+			//build file name
+			$filename =  LOG_PATH . "events_" . date('Y-m-d') . ".log";
+			
+			//need to build this out
+			$string = $timestamp . '|' . $module . "|" . json_encode($alert) . "\n";
+
+			LoadUtility::safefilerewrite($filename,$string,"a",true);
+		}
 	}
 
 

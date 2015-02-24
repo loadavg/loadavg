@@ -52,6 +52,9 @@
 
 				//get the log file NAME or names when there is a range and sets it in array chart->logfile
 				//returns multiple files when multiple log files
+
+				//echo $chart->logfile;
+
 				$class->setLogFile($chart->logfile,  $dateRange, $module );
 
 				//get actual datasets needed to send to template to render chart

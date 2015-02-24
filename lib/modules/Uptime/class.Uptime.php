@@ -33,7 +33,7 @@ class Uptime extends Charts
 	}
 
 	/**
-	 * getDiskUsageData
+	 * getUsageData
 	 *
 	 * Gets data from logfile, formats and parses it to pass it to the chart generating function
 	 *
@@ -99,11 +99,6 @@ class Uptime extends Charts
 
 				if ($data == null)
 					continue;
-
-				// clean data for missing values and check for redline
-				$redline = false;
-				if  ( isset ($data['redline']) && $data['redline'] == true )
-					$redline = true;
 				
 				//we skip all redline data for this module
 				$redline = false;
@@ -180,8 +175,7 @@ class Uptime extends Charts
 				
 				'ymin' => $ymin,
 				'ymax' => $ymax,
-				'xmin' => date("Y/m/d 00:00:01"),
-				'xmax' => date("Y/m/d 23:59:59"),
+
 				'mean' => $uptime_mean,
 
 				'dataset'			=> $dataArray,

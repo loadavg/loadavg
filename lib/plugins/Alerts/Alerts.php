@@ -22,9 +22,6 @@ if ( $loadavg->isLoggedIn() )
 
 <?php
 
-	//get plugin class
-	$process = LoadPlugins::$_classes['Process'];
-
 	//used for callbacks to main plugin to select timestamp to display
 	//we are also passing back chart time
 
@@ -38,23 +35,53 @@ if ( $loadavg->isLoggedIn() )
 		$chartTime = $_GET['charttime'];
 	}
 
+	//get plugin class
+	$alerts = LoadPlugins::$_classes['Alerts'];
+
+	//get the range of dates to be charted from the UI and 
+	//set the date range to be charted in the plugin
+	$range = $loadavg->getDateRange();
+	$moduleName = 'Alerts';
+	//$moduleName = __CLASS__;
 
 
 
-	//got module url for callbacks - needs cleaning up
-	$host_url = LoadUtility::get_module_url();
 
-    //set url for callback - see end of chartcore.php in lib.charts
-    //its not a relative redirect...
-    $callback =  $host_url . 'page=Process&timestamp=';
-    //$callback =  'public/index.php?page=Process&timestamp=';
+    //echo '<pre>'; var_dump ($range); echo '</pre>'; 
+    //echo '<pre>'; var_dump ($moduleName); echo '</pre>'; 
+    //echo '<pre>'; var_dump ($moduleTemplate); echo '</pre>'; 
+
+
+	//$alerts = LoadPlugins::$_classes['Alerts']; 
+	//$chartData = $alerts->getUsageData();
+    $moduleSettings = LoadPlugins::$_settings->$moduleName; // if module is enabled ... get his settings
+	
+	//$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
+	$chart = $moduleSettings['chart']['args'][0]; //contains args[] array from modules .ini file
+
+	//data about chart to be rendered
+	$chart = json_decode($chart);
+
+	//get the log file NAME or names when there is a range and sets it in array chart->logfile
+	//returns multiple files when multiple log files
+	$logfile = $alerts->getLogFile( $chart->logfile, $range, $moduleName );
+
+	//get actual datasets needed to send to template to render chart
+	$chartData = $alerts->getChartRenderData(  $logfile );
+
+	
+
+	//echo '<pre>'; var_dump ($chartData); echo '</pre>'; 
+
+
+
+
 ?>
 
 
 	<div class="well lh70-style">
-	    <b>Process Data</b>
+	    <b>Alert Data</b>
 	    <div class="pull-right">
-		<?php echo $process->getData("uptime"); ?>
 	    </div>
 	</div>
 
@@ -62,19 +89,8 @@ if ( $loadavg->isLoggedIn() )
 
 	    <div id="accordion" class="accordion">	
 		<?php
-
-			//get the range of dates to be charted from the UI and 
-			//set the date range to be charted in the plugin
-			$range = $loadavg->getDateRange();
-
-			//where is loadModules from ???
-			$loadModules->setDateRange($range);
-			//LoadModules::setDateRange($range);
-			//$process->setDateRange($range);
-
 		    //render chart
-		    $loadModules->renderChart("Cpu", false, false, false, $callback, 770 );
-		    //loadModules::renderChart("Cpu", false, false, false, $callback, 770 );
+		   // $loadModules->renderChart("Cpu", false, false, false, $callback, 770 );
 		?>
 		</div>
 
@@ -82,37 +98,6 @@ if ( $loadavg->isLoggedIn() )
 		widget stytles can be found here but need cleaning up
 		http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 		-->
-
-		<?php
-
-		// get and parse process data here
-		// to view on your system in console:
-		// ps -Ao %cpu,%mem,pid,user,comm,args | sort -r -k1 | less
-
-		//grab process data from log file for timeStamp
-		$data = false;
-		$gotLog = false;
-
-		if ($timeStamp) {
-			$data = $process->fetchProcessLogData($timeStamp);		
-		}
-
-		//grab process data from system (LIVE)
-		if ( !$timeStamp || $data == false) {
-			$data = $process->fetchProcessData('-Ao %cpu,%mem,pid,user,comm,args');
-		}
-		else
-		{
-			$gotLog = true;
-		}
-
-		//explode data into array
-		$lines = explode("\n", trim($data));
-
-		//parse out process data for display
-	    $procs = $process->parseProcessData($lines);
-
-		?>
 
 
 		<div class="row-fluid">
@@ -122,13 +107,18 @@ if ( $loadavg->isLoggedIn() )
 						<h4 class="heading">
 
 							<?php
+								
+								$gotLog = false;
+
 								if ($gotLog)
 									$title = 'Running Processess at ' . date('H:i:s', $timeStamp);
 								else
-									$title = 'Running Processess (live)';
+									$title = 'Alerts (today)';
 
 								echo $title . "\n";
+							
 							?>
+
 
 
 						</h4>
@@ -143,26 +133,27 @@ if ( $loadavg->isLoggedIn() )
 						
 		<?php
 
-		//arraySort error here ?
-		//Notice: Undefined index: command0 in /var/www/vhosts/load.loadavg.com/httpdocs/lib/plugins/Process/class.Process.php on line 117
-
-		//echo '<pre>'; var_dump ($procs); echo '</pre>';
-
-
-
-		//DIRTY HACK
-		//sort by cpu column to start off with
-		//really need to srt the groups after the arraySort below to be more acurate
-		
 		function cmp($a, $b)
 		{
-		    return strcmp($b["%cpu"], $a["%cpu"]);
+	  		return strcmp($a[1], $b[1]);
 		}
-		usort($procs, "cmp");
 		
+		//usort($chartData, "cmp");
 
-		//sorts data by command key into myNewArray
-		$myNewArray = $process->arraySort($procs,'command');
+		/*
+		echo '<pre>'; 
+		$totalContents= (int)count( $chartData );
+		for ( $i = 0; $i < $totalContents; ++$i) {
+			$data = $chartData[$i];
+			echo $data[0] . " " . $data[1] . " " . $data[2] . "<br>"; 
+		}		
+		echo '</pre>';
+		*/
+
+		//sorts data by key 1 into myNewArray
+		$myNewArray = $alerts->arraySort($chartData,1);
+
+
 
 		//now we should sory myNewArray by totals but dont have them yet!!!
 		//would be great if the arraySort did this as well, totaled up cpu and mem as it sorted...
@@ -171,26 +162,18 @@ if ( $loadavg->isLoggedIn() )
 		$module = 0;
 
 		//dont work as we get these at the end! hmm...
-		$grandTotalProcesCpu = 0;
-		$grandTotalProcesMem = 0;
+		//$grandTotalProcesCpu = 0;
+		//$grandTotalProcesMem = 0;
 
 		foreach ($myNewArray as $value) {
 			
 			$module++;
 
-			//loop thorugh each group 
-			$totalProcesCpu = $totalProcesMem = 0;
-			$numProcs = 0;
-
-			foreach ($value as $items) {
-				$totalProcesCpu += $items['%cpu'];
-				$totalProcesMem += $items['%mem'];			
-				$numProcs++;
-			}
+			//echo '<pre>'; var_dump ($value); echo '</pre>'; 
 
 			//increment grand totals
-			$grandTotalProcesCpu += $totalProcesCpu;
-			$grandTotalProcesMem += $totalProcesMem;
+			//$grandTotalProcesCpu += $totalProcesCpu;
+			//$grandTotalProcesMem += $totalProcesMem;
 
 			//skip rcuo - kernel threads
 			//$pos = strpos($value[0]['command0'], "rcuo");
@@ -198,12 +181,15 @@ if ( $loadavg->isLoggedIn() )
 			//	continue;
 
 			//skip all null data
-			if ( ($value[0]['%cpu'] == 0) && ($value[0]['%mem'] == 0) )
-				continue;
+			//if ( ($value[0]['%cpu'] == 0) && ($value[0]['%mem'] == 0) )
+			//	continue;
 
 			//override some values here to close accordians
-			$moduleCollapse = "accordion-body collapse";
-		    $moduleCollapseStatus = "false";
+			//$moduleCollapse = "accordion-body collapse";
+		    //$moduleCollapseStatus = "false";
+
+			$moduleCollapse = "accordion-body collapse in";
+		    $moduleCollapseStatus = "true";
 
 			//render data to screen
 			?>
@@ -213,11 +199,11 @@ if ( $loadavg->isLoggedIn() )
 				<div class="accordion-heading"> 
 					<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 						<?php
-						echo '<strong>Process:</strong> ' . $value[0]['command'];
-						echo ' Number Running: ' . $numProcs;
+						echo '<strong>Process:</strong> ' . $value[0][1];
+						//echo ' Number Running: ' . $numProcs;
 						echo "<span style='float:right;display:inline'>";
-						echo ' Cpu: ' . $totalProcesCpu;
-						echo ' Memory: ' . $totalProcesMem;
+						//echo ' Cpu: ' . $totalProcesCpu;
+						//echo ' Memory: ' . $totalProcesMem;
 						echo "</span>";
 						?>				
 					</a>					
@@ -226,13 +212,30 @@ if ( $loadavg->isLoggedIn() )
 				<div id="category<?php echo $module; ?>" class="<?php echo $moduleCollapse;?>">
 					<div class="accordion-inner">
 						<?php
-							echo '<strong>Command:</strong> ' . $value[0]['command0'] . '<br>';
+							//echo '<strong>Command:</strong> ' . $value[0][1] . '<br>';
 
 							foreach ($value as $items) {
-								echo ' ID: ' . $items['pid'];
-								echo ' User: ' . $items['user'];
-								echo ' Cpu: ' . $items['%cpu'];
-								echo ' Memory: ' . $items['%mem'];
+
+				                $theTime = date("h:i a", $items[0]);
+
+				                $alertData = json_decode($items[2]);
+
+								echo ' Time: ' . $theTime;
+
+								if (isset($alertData[0][0]))
+								{
+								echo ' Alert: ' . $alertData[0][0];
+								echo ' Trigger: ' . $alertData[0][1];
+								echo ' Value: ' . $alertData[0][2];
+								}
+
+								if (isset($alertData[1][0]))
+								{
+								echo ' Alert: ' . $alertData[1][0];
+								echo ' Trigger: ' . $alertData[1][1];
+								echo ' Value: ' . $alertData[1][2];
+								}
+
 								echo '<br>';
 							}
 						?>
@@ -256,9 +259,9 @@ if ( $loadavg->isLoggedIn() )
 
 							<?php
 
-								$title = 'Total CPU ' . $grandTotalProcesCpu . ' Total memory ' . $grandTotalProcesMem;
+								//$title = 'Total CPU ' . $grandTotalProcesCpu . ' Total memory ' . $grandTotalProcesMem;
 
-								echo $title . "\n";
+								//echo $title . "\n";
 							?>
 
 

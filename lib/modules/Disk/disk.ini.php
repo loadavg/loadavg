@@ -20,7 +20,7 @@ line[] = '{"format":"Size : %s MB","args":"disk_total"}'
 line[] = '{"format":"Latest: %s MB","args":"disk_latest"}'
 line[] = '{"format":"Free: %s MB","args":"disk_free"}'
 [settings]
-overload = 90
+overload_1 = 90
 drive = "/"
 display_limiting = "false"
 [collectd]

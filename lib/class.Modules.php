@@ -207,6 +207,8 @@ class loadModules
         //get data for chart/s to be rendered
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
+		//var_dump($charts);
+		
 		//see if there is a callback - used to trigger onclick events in chart
 		$chartCallback = $callback;
 

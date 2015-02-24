@@ -121,7 +121,7 @@ class Swap extends Charts
 
 		//define datasets
 		$dataArrayLabel[0] = 'Swap Used';
-		//$dataArrayLabel[1] = 'Overload';
+		$dataArrayLabel[1] = 'Overload';
 		//$dataArrayLabel[2] = 'Swap';
 
 		/*
@@ -182,15 +182,6 @@ class Swap extends Charts
 				if ( LOGGER == "collectd")
 					$this->reMapData($data);
 
-				//used to filter out redline data from usage data as it skews it
-				/*
-				if (!$redline) {
-					$usage[] = ( $data[4] / 1024 );
-					$percentage_used =  ( $data[4] / $data[2] ) * 100; // DIV 0 REDLINE
-				} else {
-					$percentage_used = 0;
-				}
-*/
                 //used to filter out redline data from usage data as it skews it
                 if (!$redline) {
                         $usage[] = ( $data[4] / 1024 );
@@ -208,6 +199,26 @@ class Swap extends Charts
 
 				$usageCount[] = ($data[0]*1000);
 
+
+
+				if ($displayMode == 'true' ) {
+					// display data using MB
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[4] / 1024 ) ."]";
+
+					if ( $percentage_used > $settings['settings']['overload_1'])
+						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[4] / 1024 ) ."]";
+
+				} else {
+					// display data using percentage
+					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+
+					if ( $percentage_used > $settings['settings']['overload_1'])
+						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
+				}
+
+
+
+				/*
 				if ($displayMode == 'true' ) {
 					// display data using MB
 					//we are just plotting swap used (total) at the moment
@@ -217,10 +228,11 @@ class Swap extends Charts
 					// display data using percentage
 					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";					
 				}
-
+*/
 
 			}
 
+			//echo '<pre>'; var_dump($dataArray[1]); echo '</pre>';
 			/*
 			 * now we collect data used to build the chart legend 
 			 * 
@@ -311,9 +323,9 @@ class Swap extends Charts
 				'mean' => $mem_mean,
 
 				'dataset'			=> $dataArray,
-				'dataset_labels'	=> $dataArrayLabel,
+				'dataset_labels'	=> $dataArrayLabel
 
-				'overload' => $settings['settings']['overload']
+				//'overload' => $settings['settings']['overload_1']
 			);
 
 			return $return;	

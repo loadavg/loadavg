@@ -196,14 +196,14 @@ class Disk extends Charts
 					// display data using MB
 					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
 
-					if ( $percentage_used > $settings['settings']['overload'])
+					if ( $percentage_used > $settings['settings']['overload_1'])
 						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". ( $data[1] / 1048576 ) ."]";
 
 				} else {
 					// display data using percentage
 					$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 
-					if ( $percentage_used > $settings['settings']['overload'])
+					if ( $percentage_used > $settings['settings']['overload_1'])
 						$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", ". $percentage_used ."]";
 				}
 			}
@@ -281,14 +281,14 @@ class Disk extends Charts
 				
 				'ymin' => $ymin,
 				'ymax' => $ymax,
-				'xmin' => date("Y/m/d 00:00:01"),
-				'xmax' => date("Y/m/d 23:59:59"),
+				//'xmin' => date("Y/m/d 00:00:01"),
+				//'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $disk_mean,
 
 				'dataset'			=> $dataArray,
-				'dataset_labels'	=> $dataArrayLabel,
+				'dataset_labels'	=> $dataArrayLabel
 				
-				'overload' => $settings['settings']['overload']
+				//'overload' => $settings['settings']['overload_1']
 			);
 
 			return $return;	
