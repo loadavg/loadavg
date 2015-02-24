@@ -111,7 +111,7 @@ class Disk extends Logger
 		{
 			$alert[0][0] = "storage";
 			$alert[0][1] = (float)$overload[1];
-			$alert[0][2] = $data[0];
+			$alert[0][2] = $percentage;
 		}
 
 
