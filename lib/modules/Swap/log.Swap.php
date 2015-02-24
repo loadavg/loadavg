@@ -120,7 +120,7 @@ class Swap extends Logger
 		{
 			$alert[0][0] = "swap";
 			$alert[0][1] = (float)$overload[1];
-			$alert[0][2] = $data[0];
+			$alert[0][2] = $percentage;
 		}
 
 
