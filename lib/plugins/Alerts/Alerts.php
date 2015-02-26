@@ -138,17 +138,6 @@ if ( $loadavg->isLoggedIn() )
 	  		return strcmp($a[1], $b[1]);
 		}
 		
-		//usort($chartData, "cmp");
-
-		/*
-		echo '<pre>'; 
-		$totalContents= (int)count( $chartData );
-		for ( $i = 0; $i < $totalContents; ++$i) {
-			$data = $chartData[$i];
-			echo $data[0] . " " . $data[1] . " " . $data[2] . "<br>"; 
-		}		
-		echo '</pre>';
-		*/
 
 		//sorts data by key 1 into myNewArray
 		$myNewArray = $alerts->arraySort($chartData,1);
@@ -161,35 +150,22 @@ if ( $loadavg->isLoggedIn() )
 		//gives each module a id in accordions
 		$module = 0;
 
-		//dont work as we get these at the end! hmm...
-		//$grandTotalProcesCpu = 0;
-		//$grandTotalProcesMem = 0;
+		//echo "<pre>"; var_dump($myNewArray); echo "</pre>"; 
+
+		//myNewArray - array of modules alerts
+		//myNewArray[1] - module 1 ie cpu
+		//myNewArray[2] - module 2 ie network
 
 		foreach ($myNewArray as $value) {
 			
 			$module++;
 
-			//echo '<pre>'; var_dump ($value); echo '</pre>'; 
-
-			//increment grand totals
-			//$grandTotalProcesCpu += $totalProcesCpu;
-			//$grandTotalProcesMem += $totalProcesMem;
-
-			//skip rcuo - kernel threads
-			//$pos = strpos($value[0]['command0'], "rcuo");
-			//if ($pos !== false)
-			//	continue;
-
-			//skip all null data
-			//if ( ($value[0]['%cpu'] == 0) && ($value[0]['%mem'] == 0) )
-			//	continue;
-
 			//override some values here to close accordians
-			//$moduleCollapse = "accordion-body collapse";
-		    //$moduleCollapseStatus = "false";
+			$moduleCollapse = "accordion-body collapse";
+		    $moduleCollapseStatus = "false";
 
-			$moduleCollapse = "accordion-body collapse in";
-		    $moduleCollapseStatus = "true";
+			//$moduleCollapse = "accordion-body collapse in";
+		    //$moduleCollapseStatus = "true";
 
 			//render data to screen
 			?>
@@ -200,11 +176,6 @@ if ( $loadavg->isLoggedIn() )
 					<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 						<?php
 						echo '<strong>Process:</strong> ' . $value[0][1];
-						//echo ' Number Running: ' . $numProcs;
-						echo "<span style='float:right;display:inline'>";
-						//echo ' Cpu: ' . $totalProcesCpu;
-						//echo ' Memory: ' . $totalProcesMem;
-						echo "</span>";
 						?>				
 					</a>					
 				</div>
@@ -214,6 +185,7 @@ if ( $loadavg->isLoggedIn() )
 						<?php
 							//echo '<strong>Command:</strong> ' . $value[0][1] . '<br>';
 
+							//echo "<pre>"; var_dump($value); echo "</pre>"; 
 							foreach ($value as $items) {
 
 				                $theTime = date("h:i a", $items[0]);
@@ -251,25 +223,105 @@ if ( $loadavg->isLoggedIn() )
 
 		<div id="separator" class="separator bottom"></div>
 
-		<div class="row-fluid">
-			<div class="span12">
-				<div class="widget widget-4">
-					<div class="widget-head">
-						<h4 class="heading">
-
-							<?php
-
-								//$title = 'Total CPU ' . $grandTotalProcesCpu . ' Total memory ' . $grandTotalProcesMem;
-
-								//echo $title . "\n";
-							?>
+	
 
 
-						</h4>
-					</div>
-				</div>
-			</div>
-		</div>
+
+	<!--
+	<table class="table table-white table-bordered table-vertical-center table-pricing">
+	-->
+
+
+	<table class="table table-bordered table-primary table-striped table-vertical-center">
+
+		<thead>
+			<tr>
+				<th style="width: 40px;" class="center">Time</th>
+				<th style="width: 40px;" class="center">Alerts</th>
+				<th style="width: 10%;">CPU</th>
+				<th style="width: 10%;">Proc</th>
+				<th style="width: 10%;">Swap</th>
+				<th style="width: 10%;">Memory</th>
+				<th style="width: 10%;">Disk</th>
+				<th style="width: 10%;">Network</th>
+				<th style="width: 10%;">Uptime</th> <!-- 50px -->
+			</tr>
+		</thead>
+		<tbody>
+
+		<?php
+
+
+/*
+            if ($chartTimezoneMode == "UTC") {
+                $gmtimenow = time() - (int)substr(date('O'),0,3)*60*60; 
+                $theTime = date("h:i a", $gmtimenow) . " UTC";
+            }
+*/
+
+
+/*
+		$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
+
+		for ($i = 1; $i <= 24; $i++) {
+		    //$time = date('H:i:s', $iTimestamp) . "\n<br />";
+		    $time = date('h:i:s a', $iTimestamp) . "\n<br />";
+*/		
+
+
+		    if (null==true) {
+		?>
+
+		<!-- Cart item -->
+		<tr class="selectable">
+			<!--
+			<td class="center"><span class="label label-important">12:00 AM</span></td>
+			-->
+			<td class="center"><span class="label label-important"><?php echo $time   ?></span></td>
+			<td>
+				<span class="label">3-4 Years</span>
+			</td>
+			<td class="center">1</td>
+			<td class="center">100</td>
+			<td class="center">119</td>
+			<td class="center">119</td>
+			<td class="center">119</td>
+			<td class="center">119</td>
+			<td class="center">119</td>
+		</tr>
+		<!-- // Cart item END -->
+					<!-- Cart item -->
+		<tr class="selectable">
+			<td class="center"></td>
+			<td>
+				<span class="label">3-4 Years</span>
+			</td>
+			<td class="center">1</td>
+			<td class="center">100</td>
+			<td class="center">119</td>
+			<td class="center">119</td>
+			<td class="center">119</td>
+			<td class="center">119</td>
+			<td class="center">119</td>
+		</tr>
+
+
+		<?php
+		    $iTimestamp += 3600;
+		}
+		?>
+
+
+						
+		</tbody>
+	</table>
+
+	<div class="separator bottom"></div>
+	
+
+
+
+
 
 
 
