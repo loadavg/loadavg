@@ -69,8 +69,6 @@ if ( $loadavg->isLoggedIn() )
 	//get actual datasets needed to send to template to render chart
 	$chartData = $alerts->getChartRenderData(  $logfile );
 
-	
-
 	//echo '<pre>'; var_dump ($chartData); echo '</pre>'; 
 
 
@@ -86,6 +84,7 @@ if ( $loadavg->isLoggedIn() )
 	</div>
 
 	<div class="innerAll">
+
 
 	    <div id="accordion" class="accordion">	
 		<?php
@@ -132,41 +131,25 @@ if ( $loadavg->isLoggedIn() )
 	    <div id="accordion" class="accordion">
 						
 		<?php
-
+		/*
 		function cmp($a, $b)
 		{
 	  		return strcmp($a[1], $b[1]);
 		}
-		
+		*/		
 
-		//sorts data by key 1 into myNewArray
-		$myNewArray = $alerts->arraySort($chartData,1);
+		//sorts alert data by key 1 into myNewArray
+		$alertArray = $alerts->arraySort($chartData,1);
 
 
-
-		//now we should sory myNewArray by totals but dont have them yet!!!
-		//would be great if the arraySort did this as well, totaled up cpu and mem as it sorted...
-
-		//gives each module a id in accordions
-		$module = 0;
-
-		//echo "<pre>"; var_dump($myNewArray); echo "</pre>"; 
-
-		//myNewArray - array of modules alerts
-		//myNewArray[1] - module 1 ie cpu
-		//myNewArray[2] - module 2 ie network
-
-		foreach ($myNewArray as $value) {
+		//lets see whats there
+		foreach ($alertArray as $value) {
 			
 			$module++;
 
 			//override some values here to close accordians
 			$moduleCollapse = "accordion-body collapse";
 		    $moduleCollapseStatus = "false";
-
-			//$moduleCollapse = "accordion-body collapse in";
-		    //$moduleCollapseStatus = "true";
-
 			//render data to screen
 			?>
 
@@ -175,7 +158,7 @@ if ( $loadavg->isLoggedIn() )
 				<div class="accordion-heading"> 
 					<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 						<?php
-						echo '<strong>Process:</strong> ' . $value[0][1];
+						echo '<strong>Alerts:</strong> ' . $value[0][1];
 						?>				
 					</a>					
 				</div>
@@ -223,28 +206,50 @@ if ( $loadavg->isLoggedIn() )
 
 		<div id="separator" class="separator bottom"></div>
 
-	
+<?php
+
+
+		//now we should sory myNewArray by totals but dont have them yet!!!
+		//would be great if the arraySort did this as well, totaled up cpu and mem as it sorted...
+
+		//$itemalertArray = $alerts->getTimeSlotAlert("Cpu","12:00 am", "01:00 am", $alertArray);
+		//$itemalertArray = $alerts->getTimeSlotAlert("Cpu","01:00 am", "02:00 am", $alertArray);
+		//$itemalertArray = $alerts->getTimeSlotAlert("Network","01:00 am", "02:00 am", $alertArray);
+
+		?>
+
+		<div id="separator" class="separator bottom"></div>
 
 
 
-	<!--
-	<table class="table table-white table-bordered table-vertical-center table-pricing">
-	-->
 
+	<?php        
+
+		//myNewArray - empty time based array of modules alerts
+		//myNewArray["Cpu"] - module 1 ie cpu
+		//myNewArray["Disk"] - module 2 ie disk
+		$timeArray = $alerts->buildTimeArray($alertArray);
+
+		$modules = LoadModules::$_modules; 
+		$interfaces = LoadUtility::getNetworkInterfaces(); 
+	?>
 
 	<table class="table table-bordered table-primary table-striped table-vertical-center">
 
 		<thead>
 			<tr>
-				<th style="width: 40px;" class="center">Time</th>
-				<th style="width: 40px;" class="center">Alerts</th>
-				<th style="width: 10%;">CPU</th>
-				<th style="width: 10%;">Proc</th>
-				<th style="width: 10%;">Swap</th>
-				<th style="width: 10%;">Memory</th>
-				<th style="width: 10%;">Disk</th>
-				<th style="width: 10%;">Network</th>
-				<th style="width: 10%;">Uptime</th> <!-- 50px -->
+				<th style="width: 30px;" class="center">Time</th>
+
+				<?php
+		        foreach ($modules as $module => $moduleStatus) { 
+
+		        	if ($moduleStatus=="true")
+		        		echo "<th style='width: 10%;'>" .  $module  . "</th>";
+
+		        }
+		        ?>
+				<th style="width: 10%;" class="center">Alerts</th>
+
 			</tr>
 		</thead>
 		<tbody>
@@ -252,60 +257,69 @@ if ( $loadavg->isLoggedIn() )
 		<?php
 
 
-/*
-            if ($chartTimezoneMode == "UTC") {
-                $gmtimenow = time() - (int)substr(date('O'),0,3)*60*60; 
-                $theTime = date("h:i a", $gmtimenow) . " UTC";
-            }
-*/
+		/*
+        if ($chartTimezoneMode == "UTC") {
+            $gmtimenow = time() - (int)substr(date('O'),0,3)*60*60; 
+            $theTime = date("h:i a", $gmtimenow) . " UTC";
+        }		
+        */
 
-
-/*
 		$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
 
 		for ($i = 1; $i <= 24; $i++) {
-		    //$time = date('H:i:s', $iTimestamp) . "\n<br />";
 		    $time = date('h:i:s a', $iTimestamp) . "\n<br />";
-*/		
-
-
-		    if (null==true) {
 		?>
 
-		<!-- Cart item -->
-		<tr class="selectable">
-			<!--
-			<td class="center"><span class="label label-important">12:00 AM</span></td>
-			-->
-			<td class="center"><span class="label label-important"><?php echo $time   ?></span></td>
-			<td>
-				<span class="label">3-4 Years</span>
-			</td>
-			<td class="center">1</td>
-			<td class="center">100</td>
-			<td class="center">119</td>
-			<td class="center">119</td>
-			<td class="center">119</td>
-			<td class="center">119</td>
-			<td class="center">119</td>
-		</tr>
-		<!-- // Cart item END -->
-					<!-- Cart item -->
-		<tr class="selectable">
-			<td class="center"></td>
-			<td>
-				<span class="label">3-4 Years</span>
-			</td>
-			<td class="center">1</td>
-			<td class="center">100</td>
-			<td class="center">119</td>
-			<td class="center">119</td>
-			<td class="center">119</td>
-			<td class="center">119</td>
-			<td class="center">119</td>
-		</tr>
+			<!-- Cart item -->
+			<tr class="selectable" >
+				<td class="center">
+					<span class="label label-important"><?php echo $timeArray[$i]['time'];?></span>
+				</td>
 
 
+				<?php
+				//render out modules data in table...
+
+				$totalAlerts = 0;
+		        foreach ($modules as $module => $moduleStatus) { 
+
+		        	if ($moduleStatus=="true")
+		        	{
+						if ( isset ($timeArray[$i][$module]) && ($timeArray[$i][$module] > 0) )
+						{
+							?>
+		        			<td class="center" data-toggle="modal" data-target="#myModal" data-date="<?php echo $module ?>" data-time="<?php echo $i ?>">
+								<span class="label">
+								<?php 
+								echo $timeArray[$i][$module]; 
+								$totalAlerts += $timeArray[$i][$module]; 
+								?>
+								</span>
+							</td>
+							<?php
+						}
+						else
+						{
+						?>
+						<td class="center"></td>
+						<?php
+						}
+					}		
+		        }
+				?>
+
+				<td>
+					<?php  //for totals... move me
+					if ( $totalAlerts > 0) 
+					{
+					?>
+						<span class="label label-important"><?php echo $totalAlerts; ?></span>
+					<?php
+					}
+					?>
+				</td>
+			</tr>
+		
 		<?php
 		    $iTimestamp += 3600;
 		}
@@ -316,14 +330,44 @@ if ( $loadavg->isLoggedIn() )
 		</tbody>
 	</table>
 
+	<script type="text/javascript">
+
+	$(function(){
+		$('#myModal').on('show', function(){ //subscribe to show method
+
+		    var date = $(event.target).closest('td').data('date');
+		    var time = $(event.target).closest('td').data('time');
+			console.log(date);
+			console.log(time);
+
+		    $(this).find('.modal-body').html($('<b>Alert Module: ' + date  + '</b><br>' +
+		    									'<b>Alert Time: ' + time  + '</b>'
+
+		    								))
+		});
+	});
+
+	</script>
+
+	<!-- Modal -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+		  <div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		    <h4 class="modal-title"><strong>Modal title</strong></h4>
+		  </div>
+		  <div class="modal-body">
+		  </div>
+		  <div class="modal-footer">
+		    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  </div>
+	    </div>
+	  </div>
+	</div>
+
 	<div class="separator bottom"></div>
 	
-
-
-
-
-
-
 
 	</div> <!-- // inner all end -->
 

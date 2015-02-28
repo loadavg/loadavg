@@ -239,6 +239,160 @@ class Alerts extends LoadPlugins
 
 
 
-}
+	/**
+	 * buildtimeArray
+	 *
+	 * Function which gets the raw chart data from the module
+	 *
+	 * @param array @chart settings of the chart
+	 * @param array @functionSettings settings of the chart
+	 * @param string @module module to look up
+	 *
+	 */
 
+
+
+	public function buildTimeArray( $dataArray )
+	{
+
+		//dataArray - array of modules alerts
+		//dataArray["Cpu"] - module 1 ie cpu
+		//dataArray["Disk"] - module 2 ie disk
+
+		//really should merge this with alert array and then sort all
+		//build time array and sort alerts into it for each module ?
+		$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
+
+		$timeArray = array();
+
+		for ($i = 1; $i <= 24; $i++) {
+		    $timeArray[$i]['time'] = date('h:i a', $iTimestamp) ;
+
+			foreach ($dataArray as $value) {
+
+		    	$timeArray[$i][$value[0][1]] = 0 ;
+		    }
+
+		    //swap this for 1/2 hour periods
+		    //$iTimestamp += 1800;
+		    $iTimestamp += 3600;
+		}
+
+		//loop through alert data and create time array
+		foreach ($dataArray as $value) {
+		
+			//echo '<strong>Module:</strong> ' . $value[0][1] . '<br>';
+
+			$module = $value[0][1];
+			
+			//all alerts for module by time
+			foreach ($value as $items) {
+
+				//get time of alert here
+                $theAlertTime = date("h:i a", $items[0]);
+				
+				//echo '<strong>Alert:</strong> ' . $theAlertTime . '  ' ;
+
+				for ($i = 1; $i <= 24; $i++) {
+
+					if ($i == 1)
+					{
+						if ( strtotime($theAlertTime) == strtotime($timeArray[$i]['time']) )		{				
+							//echo ' Found1: ' . $timeArray[$i]['time'] . '<br>';
+							$timeArray[$i][$value[0][1]] += 1 ;
+							break;
+						}
+					}
+
+					if ($i > 1)
+					{
+						if ( strtotime($theAlertTime) >= strtotime($timeArray[$i]['time']) )
+							continue;
+						else {
+							//echo ' Found2: ' . $timeArray[$i-1]['time'] . '<br>';
+							$timeArray[$i-1][$value[0][1]] += 1 ;
+							break;
+						}
+					}  
+				}
+			}
+		}
+
+
+
+		return $timeArray;
+	
+	}
+
+
+
+
+	/**
+	 * buildtimeArray
+	 *
+	 * Function which gets the raw chart data from the module
+	 *
+	 * @param array @chart settings of the chart
+	 * @param array @functionSettings settings of the chart
+	 * @param string @module module to look up
+	 *
+	 */
+
+	//make alertArray global to class ? so we dont have to pass it around ?
+
+	public function getTimeSlotAlert( $module, $startTime, $endTime, $alertArray )
+	{
+			echo "<pre>";
+
+
+        //$theAlertTime = date("h:i a", $timeslot);
+
+		//echo $timeslot . "<br>";
+
+
+		//need to scrub the alertArray for all times that are in timeslot!!!
+		//var_dump ($alertArray[$module]);
+
+
+		foreach ($alertArray[$module] as $item) {
+
+            $theTime = date("h:i a", $item[0]);
+
+			$theTimeCheck = strtotime($theTime);
+
+			if ( ($theTimeCheck >= strtotime($startTime)) && 
+			     ($theTimeCheck < strtotime($endTime)) ) 
+			{
+				echo '<strong>Alerts:</strong> ' . $item[1];
+				echo ' Time: ' . $theTime. " ";
+
+				//alert!
+	            $alertData = json_decode($item[2]);
+				//var_dump ($alertData);
+
+				if (isset($alertData[0][0]))
+				{
+				echo ' Alert: ' . $alertData[0][0];
+				echo ' Trigger: ' . $alertData[0][1];
+				echo ' Value: ' . $alertData[0][2];
+				}
+
+				if (isset($alertData[1][0]))
+				{
+				echo ' Alert: ' . $alertData[1][0];
+				echo ' Trigger: ' . $alertData[1][1];
+				echo ' Value: ' . $alertData[1][2];
+				}
+
+				echo '<br>';
+			}
+		//}
+			}
+		//}
+			echo "</pre>";
+
+	}
+
+
+} // end of class
 ?>
