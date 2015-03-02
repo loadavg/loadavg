@@ -14,26 +14,19 @@
 */
 ?>
 
+
+
 <?php 
 //open logged in
 if ( $loadavg->isLoggedIn() )
 { 
 ?>
 
-<?php
 
-	//used for callbacks to main plugin to select timestamp to display
-	//we are also passing back chart time
+	<!-- need to automate this include for all plugins js code -->
+	<script src="<?php echo SCRIPT_ROOT ?>lib/plugins/Alerts/alerts.js" type="text/javascript"></script>
 
-	$timeStamp = false;
-	if (isset($_GET['timestamp'])) {
-		$timeStamp = $_GET['timestamp'];
-	}
-
-	$chartTime = false;
-	if (isset($_GET['charttime'])) {
-		$chartTime = $_GET['charttime'];
-	}
+	<?php
 
 	//get plugin class
 	$alerts = LoadPlugins::$_classes['Alerts'];
@@ -41,22 +34,13 @@ if ( $loadavg->isLoggedIn() )
 	//get the range of dates to be charted from the UI and 
 	//set the date range to be charted in the plugin
 	$range = $loadavg->getDateRange();
+
 	$moduleName = 'Alerts';
 	//$moduleName = __CLASS__;
 
 
-
-
-    //echo '<pre>'; var_dump ($range); echo '</pre>'; 
-    //echo '<pre>'; var_dump ($moduleName); echo '</pre>'; 
-    //echo '<pre>'; var_dump ($moduleTemplate); echo '</pre>'; 
-
-
-	//$alerts = LoadPlugins::$_classes['Alerts']; 
-	//$chartData = $alerts->getUsageData();
     $moduleSettings = LoadPlugins::$_settings->$moduleName; // if module is enabled ... get his settings
 	
-	//$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 	$chart = $moduleSettings['chart']['args'][0]; //contains args[] array from modules .ini file
 
 	//data about chart to be rendered
@@ -69,13 +53,20 @@ if ( $loadavg->isLoggedIn() )
 	//get actual datasets needed to send to template to render chart
 	$chartData = $alerts->getChartRenderData(  $logfile );
 
-	//echo '<pre>'; var_dump ($chartData); echo '</pre>'; 
+	//
+	// technically we can render out the alert data now as chart of all alerts
+	//
+
+	//sorts alert data by key 1 into myNewArray
+	$alertArray = $alerts->arraySort($chartData,1);
+	?>
 
 
-
-
-?>
-
+	<script type="text/javascript">
+	//we need to pass alertArray over to javascript code for modals
+	var alertData = [];
+	alertData = <?php print(json_encode($alertArray)); ?>;
+	</script>
 
 	<div class="well lh70-style">
 	    <b>Alert Data</b>
@@ -88,16 +79,10 @@ if ( $loadavg->isLoggedIn() )
 
 	    <div id="accordion" class="accordion">	
 		<?php
-		    //render chart
-		   // $loadModules->renderChart("Cpu", false, false, false, $callback, 770 );
+		    //if we want to render a chart - dont have one!
+	        //$loadModules->renderChart("Uptime", false, false, false, false, 770 );
 		?>
 		</div>
-
-		<!--
-		widget stytles can be found here but need cleaning up
-		http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
-		-->
-
 
 		<div class="row-fluid">
 			<div class="span12">
@@ -110,15 +95,13 @@ if ( $loadavg->isLoggedIn() )
 								$gotLog = false;
 
 								if ($gotLog)
-									$title = 'Running Processess at ' . date('H:i:s', $timeStamp);
+									$title = 'Alerts at ' . date('H:i:s', $timeStamp);
 								else
 									$title = 'Alerts (today)';
 
 								echo $title . "\n";
 							
 							?>
-
-
 
 						</h4>
 					</div>
@@ -129,18 +112,8 @@ if ( $loadavg->isLoggedIn() )
 		<div id="separator" class="separator bottom"></div>
 
 	    <div id="accordion" class="accordion">
-						
+
 		<?php
-		/*
-		function cmp($a, $b)
-		{
-	  		return strcmp($a[1], $b[1]);
-		}
-		*/		
-
-		//sorts alert data by key 1 into myNewArray
-		$alertArray = $alerts->arraySort($chartData,1);
-
 
 		//lets see whats there
 		foreach ($alertArray as $value) {
@@ -206,24 +179,9 @@ if ( $loadavg->isLoggedIn() )
 
 		<div id="separator" class="separator bottom"></div>
 
-<?php
 
 
-		//now we should sory myNewArray by totals but dont have them yet!!!
-		//would be great if the arraySort did this as well, totaled up cpu and mem as it sorted...
-
-		//$itemalertArray = $alerts->getTimeSlotAlert("Cpu","12:00 am", "01:00 am", $alertArray);
-		//$itemalertArray = $alerts->getTimeSlotAlert("Cpu","01:00 am", "02:00 am", $alertArray);
-		//$itemalertArray = $alerts->getTimeSlotAlert("Network","01:00 am", "02:00 am", $alertArray);
-
-		?>
-
-		<div id="separator" class="separator bottom"></div>
-
-
-
-
-	<?php        
+		<?php        
 
 		//myNewArray - empty time based array of modules alerts
 		//myNewArray["Cpu"] - module 1 ie cpu
@@ -231,8 +189,8 @@ if ( $loadavg->isLoggedIn() )
 		$timeArray = $alerts->buildTimeArray($alertArray);
 
 		$modules = LoadModules::$_modules; 
-		$interfaces = LoadUtility::getNetworkInterfaces(); 
-	?>
+		//$interfaces = LoadUtility::getNetworkInterfaces(); 
+		?>
 
 	<table class="table table-bordered table-primary table-striped table-vertical-center">
 
@@ -241,6 +199,7 @@ if ( $loadavg->isLoggedIn() )
 				<th style="width: 30px;" class="center">Time</th>
 
 				<?php
+				//render out column headings here
 		        foreach ($modules as $module => $moduleStatus) { 
 
 		        	if ($moduleStatus=="true")
@@ -256,7 +215,6 @@ if ( $loadavg->isLoggedIn() )
 
 		<?php
 
-
 		/*
         if ($chartTimezoneMode == "UTC") {
             $gmtimenow = time() - (int)substr(date('O'),0,3)*60*60; 
@@ -264,7 +222,10 @@ if ( $loadavg->isLoggedIn() )
         }		
         */
 
+        //render out left column time headings
+        //need to get these from javascript really to match up
 		$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
+
 
 		for ($i = 1; $i <= 24; $i++) {
 		    $time = date('h:i:s a', $iTimestamp) . "\n<br />";
@@ -273,12 +234,15 @@ if ( $loadavg->isLoggedIn() )
 			<!-- Cart item -->
 			<tr class="selectable" >
 				<td class="center">
-					<span class="label label-important"><?php echo $timeArray[$i]['time'];?></span>
+					<span class="label label-info"><?php echo $timeArray[$i]['time'];?></span>
 				</td>
 
 
 				<?php
-				//render out modules data in table...
+				//render out modules data in table form...
+
+				//out of 12 samples per hour this is 50% threshold
+				$warning_threshold = 6;
 
 				$totalAlerts = 0;
 		        foreach ($modules as $module => $moduleStatus) { 
@@ -287,11 +251,20 @@ if ( $loadavg->isLoggedIn() )
 		        	{
 						if ( isset ($timeArray[$i][$module]) && ($timeArray[$i][$module] > 0) )
 						{
+							$value = $timeArray[$i][$module];
 							?>
-		        			<td class="center" data-toggle="modal" data-target="#myModal" data-date="<?php echo $module ?>" data-time="<?php echo $i ?>">
-								<span class="label">
+		        			<td class="center" data-toggle="modal" data-target="#myModal" data-module="<?php echo $module ?>" data-time="<?php echo $timeArray[$i]['timestamp'] ?>">
+
+		        			<?php 
+		        			if ($value>=$warning_threshold)
+		        			{ ?>
+								<span class="label label-warning">
+							<?php } else { ?>
+								<span class="label label-success">
+							<?php } ?>
+
 								<?php 
-								echo $timeArray[$i][$module]; 
+								echo $value; 
 								$totalAlerts += $timeArray[$i][$module]; 
 								?>
 								</span>
@@ -313,7 +286,7 @@ if ( $loadavg->isLoggedIn() )
 					if ( $totalAlerts > 0) 
 					{
 					?>
-						<span class="label label-important"><?php echo $totalAlerts; ?></span>
+						<span class="label label-info"><?php echo $totalAlerts; ?></span>
 					<?php
 					}
 					?>
@@ -330,24 +303,6 @@ if ( $loadavg->isLoggedIn() )
 		</tbody>
 	</table>
 
-	<script type="text/javascript">
-
-	$(function(){
-		$('#myModal').on('show', function(){ //subscribe to show method
-
-		    var date = $(event.target).closest('td').data('date');
-		    var time = $(event.target).closest('td').data('time');
-			console.log(date);
-			console.log(time);
-
-		    $(this).find('.modal-body').html($('<b>Alert Module: ' + date  + '</b><br>' +
-		    									'<b>Alert Time: ' + time  + '</b>'
-
-		    								))
-		});
-	});
-
-	</script>
 
 	<!-- Modal -->
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
@@ -358,6 +313,7 @@ if ( $loadavg->isLoggedIn() )
 		    <h4 class="modal-title"><strong>Modal title</strong></h4>
 		  </div>
 		  <div class="modal-body">
+		  1<br>2<br>3<br>4<br>
 		  </div>
 		  <div class="modal-footer">
 		    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

@@ -190,7 +190,6 @@ class Alerts extends LoadPlugins
 
 
 		//takes the log file and parses it into chartable data 
-
 		//echo '<pre> :: <br>'; 
 
 		if ($logStatus) {
@@ -203,14 +202,9 @@ class Alerts extends LoadPlugins
 
 				//grab the first dataset
 				$data = explode($delimiter, $contents[$i]);
-
 				//echo $data[0] . " " . $data[1] . " " . $data[2] . "<br>"; 
 
 				$chartData[$i] = $data;
-				//$chartData[$data[1]] = $data;
-			
-				//$chartValues[$i] = json_decode($data[2]);
-				//var_dump ($chartValues[$i]); 
 
 			}
 
@@ -242,11 +236,10 @@ class Alerts extends LoadPlugins
 	/**
 	 * buildtimeArray
 	 *
-	 * Function which gets the raw chart data from the module
+	 * Function which builds the time array used to render alerts
 	 *
-	 * @param array @chart settings of the chart
-	 * @param array @functionSettings settings of the chart
-	 * @param string @module module to look up
+	 * @param array @dataArray data sent over to build array with
+	 * @param array @timeArray array that is returned
 	 *
 	 */
 
@@ -267,6 +260,7 @@ class Alerts extends LoadPlugins
 
 		for ($i = 1; $i <= 24; $i++) {
 		    $timeArray[$i]['time'] = date('h:i a', $iTimestamp) ;
+		    $timeArray[$i]['timestamp'] =  $iTimestamp ;
 
 			foreach ($dataArray as $value) {
 
@@ -324,74 +318,6 @@ class Alerts extends LoadPlugins
 	
 	}
 
-
-
-
-	/**
-	 * buildtimeArray
-	 *
-	 * Function which gets the raw chart data from the module
-	 *
-	 * @param array @chart settings of the chart
-	 * @param array @functionSettings settings of the chart
-	 * @param string @module module to look up
-	 *
-	 */
-
-	//make alertArray global to class ? so we dont have to pass it around ?
-
-	public function getTimeSlotAlert( $module, $startTime, $endTime, $alertArray )
-	{
-			echo "<pre>";
-
-
-        //$theAlertTime = date("h:i a", $timeslot);
-
-		//echo $timeslot . "<br>";
-
-
-		//need to scrub the alertArray for all times that are in timeslot!!!
-		//var_dump ($alertArray[$module]);
-
-
-		foreach ($alertArray[$module] as $item) {
-
-            $theTime = date("h:i a", $item[0]);
-
-			$theTimeCheck = strtotime($theTime);
-
-			if ( ($theTimeCheck >= strtotime($startTime)) && 
-			     ($theTimeCheck < strtotime($endTime)) ) 
-			{
-				echo '<strong>Alerts:</strong> ' . $item[1];
-				echo ' Time: ' . $theTime. " ";
-
-				//alert!
-	            $alertData = json_decode($item[2]);
-				//var_dump ($alertData);
-
-				if (isset($alertData[0][0]))
-				{
-				echo ' Alert: ' . $alertData[0][0];
-				echo ' Trigger: ' . $alertData[0][1];
-				echo ' Value: ' . $alertData[0][2];
-				}
-
-				if (isset($alertData[1][0]))
-				{
-				echo ' Alert: ' . $alertData[1][0];
-				echo ' Trigger: ' . $alertData[1][1];
-				echo ' Value: ' . $alertData[1][2];
-				}
-
-				echo '<br>';
-			}
-		//}
-			}
-		//}
-			echo "</pre>";
-
-	}
 
 
 } // end of class

@@ -49,3 +49,33 @@ disable login flooding when installing...
 
 
 
+//javascript foreach loop homes!!!!
+$.each(alertData, function(k, v) {
+    //display the key and value pair
+    //console.log(k + ' is now currently: ' + v); console.log(" ");
+	for (var i = 0; i < alertData[k].length; ++i) {
+
+		getTime = alertData[k][i][0];
+		//console.log (getTime + ' ' + alertData[k][i][1] + ' ' + alertData[k][i][2] );
+	}
+});
+
+
+	//for date loops - start at 00:00 !!!
+	/*
+	var date = new Date();
+	date.setHours(0);
+	date.setMinutes(0);
+	date.setSeconds(0);
+	date.setMilliseconds(0);
+	console.log(date.getTime());
+	*/
+
+	
+	/*  view
+	for (var i = 0; i < alertData['Memory'].length; ++i) {
+		console.log (alertData['Memory'][i]);
+	}
+	*/
+
+	
