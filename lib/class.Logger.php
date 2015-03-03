@@ -26,8 +26,6 @@ class Logger
 
 	public static $settings_ini;
 
-	public static $alertDataArray;
-
 	/**
 	 * setSettings
 	 *
@@ -391,69 +389,4 @@ class Logger
 
 	}
 
-
-
-
-	/**
-	 * addAlert - adds a alert to the alert cue
-	 *
-	 */
-
-	public static function initializeAlerts( )
-	{
-
-		if (isset(self::$alertDataArray))
-			unset(self::$alertDataArray);
-
-		self::$alertDataArray = array();
-
-	}
-
-	/**
-	 * addAlert - adds a alert to the alert cue
-	 *
-	 */
-
-	public static function addAlert( $alert)
-	{
-
-		//self::$alertDataArray($module) = $alert;
-		if ( $alert && $alert != null )
-		self::$alertDataArray[] = $alert;
-
-	}
-
-	/**
-	 * viewAlerts - shows whats in the cue
-	 *
-	 */
-
-	public static function viewAlerts( )
-	{
-
-		foreach ( self::$alertDataArray as $alert ) {
-
-			echo  ' alert: ' . $alert;
-
-		}
-	}
-
-	/**
-	 * writeAlerts - writes alerts out to log file
-	 *
-	 */
-
-	public static function writeAlerts( )
-	{
-		//hard coded for the moment
-		if (is_array(self::$alertDataArray))
-		{
-			$filename =  LOG_PATH . "events_" . date('Y-m-d') . ".log";
-		
-			LoadUtility::safefilerewrite($filename,self::$alertDataArray,"a",true);
-		}
-	}
-
-
-	
 }

@@ -54,7 +54,6 @@ if ( $loadavg->isLoggedIn() )
 	<div class="well lh70-style">
 	    <b>Process Data</b>
 	    <div class="pull-right">
-		<?php echo $process->getData("uptime"); ?>
 	    </div>
 	</div>
 
@@ -78,13 +77,8 @@ if ( $loadavg->isLoggedIn() )
 		?>
 		</div>
 
-		<!--
-		widget stytles can be found here but need cleaning up
-		http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
-		-->
 
 		<?php
-
 		// get and parse process data here
 		// to view on your system in console:
 		// ps -Ao %cpu,%mem,pid,user,comm,args | sort -r -k1 | less
@@ -268,7 +262,19 @@ if ( $loadavg->isLoggedIn() )
 			</div>
 		</div>
 
+	<!-- need to automate this include for all plugins js code 
+	<script src="<?php echo SCRIPT_ROOT ?>lib/plugins/Process/process.js" type="text/javascript"></script>
 
+		<div id="separator" class="separator bottom"></div>
+
+<table id="data-table"></table>
+
+<br />
+<button id="btn-load">Load List 1</button>&nbsp;
+<button id="btn-update">Load List 2</button>&nbsp;
+<button id="btn-append">Append List 1</button>&nbsp;
+<button id="btn-clear">Clear List</button>&nbsp;
+-->
 
 	</div> <!-- // inner all end -->
 

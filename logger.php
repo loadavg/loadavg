@@ -125,7 +125,6 @@ if (!$testmode) {
 	//Logger::viewAlerts();
 	if (ALERTS) {
 		$alert->initializeAlerts();
-		Logger::initializeAlerts();
 	}
 
 	// Check for each module we have loaded

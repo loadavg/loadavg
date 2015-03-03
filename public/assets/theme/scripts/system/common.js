@@ -52,18 +52,7 @@ $(function () {
 
 });
 
-/*
-function current_order(el){
-    var order=[];
-    el.children().each( function(i){      
-              order[i]=this.id;
-    });
-    // silly test      
-    for(var i=0; i<order.length; i++){
-       console.log("got " + order[i]);
-   }
-}
-*/
+
 
 function storeState() {
 
