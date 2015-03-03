@@ -40,28 +40,24 @@ ssh mdule gives erros when less than 3 datasets in log files
 
 //install error
 
-
 Notice: Undefined variable: pageName in /var/www/loadavg/app/layout/footer.php on line 108
 
 disable login flooding when installing...
 
 
+	//javascript foreach loop
+	$.each(alertData, function(k, v) {
+	    //display the key and value pair
+	    //console.log(k + ' is now currently: ' + v); console.log(" ");
+		for (var i = 0; i < alertData[k].length; ++i) {
+
+			getTime = alertData[k][i][0];
+			//console.log (getTime + ' ' + alertData[k][i][1] + ' ' + alertData[k][i][2] );
+		}
+	});
 
 
-
-//javascript foreach loop homes!!!!
-$.each(alertData, function(k, v) {
-    //display the key and value pair
-    //console.log(k + ' is now currently: ' + v); console.log(" ");
-	for (var i = 0; i < alertData[k].length; ++i) {
-
-		getTime = alertData[k][i][0];
-		//console.log (getTime + ' ' + alertData[k][i][1] + ' ' + alertData[k][i][2] );
-	}
-});
-
-
-	//for date loops - start at 00:00 !!!
+	//get date starting at 00:00 !!!
 	/*
 	var date = new Date();
 	date.setHours(0);
@@ -71,11 +67,7 @@ $.each(alertData, function(k, v) {
 	console.log(date.getTime());
 	*/
 
-	
-	/*  view
-	for (var i = 0; i < alertData['Memory'].length; ++i) {
-		console.log (alertData['Memory'][i]);
-	}
-	*/
+			//echo '<pre>'; var_dump($charts); echo '</pre>';
 
 	
+

@@ -214,16 +214,20 @@ class Alerts extends LoadPlugins
 
 	}
 
-    //sory dimensional array by key
-    //http://stackoverflow.com/questions/2189626/group-a-multidimensional-array-by-a-particular-value
-    
-	public function arraySort($input,$sortkey){
+    //
 
-	//echo '<pre>';
-	//var_dump ($sortkey);
-	//var_dump ($input[0]);
-	//echo '</pre>';
-	
+	/**
+	 * arraySort
+	 *
+	 * sory dimensional array by key
+	 * http://stackoverflow.com/questions/2189626/group-a-multidimensional-array-by-a-particular-value
+	 *
+	 * @param array @input array to be sorted
+	 * @param string @sortkey key to sort by
+	 * @param array @output array to be returned
+	 *
+	 */    
+	public function arraySort($input,$sortkey){
 
 	  foreach ($input as $key=>$val) 
 	  	$output[$val[$sortkey]][]=$val;
@@ -232,79 +236,65 @@ class Alerts extends LoadPlugins
 	}
 
 
-
 	/**
-	 * buildtimeArray
+	 * buildChartArray
 	 *
-	 * Function which builds the time array used to render alerts
+	 * Function which builds the chart array used to render alert charts
 	 *
-	 * @param array @dataArray data sent over to build array with
+	 * @param array @dataArray sorted alert data sent over to build array with
 	 * @param array @timeArray array that is returned
 	 *
 	 */
-
-
-
-	public function buildTimeArray( $dataArray )
+	public function buildChartArray( $dataArray )
 	{
 
-		//dataArray - array of modules alerts
-		//dataArray["Cpu"] - module 1 ie cpu
-		//dataArray["Disk"] - module 2 ie disk
-
-		//really should merge this with alert array and then sort all
-		//build time array and sort alerts into it for each module ?
+		//get todays time at 00:00
 		$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
 
-		$timeArray = array();
-
+		//24 hour loop
+		$chartArray = array();
 		for ($i = 1; $i <= 24; $i++) {
-		    $timeArray[$i]['time'] = date('h:i a', $iTimestamp) ;
-		    $timeArray[$i]['timestamp'] =  $iTimestamp ;
 
+		    $chartArray[$i]['time'] = date('h:i a', $iTimestamp) ;
+		    $chartArray[$i]['timestamp'] =  $iTimestamp ;
+
+		    //null core values for modules
 			foreach ($dataArray as $value) {
-
-		    	$timeArray[$i][$value[0][1]] = 0 ;
+		    	$chartArray[$i][$value[0][1]] = 0 ;
 		    }
 
-		    //swap this for 1/2 hour periods
-		    //$iTimestamp += 1800;
+		    //3600 is a hour, swap this for 1/2 hour periods to 1800;
 		    $iTimestamp += 3600;
 		}
 
-		//loop through alert data and create time array
+
+		//loop through dataArray alert data and create time array
 		foreach ($dataArray as $value) {
 		
-			//echo '<strong>Module:</strong> ' . $value[0][1] . '<br>';
-
 			$module = $value[0][1];
 			
 			//all alerts for module by time
 			foreach ($value as $items) {
 
 				//get time of alert here
-                $theAlertTime = date("h:i a", $items[0]);
-				
-				//echo '<strong>Alert:</strong> ' . $theAlertTime . '  ' ;
+                $theAlertTime = strtotime (date("h:i a", $items[0]));
 
 				for ($i = 1; $i <= 24; $i++) {
 
 					if ($i == 1)
 					{
-						if ( strtotime($theAlertTime) == strtotime($timeArray[$i]['time']) )		{				
-							//echo ' Found1: ' . $timeArray[$i]['time'] . '<br>';
-							$timeArray[$i][$value[0][1]] += 1 ;
+						if ( $theAlertTime == strtotime($chartArray[$i]['time']) ) {				
+							$chartArray[$i][$value[0][1]] += 1 ;
 							break;
 						}
 					}
 
 					if ($i > 1)
 					{
-						if ( strtotime($theAlertTime) >= strtotime($timeArray[$i]['time']) )
+						if ( $theAlertTime >= strtotime($chartArray[$i]['time']) )
 							continue;
 						else {
-							//echo ' Found2: ' . $timeArray[$i-1]['time'] . '<br>';
-							$timeArray[$i-1][$value[0][1]] += 1 ;
+							$chartArray[$i-1][$value[0][1]] += 1 ;
 							break;
 						}
 					}  
@@ -312,12 +302,9 @@ class Alerts extends LoadPlugins
 			}
 		}
 
-
-
-		return $timeArray;
+		return $chartArray;
 	
 	}
-
 
 
 } // end of class

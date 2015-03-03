@@ -139,17 +139,11 @@ class Memory extends Logger
 
 
 		if ( $alert != null )
-		{
-			//var_dump($alert);
-			//var_dump(json_encode($alert));		
-
-			//build file name
-			$filename =  LOG_PATH . "events_" . date('Y-m-d') . ".log";
-			
+		{	
 			//need to build this out
 			$string = $timestamp . '|' . $module . "|" . json_encode($alert) . "\n";
 
-			LoadUtility::safefilerewrite($filename,$string,"a",true);
+			Alert::addAlert($string);
 		}
 	}
 

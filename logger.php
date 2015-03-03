@@ -51,6 +51,11 @@ if ($timezone)
 include 'class.Timer.php'; // for logger module
 $timer = new Timer(); // Initializing Timer
 
+
+include 'class.Alert.php'; // for alerts module
+$alert = new Alert(); // Initializing Alert
+
+
 // List of modules and thier status 
 //$loadedModules = Logger::$_settings->general['modules']; 
 $loadedModules = Logger::$_modules; 
@@ -95,6 +100,7 @@ $response = array();
 ////////////////////////////////////////////////
 // Delete/rotate out old log files
 
+//TODO: update for nested log folders!
 $logger->rotateLogFiles($logdir);
 
 
@@ -115,6 +121,13 @@ if (!$testmode) {
 
 	if (LOGDEBUG) echo "Start Main LOOP \n"; 
 
+	//if we are collecting alert data reset array
+	//Logger::viewAlerts();
+	if (ALERTS) {
+		$alert->initializeAlerts();
+		Logger::initializeAlerts();
+	}
+
 	// Check for each module we have loaded
 	foreach ( $loadedModules as $module => $value ) {
 
@@ -130,16 +143,14 @@ if (!$testmode) {
 		// Check if loaded module needs loggable capabilities
 		if ( $moduleSettings['module']['logable'] == "true" ) {
 
+			// load module information
+			$class = Logger::$_classes[$module]; 
+
 			// loop through module logging arguments
-			//multiple args mean multiple charts
+			//multiple args mean multiple charts like mysql or network modules
 			foreach ( $moduleSettings['logging']['args'] as $args) { 
 
-
 				$args = json_decode($args); // decode arguments
-				$class = Logger::$_classes[$module]; // load module information
-
-				//the modules logging function is read from the args
-				//$caller = $args->function;
 
 				$class->logfile = $logdir . $args->logfile; // the modules logfile si read from args
 
@@ -153,16 +164,16 @@ if (!$testmode) {
 				if  ( $timemode  ) 
 					$st = $timer->getTime();
 
-
+				//
 				//run modules logger
-				//$responseData = $class->$caller($logMode);
 				$responseData = $class->logData($logMode);
 
-				// collect data for API server
+
+				// if API then collect data for API server
 				if ( $api ) {
 
-					//deal with modules that return more than one dataset for api
-					//this is for networking
+					//TODO: nead a way to deal with modules that return more than one dataset for api
+					//this is for networking module
 					if (is_array($responseData))
 					{
 						$timestamp = "";
@@ -192,6 +203,11 @@ if (!$testmode) {
 		}
 	}
 
+	if (ALERTS) {
+		//$alert->viewAlerts();
+		$alert->writeAlerts();
+	}
+
 	// Send data to API server
 	if ( $api ) {
 		//print_r($response) ;
@@ -200,37 +216,26 @@ if (!$testmode) {
 
 }
 
-/////////////////////////////////////////////////////////
-// testing section
-
-// used to test if logger is running
+/*
+ * testing section
+ * used to test if logger is running
+ *
+ * EXECUTE: php logger.php status
+ */
 if  ( $testmode  ) {
 
 	echo "Testing Logger \n";
 
-	$logger_status = $logger->testLogs();
+	$logger->testLoggerCore($api);
 
-	if ( $logger_status )
-		echo "The logger appears to be running \n";
-	else 
-		echo "The logger does not seem to be running \n"; 
-
-	// Sending data to API server
-	if ( $api ) {
-
-		echo "API Active, Testing API \n";
-
-		$apistatus = $logger->testApiConnection(true);
-
-		if ( $apistatus )
-			echo "The API appears to be running \n";
-		else 
-			echo "The API does not seem to be running \n"; 
-	 }
 }
 
-/////////////////////////////////////////////////////////
-// timing  section
+/*
+ * timing section
+ * used to time logger
+ *
+ * EXECUTE: php logger.php time
+ */
 if  ( $timemode ) {
 
 	$timer->setFinishTime(); // Setting page load finish time
@@ -240,11 +245,8 @@ if  ( $timemode ) {
 	$mytime = (float) $timer->timeFinish - (float) $timer->timeStart;
 
 	echo "End   Time : " . $timer->timeFinish . " \n"; 
-
 	echo "Total Time : " . $mytime . " \n"; 
-
 	echo "           : " . $page_load . " \n"; 
-
 }
 
 ?>

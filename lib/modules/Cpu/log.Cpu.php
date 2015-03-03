@@ -71,8 +71,9 @@ class Cpu extends Logger
 
 		//If alerts are enabled, check for alerts
 		//note: $phpload dont work on 4.0 needs fixing above
-		if (ALERTS)
-			$this->checkAlerts($timestamp, $phpload, $settings);
+		if (ALERTS) {
+			$alertString = $this->checkAlerts($timestamp, $phpload, $settings);
+		}
 
 		//Based on API mode return data if need be
 		if ( $type == "api")
@@ -127,17 +128,12 @@ class Cpu extends Logger
 		}
 
 		if ( $alert != null )
-		{
-			//var_dump($alert);
-			//var_dump(json_encode($alert));		
-
-			//build file name
-			$filename =  LOG_PATH . "events_" . date('Y-m-d') . ".log";
-			
+		{	
 			//need to build this out
 			$string = $timestamp . '|' . $module . "|" . json_encode($alert) . "\n";
 
-			LoadUtility::safefilerewrite($filename,$string,"a",true);
+			//Logger::addAlert($string);
+			Alert::addAlert($string);
 		}
 	}
 

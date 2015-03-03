@@ -3,7 +3,7 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Server module interface
+* Server plugin interface
 * 
 * @link https://github.com/loadavg/loadavg
 * @author Karsten Becker
@@ -49,7 +49,7 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 
 	        //render chart
 	        $loadModules->renderChart("Uptime", false, false, false, false, 770 );
-
+	        
 	?>
 	</div>
 

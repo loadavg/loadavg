@@ -302,8 +302,18 @@ class LoadUtility
 	        //file was locked so now we can store information
 	        if ($canWrite)
 	        {
-	        	fwrite($fp, $dataToSave);
-	            //flock($fp, LOCK_UN);
+
+	        	if (is_array($dataToSave))
+	        	{
+					foreach ( $dataToSave as $item ) {
+			        	fwrite($fp, $item);
+					}
+				}
+	        	else
+	        	{
+	        		fwrite($fp, $dataToSave);
+	        	}
+	            	//flock($fp, LOCK_UN);
 	        }
 
 	        fclose($fp);

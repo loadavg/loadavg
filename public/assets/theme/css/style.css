@@ -19,6 +19,7 @@
  }
 
 
+
 body {
 /* font-family: 'Open Sans', sans-serif; */
   font-family: arial;
@@ -266,6 +267,10 @@ hr.separator {
   .breadcrumb {
     display: none !important;
   }
+
+
+
+
   .table {
     border: none !important;
   }
@@ -285,7 +290,10 @@ hr.separator {
   .table img {
     float: left;
   }
+
 }
+
+
 .glyphicons.standard {
   width: 24px;
   height: 24px;
@@ -2391,6 +2399,10 @@ div.collapse.in {
 .chart-holder {
   width: 500px;
 }
+
+
+
+
 .table {
   margin: 0;
   position: relative;
@@ -2401,7 +2413,7 @@ div.collapse.in {
 }
 .table th,
 .table td {
-  border-top-color: #f8f8f8;
+  border-top-color: #f8f8f8; 
 }
 .table td.center,
 .table th.center {

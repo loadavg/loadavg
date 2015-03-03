@@ -20,11 +20,13 @@ class Logger
 	public static $_classes; // storing loaded modules classes
 
 	public static $_modules; // storing and managing modules
-	public static $_plugins; // storing and managing modules
+	public static $_plugins; // storing and managing plugins
 
 	public static $current_date; // current date
 
 	public static $settings_ini;
+
+	public static $alertDataArray;
 
 	/**
 	 * setSettings
@@ -84,6 +86,9 @@ class Logger
 		//$this->loadModules('modules');
 */
 	}
+
+
+
 
 
 
@@ -353,4 +358,102 @@ class Logger
 	}
 
 
+	/**
+	 * testLoggerCore
+	 *
+	 * see if things are set up corectly and we are logging
+	 *
+	 */
+
+	public function testLoggerCore ($api = false) 
+	{
+
+
+		$logger_status = $this->testLogs();
+
+		if ( $logger_status )
+			echo "The logger appears to be running \n";
+		else 
+			echo "The logger does not seem to be running \n"; 
+
+		// Sending data to API server
+		if ( $api ) {
+
+			echo "API Active, Testing API \n";
+
+			$apistatus = $this->testApiConnection(true);
+
+			if ( $apistatus )
+				echo "The API appears to be running \n";
+			else 
+				echo "The API does not seem to be running \n"; 
+		 }
+
+	}
+
+
+
+
+	/**
+	 * addAlert - adds a alert to the alert cue
+	 *
+	 */
+
+	public static function initializeAlerts( )
+	{
+
+		if (isset(self::$alertDataArray))
+			unset(self::$alertDataArray);
+
+		self::$alertDataArray = array();
+
+	}
+
+	/**
+	 * addAlert - adds a alert to the alert cue
+	 *
+	 */
+
+	public static function addAlert( $alert)
+	{
+
+		//self::$alertDataArray($module) = $alert;
+		if ( $alert && $alert != null )
+		self::$alertDataArray[] = $alert;
+
+	}
+
+	/**
+	 * viewAlerts - shows whats in the cue
+	 *
+	 */
+
+	public static function viewAlerts( )
+	{
+
+		foreach ( self::$alertDataArray as $alert ) {
+
+			echo  ' alert: ' . $alert;
+
+		}
+	}
+
+	/**
+	 * writeAlerts - writes alerts out to log file
+	 *
+	 */
+
+	public static function writeAlerts( )
+	{
+		//hard coded for the moment
+		if (is_array(self::$alertDataArray))
+		{
+			$filename =  LOG_PATH . "events_" . date('Y-m-d') . ".log";
+		
+			LoadUtility::safefilerewrite($filename,self::$alertDataArray,"a",true);
+		}
+	}
+
+
+	
 }
