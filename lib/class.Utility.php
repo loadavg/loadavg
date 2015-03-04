@@ -610,7 +610,7 @@ class LoadUtility
 
 	//TODO needs optimizing as its called for EVERY data point!
 
-	public static function cleanDataPoint (array &$data, $depth = 3 ) 
+	public static function cleanDataPoint (array &$data, $depth = 3, $noneg = true ) 
 	{
 		//now clean data item for bad data meaning missing a depth value
 		//we can put other rules in here...
@@ -625,7 +625,7 @@ class LoadUtility
 			}
 
 			// now check for missing data and if missing data zero out missing data...
-			else if ( ($data[$x] == null) || ($data[$x] == "") ) {
+			else if ( ($data[$x] == null) || ($data[$x] == "") || ($data[$x] < 0  ) ) {
 				
 				$data[$x]=0.0;	
 			}
