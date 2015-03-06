@@ -132,7 +132,7 @@ if ( $loadavg->isLoggedIn() )
 
 		<thead>
 			<tr>
-				<th style="width: 30px;" class="center">Time</th>
+				<th class="center">Time</th>
 
 				<?php
 				//render out column headings here
