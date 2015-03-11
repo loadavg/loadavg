@@ -248,10 +248,14 @@ class Alerts extends LoadPlugins
 	public function buildChartArray( $dataArray )
 	{
 
+echo '<pre>';
+var_dump ($dataArray);
+echo '</pre>';
+
 		//get todays time at 00:00
 		$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
 
-		//24 hour loop
+		//create time array using 24 hour loop
 		$chartArray = array();
 		for ($i = 1; $i <= 24; $i++) {
 
@@ -266,6 +270,10 @@ class Alerts extends LoadPlugins
 		    //3600 is a hour, swap this for 1/2 hour periods to 1800;
 		    $iTimestamp += 3600;
 		}
+
+echo '<pre>';
+var_dump ($chartArray);
+echo '</pre>';
 
 
 		//loop through dataArray alert data and create time array

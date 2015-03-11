@@ -126,22 +126,44 @@ if ( $loadavg->isLoggedIn() )
 		//get list of all moudles for table
 		$modules = LoadModules::$_modules; 
 
+
+		//patch to get column width when rendering chart
+		//really want to do this in javascript not php
+		$totalColumns = 0;
+        foreach ($modules as $module => $moduleActive) { 
+        	if ($moduleActive=="true")
+				$totalColumns += 1;
+        }
+
+        //add time and total
+		$totalColumns += 2;
+
+		$columnWidth = 91 / $totalColumns;
+
+		//echo 'col width : ' . $columnWidth;
+
 		?>
+
+	<script type="text/javascript">
+	//we need to pass alertArray over to javascript code for modals
+	var chartData = [];
+	chartData = <?php print(json_encode($chartArray)); ?>;
+	</script>
 
 	<table class="table table-bordered table-primary table-striped table-vertical-center">
 
 		<thead>
 			<tr>
-				<th class="center">Time</th>
+				<th style="width: 9%;" class="center">Time</th>
 
 				<?php
 				//render out column headings here
 		        foreach ($modules as $module => $moduleStatus) { 
 		        	if ($moduleStatus=="true")
-		        		echo "<th style='width: 10%;'>" .  $module  . "</th>";
+		        		echo "<th style='width: " . $columnWidth . "%;'>" .  $module  . "</th>";
 
 		        } ?>
-				<th style="width: 10%;" class="center">Alerts</th>
+				<th style="width: <?php echo $columnWidth ?>%;" class="center">Alerts</th>
 
 			</tr>
 		</thead>
@@ -248,6 +270,18 @@ if ( $loadavg->isLoggedIn() )
 
 	<div class="separator bottom"></div>
 	
+
+
+
+	<!-- need to automate this include for all plugins js code -->
+
+	<table id="data-table" class="table table-bordered table-primary table-striped table-vertical-center"></table>
+
+
+
+
+<br />
+
 
 	</div> <!-- // inner all end -->
 

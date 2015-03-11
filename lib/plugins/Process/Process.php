@@ -54,6 +54,7 @@ if ( $loadavg->isLoggedIn() )
 	<div class="well lh70-style">
 	    <b>Process Data</b>
 	    <div class="pull-right">
+	    DROP DOWN
 	    </div>
 	</div>
 
@@ -73,7 +74,7 @@ if ( $loadavg->isLoggedIn() )
 
 		    //render chart
 		    $loadModules->renderChart("Cpu", false, false, false, $callback, 770 );
-		    //loadModules::renderChart("Cpu", false, false, false, $callback, 770 );
+		    //$loadModules->renderChart("Memory", false, false, false, $callback, 770 );
 		?>
 		</div>
 
@@ -262,19 +263,8 @@ if ( $loadavg->isLoggedIn() )
 			</div>
 		</div>
 
-	<!-- need to automate this include for all plugins js code 
-	<script src="<?php echo SCRIPT_ROOT ?>lib/plugins/Process/process.js" type="text/javascript"></script>
 
-		<div id="separator" class="separator bottom"></div>
 
-<table id="data-table"></table>
-
-<br />
-<button id="btn-load">Load List 1</button>&nbsp;
-<button id="btn-update">Load List 2</button>&nbsp;
-<button id="btn-append">Append List 1</button>&nbsp;
-<button id="btn-clear">Clear List</button>&nbsp;
--->
 
 	</div> <!-- // inner all end -->
 
