@@ -114,13 +114,13 @@ class Cpu extends Logger
 		//testing load 5 min only here from data
 
 
-		if ( $data[1] > $overload[2] )
+		if ( $data[1] >= $overload[2] )
 		{
 			$alert[0][0] = "overload";
 			$alert[0][1] = (float)$overload[2];
 			$alert[0][2] = $data[1];
 		} 
-		else if ( $data[1] > $overload[1] )
+		else if ( $data[1] >= $overload[1] )
 		{
 			$alert[0][0] = "overload";
 			$alert[0][1] = (float)$overload[1];

@@ -248,9 +248,8 @@ class Alerts extends LoadPlugins
 	public function buildChartArray( $dataArray )
 	{
 
-echo '<pre>';
-var_dump ($dataArray);
-echo '</pre>';
+//echo '<pre>';
+//var_dump ($dataArray);
 
 		//get todays time at 00:00
 		$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
@@ -263,22 +262,26 @@ echo '</pre>';
 		    $chartArray[$i]['timestamp'] =  $iTimestamp ;
 
 		    //null core values for modules
+		    /*
 			foreach ($dataArray as $value) {
-		    	$chartArray[$i][$value[0][1]] = 0 ;
-		    }
+				var_dump ($value[0]);
 
+		    	//$chartArray[$i][$value[0][1]] = 0 ;
+		    }
+*/
 		    //3600 is a hour, swap this for 1/2 hour periods to 1800;
 		    $iTimestamp += 3600;
 		}
 
-echo '<pre>';
-var_dump ($chartArray);
-echo '</pre>';
+
 
 
 		//loop through dataArray alert data and create time array
+
+		//loop thtough each module that has a alert
 		foreach ($dataArray as $value) {
 		
+			//get module name
 			$module = $value[0][1];
 			
 			//all alerts for module by time
@@ -291,9 +294,16 @@ echo '</pre>';
 
 					if ($i == 1)
 					{
-						if ( $theAlertTime == strtotime($chartArray[$i]['time']) ) {				
-							$chartArray[$i][$value[0][1]] += 1 ;
+						if ( $theAlertTime == strtotime($chartArray[$i]['time']) ) {
+
+							if (isset($value[0][1]))
+							{
+								//$chartArray[$i][$value[0][1]] += 1 ;
+								$chartArray[$i][$module] += 1 ;
+							}
+							//break was in if isset above note!
 							break;
+						
 						}
 					}
 
@@ -302,13 +312,22 @@ echo '</pre>';
 						if ( $theAlertTime >= strtotime($chartArray[$i]['time']) )
 							continue;
 						else {
-							$chartArray[$i-1][$value[0][1]] += 1 ;
+							if (isset($value[0][1]))
+							{
+								$chartArray[$i-1][$module] += 1 ;
+								//$chartArray[$i-1][$value[0][1]] += 1 ;
+							}
+							//break was in if isset above note!
 							break;
 						}
 					}  
 				}
 			}
 		}
+
+
+//var_dump ($chartArray);
+//echo '</pre>';
 
 		return $chartArray;
 	

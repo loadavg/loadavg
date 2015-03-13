@@ -26,15 +26,15 @@ if (    (   $loadavg->isLoggedIn()
     //used to display browser time
     
     //get the offset for the client timezone 
-    var currentTime = new Date()
+    var currentTime = new Date();
 
     var tz_offset = currentTime.getTimezoneOffset()/60;
 
-    var hours = currentTime.getHours()
-    var minutes = currentTime.getMinutes()
+    var hours = currentTime.getHours();
+    var minutes = currentTime.getMinutes();
     var ampm = "";
 
-    if (minutes < 10) minutes = "0" + minutes
+    if (minutes < 10) minutes = "0" + minutes;
 
     if(hours > 12) { hours = hours - 12; ampm = "pm"; }
         else ampm = "am";
