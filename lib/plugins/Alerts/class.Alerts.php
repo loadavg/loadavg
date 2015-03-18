@@ -298,8 +298,11 @@ class Alerts extends LoadPlugins
 
 							if (isset($value[0][1]))
 							{
-								//$chartArray[$i][$value[0][1]] += 1 ;
-								$chartArray[$i][$module] += 1 ;
+								//if key doesnt exist we have to create it or we get a error
+								if (!isset( $chartArray[$i]['module'][$module] ))
+									$chartArray[$i]['module'][$module] = 0 ;
+	
+									$chartArray[$i]['module'][$module] += 1 ;
 							}
 							//break was in if isset above note!
 							break;
@@ -314,8 +317,12 @@ class Alerts extends LoadPlugins
 						else {
 							if (isset($value[0][1]))
 							{
-								$chartArray[$i-1][$module] += 1 ;
-								//$chartArray[$i-1][$value[0][1]] += 1 ;
+								//if key doesnt exist we have to create it or we get a error
+								if (!isset( $chartArray[$i-1]['module'][$module] ))
+									$chartArray[$i-1]['module'][$module] = 0;
+									
+
+								$chartArray[$i-1]['module'][$module] += 1 ;
 							}
 							//break was in if isset above note!
 							break;

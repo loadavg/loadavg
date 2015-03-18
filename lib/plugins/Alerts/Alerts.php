@@ -72,6 +72,12 @@ if ( $loadavg->isLoggedIn() )
 	alertData = <?php print(json_encode($alertArray)); ?>;
 	</script>
 
+
+
+
+
+
+
 	<div class="well lh70-style">
 	    <b>Alert Data</b>
 	    <div class="pull-right">
@@ -130,9 +136,11 @@ if ( $loadavg->isLoggedIn() )
 		//patch to get column width when rendering chart
 		//really want to do this in javascript not php
 		$totalColumns = 0;
+
         foreach ($modules as $module => $moduleActive) { 
-        	if ($moduleActive=="true")
+        	if ($moduleActive=="true") {
 				$totalColumns += 1;
+        	}
         }
 
         //add time and total
@@ -143,6 +151,14 @@ if ( $loadavg->isLoggedIn() )
 		//echo 'col width : ' . $columnWidth;
 
 		?>
+
+	<script type="text/javascript">
+	//we need to pass alertArray over to javascript code for modals
+	var chartModules = [];
+	chartModules = <?php print(json_encode($modules)); ?>;
+	</script>
+
+
 
 	<script type="text/javascript">
 	//we need to pass alertArray over to javascript code for modals
@@ -199,9 +215,9 @@ if ( $loadavg->isLoggedIn() )
 
 		        	if ($moduleStatus=="true")
 		        	{
-						if ( isset ($chartArray[$i][$module]) && ($chartArray[$i][$module] > 0) )
+						if ( isset ($chartArray[$i]['module'][$module]) && ($chartArray[$i]['module'][$module] > 0) )
 						{
-							$value = $chartArray[$i][$module];
+							$value = $chartArray[$i]['module'][$module];
 							?>
 		        			<td class="center" data-toggle="modal" data-target="#myModal" data-module="<?php echo $module ?>" data-time="<?php echo $chartArray[$i]['timestamp'] ?>">
 
@@ -212,7 +228,7 @@ if ( $loadavg->isLoggedIn() )
 								{ ?> <span class="label label-success"><?php } 
 
 								echo $value; 
-								$totalAlerts += $chartArray[$i][$module]; 
+								$totalAlerts += $chartArray[$i]['module'][$module]; 
 
 								?>
 								</span>
