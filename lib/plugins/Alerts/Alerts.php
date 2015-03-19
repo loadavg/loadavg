@@ -133,177 +133,52 @@ if ( $loadavg->isLoggedIn() )
 		$modules = LoadModules::$_modules; 
 
 
-		//patch to get column width when rendering chart
-		//really want to do this in javascript not php
-		$totalColumns = 0;
-
-        foreach ($modules as $module => $moduleActive) { 
-        	if ($moduleActive=="true") {
-				$totalColumns += 1;
-        	}
-        }
-
-        //add time and total
-		$totalColumns += 2;
-
-		$columnWidth = 91 / $totalColumns;
-
 		//echo 'col width : ' . $columnWidth;
 
 		?>
 
-	<script type="text/javascript">
-	//we need to pass alertArray over to javascript code for modals
-	var chartModules = [];
-	chartModules = <?php print(json_encode($modules)); ?>;
-	</script>
+		<script type="text/javascript">
+		//we need to pass alertArray over to javascript code for modals
+		var chartModules = [];
+		chartModules = <?php print(json_encode($modules)); ?>;
+
+		//we need to pass alertArray over to javascript code for modals
+		var chartArray = [];
+		chartArray = <?php print(json_encode($chartArray)); ?>;
+		</script>
 
 
-
-	<script type="text/javascript">
-	//we need to pass alertArray over to javascript code for modals
-	var chartArray = [];
-	chartArray = <?php print(json_encode($chartArray)); ?>;
-	</script>
-
-
-<!--
-	<table class="table table-bordered table-primary table-striped table-vertical-center">
-
-		<thead>
-			<tr>
-				<th style="width: 9%;" class="center">Time</th>
-
-				<?php
-				//render out column headings here
-		        foreach ($modules as $module => $moduleStatus) { 
-		        	if ($moduleStatus=="true")
-		        		echo "<th style='width: " . $columnWidth . "%;'>" .  $module  . "</th>";
-
-		        } ?>
-				<th style="width: <?php echo $columnWidth ?>%;" class="center">Alerts</th>
-
-			</tr>
-		</thead>
-
-		<tbody>
-		<?php
-        //render out left column time headings
-        //need to get these from javascript really to match up
-		$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
-
-		//loop through hours in table rows
-		for ($i = 1; $i <= 24; $i++) {
-		?>
-
-			<tr class="selectable" >
-				<td class="center">
-					<span class="label label-info"><?php echo $chartArray[$i]['time'];?></span>
-				</td>
-
-
-				<?php
-				//render out modules data in table form...
-
-				//out of 12 samples per hour 6 is 50% threshold for table values
-				$warning_threshold = 6;
-
-				//alert themes here
-				//http://stackoverflow.com/questions/21725557/additional-twitter-bootstrap-label-button-alert-badge-colors
-				
-				$totalAlerts = 0;
-		        foreach ($modules as $module => $moduleStatus) { 
-
-		        	if ($moduleStatus=="true")
-		        	{
-						if ( isset ($chartArray[$i]['module'][$module]) && ($chartArray[$i]['module'][$module] > 0) )
-						{
-							$value = $chartArray[$i]['module'][$module];
-							?>
-		        			<td class="center" data-toggle="modal" data-target="#myModal" 
-		        			    data-module="<?php echo $module ?>" 
-		        			    data-time="<?php echo $chartArray[$i]['timeStamp'] ?>">
-
-		        			<?php 
-		        			if ($value>=$warning_threshold) 
-		        				{ ?> <span class="label label-warning"> <?php } 
-							else 
-								{ ?> <span class="label label-success"><?php } 
-
-								echo $value; 
-								$totalAlerts += $chartArray[$i]['module'][$module]; 
-
-								?>
-								</span>
-							</td>
-							<?php
-						}
-						else { ?>
-							<td class="center"></td>
-						<?php
-						}
-					}		
-		        }
-				?>
-
-				<td>
-					<?php  //for totals... move me
-					if ( $totalAlerts > 0) 
-					{
-					?>
-						<span class="label label-info"><?php echo $totalAlerts; ?></span>
-					<?php
-					}
-					?>
-				</td>
-			</tr>
-		
-		<?php
-		    $iTimestamp += 3600;
-		}
-		?>
-
-
-						
-		</tbody>
-	</table>
--->
-
-	<!-- Modal -->
-	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
-	  <div class="modal-dialog">
-	    <div class="modal-content">
-		  <div class="modal-header">
-		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-		    <h4 class="modal-title"><strong>Modal title</strong></h4>
-		  </div>
-		  <div class="modal-body">
-		  1<br>2<br>3<br>4<br>
-		  </div>
-		  <div class="modal-footer">
-		    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		  </div>
-	    </div>
-	  </div>
-	</div>
-
-	<div class="separator bottom"></div>
+		<div class="separator bottom"></div>
 	
 
 
+		<!-- build and render alerts table -->
 
-	<!-- need to automate this include for all plugins js code -->
-
-	<table id="data-table" class="table table-bordered table-primary table-striped table-vertical-center"></table>
-
-
+		<table id="data-table" class="table table-bordered table-primary table-striped table-vertical-center"></table>
+	
 
 
-<br />
+		<!-- Create Modal for alerts table  -->
+
+		<div class="modal hide fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+			  <div class="modal-header">
+			    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			    <h4 class="modal-title"><strong>Modal title</strong></h4>
+			  </div>
+			  <div class="modal-body">
+			  1<br>2<br>3<br>4<br>
+			  </div>
+			  <div class="modal-footer">
+			    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			  </div>
+		    </div>
+		  </div>
+		</div>
 
 
 	</div> <!-- // inner all end -->
-
 
 	<?php 
 	} // close logged in 
