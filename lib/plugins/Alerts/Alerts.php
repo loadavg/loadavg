@@ -162,10 +162,12 @@ if ( $loadavg->isLoggedIn() )
 
 	<script type="text/javascript">
 	//we need to pass alertArray over to javascript code for modals
-	var chartData = [];
-	chartData = <?php print(json_encode($chartArray)); ?>;
+	var chartArray = [];
+	chartArray = <?php print(json_encode($chartArray)); ?>;
 	</script>
 
+
+<!--
 	<table class="table table-bordered table-primary table-striped table-vertical-center">
 
 		<thead>
@@ -194,7 +196,6 @@ if ( $loadavg->isLoggedIn() )
 		for ($i = 1; $i <= 24; $i++) {
 		?>
 
-			<!-- Cart item -->
 			<tr class="selectable" >
 				<td class="center">
 					<span class="label label-info"><?php echo $chartArray[$i]['time'];?></span>
@@ -219,7 +220,9 @@ if ( $loadavg->isLoggedIn() )
 						{
 							$value = $chartArray[$i]['module'][$module];
 							?>
-		        			<td class="center" data-toggle="modal" data-target="#myModal" data-module="<?php echo $module ?>" data-time="<?php echo $chartArray[$i]['timestamp'] ?>">
+		        			<td class="center" data-toggle="modal" data-target="#myModal" 
+		        			    data-module="<?php echo $module ?>" 
+		        			    data-time="<?php echo $chartArray[$i]['timeStamp'] ?>">
 
 		        			<?php 
 		        			if ($value>=$warning_threshold) 
@@ -264,7 +267,7 @@ if ( $loadavg->isLoggedIn() )
 						
 		</tbody>
 	</table>
-
+-->
 
 	<!-- Modal -->
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">

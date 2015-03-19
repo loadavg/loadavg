@@ -259,7 +259,7 @@ class Alerts extends LoadPlugins
 		for ($i = 1; $i <= 24; $i++) {
 
 		    $chartArray[$i]['time'] = date('h:i a', $iTimestamp) ;
-		    $chartArray[$i]['timestamp'] =  $iTimestamp ;
+		    $chartArray[$i]['timeStamp'] =  $iTimestamp ;
 
 		    //null core values for modules
 		    /*
