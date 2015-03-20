@@ -86,15 +86,6 @@ if ( $loadavg->isLoggedIn() )
 
 	<div class="innerAll">
 
-
-	    <div id="accordion" class="accordion">	
-		<?php
-		    //if we want to render a chart - dont have one!
-	        //$loadModules->setDateRange($range);
-	        //$loadModules->renderChart("Uptime", false, false, false, false, 770 );
-		?>
-		</div>
-
 		<div class="row-fluid">
 			<div class="span12">
 				<div class="widget widget-4">

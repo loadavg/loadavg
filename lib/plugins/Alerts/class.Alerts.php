@@ -228,11 +228,15 @@ class Alerts extends LoadPlugins
 	 *
 	 */    
 	public function arraySort($input,$sortkey){
+		
+		//this is only set when there is no data for osme reason
+		//for when charts return null chart object 
+		if ( !isset($input['chart']['dataset_labels'][0]) ) {
+			foreach ($input as $key=>$val) 
+		  		$output[$val[$sortkey]][]=$val;
+		}
 
-	  foreach ($input as $key=>$val) 
-	  	$output[$val[$sortkey]][]=$val;
-	  
-	  return $output;
+		return $output;
 	}
 
 
