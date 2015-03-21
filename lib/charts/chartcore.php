@@ -180,19 +180,21 @@
 
 	<script>
 	
-	//OnClick Code
+	//OnClick Callback Code
 	//used to add a redirect to url on-click on chart!
-	//see if we can move into module .js code
+	//see if we can move into module.js code
 	
 	$("#<?php echo $chart->id; ?>").bind('plotclick', function ( event, pos, item ) {
 	 
 	 if(item) {
 
+	 	/*
 	 	console.log(item);
 	 	console.log(item.series.label);
 	 	console.log(item.dataIndex);
 	 	console.log(item.datapoint);
 	 	console.log(item.datapoint[0]);
+		*/
 
 	 	timeData = item.datapoint[0] / 1000;
 

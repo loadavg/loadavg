@@ -100,29 +100,9 @@ if (isset($_POST['login'])  ) {
 
 
 	<script type="text/javascript">
-
-/*
-    var thiis  = $this,
-        href   = thiis.attr('href'),
-        split_results = href.split('/')[1];
-        target = split_results[split_results.length-1].split('.')[0];
-
-    console.log(target);
-*/
-
-//alert(document.URL);
-
-/*
-var str = window.location.href;    
-str.slice(0,str.lastIndexOf('/')+1);
-
-    console.log(str);
-*/
-
 		timezoneJS.timezone.zoneFileBasePath = "tz";
 		timezoneJS.timezone.defaultZoneFile = [];
 		timezoneJS.timezone.init({async: false});
-
 	</script>
 
 
@@ -162,79 +142,13 @@ str.slice(0,str.lastIndexOf('/')+1);
 
 	?>
 
-///////////////////////////////////////////////////
+	///////////////////////////////////////////////////
 
-/*
-	console.log (">> Source min/max from php app");
-
-	console.log ("source min ", <?php echo $min ?> );
-	console.log ("source max ", <?php echo $max ?> );
-
-	console.log (" ");
-
-	console.log (">> php/server timezone");
-	console.log ("timezone ", "<?php echo $phptimezone ?>" );
-	console.log ("offset from UTC ", "<?php echo $timeoffset ?>" );
-	console.log (" ");
-
-	console.log (">> PHP GM min/max");
-*/
 	var today_min_php = <?php echo gmmktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;	
 	var today_max_php = <?php echo gmmktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
 	
 	today_min_php = today_min_php + ( <?php echo $timeoffset ?> * ( 60 * 60 * 1000 ) );
 	today_max_php = today_max_php + ( <?php echo $timeoffset ?> * ( 60 * 60 * 1000 ) );
-
-/*
-	formattedTime = timeConverter( today_min_php   );
-	console.log ("min : ", today_min_php + " " + formattedTime);
-
-	formattedTime = timeConverter(today_max_php   );
-	console.log ("max : ", today_max_php + " " + formattedTime);
-	console.log (" ");
-*/
-
-//	var today_min = today_min_php;
-//	var today_max = today_max_php;
-
-
-/* NOt USED 
-	console.log (">> javascript min/max");
-
-	var start = new Date( <?php echo $min * 1000 ?> );
-	//console.log ("js min date ", start.getTime());
-	start.setHours(0,0,0,0);
-	//console.log ("js min date after set hours ", start.getTime());
-
-	var end = new Date( <?php echo $max * 1000 ?>);
-	//console.log ("js max date", end.getTime());
-	//end.setHours(23,59,59,999);
-	//end.setHours(24);
-	end.setHours(24,0,0,0);
-	//end.setHours(end.getHours() + 24);
-	//console.log ("js max date after set hours", end.getTime());
-
-	var today_min_js = start;
-	var today_max_js = end;
-
-
-	formattedTime = timeConverter( today_min_js.getTime()   );
-	console.log ("min : ", today_min_js.getTime() + " " + formattedTime);
-
-	formattedTime = timeConverter( today_max_js.getTime()   );
-	console.log ("max : ", today_max_js.getTime() + " " + formattedTime);
-
-	console.log (" ");
-
-	console.log (">> javascript timezone");
-
-
-	var d = new Date()
-	var n = d.getTimezoneOffset();
-	console.log ("offset from UTC", n/60);
-
-	console.log (" ");
-*/
 
 	var today_min = today_min_php;
 	var today_max = today_max_php;

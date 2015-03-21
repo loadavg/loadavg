@@ -35,8 +35,6 @@ if ( $loadavg->isLoggedIn() )
 	$range = $loadavg->getDateRange();
 
 	$moduleName = 'Alerts';
-	//$moduleName = __CLASS__;
-
 
     $moduleSettings = LoadPlugins::$_settings->$moduleName; // if module is enabled ... get his settings
 	
@@ -67,14 +65,8 @@ if ( $loadavg->isLoggedIn() )
 
 
 	<script type="text/javascript">
-	//we need to pass alertArray over to javascript code for modals
-	var alertData = [];
-	alertData = <?php print(json_encode($alertArray)); ?>;
+
 	</script>
-
-
-
-
 
 
 
@@ -115,25 +107,26 @@ if ( $loadavg->isLoggedIn() )
 
 		<?php        
 
-		//chartArray - time based array populated with modules alerts used to render chart
+		//chartArray - time based array populated with modules alerts used to crate charts
+		//and to source modal click data from 
 		$chartArray = $alerts->buildChartArray($alertArray);
-
-		//echo '<pre>'; var_dump ($chartArray); echo '</pre>';
 
 		//get list of all moudles for table
 		$modules = LoadModules::$_modules; 
 
-
-		//echo 'col width : ' . $columnWidth;
-
 		?>
 
 		<script type="text/javascript">
+
 		//we need to pass alertArray over to javascript code for modals
+		var alertData = [];
+		alertData = <?php print(json_encode($alertArray)); ?>;
+
+		//we need to pass chartModules over to javascript code for chart
 		var chartModules = [];
 		chartModules = <?php print(json_encode($modules)); ?>;
 
-		//we need to pass alertArray over to javascript code for modals
+		//we need to pass chartArray over to javascript code for chart
 		var chartArray = [];
 		chartArray = <?php print(json_encode($chartArray)); ?>;
 		</script>

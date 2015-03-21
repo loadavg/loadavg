@@ -1,56 +1,5 @@
 
 
-//used to get status of accordions - collapsed or visable as well as postion
-//from the loadUI cookie
-
-
-$(function () {
-
- $( "#accordion" )
-
-     .accordion({
-         header: "> div > h3",
-
-         activate: function( event, ui){
-         }
-     })
-     
-     .sortable({
-
-        connectWith: ".accordion",
-        //items: ":not(.separator)",
-        cancel: ".separator",
-
-        start: function( event, ui ){
-        },
-
-        stop: function( event, ui ) {
-             //ui.item.children( "h3" ).triggerHandler( "focusout" );
-            $(this).sortable("refresh"); 
-            storeState();
-        }
-    });
-
-
-
-    $('div.accordion-body').on('shown', function () {
-
-        //console.log( $(this).parents().attr('data-collapse-closed') + ' open' );
-        $(this).parents().attr('cookie-closed', true);
-
-        storeState();
-    });
-
-    $('div.accordion-body').on('hidden', function () {
-
-         //console.log( $(this).parents().attr('data-collapse-closed') + ' close' );
-         $(this).parents().attr('cookie-closed', false);
-
-        storeState();
-    });
-
-
-});
 
 
 
@@ -110,3 +59,51 @@ function storeState() {
 }
 
 
+    /////////////////////////////////////////////////////
+    // functions
+    ////////////////////////////////////////////////////
+
+    function timeConverter ( ts ){
+
+        //console.log ("data type : ", toType(ts));
+        //console.log ("data      : ", ts );
+
+        //var timestamp = parseInt(ts);
+        var timestamp = ts;
+
+
+        var dt = new Date( timestamp );
+        data = (dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds() + ' -- ' + dt );
+        return data;
+    };
+
+    function toType (obj) {
+        return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+    };
+
+
+//chart utility functions - but can be called from charts embedded in plugins
+
+//get item time in hh : mm : am/pm 
+//needs to be updated to account for timezone overrides
+function getItemTime ($itemTime)
+{
+    var hours = $itemTime.getHours()
+    var minutes = $itemTime.getMinutes()
+    var ampm = "";
+
+    if (minutes < 10) 
+        minutes = "0" + minutes
+
+    if(hours > 12) { hours = hours - 12; ampm = "pm"; }
+        else ampm = "am";
+
+    $itemTime = hours + ":" + minutes + " " + ampm;
+
+    //console.log(  $itemTime, "time set");
+
+    return $itemTime;
+}
+
+
+    

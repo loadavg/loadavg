@@ -20,6 +20,8 @@ if ( $loadavg->isLoggedIn() )
 { 
 ?>
 
+	<!-- need to automate this include for all plugins js code -->
+	<script src="<?php echo SCRIPT_ROOT ?>lib/plugins/Process/process.js" type="text/javascript"></script>
 <?php
 
 	//get plugin class

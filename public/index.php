@@ -134,24 +134,24 @@ if (  (!isset($_SESSION['logged_in']) || ($_SESSION['logged_in'] == false)) && (
 	}
 }
 
-	//first lets see if a name has been set...
-	$pageName = "";
+//first lets see if a name has been set...
+$pageName = "";
 
 //security check for all access
-if ( (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "false" && !$loadavg->isLoggedIn())  || ($banned == true)   ) 
+if ( (isset($settings['settings']['allow_anyone']) 
+	&& $settings['settings']['allow_anyone'] == "false" 
+	&& !$loadavg->isLoggedIn())  || ($banned == true)   ) 
 {
 	include( APP_PATH . '/views/login.php');
 } 
 else 
 {
 
-
-
 	if ( isset($_GET['page']) && ($_GET['page'] != "") ) 
 		$pageName = $_GET['page'];
 
 
-	//first check to see if its a plugin
+	//first check to see if its a plugin based module 
 	//if (in_array($pageName, $plugins))  array_key_exists
 	if (array_key_exists($pageName, $plugins))  
     {
@@ -161,7 +161,6 @@ else
 	//if not check to see if its a view page
 	else if ( file_exists( APP_PATH . '/views/' . $pageName . '.php' ) ) 
 	{
-		//echo 'PAGE: ' . $pageName . '<br>';
 		require_once APP_PATH . '/views/' . $pageName . '.php';
 	} 
 

@@ -101,10 +101,11 @@
 	<script>$(function () { $('.toggle-button').toggleButtons(); })</script>
 	-->
 
-	<!-- Loadavg chart utilities --> 
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/loadcharts.js"></script>
-
+	<!-- Loadavg buttons utilities --> 
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/buttons.js"></script>
+
+    <!-- common javascript functions for the app -->
+    <script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/common.js"></script>
 
 	<!-- Common script 
 		 Only include for chart/index right now as conflicts with opther modules
@@ -112,29 +113,11 @@
 	-->
 	<?php 
 
-	if ( isset($_GET['page']) && ($_GET['page'] != "") ) 
-		$pageName = $_GET['page'];
-
-	if (!$pageName) 
-	{
-		//echo 'INDEX ';
-		?>
-		<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/common.js"></script>
-		<?php
-	}
-	else 
-	{
-		//echo 'PAGENAME ' . $pageName; 
-		?>
-		<?php
-	} 
-	?>
+//	if ( isset($_GET['page']) && ($_GET['page'] != "") ) 
+//		$pageName = $_GET['page'];
 
 
 
-
-
-<?php
 //if they are flooding the login screen we sleep here
 if ($flooding) {
  die;
