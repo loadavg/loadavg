@@ -37,106 +37,57 @@ moving
 ssh mdule gives erros when less than 3 datasets in log files
 
 
+//echo '<pre>'; var_dump($charts); echo '</pre>';
+
 
 //install error
-
-Notice: Undefined variable: pageName in /var/www/loadavg/app/layout/footer.php on line 108
-
 disable login flooding when installing...
 
 
 	//javascript foreach loop
 	$.each(alertData, function(k, v) {
+
 	    //display the key and value pair
 	    //console.log(k + ' is now currently: ' + v); console.log(" ");
-		for (var i = 0; i < alertData[k].length; ++i) {
+	
+    	for (var i = 0; i < alertData[k].length; ++i) {
 
 			getTime = alertData[k][i][0];
-			//console.log (getTime + ' ' + alertData[k][i][1] + ' ' + alertData[k][i][2] );
+			console.log (getTime + ' ' + alertData[k][i][1] + ' ' + alertData[k][i][2] );
 		}
 	});
 
-
-	//get date starting at 00:00 !!!
-	/*
-	var date = new Date();
-	date.setHours(0);
-	date.setMinutes(0);
-	date.setSeconds(0);
-	date.setMilliseconds(0);
-	console.log(date.getTime());
-	*/
-
-			//echo '<pre>'; var_dump($charts); echo '</pre>';
-
 	
+    //javascript key loop 
+    for (key in array) {
 
+        if (key=="module") {
+            
+            console.log("module: ", array[key]);
+            console.log("module : ", array['module']);
 
+            logIt = array['module']
+            console.log("module : ", logIt );
 
-/*
-
-        for (key in v) {
-
-            if (key=="module") {
-                // console.log("module: ", v[key]);
-                //console.log("module : ", v['module']);
-
-                logIt = v['module']
-                console.log("module : ", logIt );
-
-                if (typeof logIt['Cpu'] != 'undefined') {
-                    console.log("cpu : ", logIt['Cpu'] );
-                }
-                
-
+            if (typeof logIt['Cpu'] != 'undefined') {
+                console.log("cpu : ", logIt['Cpu'] );
             }
+            
 
-            if (v.hasOwnProperty(key)) size++;
         }
 
+        if (array.hasOwnProperty(key)) size++;
+    }
 
-*/
-
-
-
-
-            for (key in v['module']) {
-
-                //loop through all modules in set and set values
-                for ( x=0; x<totalModules; x++)
-                {
-                    //addData[x+1] = 0;
-                    
-                    //check through modules and if key matches add to addData
-                    if ( key == modules[x] )  {
-                        addData[x+1] = v['module'][key];
-                        keyTotal += v['module'][key];
-                    } 
-                }
-
-            }
-
-
-
-            //loop through all keys in row that data was collected for
-            //ie cpu and memory - and set values
-            /*
-            for (key in v['module']) {
-
-                //loop through all modules in set and set values
-                for ( x=0; x<totalModules; x++)
-                {
-                    //addData[x+1] = 0;
-                    
-                    //check through modules and if key matches add to addData
-                    if ( key == modules[x] )  {
-                        addData[x+1] = v['module'][key];
-                        keyTotal += v['module'][key];
-                    } 
-                }
-
-            }
-*/
+    //get date starting at 00:00 !!!
+    /*
+    var date = new Date();
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    console.log(date.getTime());
+    */
 
 
 

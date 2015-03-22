@@ -155,7 +155,6 @@ if (    (   $loadavg->isLoggedIn()
         //first check to see if list is stored in cookies
         //used to store layout sorting / render order       
         $cookieList = false;
-
         $cookieList = $loadModules->getUIcookieSorting();
         //echo '<pre>Cookie list'; var_dump( $chartList); echo '</pre>';
 
@@ -172,9 +171,9 @@ if (    (   $loadavg->isLoggedIn()
 
 
         //get the  range of dates to be charted from the UI and 
-        //set the date range to be charted in the modules
         $range = $loadavg->getDateRange();
 
+        //set the date range to be charted in the modules
         $loadModules->setDateRange($range);
 
         // now render the charts out
