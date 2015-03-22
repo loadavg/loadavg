@@ -17,18 +17,41 @@ class Alert
 {
 
 	public   static $alertDataArray;
-
+	public   static $alertStatus;
 	
 	public function __construct()
 	{
 
 		$alertDataArray = array();
+		$alertStatus = false;
+	}
+
+
+	/*
+	 * setStatus - object knows if its active or not!
+	 */
+
+	public  function setStatus( $status )
+	{
+
+		self::$alertStatus = $status;
+
+	}
+
+	/*
+	 * setStatus - object knows if its active or not!
+	 */
+
+	public  function getStatus( )
+	{
+
+		return self::$alertStatus;
 
 	}
 
 
 	/**
-	 * addAlert - adds a alert to the alert cue
+	 * initializeAlerts - initialize alert object
 	 *
 	 */
 

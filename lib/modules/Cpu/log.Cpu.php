@@ -71,9 +71,9 @@ class Cpu extends Logger
 
 		//If alerts are enabled, check for alerts
 		//note: $phpload dont work on 4.0 needs fixing above
-		if (ALERTS) {
+
+		if (Alert::$alertStatus)
 			$alertString = $this->checkAlerts($timestamp, $phpload, $settings);
-		}
 
 		//Based on API mode return data if need be
 		if ( $type == "api")

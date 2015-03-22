@@ -53,6 +53,7 @@ if (isset($_POST['update_settings'])) {
 	$_POST['formsettings']['settings']['ban_ip'] = ( !isset($_POST['formsettings']['settings']['ban_ip']) ) ? "false" : "true";
 	$_POST['formsettings']['settings']['apiserver'] = ( !isset($_POST['formsettings']['settings']['apiserver']) ) ? "false" : "true";
 	$_POST['formsettings']['settings']['autoreload'] = ( !isset($_POST['formsettings']['settings']['autoreload']) ) ? "false" : "true";
+	$_POST['formsettings']['settings']['logalerts'] = ( !isset($_POST['formsettings']['settings']['logalerts']) ) ? "false" : "true";
 
 	// Loop throught settings
 	$settings_file = APP_PATH . '/config/' . LoadAvg::$settings_ini;
@@ -146,6 +147,19 @@ if (isset($_POST['update_settings'])) {
 			</div>
 		</div>
 
+		<div class="row-fluid">
+			<div class="span3">
+				<strong>Chart(s) format</strong>
+			</div>
+			<div class="span9 right">
+				<select name="formsettings[settings][chart_type]">
+					<option value="24" <?php if ( $settings['settings']['chart_type'] == "24" ) { ?>selected="selected"<?php } ?>>All day</option>
+					<option value="12" <?php if ( $settings['settings']['chart_type'] == "12" ) { ?>selected="selected"<?php } ?>>12 Hour</option>
+					<option value="6" <?php if ( $settings['settings']['chart_type'] == "16" ) { ?>selected="selected"<?php } ?>>6 Hour</option>
+				</select>
+			</div>
+		</div>
+
 
 		<div class="row-fluid">
 			<div class="span3">
@@ -160,16 +174,17 @@ if (isset($_POST['update_settings'])) {
 			</div>
 		</div>
 
+
 		<div class="row-fluid">
 			<div class="span3">
-				<strong>Chart(s) format</strong>
+				<strong>Log alerts</strong>
 			</div>
 			<div class="span9 right">
-				<select name="formsettings[settings][chart_type]">
-					<option value="24" <?php if ( $settings['settings']['chart_type'] == "24" ) { ?>selected="selected"<?php } ?>>All day</option>
-					<option value="12" <?php if ( $settings['settings']['chart_type'] == "12" ) { ?>selected="selected"<?php } ?>>12 Hour</option>
-					<option value="6" <?php if ( $settings['settings']['chart_type'] == "16" ) { ?>selected="selected"<?php } ?>>6 Hour</option>
-				</select>
+
+				<input name="formsettings[settings][logalerts]" type="checkbox" checkbox-type="my-checkbox" 
+				value="true" <?php if ( $settings['settings']['logalerts'] == "true" ) { ?>checked="checked"<?php } ?>>
+			    <div class="separator bottom"></div>
+
 			</div>
 		</div>
 

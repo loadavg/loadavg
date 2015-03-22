@@ -15,7 +15,6 @@
 
 // initialize LoadAvg and grab data
 
-//require_once './globals.php'; // including required globals
 require_once dirname(__FILE__) . '/globals.php'; // including required globals
 
 include 'class.Utility.php'; // for logger module
@@ -42,32 +41,32 @@ if ($timezone) {
 //
 /////////////////////////////////////////////////////////////
 
-include 'class.Logger.php'; // for logger module
+// include logger module
+include 'class.Logger.php'; 
 $logger = new Logger(); // Initializing Main Controller
 
 if ($timezone) 
 	echo 'Logger time: ' . date_default_timezone_get() ."\n";
 
-include 'class.Timer.php'; // for logger module
+// include timer module
+include 'class.Timer.php'; 
 $timer = new Timer(); // Initializing Timer
 
-
-include 'class.Alert.php'; // for alerts module
+// include alerts module
+include 'class.Alert.php'; 
 $alert = new Alert(); // Initializing Alert
 
+if (Logger::$_settings->general['settings']['logalerts'] == "true")
+	$alert->setStatus(true);
 
-// List of modules and thier status 
-//$loadedModules = Logger::$_settings->general['modules']; 
+
+// Get list of modules and thier status 
 $loadedModules = Logger::$_modules; 
-//var_dump($loadedModules);
-//var_dump(Logger::$_modules);
 
 //grab the log directory properly
 //need to grab from system settings.ini instead
 //$logdir = LoadAvg::$_settings->general['logs_dir']; // Loaded modules
 $logdir = LOG_PATH;
-
-
 
 
 //for testing the system
@@ -113,6 +112,7 @@ $logger->rotateLogFiles($logdir);
 //api - log to disk and send back for api
 $logMode = "disk";
 
+//set api mode flag
 if ( $api ) 
 	$logMode = "api";
 
@@ -121,16 +121,23 @@ if (!$testmode) {
 
 	if (LOGDEBUG) echo "Start Main LOOP \n"; 
 
-	//if we are collecting alert data reset array
-	//Logger::viewAlerts();
-	if (ALERTS) {
+	//check to see if alerts module is loaded and if so initialize alert object
+
+	
+
+	if ($alert->getStatus()) {
 		$alert->initializeAlerts();
+		if (LOGDEBUG) echo "ALERT LOGGING ON \n"; 
+	} else {
+		if (LOGDEBUG) echo "ALERT LOGGING OFF \n"; 
 	}
+
+
 
 	// Check for each module we have loaded
 	foreach ( $loadedModules as $module => $value ) {
 
-		if (LOGDEBUG) echo 'Module : ' . $module . ' status ' . $value . "\n";
+		if (LOGDEBUG) echo 'Module : ' . $module . ' module status ' . $value . "\n";
 
 		if ( $value == "false" ) 
 			continue;
@@ -202,8 +209,7 @@ if (!$testmode) {
 		}
 	}
 
-	if (ALERTS) {
-		//$alert->viewAlerts();
+	if ($alert->getStatus()) {
 		$alert->writeAlerts();
 	}
 

@@ -156,7 +156,7 @@ class Network extends Logger
 
 				//If alerts are enabled, check for alerts
 				if (@$last && $elapsed) {
-					if (ALERTS)
+					if (Alert::$alertStatus)
 						$this->checkAlerts($timestamp, $trans_rate, $recv_rate, $settings);
 				}
 

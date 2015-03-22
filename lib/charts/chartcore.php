@@ -30,11 +30,11 @@
 	//echo 'chartModules : ' . $chartModules;
 	//var_dump ($chartData['chart']);
 
-/*
- * $chartModules is passed over by calling function in module and is used to track multiple modules in chart
- * more than 1 in chartModules means multiple charts in the segment so we include js files just once
- * and make calls to functions that need to be loaded or already loaded here
- */
+	/*
+	 * $chartModules is passed over by calling function in module and is used to track multiple modules in chart
+	 * more than 1 in chartModules means multiple charts in the segment so we include js files just once
+	 * and make calls to functions that need to be loaded or already loaded here
+	 */
 ?>
 
 	<!--

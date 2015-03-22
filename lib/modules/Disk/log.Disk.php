@@ -69,7 +69,7 @@ class Disk extends Logger
 		LoadUtility::safefilerewrite($filename,$string,"a",true);
 
 		//If alerts are enabled, check for alerts
-		if (ALERTS)
+		if (Alert::$alertStatus) 
 			$this->checkAlerts($timestamp, $usedBytes, $spaceBytes, $settings);
 
 		if ( $type == "api")

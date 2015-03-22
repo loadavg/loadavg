@@ -74,7 +74,7 @@ class Swap extends Logger
 		LoadUtility::safefilerewrite($filename,$string,"a",true);
 
 		//If alerts are enabled, check for alerts
-		if (ALERTS)
+		if (Alert::$alertStatus)
 			$this->checkAlerts($timestamp, $swapused, $swaptotal, $settings);
 		
 		if ( $type == "api")

@@ -1,8 +1,8 @@
 ; <?php exit(); __halt_compiler(); ?>
 [settings]
-version = 2.1
+version = 2.2
 extensions_dir = "modules/"
-logs_dir = "logs/"
+logs_dir = "/logs/"
 title = "localhost.localdomain"
 clienttimezone = "America/Los_Angeles"
 timezone = "America/New_York"
@@ -17,23 +17,28 @@ apiserver = "false"
 logger_interval = 5
 rememberme_interval = 5
 ban_ip = "true"
-autoreload = "true"
+autoreload = "false"
+timezonemode = "Browser"
+logalerts = "true"
 [api]
 url = ""
 key = ""
 server_token = ""
 [network_interface]
+eno16777736 = "true"
+lo = "false"
 [modules]
 Cpu = "true"
-Memory = "true"
 Disk = "true"
+Memory = "true"
+Network = "true"
+Processor = "true"
+Swap = "true"
+Uptime = "true"
 Apache = "false"
 Mysql = "false"
-Network = "true"
-Processor = "false"
 Ssh = "false"
-Swap = "false"
-Uptime = "true"
 [plugins]
-Server = "true"
+Alerts = "true"
 Process = "true"
+Server = "true"

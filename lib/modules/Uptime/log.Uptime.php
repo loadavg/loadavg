@@ -33,9 +33,9 @@ class Uptime extends Logger
 	}
 
 	/**
-	 * logDiskUsageData
+	 * logData
 	 *
-	 * Retrives data and logs it to file
+	 * Retrives uptime data and logs it to file
 	 *
 	 * @param string $type type of logging default set to normal but it can be API too.
 	 * @return string $string if type is API returns data as string
@@ -50,11 +50,6 @@ class Uptime extends Logger
 
 		$uptime = exec("cat /proc/uptime | awk -F' ' '{print $1\"|\"$2}'");
 
-//test internal ping
-//ping localhost -c 1
-
-//test external ping / google.com [user defined]
-//ping localhost -c 1
 
 	    $string = time() . '|' . $uptime . "\n";
 		

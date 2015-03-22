@@ -211,5 +211,5 @@ if (    (   $loadavg->isLoggedIn()
     </div>
 
 
-    <!-- rename me from common to charts.js as its really for the charts module -->
+    <!-- include javascript helper code for charts module -->
     <script src="<?php echo SCRIPT_ROOT ?>lib/charts/charts.js"></script>

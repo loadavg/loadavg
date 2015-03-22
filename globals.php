@@ -17,17 +17,16 @@
 //for debug
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
-//defined('DEBUG') || define('DEBUG', true );
-//defined('LOGDEBUG') || define('LOGDEBUG', true );
-
-//for release
-//ini_set('display_errors', 'Off');
-//error_reporting(0);
 defined('DEBUG') || define('DEBUG', false );
 defined('LOGDEBUG') || define('LOGDEBUG', false );
 
-/* For alerts - experimental */
-defined('ALERTS') || define('ALERTS', true );
+//for release
+/*
+ini_set('display_errors', 'Off');
+error_reporting(0);
+defined('DEBUG') || define('DEBUG', false );
+defined('LOGDEBUG') || define('LOGDEBUG', false );
+*/
 
 /* Find out where are we on the server*/
 
@@ -60,13 +59,14 @@ defined('APP_PATH') || define('APP_PATH', realpath(dirname(__FILE__) . '/app'));
 defined('PLUGIN_PATH') || define('PLUGIN_PATH',  HOME_PATH . '/lib/plugins/' );
 
 
-/* log PATH */
+/* for loadavg logger support in loadavg */
 defined('LOGGER') || define('LOGGER',  'loadavg' );
 defined('LOG_PATH') || define('LOG_PATH',  HOME_PATH . '/logs/' );
 
+
 /* for collectd support in loadavg */
 //defined('LOGGER') || define('LOGGER',  'collectd' );
-defined('COLLECTD_PATH') || define('COLLECTD_PATH',  '/var/lib/collectd/csv/localhost/' );
+//defined('COLLECTD_PATH') || define('COLLECTD_PATH',  '/var/lib/collectd/csv/localhost/' );
 
 
 // Add lib/ to include_path

@@ -154,27 +154,7 @@ if (isset($_POST['login'])  ) {
 	var today_max = today_max_php;
 
 
-	/////////////////////////////////////////////////////
-	// functions
-	////////////////////////////////////////////////////
 
-	function timeConverter ( ts ){
-
-		//console.log ("data type : ", toType(ts));
-		//console.log ("data      : ", ts );
-
-		//var timestamp = parseInt(ts);
-		var timestamp = ts;
-
-
-		var dt = new Date( timestamp );
-		data = (dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds() + ' -- ' + dt );
-		return data;
-	};
-
-	function toType (obj) {
-  		return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
-	};
 
 	//fix for min range only (to current)
 	//$nextWeek = time() + ( 24 * 60 * 60);
