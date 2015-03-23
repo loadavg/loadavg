@@ -197,12 +197,46 @@ if (isset($_POST['login'])  ) {
 
 ?>
 
-	<!-- Start Content -->
+	<!-- Start Content 
 	<div class="container fixed">
-		
+	
+	<div class="container-fluid">
+	-->
+
+	<script type="text/javascript">
+
+function findBootstrapEnvironment() {
+    var envs = ['phone', 'tablet', 'desktop'];
+
+    $el = $('<div>');
+    $el.appendTo($('body'));
+
+    for (var i = envs.length - 1; i >= 0; i--) {
+        var env = envs[i];
+
+        $el.addClass('hidden-'+env);
+        if ($el.is(':hidden')) {
+            $el.remove();
+            return env
+        }
+    };
+}
+	var theEnv = findBootstrapEnvironment();
+	console.log ("The env: ", theEnv);
+
+		//if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+		if( theEnv == 'phone' ) {
+		 document.write ('<div class="container-fluid">');
+		} else
+		{
+		 document.write ('<div class="container fixed">');
+		}
+	</script>
+
+
 		<div class="navbar main hidden-print">
 			
-			<a href="index.php" class="appbrand"><img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;"><span>LoadAvg<span>Advanced Server Analytics</span></span></a>
+			<a href="index.php" class="appbrand hidden-phone"><img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;"><span>LoadAvg<span>Advanced Server Analytics</span></span></a>
 			
 			<?php if ($loadavg->isLoggedIn() || (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true")) { ?>
 
