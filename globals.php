@@ -64,7 +64,7 @@ defined('LOGGER') || define('LOGGER',  'loadavg' );
 defined('LOG_PATH') || define('LOG_PATH',  HOME_PATH . '/logs/' );
 
 
-/* for collectd support in loadavg */
+/* for BETA collectd support in loadavg */
 //defined('LOGGER') || define('LOGGER',  'collectd' );
 //defined('COLLECTD_PATH') || define('COLLECTD_PATH',  '/var/lib/collectd/csv/localhost/' );
 

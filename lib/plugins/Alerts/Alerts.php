@@ -20,7 +20,14 @@
 //open logged in
 if ( $loadavg->isLoggedIn() )
 { 
+
+	//grab the subheader 
+    $showCalendar = false;
+
+    include( APP_PATH . '/layout/subheader.php');
+
 ?>
+
 
 	<!-- need to automate this include for all plugins js code -->
 	<script src="<?php echo SCRIPT_ROOT ?>lib/plugins/Alerts/alerts.js" type="text/javascript"></script>
@@ -51,30 +58,17 @@ if ( $loadavg->isLoggedIn() )
 	$chartData = $alerts->getChartRenderData(  $logfile );
 
 
-	//
-	// technically we can render out the alert data now as chart of all alerts
-	//
+	/*
+	 * technically we can render out the alert data now as chart of all alerts
+	 */
 
 	//sorts alert data by key 1 into alertArray
 	//alertArray["Cpu"] - module 1 ie cpu
 	//alertArray["Disk"] - module 2 ie disk
 	$alertArray = $alerts->arraySort($chartData,1);
-	//$alertArray = $chartData;
 
 	?>
 
-
-	<script type="text/javascript">
-
-	</script>
-
-
-
-	<div class="well lh70-style">
-	    <b>Alert Data</b>
-	    <div class="pull-right">
-	    </div>
-	</div>
 
 	<div class="innerAll">
 
