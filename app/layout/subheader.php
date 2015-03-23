@@ -39,6 +39,14 @@
     //get the timezone offset
     var tz_offset = currentTime.getTimezoneOffset()/60;
 
+	/*
+	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+	 console.log ("we are mobile");
+	} else
+	{
+	 console.log ("we are not mobile");	
+	}
+	*/
 </script>
 
 
