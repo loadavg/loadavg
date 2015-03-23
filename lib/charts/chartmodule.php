@@ -33,7 +33,7 @@
 	        <!-- this sections renders out chart left legend from .ini file -->
 	        <?php if ( $drawLegend ) { ?>
 
-			<td width="26%" align="right" style="padding-right: 15px;">
+			<td class="hidden-phone" width="26%" align="right" style="padding-right: 15px;">
 
 				<?php include( HOME_PATH . '/lib/charts/legend.php'); ?>
 				

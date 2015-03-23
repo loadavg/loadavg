@@ -39,11 +39,19 @@
     //get the timezone offset
     var tz_offset = currentTime.getTimezoneOffset()/60;
 
+	/*
+	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+	 console.log ("we are mobile");
+	} else
+	{
+	 console.log ("we are not mobile");	
+	}
+	*/
 </script>
 
 
 
-<table class="well lh70 lh70-style" width="100%" border="0" cellspacing="1" cellpadding="3">
+<table class="well lh70 lh70-style hidden-phone" width="100%" border="0" cellspacing="1" cellpadding="3">
     <tr>
         <td width="30%">
 
@@ -148,15 +156,16 @@
 				{
 				?>
 
-                    <label class="control-label"><b>Period:</b></label>
+
+                    <label class="control-label hidden-phone"><b>Period:</b></label>
                     <div class="controls">
 
                         <input type="hidden" id="minDateValue" value="<?php echo date("Y-m-d", strtotime("-". LoadAvg::$_settings->general['settings']['daystokeep'] ." days 00:00:00")); ?>">
                         <input type="hidden" id="maxDateValue" value="<?php echo date("Y-m-d"); ?>">
   
-                        <input type="text" id="minDate" name="minDate" value="<?php echo (isset($_GET['minDate']) && !empty($_GET['minDate'])) ? $_GET['minDate'] : ''; ?>" placeholder="Period from" style="width: 70px;height: 18px;">
+                        <input class="hidden-phone" type="text" id="minDate" name="minDate" value="<?php echo (isset($_GET['minDate']) && !empty($_GET['minDate'])) ? $_GET['minDate'] : ''; ?>" placeholder="Period from" style="width: 70px;height: 18px;">
                         -
-                        <input type="text" id="maxDate" name="maxDate" value="<?php echo (isset($_GET['minDate']) && !empty($_GET['maxDate'])) ? $_GET['maxDate'] : ''; ?>" placeholder="Period to" style="width: 70px;height: 18px;">
+                        <input class="hidden-phone" type="text" id="maxDate" name="maxDate" value="<?php echo (isset($_GET['minDate']) && !empty($_GET['maxDate'])) ? $_GET['maxDate'] : ''; ?>" placeholder="Period to" style="width: 70px;height: 18px;">
                 <?php
 				}
 				?>
