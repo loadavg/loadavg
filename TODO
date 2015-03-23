@@ -91,3 +91,18 @@ disable login flooding when installing...
 
 
 
+    //if we are on a page we need to figure it out
+    if ( lastPart.indexOf("page=") > -1 ) {
+
+        //gives me plugin when no data is in header
+        var MyString1=lastPart.substr(lastPart.lastIndexOf('=') + 1);
+        console.log('1', MyString1);
+
+        //gives me plugin when data is in header
+        var mySubString=lastPart.substr(lastPart.lastIndexOf('page=') );
+        console.log('2', mySubString);
+
+        var MyString3=mySubString.substring(mySubString.indexOf("=")+1,mySubString.indexOf("&"));
+        console.log('3', MyString3);    
+
+    }
