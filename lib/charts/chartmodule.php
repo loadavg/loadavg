@@ -25,7 +25,7 @@
 	//echo 'tableStyle ' . $tableStyle . '<br>';
 ?>
 
-	<table border="0" width="100%" cellspacing="0" cellpadding="0">
+	<table id = "chartTable" border="0" width="100%" cellspacing="0" cellpadding="0">
 		<tr>	
 
 	        <!--  Now we render the chart -->
@@ -42,7 +42,7 @@
 			<?php }	?>
 
 	        <!-- this sections renders main chart area -->
-			<td class="<?php echo $tableStyle ?> innerT"> 
+			<td id = "chartTd" class="<?php echo $tableStyle ?> innerT"> 
 				
 				<?php 
 				if ( $loadJavascript) { 

@@ -106,3 +106,43 @@ disable login flooding when installing...
         console.log('3', MyString3);    
 
     }
+
+
+//some mobile detectaion code for bootstrap
+
+    <script type="text/javascript">
+
+    function findBootstrapEnvironment() {
+        var envs = ['phone', 'tablet', 'desktop'];
+
+        $el = $('<div>');
+        $el.appendTo($('body'));
+
+        for (var i = envs.length - 1; i >= 0; i--) {
+            var env = envs[i];
+
+            $el.addClass('hidden-'+env);
+            if ($el.is(':hidden')) {
+                $el.remove();
+                return env
+            }
+        };
+    }
+
+    var theEnv = findBootstrapEnvironment();
+
+    if (theEnv == 'tablet')
+        theEnv = 'desktop';
+
+    console.log ("The env: ", theEnv);
+
+    //if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+    if( theEnv == 'phone' ) {
+     document.write ('<div class="<div class="container fixed">">');
+    } else
+    {
+     //document.write ('<div class="container-fluid">');
+     document.write ('<div class="container fixed">');
+    }
+
+    </script>

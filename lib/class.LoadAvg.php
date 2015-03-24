@@ -28,6 +28,9 @@ class LoadAvg
 	public static $period_minDate;
 	public static $period_maxDate;
 
+	//hack for mobile
+	public static $isMobile;
+
 	/**
 	 * setSettings
 	 *
@@ -71,6 +74,9 @@ class LoadAvg
 
 		//if no log date is set then use todays date
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
+
+		//mobile status
+		self::$isMobile = false;
 
 
 	}

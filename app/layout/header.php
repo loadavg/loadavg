@@ -189,101 +189,111 @@ if (isset($_POST['login'])  ) {
 	
 
 </head>
-<body>
 
 <?php
-
-		if ( LoadAvg::$period ) { echo 'PERIOD'; die; }
-
-?>
-
-	<!-- Start Content 
-	<div class="container fixed">
+if ( $detect->isMobile() ) {
 	
-	<div class="container-fluid">
-	-->
+	//echo 'its mobile';
+	$theEnv = "mobile";
 
-	<script type="text/javascript">
+	?>
+	<body style="padding-right: 5px; padding-left: 5px;">
+		<div class="container-fluid">
 
-function findBootstrapEnvironment() {
-    var envs = ['phone', 'tablet', 'desktop'];
+	<?php
+} else {
+	//echo 'its desktop';
+	$theEnv = "desktop";
 
-    $el = $('<div>');
-    $el.appendTo($('body'));
+	?>
+	<body>
+		<div class="container fixed">
 
-    for (var i = envs.length - 1; i >= 0; i--) {
-        var env = envs[i];
-
-        $el.addClass('hidden-'+env);
-        if ($el.is(':hidden')) {
-            $el.remove();
-            return env
-        }
-    };
+	<?php
 }
-	var theEnv = findBootstrapEnvironment();
-	console.log ("The env: ", theEnv);
-
-		//if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-		if( theEnv == 'phone' ) {
-		 document.write ('<div class="container-fluid">');
-		} else
-		{
-		 document.write ('<div class="container fixed">');
-		}
-	</script>
-
+?>
 
 		<div class="navbar main hidden-print">
 			
-			<a href="index.php" class="appbrand hidden-phone"><img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;"><span>LoadAvg<span>Advanced Server Analytics</span></span></a>
+			<?php
 			
+			if ($theEnv == "desktop")
+			{ ?>
+				<a href="index.php" class="appbrand">
+				<img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;">
+				<span>LoadAvg<span>Advanced Server Analytics</span></span>
+				</a>
+			<?php }
+			else
+			{ ?>
+				<a href="index.php" style="width:150px;" class="appbrand">
+				<span style="width:150px;">LoadAvg<span>Server Analytics</span></span>
+				</a>				
+			<?php } ?>
+
 			<?php if ($loadavg->isLoggedIn() || (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true")) { ?>
 
 			<ul class="topnav pull-right">
 				<li<?php if (isset($_GET['page']) && $_GET['page'] == '') : ?> class="active"<?php endif; ?>><a href="index.php"><i class="fa fa-bar-chart-o"></i> Charts</a></li>
 
 
-				<?php if ( $loadavg->isLoggedIn() ) { ?>
-
-
 				<?php 
+				if ( $loadavg->isLoggedIn()  ) 
+				{ 
 
-				foreach ( $plugins as $module => $value ) { // looping through all the modules in the settings.ini file
-	            	if ( $value === "true" ) {
+					//plugin modules only show on desktop
+					if ($theEnv == "desktop") {
+						//echo 'its desktop';
 
-						$class = LoadPlugins::$_classes[$module];
-						$pluginData =  $class->getPluginData();
+						foreach ( $plugins as $module => $value ) { // looping through all the modules in the settings.ini file
+			            	if ( $value === "true" ) {
 
-						?>
-						<li <?php if (isset($_GET['page']) && $_GET['page'] == $pluginData[0]) : ?> class="active"<?php endif; ?>><a href="?page=<?php echo $pluginData[0]?>"><i class="fa <?php echo $pluginData[1]?>"></i> <?php echo $pluginData[0]?></a></li>
-						<?php
-					}
-				}
-				?>
+								$class = LoadPlugins::$_classes[$module];
+								$pluginData =  $class->getPluginData();
+
+								?>
+								<li <?php if (isset($_GET['page']) && $_GET['page'] == $pluginData[0]) : ?> class="active"<?php endif; ?>><a href="?page=<?php echo $pluginData[0]?>"><i class="fa <?php echo $pluginData[1]?>"></i> <?php echo $pluginData[0]?></a></li>
+								<?php
+							}
+						}
+					} //else
+						//echo 'its mobile';
+					?>
+
+					<?php if ($theEnv != "desktop") { ?>
+
+						<li><a href="?page=logout"><i class="fa fa-cog"></i> Logout</a></li>
+
+					<?php }  else { ?>
+
+					<li class="account <?php if (isset($_GET['page']) && $_GET['page'] == 'settings') : ?> active<?php endif; ?>">
+						<a data-toggle="dropdown" href="" class="logout"><span class="hidden-phone text">
+
+						<?php echo (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true" ) ? 'Settings' : 'Settings' /* $settings['username']; */ ?></span> 
+							<i class="fa fa-unlock-alt"></i></a>
+						
+						<ul class="dropdown-menu pull-right">
 
 
-				<li class="account <?php if (isset($_GET['page']) && $_GET['page'] == 'settings') : ?> active<?php endif; ?>">
-					<a data-toggle="dropdown" href="" class="logout"><span class="hidden-phone text">
+							<li><a href="?page=settings">System <i class="fa fa-cog pull-right"></i></a></li>
+							<li><a href="?page=settingsmodules">Modules <i class="fa fa-cog pull-right"></i></a></li>
+							<li><a href="?page=settingsplugins">Plugins <i class="fa fa-cog pull-right"></i></a></li>
+							<li><a href="?page=settingsapi">API <i class="fa fa-cog pull-right"></i></a></li>
+							<li><a href="?page=settingslogger">Logger <i class="fa fa-cog pull-right"></i></a></li>
 
-					<?php echo (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true" ) ? 'Settings' : 'Settings' /* $settings['username']; */ ?></span> 
-						<i class="fa fa-unlock-alt"></i></a>
-					
-					<ul class="dropdown-menu pull-right">
-						<li><a href="?page=settings">System <i class="fa fa-cog pull-right"></i></a></li>
-						<li><a href="?page=settingsmodules">Modules <i class="fa fa-cog pull-right"></i></a></li>
-						<li><a href="?page=settingsplugins">Plugins <i class="fa fa-cog pull-right"></i></a></li>
-						<li><a href="?page=settingsapi">API <i class="fa fa-cog pull-right"></i></a></li>
-						<li><a href="?page=settingslogger">Logger <i class="fa fa-cog pull-right"></i></a></li>
-						<?php if ( $loadavg->isLoggedIn() ): ?>
-						<li>
-							<span>
-								<a href="?page=logout" class="btn btn-default btn-small pull-right" style="padding: 2px 10px; background: #fff;" href="">Sign Out</a>
-							</span>
-						</li>
-						<?php endif; ?>
-					</ul>
-				</li>
+
+							<?php if ( $loadavg->isLoggedIn() ): ?>
+							<li>
+								<span>
+									<a href="?page=logout" class="btn btn-default btn-small pull-right" style="padding: 2px 10px; background: #fff;" href="">Sign Out</a>
+								</span>
+							</li>
+							<?php endif; ?>
+
+						<?php }  ?>
+
+						</ul>
+					</li>
 
 				
 				<?php }
