@@ -22,6 +22,7 @@
 	//hardcoded for now - used for div height at end of page
 	$chartHeight = 160;
 
+	//$width = 750;
 
 	//global timezone data - can be overriden per chart later on
 	$chartTimezoneMode = LoadAvg::$_settings->general['settings']['timezonemode'];
@@ -35,7 +36,11 @@
 	 * more than 1 in chartModules means multiple charts in the segment so we include js files just once
 	 * and make calls to functions that need to be loaded or already loaded here
 	 */
+
+
 ?>
+
+
 
 	<!--
 	Fist function here builds the chart data object to send over to be charted
@@ -43,7 +48,23 @@
 
 	<script type="text/javascript">
 	(function () {
-	
+
+
+		//a dirty hack to resize the charts on mobile devices
+		//really chart should render in available space and resize accoringly
+		//so this is really very dirty
+
+		var tdWidth = document.getElementById('accordion'); //alert(tdWidth.clientWidth); 
+		var theChartWidth = tdWidth.clientWidth;
+		//console.log(tdWidth);
+		//console.log('accordion ',theChartWidth);
+
+		//offset for mobile devices from accordion width
+		//we do this as for some reason chartTable and chartTd in chartmodule.php
+		//jump around too much
+		theChartWidth = theChartWidth - 40;
+
+
 		//if greater than 1 then extend chart id with chart function
 		<?php if ( $chartModules > 1) { ?>
 		charts.<?php echo $chart->id; ?> = $.extend({}, charts.<?php echo $chart->chart_function; ?>);
@@ -64,8 +85,17 @@
 					timezonemode: "<?php echo $chartTimezoneMode; ?>",
 					timezone: "<?php echo $chartTimezone; ?>"
 					
-					<?php if ($width) echo ', chartwidth: ' . $width .',';  ?>
-					<?php if ($height) echo 'chartheight: ' . $height;  ?>
+					<?php 
+					if ( LoadAvg::$isMobile == true ) 
+					{
+					?>
+					, chartwidth: theChartWidth ,
+					<?php
+					}
+					else if ($width) 
+						echo ', chartwidth: ' . $width .',';  ?>
+
+					<?php if ($height) echo ' chartheight: ' . $height;  ?>
 					//defualts are chartwidth: 530, chartheight: 160
 				};
 			<?php } ?>

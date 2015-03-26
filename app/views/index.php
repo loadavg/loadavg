@@ -33,7 +33,22 @@ if (    (   $loadavg->isLoggedIn()
         We render all the chart modules out here
     -->
 
-    <div class="innerAll">
+    <?php 
+
+ 
+
+    //if ( $detect->isMobile() ) {
+    if ( LoadAvg::$isMobile == true ) {
+        ?>
+        <div class="innerAll" style = "padding: 5px 0px;">
+        <?php
+    } else {
+        ?>
+        <div class="innerAll">
+        <?php
+    }
+    ?>
+
 
         <div id="accordion" class="accordion">
 

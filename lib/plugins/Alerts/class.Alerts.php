@@ -231,6 +231,8 @@ class Alerts extends LoadPlugins
 		
 		//this is only set when there is no data for osme reason
 		//for when charts return null chart object 
+		$output = array();
+		
 		if ( !isset($input['chart']['dataset_labels'][0]) ) {
 			foreach ($input as $key=>$val) 
 		  		$output[$val[$sortkey]][]=$val;
@@ -252,8 +254,8 @@ class Alerts extends LoadPlugins
 	public function buildChartArray( $dataArray )
 	{
 
-//echo '<pre>';
-//var_dump ($dataArray);
+		//echo '<pre>';
+		//var_dump ($dataArray);
 
 		//get todays time at 00:00
 		$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
@@ -265,14 +267,7 @@ class Alerts extends LoadPlugins
 		    $chartArray[$i]['time'] = date('h:i a', $iTimestamp) ;
 		    $chartArray[$i]['timeStamp'] =  $iTimestamp ;
 
-		    //null core values for modules
-		    /*
-			foreach ($dataArray as $value) {
-				var_dump ($value[0]);
-
-		    	//$chartArray[$i][$value[0][1]] = 0 ;
-		    }
-*/
+		   
 		    //3600 is a hour, swap this for 1/2 hour periods to 1800;
 		    $iTimestamp += 3600;
 		}
@@ -280,7 +275,8 @@ class Alerts extends LoadPlugins
 
 
 
-		//loop through dataArray alert data and create time array
+		//loop through dataArray alert data which was sent over
+		//and add elements with alerts to chartArray 
 
 		//loop thtough each module that has a alert
 		foreach ($dataArray as $value) {

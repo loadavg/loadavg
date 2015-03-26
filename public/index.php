@@ -27,11 +27,20 @@ if (DEBUG) $memory_usage['start'] = memory_get_usage();
 include_once 'class.Utility.php';
 if (DEBUG) $memory_usage['utility'] = memory_get_usage();
 
+/* Initialize LoadAvg Utility Class */ 
+
 /* Initialize LoadAvg */ 
 
 include_once 'class.LoadAvg.php';
 $loadavg = new LoadAvg();
 if (DEBUG) $memory_usage['loadavg'] = memory_get_usage();
+
+//http://mobiledetect.net/
+require_once 'Mobile_Detect.php';
+$detect = new Mobile_Detect;
+
+if ( $detect->isMobile() ) 
+	LoadAvg::$isMobile = true;
 
 
 /* Initialize LoadAvg Charts module */ 
@@ -101,7 +110,6 @@ $timer->setStartTime(); // Setting page load start time
 /*
  * draw the current page view
  */
-
 
 
 //grab the log diretory - needs to be dynamic really
