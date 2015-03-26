@@ -146,3 +146,10 @@ disable login flooding when installing...
     }
 
     </script>
+
+
+
+
+
+    rewrite all mobile code to be properly dynamic via bootstrap when we move to bootstrap 3
+     - but at least we have a basic working implementation at the moment

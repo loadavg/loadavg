@@ -50,10 +50,19 @@
 	(function () {
 
 
-		var tdWidth = document.getElementById('chartTd'); //alert(tdWidth.clientWidth); 
-		var theChartWidth = tdWidth.clientWidth;
+		//a dirty hack to resize the charts on mobile devices
+		//really chart should render in available space and resize accoringly
+		//so this is really very dirty
 
-		console.log(theChartWidth);
+		var tdWidth = document.getElementById('accordion'); //alert(tdWidth.clientWidth); 
+		var theChartWidth = tdWidth.clientWidth;
+		//console.log(tdWidth);
+		//console.log('accordion ',theChartWidth);
+
+		//offset for mobile devices from accordion width
+		//we do this as for some reason chartTable and chartTd in chartmodule.php
+		//jump around too much
+		theChartWidth = theChartWidth - 40;
 
 
 		//if greater than 1 then extend chart id with chart function

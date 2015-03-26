@@ -25,7 +25,7 @@
 	}
 ?>
 
-<div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
+<div id="accordion-<?php echo $module;?>" width="100%" class="accordion-group" data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
 		<div class="accordion-heading"> 
 			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 				<?php echo $moduleSettings['module']['name']; //$chart->label; ?>				

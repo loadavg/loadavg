@@ -22,10 +22,16 @@
 	if ($drawAvg == false)
 		$tableStyle = 'span9';
 
+
+	//used to hide data on mobile devices
+	$hidden = false;
+    if ( LoadAvg::$isMobile == true )
+    	$hidden = true;
+
 	//echo 'tableStyle ' . $tableStyle . '<br>';
 ?>
 
-	<table id = "chartTable" border="0" width="100%" cellspacing="0" cellpadding="0">
+	<table id = "chartTable<?php echo strtok($moduleSettings['module']['name'], " "); ?>" border="0" width="100%" cellspacing="0" cellpadding="0">
 		<tr>	
 
 	        <!--  Now we render the chart -->
@@ -33,8 +39,12 @@
 	        <!-- this sections renders out chart left legend from .ini file -->
 	        <?php if ( $drawLegend ) { ?>
 
-			<td class="hidden-phone" width="26%" align="right" style="padding-right: 15px;">
-
+	        <!--
+			<td class="hidden-phone hidden-tablet" width="26%" align="right" style="padding-right: 15px;">
+			-->
+			
+			<td class="<?php if ($hidden) echo 'hidden'; ?>" width="26%" align="right" style="padding-right: 15px;">
+			
 				<?php include( HOME_PATH . '/lib/charts/legend.php'); ?>
 				
 			</td>
@@ -42,7 +52,7 @@
 			<?php }	?>
 
 	        <!-- this sections renders main chart area -->
-			<td id = "chartTd" class="<?php echo $tableStyle ?> innerT"> 
+			<td id = "chartTd<?php echo strtok($moduleSettings['module']['name'], " "); ?>" width="65%" class="<?php echo $tableStyle ?> innerT" > 
 				
 				<?php 
 				if ( $loadJavascript) { 
@@ -65,7 +75,14 @@
 				$chartMode = (isset($chartData['chart']['chart_avg']) ? $chartData['chart']['chart_avg'] : null);
 
             ?> 
-            <td class="span1 hidden-phone" style="height: 170px">
+            <!--
+            <td class="span1 hidden-phone hidden-tablet" style="height: 170px">
+            -->
+
+            
+            <td class="span1 <?php if ($hidden) echo 'hidden'; ?>" width="10%">
+           
+
             <?php
 				switch ( $chartMode) {
 

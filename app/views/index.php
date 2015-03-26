@@ -35,7 +35,10 @@ if (    (   $loadavg->isLoggedIn()
 
     <?php 
 
-    if ( $detect->isMobile() ) {
+ 
+
+    //if ( $detect->isMobile() ) {
+    if ( LoadAvg::$isMobile == true ) {
         ?>
         <div class="innerAll" style = "padding: 5px 0px;">
         <?php
