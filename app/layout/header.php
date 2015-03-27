@@ -166,14 +166,7 @@ if (isset($_POST['login'])  ) {
 
 	</script>
 
-	<script type="text/javascript">
-	//dirty hack to reload page when orientation chages
-	//until we have dynamic charts we need this to formwat the chart width
-		window.onresize = function(event)
-		{
-		document.location.reload(true);
-		}
-	</script>
+
 
 	<!-- force a refreash every (logger = 5 default) minutes to update charts 
 	     need to set up settings for this make it optional 
@@ -201,12 +194,22 @@ if (isset($_POST['login'])  ) {
 
 
 <?php
-if ( $detect->isMobile() ) {
+if ( LoadAvg::$isMobile == true ) {
 	
 	//echo 'its mobile';
 	$theEnv = "mobile";
 
 	?>
+
+	<script type="text/javascript">
+	//dirty hack to reload page when orientation chages
+	//until we have dynamic charts we need this to formwat the chart width
+		window.onresize = function(event)
+		{
+		document.location.reload(true);
+		}
+	</script>
+		
 	<body style="padding-right: 5px; padding-left: 5px;">
 	<!--
 		<div class="container-fluid" class="overthrow">
