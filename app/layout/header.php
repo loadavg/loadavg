@@ -84,6 +84,11 @@ if (isset($_POST['login'])  ) {
 
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery.cookie.js"></script>
 
+	
+	<!-- JQueryUI v1.11.1 -->
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.js"></script>
+
+
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/timezoneJS/date.js"></script>
 	
 	<!-- Modernizr -->
@@ -209,7 +214,7 @@ if ( LoadAvg::$isMobile == true ) {
 		document.location.reload(true);
 		}
 	</script>
-		
+
 	<body style="padding-right: 5px; padding-left: 5px;">
 	<!--
 		<div class="container-fluid" class="overthrow">
@@ -231,6 +236,9 @@ if ( LoadAvg::$isMobile == true ) {
 	<?php
 }
 ?>
+
+<script>$('#container').draggable();</script>
+
 
 		<div class="navbar main hidden-print">
 			

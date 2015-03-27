@@ -73,9 +73,6 @@
 
 	</div>
 	
-	
-	<!-- JQueryUI v1.11.1 -->
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.js"></script>
 
 	<!-- Javascript for Period -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/period.js"></script>
