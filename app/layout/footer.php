@@ -77,10 +77,10 @@
 	<!-- Javascript for TimezoneJS -->
 	
 	<!-- JQueryUI Touch Punch -->
-	<!-- small hack that enables the use of touch events on sites using the jQuery UI user interface library 
+	<!-- small hack that enables the use of touch events on sites using the jQuery UI user interface library  -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
-	-->
 	
+
 	<!-- Colors -->
 	<script>
 	var primaryColor = '#4a8bc2';
