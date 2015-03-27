@@ -188,10 +188,6 @@ if (isset($_POST['login'])  ) {
 	?>
 	
 
-<script>
-$('.content').draggable(); 
-</script>
-
 </head>
 
 
