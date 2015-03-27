@@ -209,10 +209,14 @@ if ( LoadAvg::$isMobile == true ) {
 	<script type="text/javascript">
 	//dirty hack to reload page when orientation chages
 	//until we have dynamic charts we need this to formwat the chart width
+
+	//disabled as its too sensative! 
+	/*
 		window.onresize = function(event)
 		{
 		document.location.reload(true);
 		}
+		*/
 	</script>
 
 	<body style="padding-right: 5px; padding-left: 5px;">
