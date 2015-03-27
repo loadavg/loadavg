@@ -221,6 +221,7 @@ if ( LoadAvg::$isMobile == true ) {
 		-->
 		<div class="container-fluid">
 
+
 	<?php
 } else {
 	//echo 'its desktop';
@@ -236,9 +237,6 @@ if ( LoadAvg::$isMobile == true ) {
 	<?php
 }
 ?>
-
-<script>$('#container').draggable();</script>
-
 
 		<div class="navbar main hidden-print">
 			
@@ -337,8 +335,8 @@ if ( LoadAvg::$isMobile == true ) {
 			<?php } ?>
 		</div>
 		
-		<div id="wrapper">
+		<div id="wrapper" >
 		
-		<div id="content">
+		<div id="content" >
 
 
