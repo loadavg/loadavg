@@ -198,7 +198,7 @@ if ( $detect->isMobile() ) {
 
 	?>
 	<body style="padding-right: 5px; padding-left: 5px;">
-		<div class="container-fluid">
+		<div class="container-fluid" class="overthrow">
 
 	<?php
 } else {
@@ -207,7 +207,7 @@ if ( $detect->isMobile() ) {
 
 	?>
 	<body>
-		<div class="container fixed">
+		<div class="container fixed" class="overthrow">
 
 	<?php
 }

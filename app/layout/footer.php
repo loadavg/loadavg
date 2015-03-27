@@ -107,6 +107,9 @@
     <!-- common javascript functions for the app -->
     <script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/common.js"></script>
 
+	<!-- overthrow.js  -->
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/overthrow/overthrow.js"></script>
+
 	<!-- Common script 
 		 Only include for chart/index right now as conflicts with opther modules
 		 really should dynamically include the modules common.js when loaded...
