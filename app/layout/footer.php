@@ -14,14 +14,21 @@
 */
 ?>	
 
+
+
 			<?php if ($loadavg->isLoggedIn()) { ?>
 
 			<div class="well lh70-style-top margin-none center footer">
 				<a href="http://www.loadavg.com/">LoadAVG v <?php echo LoadAvg::$_settings->general['settings']['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
+				
+				<?php 
+				if ( LoadAvg::$isMobile != true ) {
+				?>
 				For comments and suggestions please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
-
-
-				<?php if (!isset($_SESSION['support_loadavg'])) { ?>
+				<?php
+				}
+				?>
+				<?php if (!isset($_SESSION['support_loadavg']) &&   ( LoadAvg::$isMobile != true ) ) { ?>
 				<div class="left pull-left">
 					Like LoadAvg ? <a href="http://www.loadavg.com/donate/" title="Make a donation, support LoadAvg">Please donate</a>
 				</div>
@@ -34,7 +41,7 @@
 				<?php } ?>
 
 				<!-- only check if check for updates is on -->
-				<?php if ( ( LoadAvg::$_settings->general['settings']['checkforupdates'] == "true" ) && (isset($_SESSION['download_url'])) )  {  ?>
+				<?php if ( ( LoadAvg::$_settings->general['settings']['checkforupdates'] == "true" ) && (isset($_SESSION['download_url'])) &&  ( LoadAvg::$isMobile != true )  )  {  ?>
 					<div class="right pull-right">
 						<!--
 						Update available <a href="<?php echo $_SESSION['download_url']; ?>" title="Download the new version of LoadAvg">click to download</a>
