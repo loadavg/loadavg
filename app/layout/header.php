@@ -158,9 +158,6 @@ if (isset($_POST['login'])  ) {
 	var today_min = today_min_php;
 	var today_max = today_max_php;
 
-
-
-
 	//fix for min range only (to current)
 	//$nextWeek = time() + ( 24 * 60 * 60);
     // 24 hours; 60 mins; 60 secs
@@ -170,8 +167,6 @@ if (isset($_POST['login'])  ) {
 	//today_min =  today_max - (3600 * 6 * 1000);
 
 	</script>
-
-
 
 	<!-- force a refreash every (logger = 5 default) minutes to update charts 
 	     need to set up settings for this make it optional 
@@ -199,45 +194,20 @@ if (isset($_POST['login'])  ) {
 
 
 <?php
+
+//check if we are running on mobile or not 
+//and set things up accordingly - need tom ove all this over to CSS and Bootstrap 3 !!!
+//but there is a tie-in with chart width that needs to be understood
+
 if ( LoadAvg::$isMobile == true ) {
-	
-	//echo 'its mobile';
-	$theEnv = "mobile";
-
 	?>
-
-	<script type="text/javascript">
-	//dirty hack to reload page when orientation chages
-	//until we have dynamic charts we need this to formwat the chart width
-
-	//disabled as its too sensative! 
-	/*
-		window.onresize = function(event)
-		{
-		document.location.reload(true);
-		}
-		*/
-	</script>
-
 	<body style="padding-right: 5px; padding-left: 5px;">
-	<!--
-		<div class="container-fluid" class="overthrow">
-		-->
 		<div class="container-fluid">
-
-
 	<?php
 } else {
-	//echo 'its desktop';
-	$theEnv = "desktop";
-
 	?>
 	<body>
-		<!--
-		<div class="container fixed" class="overthrow">
-		-->
 		<div class="container fixed">
-
 	<?php
 }
 ?>
@@ -246,7 +216,7 @@ if ( LoadAvg::$isMobile == true ) {
 			
 			<?php
 			
-			if ($theEnv == "desktop")
+			if (LoadAvg::$isMobile != true)
 			{ ?>
 				<a href="index.php" class="appbrand">
 				<img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;">
@@ -255,8 +225,8 @@ if ( LoadAvg::$isMobile == true ) {
 			<?php }
 			else
 			{ ?>
-				<a href="index.php" style="width:150px;" class="appbrand">
-				<span style="width:150px;">LoadAvg<span>Server Analytics</span></span>
+				<a href="index.php" style="width:120px;" class="appbrand">
+				<span style="width:120px;">LoadAvg<span>Analytics</span></span>
 				</a>				
 			<?php } ?>
 
@@ -271,7 +241,7 @@ if ( LoadAvg::$isMobile == true ) {
 				{ 
 
 					//plugin modules only show on desktop
-					if ($theEnv == "desktop") {
+					if (LoadAvg::$isMobile != true) {
 						//echo 'its desktop';
 
 						foreach ( $plugins as $module => $value ) { // looping through all the modules in the settings.ini file
@@ -289,7 +259,7 @@ if ( LoadAvg::$isMobile == true ) {
 						//echo 'its mobile';
 					?>
 
-					<?php if ($theEnv != "desktop") { ?>
+					<?php if (LoadAvg::$isMobile == true) { ?>
 
 						<li><a href="?page=logout"><i class="fa fa-cog"></i> Logout</a></li>
 
