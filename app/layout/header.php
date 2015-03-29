@@ -84,6 +84,11 @@ if (isset($_POST['login'])  ) {
 
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery.cookie.js"></script>
 
+	
+	<!-- JQueryUI v1.11.1 -->
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.js"></script>
+
+
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/timezoneJS/date.js"></script>
 	
 	<!-- Modernizr -->
@@ -153,9 +158,6 @@ if (isset($_POST['login'])  ) {
 	var today_min = today_min_php;
 	var today_max = today_max_php;
 
-
-
-
 	//fix for min range only (to current)
 	//$nextWeek = time() + ( 24 * 60 * 60);
     // 24 hours; 60 mins; 60 secs
@@ -190,25 +192,22 @@ if (isset($_POST['login'])  ) {
 
 </head>
 
-<?php
-if ( $detect->isMobile() ) {
-	
-	//echo 'its mobile';
-	$theEnv = "mobile";
 
+<?php
+
+//check if we are running on mobile or not 
+//and set things up accordingly - need tom ove all this over to CSS and Bootstrap 3 !!!
+//but there is a tie-in with chart width that needs to be understood
+
+if ( LoadAvg::$isMobile == true ) {
 	?>
 	<body style="padding-right: 5px; padding-left: 5px;">
 		<div class="container-fluid">
-
 	<?php
 } else {
-	//echo 'its desktop';
-	$theEnv = "desktop";
-
 	?>
 	<body>
 		<div class="container fixed">
-
 	<?php
 }
 ?>
@@ -217,7 +216,7 @@ if ( $detect->isMobile() ) {
 			
 			<?php
 			
-			if ($theEnv == "desktop")
+			if (LoadAvg::$isMobile != true)
 			{ ?>
 				<a href="index.php" class="appbrand">
 				<img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;">
@@ -226,8 +225,8 @@ if ( $detect->isMobile() ) {
 			<?php }
 			else
 			{ ?>
-				<a href="index.php" style="width:150px;" class="appbrand">
-				<span style="width:150px;">LoadAvg<span>Server Analytics</span></span>
+				<a href="index.php" style="width:120px;" class="appbrand">
+				<span style="width:120px;">LoadAvg<span>Analytics</span></span>
 				</a>				
 			<?php } ?>
 
@@ -242,7 +241,7 @@ if ( $detect->isMobile() ) {
 				{ 
 
 					//plugin modules only show on desktop
-					if ($theEnv == "desktop") {
+					if (LoadAvg::$isMobile != true) {
 						//echo 'its desktop';
 
 						foreach ( $plugins as $module => $value ) { // looping through all the modules in the settings.ini file
@@ -260,7 +259,7 @@ if ( $detect->isMobile() ) {
 						//echo 'its mobile';
 					?>
 
-					<?php if ($theEnv != "desktop") { ?>
+					<?php if (LoadAvg::$isMobile == true) { ?>
 
 						<li><a href="?page=logout"><i class="fa fa-cog"></i> Logout</a></li>
 
@@ -310,8 +309,8 @@ if ( $detect->isMobile() ) {
 			<?php } ?>
 		</div>
 		
-		<div id="wrapper">
+		<div id="wrapper" >
 		
-		<div id="content">
+		<div id="content" >
 
 

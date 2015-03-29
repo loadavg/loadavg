@@ -41,6 +41,8 @@ if (    (   $loadavg->isLoggedIn()
     if ( LoadAvg::$isMobile == true ) {
         ?>
         <div class="innerAll" style = "padding: 5px 0px;">
+
+
         <?php
     } else {
         ?>
@@ -49,8 +51,8 @@ if (    (   $loadavg->isLoggedIn()
     }
     ?>
 
-
         <div id="accordion" class="accordion">
+
 
         <?php
         //for debuggin show internal list of all modules and their status (on or off)
