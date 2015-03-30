@@ -579,6 +579,8 @@ class LoadAvg
 						setcookie('loadpass', 0, $past);
 				}
 
+				$this->logUpdateCheck( "User logged in " . date('l jS \of F Y h:i:s A') );
+
 			}
 
 		}
@@ -619,6 +621,8 @@ class LoadAvg
 		if(isset($_COOKIE['loadpass'])) 
 			setcookie('loadpass', 0, $past);
 
+		//$this->logUpdateCheck( "User logged out" . getdate() );
+
 		//clean up session
 		session_destroy(); 
 
@@ -633,9 +637,7 @@ class LoadAvg
 
 		//check that this works with get as its long...
 		/*
-		<?php
 		print_r(posix_uname());
-		?>
 
 		Should print something like:
 
@@ -655,7 +657,7 @@ class LoadAvg
 
 		$linuxname = $this->getLinuxDistro();
 
-		if ( !isset($_SESSION['download_url'])) {
+		if ( !isset($_SESSION['updateStatus'])) {
 			if ( ini_get("allow_url_fopen") == 1) {
 
 				//replace me with curl please!!!
@@ -669,18 +671,32 @@ class LoadAvg
 
 				// $response = json_decode($response);
 
-				//log the action locally
-				$this->logUpdateCheck( $response );
+				//log the action locally - need to use log for more things its great
+				if ($response != false) {
 
-				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
+					$this->logUpdateCheck( $response );
 
-				if ( $response > self::$_settings->general['settings']['version'] ) {
-				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
+					$serverVersion = floatval($response);
+					$localVersion = floatval (self::$_settings->general['settings']['version']);
+
+
+					if ( $serverVersion > $localVersion ) {
+					 	$_SESSION['updateStatus'] = "outdated";
+					} else if ( $serverVersion < $localVersion ) {
+					 	$_SESSION['updateStatus'] = "developer";						
+					} else {
+					 	$_SESSION['updateStatus'] = "uptodate";						
+					}
+				} else {
+					$_SESSION['updateStatus'] = "offline";						
 				}
+
+
 			}
 		}
+
 	}
-	
+
 	/**
 	 * checkCookies
 	 *

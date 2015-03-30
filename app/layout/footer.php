@@ -44,15 +44,44 @@
 				}
 				?>
 
-				<!-- only check if check for updates is on -->
-				<?php if ( ( LoadAvg::$_settings->general['settings']['checkforupdates'] == "true" ) && (isset($_SESSION['download_url'])) &&  ( LoadAvg::$isMobile != true )  )  {  ?>
+				<!-- only check if checkforupdates is on -->
+				<?php if ( ( LoadAvg::$_settings->general['settings']['checkforupdates'] == "true" ) 
+				&& (isset($_SESSION['updateStatus'])) &&  ( LoadAvg::$isMobile != true ) )  
+				{  
+					
+					if ( $_SESSION['updateStatus'] == "offline" ) { ?>
+
+						<div class="right pull-right">
+							Unable to check for updates
+						</div>
+
+					<?php } else  if ( $_SESSION['updateStatus'] == "outdated" ) { ?>
+
+						<div class="right pull-right">
+							Update available <a href="http://www.loadavg.com/download/" title="Download the latest version of LoadAvg">click to download</a>
+						</div>
+
+					<?php } else  if ( $_SESSION['updateStatus'] == "uptodate" ) { ?>
+
+						<div class="right pull-right">
+							LoadAvg is Up-to date
+						</div>
+
+					<?php } else  if ( $_SESSION['updateStatus'] == "developer" ) { ?>
+
+						<div class="right pull-right">
+							LoadAvg Developer Rockstar
+						</div>
+
+					<?php }
+
+				} else { ?>
+
 					<div class="right pull-right">
-						<!--
-						Update available <a href="<?php echo $_SESSION['download_url']; ?>" title="Download the new version of LoadAvg">click to download</a>
-						-->
-						Update available <a href="http://www.loadavg.com/download/" title="Download the new version of LoadAvg">click to download</a>
+						<a href="http://www.loadavg.com/download/" title="Download the latest version of LoadAvg">Check for updates</a>
 					</div>
-				<?php } ?>
+				<?php }?>
+
 			</div>
 			<?php } 
 
