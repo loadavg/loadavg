@@ -579,11 +579,29 @@ class LoadAvg
 						setcookie('loadpass', 0, $past);
 				}
 
-				$this->logUpdateCheck( "User logged in " . date('l jS \of F Y h:i:s A') );
+				$ip = $this->getUserIP ();
+				$this->logUpdateCheck( "User logged in " . date('l jS \of F Y h:i:s A') . ' from ' . $ip );
 
 			}
 
 		}
+	}
+
+
+
+
+	public function getUserIP () {
+
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+		    $ip = $_SERVER['HTTP_CLIENT_IP'];
+		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		} else {
+		    $ip = $_SERVER['REMOTE_ADDR'];
+		}
+
+		return $ip;
+
 	}
 
 	/**
@@ -674,7 +692,7 @@ class LoadAvg
 				//log the action locally - need to use log for more things its great
 				if ($response != false) {
 
-					$this->logUpdateCheck( $response );
+					$this->logUpdateCheck( "Check for udpates returned " . $response );
 
 					$serverVersion = floatval($response);
 					$localVersion = floatval (self::$_settings->general['settings']['version']);
