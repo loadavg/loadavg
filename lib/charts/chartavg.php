@@ -76,19 +76,6 @@
                     
 						
 			        },
-			       
-			  /*   	
-			        xaxis: {
-			        	//show: true, 
-			        	min: 1, max: 1,
-        				tickLength: 0, // disable tick
-						ticks: [[1, "AVG"]],
-
-						font: { size:10,  color: "white",  variant:"small-caps", align: "center"
-						       //style:"italic", weight:"bold", family:"sans-serif", 
-						   },
-			        },
-				*/	
 
 			        yaxis: {
 			        	show: false, 
@@ -131,6 +118,6 @@
                 
                 <div id="minmax_<?php echo $chart->id; ?>" class="pull-right innerLR" style="right: 5px; top: 15px;"></div>
                 -->
-                <div id="minmax_<?php echo $chart->id; ?>" style="height: <?php echo $chartHeight;?>px; right: 5px; top: 12px;" class="chart-holder"></div>
+                <div id="minmax_<?php echo $chart->id; ?>" class="pull-right innerLR" style="height: <?php echo $chartHeight;?>px; right: 5px; top: 12px;" class="chart-holder"></div>
 
 
