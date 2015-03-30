@@ -113,7 +113,7 @@
 							y: -20
 						},
 						defaultTheme: false
-					}
+					} 
 
 			     };
 			
