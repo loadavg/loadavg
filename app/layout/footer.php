@@ -38,7 +38,11 @@
 				//page is not deifned for index and index is currently charts so show time here
 				if (!isset($_GET['page']) ) { ?>
 					HTML graphs generated in <?php echo $page_load; ?> sec.		
-				<?php } ?>
+				<?php }  else {
+					//placeholder for now as html here is a bit messy
+					echo "Get ready for <a href='http://www.gridload.com/'>GridLoad</a>";
+				}
+				?>
 
 				<!-- only check if check for updates is on -->
 				<?php if ( ( LoadAvg::$_settings->general['settings']['checkforupdates'] == "true" ) && (isset($_SESSION['download_url'])) &&  ( LoadAvg::$isMobile != true )  )  {  ?>
