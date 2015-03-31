@@ -56,9 +56,9 @@ class Miner extends Charts
 		$displayMode =	$settings['settings']['display_limiting'];	
 
 		//define datasets
-		$dataArrayLabel[0] = 'CPU Load';
-		$dataArrayLabel[1] = 'Overload';
-		$dataArrayLabel[2] = 'Secondary Overload';
+		$dataArrayLabel[0] = 'Hash';
+		$dataArrayLabel[1] = 'Low Hash';
+		$dataArrayLabel[2] = 'High Hash';
 
 		/*
 		 * grab the log file data needed for the charts as array of strings
@@ -114,10 +114,10 @@ class Miner extends Charts
 				//chart arrays
 				$dataArray[0][$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 		
-				if ( $data[$switch] >= $settings['settings']['overload_1'] )
+				if ( $data[$switch] <= $settings['settings']['overload_1'] && $settings['settings']['overload_1'] != -1 )
 					$dataArray[1][$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 		
-				if ( $data[$switch] >= $settings['settings']['overload_2'] )
+				if ( $data[$switch] >= $settings['settings']['overload_2'] && $settings['settings']['overload_2'] != -1 )
 					$dataArray[2][$data[0]] = "[". ($data[0]*1000) .", '". $data[$switch] ."']";
 
 			}

@@ -47,31 +47,24 @@ class Miner extends Logger
 
 		$timestamp = time();
 
-		$load = null;
+		$r = null;
 
-		//use the php function if its there
-		if (!function_exists('sys_getloadavg')) {
-		   		$load = exec("cat /proc/loadavg | awk -F' ' '{print $1\"|\"$2\"|\"$3}'");
-		} else {
-			$phpload=sys_getloadavg();
-			$load=$phpload[0] . "|" . $phpload[1] . "|" . $phpload[2];
-		}
+		//grab server location and port
+		$server = $settings['settings']['server'];
+		$port = intval ($settings['settings']['port']);
 
+		//echo 'server : ' . $server;
+		//echo ' port : ' . $port;
 
-
-
-
-
- $r = $this->request('summary');
-/*
-echo print_r($r["SUMMARY"]["MHS 1m"], true)."\n";
-echo print_r($r["SUMMARY"]["MHS 5m"], true)."\n";
-echo print_r($r["SUMMARY"]["MHS 15m"], true)."\n";
-*/
-$load= $r["SUMMARY"]["MHS 1m"] . "|" . $r["SUMMARY"]["MHS 5m"] . "|" . $r["SUMMARY"]["MHS 15m"];
-
-#
-
+		//grab data from API
+		$r = $this->request('summary', $server, $port);
+		
+		/*
+		echo print_r($r["SUMMARY"]["MHS 1m"], true)."\n";
+		echo print_r($r["SUMMARY"]["MHS 5m"], true)."\n";
+		echo print_r($r["SUMMARY"]["MHS 15m"], true)."\n";
+		*/
+		$load= $r["SUMMARY"]["MHS 1m"] . "|" . $r["SUMMARY"]["MHS 5m"] . "|" . $r["SUMMARY"]["MHS 15m"];
 
 
 		//if we want fancy formatting in logs we can always format them like this
@@ -90,7 +83,7 @@ $load= $r["SUMMARY"]["MHS 1m"] . "|" . $r["SUMMARY"]["MHS 5m"] . "|" . $r["SUMMA
 		//note: $phpload dont work on 4.0 needs fixing above
 
 		if (Alert::$alertStatus)
-			$alertString = $this->checkAlerts($timestamp, $phpload, $settings);
+			$alertString = $this->checkAlerts($timestamp, $load, $settings);
 
 		//Based on API mode return data if need be
 		if ( $type == "api")
@@ -131,15 +124,15 @@ $load= $r["SUMMARY"]["MHS 1m"] . "|" . $r["SUMMARY"]["MHS 5m"] . "|" . $r["SUMMA
 		//testing load 5 min only here from data
 
 
-		if ( $data[1] >= $overload[2] )
+		if ( $data[1] <= $overload[1] )
 		{
-			$alert[0][0] = "overload";
+			$alert[0][0] = "Low hash";
 			$alert[0][1] = (float)$overload[2];
 			$alert[0][2] = $data[1];
 		} 
-		else if ( $data[1] >= $overload[1] )
+		else if ( $data[1] >= $overload[2] )
 		{
-			$alert[0][0] = "overload";
+			$alert[0][0] = "High hash";
 			$alert[0][1] = (float)$overload[1];
 			$alert[0][2] = $data[1];
 		}
@@ -153,7 +146,6 @@ $load= $r["SUMMARY"]["MHS 1m"] . "|" . $r["SUMMARY"]["MHS 5m"] . "|" . $r["SUMMA
 			Alert::addAlert($string);
 		}
 	}
-
 
 
 
@@ -203,9 +195,21 @@ function readsockline($socket)
  return $line;
 }
 #
-function request($cmd)
+function request($cmd, $server, $port)
 {
- $socket = $this->getsock('127.0.0.1', 4028);
+
+	//echo 'server : ' . $server;
+	//echo ' port : ' . $port;
+
+	//set up some defaults here
+	if ($server == null)
+		$server = '127.0.0.1';
+
+	if ($port == null)
+		$port = 4028;
+
+ $socket = $this->getsock($server, $port);
+
  if ($socket != null)
  {
 	socket_write($socket, $cmd, strlen($cmd));

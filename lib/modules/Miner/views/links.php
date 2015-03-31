@@ -76,7 +76,7 @@ switch ( ( isset($_GET['load']) || !empty($_GET['load'])) ? $_GET['load'] : '2' 
 
 ?>
 
-<?php echo $load_mode ?> load average</strong>
+<?php echo $load_mode ?> Hash average</strong>
 <p>
 <a href="<?php echo $links; ?>load=1" class="<?php echo ($load == '1') ? 'strong' : ''; ?>">1 min</a> | 
 <a href="<?php echo $links; ?>load=2" class="<?php echo ($load == '2') ? 'strong' : ''; ?>">5 min</a> | 
