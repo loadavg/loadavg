@@ -19,7 +19,9 @@ line[] = '{"format":"Low (%s): %s","args":"cpu_low_time|cpu_low"}'
 line[] = '{"format":"Mean: %s","args":"cpu_mean"}'
 line[] = '{"format":"Latest: %s","args":"cpu_latest"}'
 [settings]
-overload_1 = 0.1
-overload_2 = 0.2
-display_cutoff = 0.6
+server = "127.0.0.1"
+port = 4028
+overload_1 = 3700
+overload_2 = 4000
+display_cutoff = 4500
 display_limiting = "false"

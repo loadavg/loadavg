@@ -579,9 +579,29 @@ class LoadAvg
 						setcookie('loadpass', 0, $past);
 				}
 
+				$ip = $this->getUserIP ();
+				$this->logUpdateCheck( "User logged in " . date('l jS \of F Y h:i:s A') . ' from ' . $ip );
+
 			}
 
 		}
+	}
+
+
+
+
+	public function getUserIP () {
+
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+		    $ip = $_SERVER['HTTP_CLIENT_IP'];
+		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		} else {
+		    $ip = $_SERVER['REMOTE_ADDR'];
+		}
+
+		return $ip;
+
 	}
 
 	/**
@@ -619,11 +639,81 @@ class LoadAvg
 		if(isset($_COOKIE['loadpass'])) 
 			setcookie('loadpass', 0, $past);
 
+		//$this->logUpdateCheck( "User logged out" . getdate() );
+
 		//clean up session
 		session_destroy(); 
 
 	}
 
+
+
+	public function checkForUpdate()
+	{
+
+		$linuxname = "";
+
+		//check that this works with get as its long...
+		/*
+		print_r(posix_uname());
+
+		Should print something like:
+
+		Array
+		(
+		    [sysname] => Linux
+		    [nodename] => vaio
+		    [release] => 2.6.15-1-686
+		    [version] => #2 Tue Jan 10 22:48:31 UTC 2006
+		    [machine] => i686
+		)
+		*/
+		
+		//foreach(posix_uname() AS $key=>$value) {
+    		//$linuxname .= $value ." ";
+		//}		
+
+		$linuxname = $this->getLinuxDistro();
+
+		if ( !isset($_SESSION['updateStatus'])) {
+			if ( ini_get("allow_url_fopen") == 1) {
+
+				//replace me with curl please!!!
+				$response = file_get_contents("http://updates.loadavg.com/version.php?"
+					. "ip=" . $_SERVER['SERVER_ADDR'] 
+					. "&version=" . self::$_settings->general['settings']['version'] 
+					. "&site_url=" . self::$_settings->general['settings']['title']  
+					. "&phpv=" . phpversion()  					 
+					. "&osv=" . $linuxname  					 
+					. "&key=1");
+
+				// $response = json_decode($response);
+
+				//log the action locally - need to use log for more things its great
+				if ($response != false) {
+
+					$this->logUpdateCheck( "Check for udpates returned " . $response );
+
+					$serverVersion = floatval($response);
+					$localVersion = floatval (self::$_settings->general['settings']['version']);
+
+
+					if ( $serverVersion > $localVersion ) {
+					 	$_SESSION['updateStatus'] = "outdated";
+					} else if ( $serverVersion < $localVersion ) {
+					 	$_SESSION['updateStatus'] = "developer";						
+					} else {
+					 	$_SESSION['updateStatus'] = "uptodate";						
+					}
+				} else {
+					$_SESSION['updateStatus'] = "offline";						
+				}
+
+
+			}
+		}
+
+	}
 
 	/**
 	 * checkCookies
@@ -809,62 +899,6 @@ public function getLinuxDistro()
 
   }
 
-
-
-	public function checkForUpdate()
-	{
-
-		$linuxname = "";
-
-		//check that this works with get as its long...
-		/*
-		<?php
-		print_r(posix_uname());
-		?>
-
-		Should print something like:
-
-		Array
-		(
-		    [sysname] => Linux
-		    [nodename] => vaio
-		    [release] => 2.6.15-1-686
-		    [version] => #2 Tue Jan 10 22:48:31 UTC 2006
-		    [machine] => i686
-		)
-		*/
-		
-		//foreach(posix_uname() AS $key=>$value) {
-    		//$linuxname .= $value ." ";
-		//}		
-
-		$linuxname = $this->getLinuxDistro();
-
-		if ( !isset($_SESSION['download_url'])) {
-			if ( ini_get("allow_url_fopen") == 1) {
-
-				//replace me with curl please!!!
-				$response = file_get_contents("http://updates.loadavg.com/version.php?"
-					. "ip=" . $_SERVER['SERVER_ADDR'] 
-					. "&version=" . self::$_settings->general['settings']['version'] 
-					. "&site_url=" . self::$_settings->general['settings']['title']  
-					. "&phpv=" . phpversion()  					 
-					. "&osv=" . $linuxname  					 
-					. "&key=1");
-
-				// $response = json_decode($response);
-
-				//log the action locally
-				$this->logUpdateCheck( $response );
-
-				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
-
-				if ( $response > self::$_settings->general['settings']['version'] ) {
-				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
-				}
-			}
-		}
-	}
 
 
 
