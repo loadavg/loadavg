@@ -83,7 +83,7 @@ class Miner extends Logger
 		//note: $phpload dont work on 4.0 needs fixing above
 
 		if (Alert::$alertStatus)
-			$alertString = $this->checkAlerts($timestamp, $load, $settings);
+			$alertString = $this->checkAlerts($timestamp, $r, $settings);
 
 		//Based on API mode return data if need be
 		if ( $type == "api")
@@ -117,6 +117,9 @@ class Miner extends Logger
 		$overload[1] = $settings['settings']['overload_1'];
 		$overload[2] = $settings['settings']['overload_2'];
 
+		//grab trigger
+		$trigger = $data["SUMMARY"]["MHS 1m"];
+
 		//var_dump($overload);
 		//var_dump($data);
 
@@ -124,17 +127,17 @@ class Miner extends Logger
 		//testing load 5 min only here from data
 
 
-		if ( $data[1] <= $overload[1] )
+		if ( $trigger <= $overload[1] )
 		{
 			$alert[0][0] = "Low hash";
-			$alert[0][1] = (float)$overload[2];
-			$alert[0][2] = $data[1];
+			$alert[0][1] = (float)$overload[1];
+			$alert[0][2] = $trigger;
 		} 
-		else if ( $data[1] >= $overload[2] )
+		else if ( $trigger >= $overload[2] )
 		{
 			$alert[0][0] = "High hash";
-			$alert[0][1] = (float)$overload[1];
-			$alert[0][2] = $data[1];
+			$alert[0][1] = (float)$overload[2];
+			$alert[0][2] = $trigger;
 		}
 
 		if ( $alert != null )
