@@ -141,8 +141,18 @@ class Miner extends Charts
 				$ymin = $cpu_low;
 				$ymax = $settings['settings']['display_cutoff'];
 			} else {
-				$ymin = $cpu_low;
-				$ymax = $cpu_high;
+
+				//give high and low a 5% buffer for charts
+				if ($cpu_low == 0)
+					$ymin = 0;
+				else
+					$ymin = $cpu_low * (95/100);
+
+
+				if ($cpu_high == 0)
+					$ymax = 0;
+				else
+					$ymax = $cpu_high * (105/100);
 			}
 		
 
