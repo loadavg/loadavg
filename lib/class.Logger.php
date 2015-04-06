@@ -105,6 +105,7 @@ class Logger
 	public static function getDates()
 	{
 		$dates = array();
+
 		foreach ( glob( HOME_PATH . "/logs/*.log") as $file ) {
 
 			//find files with number format only
@@ -147,7 +148,21 @@ class Logger
 		}
 
 	}
-	
+
+//called via array_map below to delete files and directories
+public  function cleanFiles($filename) {
+
+   	//echo "removing : " . $filename .  "\n";
+
+
+    if (! is_dir($filename)) {
+        unlink($filename);
+    }
+    else
+    	$this->deleteDir($filename);
+
+}
+
 
 	/**
 	 * rotateLogFiles
@@ -158,7 +173,11 @@ class Logger
 	public function rotateLogFiles ($logdir) 
 	{
 		
+		//echo "ROTATE \n";
+
 		$fromDate = strtotime("-". Logger::$_settings->general['settings']['daystokeep'] ." days 00:00:00");
+
+		//echo "fromDate " . $fromDate .  "\n";
 		
 		$dates = $this->getDates();
 
@@ -167,13 +186,41 @@ class Logger
 			if ($date < $fromDate) {
 				$mask = $logdir . "*_" . date("Y-m-d", $date) . "*.log";
 
-				//echo "MASK" . $mask .  "\n";
-				array_map( 'unlink', glob( $mask ) );
+				echo "MASK " . $date . " " . $mask .  "\n";
+				
+				//var_dump ( glob( $mask ) );
+
+				//array_map( 'unlink', glob( $mask ) );
+				//array_map( 'cleanFiles', glob( $mask ) );
+
+				array_map( array('Logger','cleanFiles') , glob( $mask ));
+
 			}
 		}
 
 }
 
+
+//used by cleanFiles above for deleting directories
+
+
+public static function deleteDir($dirPath) {
+    if (! is_dir($dirPath)) {
+        throw new InvalidArgumentException("$dirPath must be a directory");
+    }
+    if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+        $dirPath .= '/';
+    }
+    $files = glob($dirPath . '*', GLOB_MARK);
+    foreach ($files as $file) {
+        if (is_dir($file)) {
+            self::deleteDir($file);
+        } else {
+            unlink($file);
+        }
+    }
+    rmdir($dirPath);
+}
 
 
 /*

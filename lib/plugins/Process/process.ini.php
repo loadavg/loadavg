@@ -8,8 +8,12 @@ has_menu = false
 logable = "true"
 hasownlogdir = "true"
 [logging]
-args[] = '{"logfile":"%s/%s.log","logdir":"process_usage_%s","function":"logData"}'
+args[] = '{"logfile":"%s/%s.log","logdir":"process_usage_%s.log","function":"logData"}'
 [cmd]
 uptime = "uptime"
 [settings]
 enable_logging = "true"
+
+
+
+

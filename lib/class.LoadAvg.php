@@ -256,12 +256,12 @@ class LoadAvg
 	 *
 	 */
 
-/*
- * used when we turn modules on and off
- * this needs to only build the log file for modules that have no log file in /logs
- * also be great to pass the module over if we know 
- * what module has changed or been enabled
- */
+	/*
+	 * also used when we turn modules on and off
+	 * this needs to only build the log file for modules that have no log file in /logs
+	 * also be great to pass the module over if we know 
+	 * what module has changed or been enabled
+	 */
 
 	public function runLogger()
 	{
