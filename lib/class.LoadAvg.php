@@ -61,29 +61,22 @@ class LoadAvg
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
-		//check for old log files here....
+		//these updates really need to be moved into installer
+		//but are here for when people pull form git
+
+		//check for old 2.0 settings config here....
 		if ( !isset( self::$_settings->general['settings']) ) {
 
 			//for legacy 2.0 upgrade support
 			$this->upgradeSettings();
 		}
 
-		//check for old log files here....
-		/*
-		
-		SCRIPT_VERSION = 2.2
-
-		if ( !isset( self::$_settings->general['settings']) ) {
-
-			//for legacy 2.0 upgrade support
-			$this->upgradeSettings();
-		}
-		*/
+		//check for upgrade for 2.1 here....
 		if ( self::$_settings->general['settings']['version'] == "2.1" )
 			$this->upgradeSettings21to22();
-		//die;
 
 		//get the date and timezone
+
 		//date_default_timezone_set("UTC");
 		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
 
@@ -153,6 +146,10 @@ class LoadAvg
 
 		LoadUtility::write_php_ini($settings, $settings_file);
 
+		//clear update cookies
+		$this->checkForUpdate();
+
+		//relaod the app now
         header("Location: index.php");
 
 		//die;
