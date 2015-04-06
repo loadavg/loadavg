@@ -68,11 +68,12 @@ class LoadAvg
 		if ( !isset( self::$_settings->general['settings']) ) {
 
 			//for legacy 2.0 upgrade support
-			$this->upgradeSettings();
+			$this->upgradeSettings(true);
 		}
 
 		//check for upgrade for 2.1 here....
-		if ( self::$_settings->general['settings']['version'] == "2.1" )
+		//we only do this if no install folder is present mate
+		if ( ($this->checkInstaller() == true) && (self::$_settings->general['settings']['version'] == "2.1") )
 			$this->upgradeSettings21to22();
 
 		//get the date and timezone
@@ -98,7 +99,8 @@ class LoadAvg
 	 * @param string $dir path to directory
 	 */
 
-	private function upgradeSettings21to22() {
+	//public is a security hole but needed for installer to call this file!
+	public function upgradeSettings21to22($reload = true) {
 
 		//echo 'update';
 		//die;
@@ -150,7 +152,9 @@ class LoadAvg
 		$this->checkForUpdate();
 
 		//relaod the app now
-        header("Location: index.php");
+        if ($reload) {
+        	header("Location: index.php");
+        }
 
 		//die;
 	}
