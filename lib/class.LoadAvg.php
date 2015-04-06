@@ -153,6 +153,7 @@ class LoadAvg
 
 		LoadUtility::write_php_ini($settings, $settings_file);
 
+        header("Location: /index.php");
 
 		//die;
 	}
