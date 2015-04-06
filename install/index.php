@@ -30,7 +30,12 @@ $loadavg = new LoadAvg();
 include 'class.Modules.php';
 $loadModules = new LoadModules();
 
-$settings = LoadAvg::$_settings->general; // Default settings
+/* Initialize LoadAvg plugins  */ 
+include_once 'class.Plugins.php';
+$loadPlugins = new loadPlugins();
+
+// Grab Default settings
+$settings = LoadAvg::$_settings->general; 
 
 
 $flooding = false;
@@ -48,6 +53,7 @@ $settings_file = APP_PATH . '/config/settings.ini.php'; // path to settings INI 
 //read some system data
 $settingsActive = LoadUtility::checkWritePermissions( $settings_file );
 
+//check out logs
 $logStatus = $loadavg->testLogs(false);
 
 //check if any data has been passed in
@@ -67,6 +73,8 @@ if ( isset($settings['settings']['version']))
 	$version = $settings['settings']['version']; 
 
 //if script is newer than stored version its a upgrade
+//but core already upgrades itself... ?
+
 $upgrade = false;
 if ( (float)SCRIPT_VERSION > (float)$version )
 {
@@ -237,6 +245,8 @@ switch ( $step )
 					<div class="well">
 
 					<?php
+
+					//need to move this over to loadavg core and not be writing settings files out directly here its messy
 					// write settings file out
 					//var_dump($settings);
 					LoadUtility::write_php_ini( $settings, $settings_file);
@@ -318,22 +328,29 @@ switch ( $step )
 	case 5: // this is a upgrade - for now we just clean up after us when we upgrade
 		if ( $settingsActive )
 		{
+
+			//how to check for upgrade of 2.0 to 2.2 ?
+			//does the loadavg core do this automatically for us ?
+			//bneed to test
+
+			//to upgrade 2.1 to 2.2 as thats all we can really upgrade from ?
+			$loadavg->upgradeSettings21to22(false);
 			?>
+
 			<h4>Upgrade Complete</h4>
 			<div class="well">
-				<b>The upgrade is now complete</b>
+				<b>The upgrade is now complete, you are now running LoadAvg Version <?php echo SCRIPT_VERSION ?></b>
 				<br><br>
-				Go on to LoadAvg
-
+				Click continue to go on to LoadAvg
 
 				<?php
-				if ( isset($settings['settings']['version'])) 
-					$settings['settings']['version'] = SCRIPT_VERSION;
+				//if ( isset($settings['settings']['version'])) 
+				//	$settings['settings']['version'] = SCRIPT_VERSION;
 
 				//var_dump($settings);
-				LoadUtility::write_php_ini( $settings, $settings_file);
+				//LoadUtility::write_php_ini( $settings, $settings_file);
 				//adds a new line at end - why ?
-				$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
+				//$fh = fopen($settings_file, "a"); fwrite($fh, "\n"); fclose($fh);
 				?>
 
 				<br><br>
