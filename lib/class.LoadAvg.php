@@ -61,14 +61,22 @@ class LoadAvg
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
-		//check for old log files here....
+		//these updates really need to be moved into installer
+		//but are here for when people pull form git
+
+		//check for old 2.0 settings config here....
 		if ( !isset( self::$_settings->general['settings']) ) {
 
 			//for legacy 2.0 upgrade support
 			$this->upgradeSettings();
 		}
 
+		//check for upgrade for 2.1 here....
+		if ( self::$_settings->general['settings']['version'] == "2.1" )
+			$this->upgradeSettings21to22();
+
 		//get the date and timezone
+
 		//date_default_timezone_set("UTC");
 		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
 
@@ -82,6 +90,70 @@ class LoadAvg
 	}
 
 
+	/**
+	 * upgradeSettings
+	 *
+	 * upgrades 2.1 to 2.2 can be depreciated later on and moved into installer
+	 *
+	 * @param string $dir path to directory
+	 */
+
+	private function upgradeSettings21to22() {
+
+		//echo 'update';
+		//die;
+		
+		$settings_file = HOME_PATH . '/app/config/' . LoadAvg::$settings_ini;
+
+		//get current settings
+		$settings = LoadAvg::$_settings->general;
+
+		//add new stuff here
+		$settings['settings']['version'] = '2.2';
+
+		//update core settings with new features
+
+		if ( !isset ( $settings['settings']['clienttimezone'] ) ) 
+	    	$settings['settings']['clienttimezone'] = "America/New_York";
+
+		if ( !isset ( $settings['settings']['timezone'] ) ) 
+	    	$settings['settings']['timezone'] = "America/New_York";
+
+		if ( !isset ( $settings['settings']['timezonemode'] ) ) 
+	    	$settings['settings']['timezonemode'] = "Browser";
+
+		if ( !isset ( $settings['settings']['logalerts'] ) ) 
+	    	$settings['settings']['logalerts'] = "true";
+
+		//update core modules with new modules
+
+		if ( !isset ( $settings['modules']['Miner'] ) ) 
+	    	$settings['modules']['Miner'] = "false";    
+
+		//update core plugins with new plugins
+
+		if ( !isset ( $settings['plugins']['Alerts'] ) ) 
+	    	$settings['plugins']['Alerts'] = "true";   
+
+		if ( !isset ( $settings['plugins']['Process'] ) ) 
+	    	$settings['plugins']['Process'] = "true";  
+
+		if ( !isset ( $settings['plugins']['Server'] ) ) 
+	    	$settings['plugins']['Server'] = "true";  
+
+
+		//echo '<pre>'; var_dump ($settings); echo '</pre>';
+
+		LoadUtility::write_php_ini($settings, $settings_file);
+
+		//clear update cookies
+		$this->checkForUpdate();
+
+		//relaod the app now
+        header("Location: index.php");
+
+		//die;
+	}
 
 	/**
 	 * upgradeSettings
@@ -115,7 +187,7 @@ class LoadAvg
   				}
 			}
 
-			//delete blank line form end of file
+			//delete blank line from end of file
 			if ( end($settingsFile) == "" || end($settingsFile) == null )
 				array_pop($settingsFile);
 
@@ -137,6 +209,8 @@ class LoadAvg
 			);		    
 		}
 	}
+
+
 
 	public function memoryDebugData( $memory_usage) {
 

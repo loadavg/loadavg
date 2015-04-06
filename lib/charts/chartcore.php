@@ -43,7 +43,7 @@
 
 
 	<!--
-	Fist function here builds the chart data object to send over to be charted
+	First function here builds the chart data object to send over to be charted
 	-->
 
 	<script type="text/javascript">
