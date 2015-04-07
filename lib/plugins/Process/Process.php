@@ -18,6 +18,15 @@
 //open logged in
 if ( $loadavg->isLoggedIn() )
 { 
+
+	//set module name here
+	$moduleName = 'Process';
+
+	//grab the subheader 
+    $showCalendar = false;
+
+    include( APP_PATH . '/layout/subheader.php');
+
 ?>
 
 	<!-- need to automate this include for all plugins js code -->
@@ -25,61 +34,63 @@ if ( $loadavg->isLoggedIn() )
 <?php
 
 	//get plugin class
-	$process = LoadPlugins::$_classes['Process'];
+	$process = LoadPlugins::$_classes[$moduleName];
 
-	//used for callbacks to main plugin to select timestamp to display
-	//we are also passing back chart time
+	// if module is enabled ... get his settings
+    $pluginSettings = LoadPlugins::$_settings->$moduleName; 
 
-	$timeStamp = false;
-	if (isset($_GET['timestamp'])) {
-		$timeStamp = $_GET['timestamp'];
+	//get the range of dates to be charted from the UI and 
+	//set the date range to be charted in the plugin
+	$range = $loadavg->getDateRange();
+
+	//where is loadModules from ???
+	//$loadModules->setDateRange($range);
+	LoadModules::setDateRange($range);
+
+	//check if we are pulling todays date or other date from drop down menu
+	$gotLogDate = false;
+	$logDate = date('Y-m-d');
+
+	if ( (isset($_GET['logdate'])) && (!empty($_GET['logdate'])) ) {                             
+
+		$logDate = $_GET['logdate'];
+
+		if ( $logDate != date('Y-m-d') )
+			$gotLogDate = true;
 	}
 
-	$chartTime = false;
-	if (isset($_GET['charttime'])) {
-		$chartTime = $_GET['charttime'];
-	}
-
-
-
-
-	//got module url for callbacks - needs cleaning up
-	$host_url = LoadUtility::get_module_url();
-
-    //set url for callback - see end of chartcore.php in lib.charts
-    //its not a relative redirect...
-    $callback =  $host_url . 'page=Process&timestamp=';
-    //$callback =  'public/index.php?page=Process&timestamp=';
 ?>
 
 
-	<div class="well lh70-style">
-	    <b>Process Data</b>
-	    <div class="pull-right">
-	    DROP DOWN
-	    </div>
-	</div>
-
 	<div class="innerAll">
-
 	    <div id="accordion" class="accordion">	
 		<?php
 
-			//get the range of dates to be charted from the UI and 
-			//set the date range to be charted in the plugin
-			$range = $loadavg->getDateRange();
+		//used for callbacks to main plugin to select timestamp to display
+		$timeStamp = false;
+		if (isset($_GET['timestamp'])) 
+			$timeStamp = $_GET['timestamp'];
 
-			//where is loadModules from ???
-			$loadModules->setDateRange($range);
-			//LoadModules::setDateRange($range);
-			//$process->setDateRange($range);
+	    //set url for callback - see end of chartcore.php in lib.charts			
+		//get plugin url for callbacks - needs cleaning up
+		$host_url = LoadUtility::get_module_url();
 
-		    //render chart
-		    $loadModules->renderChart("Cpu", false, false, false, $callback, 770 );
-		    //$loadModules->renderChart("Memory", false, false, false, $callback, 770 );
+		//if we have a log file selected override callback
+		if ($gotLogDate)
+	    	$callback =  $host_url . 'page=Process&logdate=' . $logDate . '&timestamp=';
+		else	
+	    	$callback =  $host_url . 'page=Process&timestamp=';
+
+	    //render chart 
+		
+		//get plugin settings for chart to display
+		$chartToShow = $pluginSettings['settings']['display_chart']; //contains args[] array from modules .ini file
+		//echo 'showing ' . $showChart;
+
+	    //LoadModules::renderChart("Cpu", false, false, false, $callback, 770 );
+	    LoadModules::renderChart($chartToShow, false, false, false, $callback, 770 );
 		?>
 		</div>
-
 
 		<?php
 		// get and parse process data here
@@ -91,10 +102,13 @@ if ( $loadavg->isLoggedIn() )
 		$gotLog = false;
 
 		if ($timeStamp) {
-			$data = $process->fetchProcessLogData($timeStamp);		
+			//echo '<pre>'; 'got timestamp checking for data';
+			$data = $process->fetchProcessLogData($timeStamp, $logDate);		
+			//var_dump ($data);
+			//echo '</pre>';
 		}
 
-		//grab process data from system (LIVE)
+		//if no log data then we grab process data from system (LIVE)
 		if ( !$timeStamp || $data == false) {
 			$data = $process->fetchProcessData('-Ao %cpu,%mem,pid,user,comm,args');
 		}
@@ -120,9 +134,15 @@ if ( $loadavg->isLoggedIn() )
 
 							<?php
 								if ($gotLog)
-									$title = 'Running Processess at ' . date('H:i:s', $timeStamp);
-								else
-									$title = 'Running Processess (live)';
+									$title = 'Running Processess at ' . date('H:i:s', $timeStamp) . ' on ' . date('l, M. j ', $timeStamp);
+								else {
+
+									if ($gotLogDate)
+										$title = 'No Log Data showing Running Processess (live)';
+									else
+										$title = 'Running Processess (live)';
+
+								}
 
 								echo $title . "\n";
 							?>

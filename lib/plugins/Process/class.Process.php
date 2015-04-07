@@ -165,10 +165,11 @@ class Process extends LoadPlugins
 	 *
 	 */
 
-    public function fetchProcessLogData($timestamp)
+	/* TODO rewrite using system log find and decode functions */
+
+    public function fetchProcessLogData($timestamp, $logDate)
     { 
 
-    	//$date = $date_range;
 
 		$thismodule = __CLASS__;
 		$moduleSettings = $this::$_settings->$thismodule;
@@ -185,7 +186,8 @@ class Process extends LoadPlugins
 
         //get log location and filename using timestamp
         //TODO this is using todays date - we need to use $date_range !!!
-		$logdirname = sprintf($args->logdir, date('Y-m-d'));
+		//$logdirname = sprintf($args->logdir, date('Y-m-d'));
+		$logdirname = sprintf($args->logdir, $logDate);
 
 		$filename = sprintf($args->logfile, $logdirname, $timestamp);
 		$logfile = LOG_PATH . $filename;
