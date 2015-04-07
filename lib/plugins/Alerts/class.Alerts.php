@@ -251,14 +251,19 @@ class Alerts extends LoadPlugins
 	 * @param array @timeArray array that is returned
 	 *
 	 */
-	public function buildChartArray( $dataArray )
+	public function buildAlertArray( $dataArray, $logDate )
 	{
 
-		//echo '<pre>';
-		//var_dump ($dataArray);
+		//get date from logDate
+		$dateStamp = strtotime($logDate);
+		$day = date("d", $dateStamp);
+		$month = date("m", $dateStamp);
+		$year = date("Y", $dateStamp);
 
-		//get todays time at 00:00
-		$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
+
+		//get time at 00:00 for $logDate day to build array for chart
+		//$iTimestamp  = mktime(0, 0, 0, date("m")  , date("d"), date("Y"));
+		$iTimestamp  = mktime(0, 0, 0, $month  , $day, $year);
 
 		//create time array using 24 hour loop
 		$chartArray = array();
@@ -271,9 +276,6 @@ class Alerts extends LoadPlugins
 		    //3600 is a hour, swap this for 1/2 hour periods to 1800;
 		    $iTimestamp += 3600;
 		}
-
-
-
 
 		//loop through dataArray alert data which was sent over
 		//and add elements with alerts to chartArray 
@@ -321,7 +323,6 @@ class Alerts extends LoadPlugins
 								if (!isset( $chartArray[$i-1]['module'][$module] ))
 									$chartArray[$i-1]['module'][$module] = 0;
 									
-
 								$chartArray[$i-1]['module'][$module] += 1 ;
 							}
 							//break was in if isset above note!
@@ -333,8 +334,9 @@ class Alerts extends LoadPlugins
 		}
 
 
-//var_dump ($chartArray);
-//echo '</pre>';
+		//echo '<pre>';
+		//var_dump ($chartArray);
+		//echo '</pre>';
 
 		return $chartArray;
 	

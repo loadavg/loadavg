@@ -20,6 +20,8 @@
 //open logged in
 if ( $loadavg->isLoggedIn() )
 { 
+	//set module name here
+	$moduleName = 'Alerts';
 
 	//grab the subheader 
     $showCalendar = false;
@@ -35,26 +37,42 @@ if ( $loadavg->isLoggedIn() )
 	<?php
 
 	//get plugin class
-	$alerts = LoadPlugins::$_classes['Alerts'];
+	$alerts = LoadPlugins::$_classes[$moduleName];
 
 	//get the range of dates to be charted from the UI and 
 	//set the date range to be charted in the plugin
 	$range = $loadavg->getDateRange();
 
-	$moduleName = 'Alerts';
+	//check if we are pulling todays date or other date from drop down menu
+	$gotLogDate = false;
+	$logDate = date('Y-m-d');
 
-    $moduleSettings = LoadPlugins::$_settings->$moduleName; // if module is enabled ... get his settings
+	if ( (isset($_GET['logdate'])) && (!empty($_GET['logdate'])) ) {                             
+
+		$logDate = $_GET['logdate'];
+
+		if ( $logDate != date('Y-m-d') )
+			$gotLogDate = true;
+	}
+
+
+	//echo '<pre>'; var_dump($range); echo '</pre>';
+
+	// if module is enabled ... get his settings
+    $moduleSettings = LoadPlugins::$_settings->$moduleName; 
 	
-	$chart = $moduleSettings['chart']['args'][0]; //contains args[] array from modules .ini file
+	//get plugin settings
+	$pluginData = $moduleSettings['chart']['args'][0]; //contains args[] array from modules .ini file
 
 	//data about chart to be rendered
-	$chart = json_decode($chart);
+	$pluginData = json_decode($pluginData);
 
-	//get the log file NAME or names when there is a range and sets it in array chart->logfile
-	//returns multiple files when multiple log files
-	$logfile = $alerts->getLogFile( $chart->logfile, $range, $moduleName );
 
-	//get actual datasets needed to send to template to render chart
+	//get the log file name for decoding
+	$logfile = $alerts->getLogFile( $pluginData->logfile, $range, $moduleName );
+
+
+	//get actual datasets needed to send to template to render chart from the logfile
 	$chartData = $alerts->getChartRenderData(  $logfile );
 
 
@@ -62,10 +80,13 @@ if ( $loadavg->isLoggedIn() )
 	 * technically we can render out the alert data now as chart of all alerts
 	 */
 
-	//sorts alert data by key 1 into alertArray
-	//alertArray["Cpu"] - module 1 ie cpu
-	//alertArray["Disk"] - module 2 ie disk
-	$alertArray = $alerts->arraySort($chartData,1);
+	//sorts alert data by key 1 into alertData
+	//alertData["Cpu"] - module 1 ie cpu
+	//alertData["Disk"] - module 2 ie disk
+	$alertData = $alerts->arraySort($chartData,1);
+
+	//echo '<pre>'; var_dump ($alertData); echo '</pre>'; 
+
 
 	?>
 
@@ -77,20 +98,14 @@ if ( $loadavg->isLoggedIn() )
 				<div class="widget widget-4">
 					<div class="widget-head">
 						<h4 class="heading">
-
 							<?php
-								
-								$gotLog = false;
-
-								if ($gotLog)
-									$title = 'Alerts at ' . date('H:i:s', $timeStamp);
+								if ($gotLogDate)
+									$title = 'Alerts On ' . $logDate;
 								else
-									$title = 'Alerts (today)';
+									$title = 'Alerts Today ' . $logDate;
 
 								echo $title . "\n";
-							
 							?>
-
 						</h4>
 					</div>
 				</div>
@@ -101,28 +116,28 @@ if ( $loadavg->isLoggedIn() )
 
 		<?php        
 
-		//chartArray - time based array populated with modules alerts used to crate charts
-		//and to source modal click data from 
-		$chartArray = $alerts->buildChartArray($alertArray);
+		//dataArray - time based array populated with modules alerts used to render charts
+		$dataArray = $alerts->buildAlertArray($alertData, $logDate );
 
-		//get list of all moudles for table
+		//need list of all moudles for table in order to render table
 		$modules = LoadModules::$_modules; 
 
 		?>
 
 		<script type="text/javascript">
 
-		//we need to pass alertArray over to javascript code for modals
-		var alertData = [];
-		alertData = <?php print(json_encode($alertArray)); ?>;
-
 		//we need to pass chartModules over to javascript code for chart
 		var chartModules = [];
 		chartModules = <?php print(json_encode($modules)); ?>;
 
-		//we need to pass chartArray over to javascript code for chart
-		var chartArray = [];
-		chartArray = <?php print(json_encode($chartArray)); ?>;
+		//we need to pass raw alertData over to javascript code for modal popups
+		var alertData = [];
+		alertData = <?php print(json_encode($alertData)); ?>;
+
+		//time values here are todays date only!!!
+		//we need to pass dataArray over to javascript code used to render the chart
+		var dataArray = [];
+		dataArray = <?php print(json_encode($dataArray)); ?>;
 		</script>
 
 
