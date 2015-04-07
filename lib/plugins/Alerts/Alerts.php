@@ -59,10 +59,10 @@ if ( $loadavg->isLoggedIn() )
 	//echo '<pre>'; var_dump($range); echo '</pre>';
 
 	// if module is enabled ... get his settings
-    $moduleSettings = LoadPlugins::$_settings->$moduleName; 
+    $pluginSettings = LoadPlugins::$_settings->$moduleName; 
 	
 	//get plugin settings
-	$pluginData = $moduleSettings['chart']['args'][0]; //contains args[] array from modules .ini file
+	$pluginData = $pluginSettings['chart']['args'][0]; //contains args[] array from modules .ini file
 
 	//data about chart to be rendered
 	$pluginData = json_decode($pluginData);

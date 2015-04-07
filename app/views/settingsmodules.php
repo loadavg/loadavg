@@ -292,6 +292,8 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 		                        foreach ($moduleSettings['settings'] as $setting => $value) {
 
 		                        	//filter out ui settings but keep data for POST
+		                        	//limiting keywords are used for graph mode toggles
+		                        	
 									if ( LoadUtility::endswith ($setting, "limiting") ) { 
 
 										//ucwords(str_replace("_"," ",$setting));

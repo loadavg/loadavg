@@ -189,7 +189,6 @@ public  function cleanFiles($filename) {
 				echo "MASK " . $date . " " . $mask .  "\n";
 				
 				//var_dump ( glob( $mask ) );
-
 				//array_map( 'unlink', glob( $mask ) );
 				//array_map( 'cleanFiles', glob( $mask ) );
 
