@@ -20,7 +20,6 @@
 
 class Processor extends Logger
 {
-	public $logfile; // Stores the logfile name & path
 
 	/**
 	 * __construct

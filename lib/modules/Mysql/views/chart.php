@@ -22,7 +22,7 @@
 	$moduleCollapseStatus = "true";
 
 	if ($cookies) {
-		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+		$this->getUIaccordionCookie($moduleCollapse, $moduleCollapseStatus, $module); 
 	}
 
 ?>

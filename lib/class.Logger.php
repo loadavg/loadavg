@@ -20,6 +20,7 @@ class Logger
 	public static $_classes; // storing loaded modules classes
 
 	public static $_modules; // storing and managing modules
+	public static $_plugins; // storing and managing plugins
 
 	public static $current_date; // current date
 
@@ -49,94 +50,46 @@ class Logger
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
-		//get the date and timezone
+		//get the date and timezone - logger uses server time or override
 		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
 
+		//do we use this ? loggger is always current ? 
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
 
 
 		//generate list of all modules
-		$this->generateModuleList('modules');
+		LoadUtility::generateExtensionList( 'modules', self::$_modules );
 
 		//load all charting modules that are enabled
-		$this->loadModules('modules');
+		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes, self::$_modules, true);
 
-	}
+		//generate list of all modules
+		LoadUtility::generateExtensionList( 'plugins', self::$_modules );
 
-	/**
-	 * generatePluginList
-	 *
-	 * searches plugins directory for all plugins and adds them to list _plugins
-	 *
-	 */
+		//load all charting modules that are enabled
+		LoadUtility::loadExtensions( 'plugins', self::$_settings, self::$_classes, self::$_modules, true);
 
-	private function generateModuleList( $mode) {
 
-		//loads in all modules names
-		//so users can turn them on and off !
+/*
+		//generate list of all modules
+		//$this->generateModuleList('modules');
 
-		if (is_dir(HOME_PATH . '/lib/' . $mode . '/')) {
+		//generate list of all modules
+		LoadUtility::generateExtensionList( 'plugins', self::$_plugins );
 
-			$searchpath = HOME_PATH . '/lib/' . $mode . '/*/class.*.php';
+		//load all charting modules that are enabled
+		LoadUtility::loadExtensions( 'plugins', self::$_settings, self::$_classes, self::$_plugins, true);
 
-			foreach (glob($searchpath) as $filename) {
-				$filename = explode(".", basename($filename));
-
-				if ($mode == 'modules')
-					self::$_modules[$filename[1]] = strtolower($filename[1]);
-
-				//if ($mode == 'plugins')
-				//	self::$_plugins[$filename[1]] = $filename[1];
-
-			}
-		}
-
+		//load all charting modules that are enabled
+		//$this->loadModules('modules');
+*/
 	}
 
 
 
 
-	/**
-	 * loadModules
-	 *
-	 * load in modules by calling main scripts, will load moth core modules and plugins
-	 *
-	 * @param string $dir path to directory
-	 */
-
-	private function loadModules( $mode) {
-
-		//loads modules code
-		
-		//first figure out if we are loading for dashboard or logger
-		$class = 'log.';
-
-		//if module is true in settings.ini file then we load it in 
-		foreach ( self::$_settings->general[$mode] as $key => &$value ) {
-
-			//echo 'VALUE: ' . $value . '   ' . 'KEY: ' . $key . '\n';
-
-			if ( $value == "true" ) {
-				try {
-					$loadModule = $key . DIRECTORY_SEPARATOR . $class . $key . '.php';
-					
-					//echo 'loading:' . $loadModule;
-
-					//this doesnt work as its defined as in the path... set in globals
-					//maybe we should change this to not be relative ?
-					require_once $loadModule;
-					self::$_classes[$key] = new $key;
-
-				} catch (Exception $e) {
-					throw Exception( $e->getMessage() );
-				}
-			}
-
-		}
 
 
-
-	}
 
 	/**
 	 * getDates
@@ -152,6 +105,7 @@ class Logger
 	public static function getDates()
 	{
 		$dates = array();
+
 		foreach ( glob( HOME_PATH . "/logs/*.log") as $file ) {
 
 			//find files with number format only
@@ -194,7 +148,21 @@ class Logger
 		}
 
 	}
-	
+
+//called via array_map below to delete files and directories
+public  function cleanFiles($filename) {
+
+   	//echo "removing : " . $filename .  "\n";
+
+
+    if (! is_dir($filename)) {
+        unlink($filename);
+    }
+    else
+    	$this->deleteDir($filename);
+
+}
+
 
 	/**
 	 * rotateLogFiles
@@ -205,7 +173,11 @@ class Logger
 	public function rotateLogFiles ($logdir) 
 	{
 		
+		//echo "ROTATE \n";
+
 		$fromDate = strtotime("-". Logger::$_settings->general['settings']['daystokeep'] ." days 00:00:00");
+
+		//echo "fromDate " . $fromDate .  "\n";
 		
 		$dates = $this->getDates();
 
@@ -214,13 +186,40 @@ class Logger
 			if ($date < $fromDate) {
 				$mask = $logdir . "*_" . date("Y-m-d", $date) . "*.log";
 
-				//echo "MASK" . $mask .  "\n";
-				array_map( 'unlink', glob( $mask ) );
+				echo "MASK " . $date . " " . $mask .  "\n";
+				
+				//var_dump ( glob( $mask ) );
+				//array_map( 'unlink', glob( $mask ) );
+				//array_map( 'cleanFiles', glob( $mask ) );
+
+				array_map( array('Logger','cleanFiles') , glob( $mask ));
+
 			}
 		}
 
 }
 
+
+//used by cleanFiles above for deleting directories
+
+
+public static function deleteDir($dirPath) {
+    if (! is_dir($dirPath)) {
+        throw new InvalidArgumentException("$dirPath must be a directory");
+    }
+    if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+        $dirPath .= '/';
+    }
+    $files = glob($dirPath . '*', GLOB_MARK);
+    foreach ($files as $file) {
+        if (is_dir($file)) {
+            self::deleteDir($file);
+        } else {
+            unlink($file);
+        }
+    }
+    rmdir($dirPath);
+}
 
 
 /*
@@ -402,5 +401,38 @@ class Logger
 
 	}
 
+
+	/**
+	 * testLoggerCore
+	 *
+	 * see if things are set up corectly and we are logging
+	 *
+	 */
+
+	public function testLoggerCore ($api = false) 
+	{
+
+
+		$logger_status = $this->testLogs();
+
+		if ( $logger_status )
+			echo "The logger appears to be running \n";
+		else 
+			echo "The logger does not seem to be running \n"; 
+
+		// Sending data to API server
+		if ( $api ) {
+
+			echo "API Active, Testing API \n";
+
+			$apistatus = $this->testApiConnection(true);
+
+			if ( $apistatus )
+				echo "The API appears to be running \n";
+			else 
+				echo "The API does not seem to be running \n"; 
+		 }
+
+	}
 
 }

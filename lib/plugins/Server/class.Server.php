@@ -40,28 +40,7 @@ class Server extends LoadPlugins
 
 	}
 
-	/**
-	 * getData
-	 *
-	 * Retrives data and logs it to file
-	 *
-	 * @param string $cmd command to execute for data
-	 * @return array $results array of command execution results
-	 *
-	 */
-	public function getData( $cmd )
-	{
-		$class = __CLASS__;
-		$settings = LoadPlugins::$_settings->$class;
-		try {
-			$results = array();
-			exec($settings['cmd'][$cmd], $results, $res);
-			$results = implode("<br />", $results);
-			return $results;
-		} catch (Exception $e) {
 
-		}
-	}
 
 	/**
 	 * getIcon
@@ -80,6 +59,35 @@ class Server extends LoadPlugins
 		return $pluginData;
 	}
 
+	/**
+	 * getData
+	 *
+	 * Retrives data and logs it to file
+	 *
+	 * @param string $cmd command to execute for data
+	 * @return array $results array of command execution results
+	 *
+	 */
+
+	public function getData( $cmd )
+	{
+
+		$class = __CLASS__;
+		
+		//echo ($class);
+
+		$settings = LoadPlugins::$_settings->$class;
+		
+		try {
+			$results = array();
+			exec($settings['cmd'][$cmd], $results, $res);
+			$results = implode("<br />", $results);
+			return $results;
+		} catch (Exception $e) {
+
+		}
+	}
+	
 	/**
 	 * dataSize
 	 *

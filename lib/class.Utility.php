@@ -41,10 +41,14 @@ class LoadUtility
 	 * @param string $dir path to directory
 	 */
 
-	public static function loadExtensions( $mode, &$settings, &$classes) {
+	public static function loadExtensions( $mode, &$settings, &$classes, &$modules, $logger = false) {
 		
+
 		//loads modules code
-		$class = 'class.';
+		if ($logger)
+				$class = 'log.';
+		else
+				$class = 'class.';
 
 		$previous = null;
 
@@ -57,13 +61,26 @@ class LoadUtility
 				try {
 					$loadModule = $key . DIRECTORY_SEPARATOR . $class . $key . '.php';
 					
-					if (DEBUG) echo $loadModule . "<br>";
+					//if (LOGDEBUG) echo 'Loading module ' . $loadModule . "\n";
 
 					//this doesnt work as its defined as in the path... set in globals
 					//maybe we should change this to not be relative ?
-					require_once $loadModule;
+					//if ( file_exists ( $loadModule ))
+					//{
 
-					$classes[$key] = new $key;
+					if ( LoadUtility::fileExists ( $loadModule ))
+					{
+						//echo "Module File Exists \n";
+
+						require_once $loadModule;
+
+						$classes[$key] = new $key;
+
+						$modules[$key] = $settings->general[$mode][$key];
+					} else {
+						//echo "Module File Doesnt Exists \n";						
+					}
+					//$settings->general[$mode]["Cpu"]
 
 				} catch (Exception $e) {
 					throw Exception( $e->getMessage() );
@@ -87,23 +104,45 @@ class LoadUtility
 	public static function  generateExtensionList( $mode, &$dataStore) {
 
 		//loads in all modules names
-		//so users can turn them on and off !
+		//sets status to false (off)
 
+		//first vaidate extension directory
 		if (is_dir(HOME_PATH . '/lib/' . $mode . '/')) {
 
+			//set template to search for extensions in/with
 			$searchpath = HOME_PATH . '/lib/' . $mode . '/*/class.*.php';
 
+			//search searchpath for extensions
 			foreach (glob($searchpath) as $filename) {
+
 				$filename = explode(".", basename($filename));
 
-				if ($mode == 'modules')
-					$dataStore[$filename[1]] = strtolower($filename[1]);
-
-				if ($mode == 'plugins')
-					$dataStore[$filename[1]] = $filename[1];
-
+				if ($mode == 'modules' || $mode == 'plugins' ) {
+					$dataStore[$filename[1]] = "false";
+				}
 			}
 		}
+
+		//var_dump ($dataStore);
+	}
+
+
+	/**
+	 * fileExists
+	 *
+	 * checks if a file exists using the include path list set in globals.php
+	 *
+	 */
+	public static  function fileExists($file) {
+	    if(function_exists('stream_resolve_include_path'))
+	        return stream_resolve_include_path($file);
+	    else {
+	        $include_path = explode(PATH_SEPARATOR, get_include_path());
+	        foreach($include_path as $path)
+	            if(file_exists($path.DS.$file))
+	                return true;
+	        return false;
+	    }
 	}
 
 	/**
@@ -263,8 +302,18 @@ class LoadUtility
 	        //file was locked so now we can store information
 	        if ($canWrite)
 	        {
-	        	fwrite($fp, $dataToSave);
-	            //flock($fp, LOCK_UN);
+
+	        	if (is_array($dataToSave))
+	        	{
+					foreach ( $dataToSave as $item ) {
+			        	fwrite($fp, $item);
+					}
+				}
+	        	else
+	        	{
+	        		fwrite($fp, $dataToSave);
+	        	}
+	            	//flock($fp, LOCK_UN);
 	        }
 
 	        fclose($fp);
@@ -307,6 +356,53 @@ class LoadUtility
 	 
 	 	return $config_ini;
 	 }
+
+	/**
+	 * get_module_url
+	 *
+	 */
+
+	 public static function get_module_url () 
+	 {
+
+		$absolute_url = LoadUtility::full_url($_SERVER);
+		//echo 'absolute_url ' . $absolute_url . "<br>";
+
+		//ge thepage root
+		$slash = explode('?', $absolute_url);
+
+		$current_filename = $slash[count($slash) - 1]; 
+
+		$host_url = str_replace($current_filename, "", $absolute_url);
+		//echo 'host_url ' . $host_url . "<br>";
+
+		 return $host_url;
+	 }
+
+
+
+
+	public static  function url_origin($s, $use_forwarded_host=false)
+	{
+	    $ssl = (!empty($s['HTTPS']) && $s['HTTPS'] == 'on') ? true:false;
+	    $sp = strtolower($s['SERVER_PROTOCOL']);
+	    $protocol = substr($sp, 0, strpos($sp, '/')) . (($ssl) ? 's' : '');
+	    $port = $s['SERVER_PORT'];
+	    $port = ((!$ssl && $port=='80') || ($ssl && $port=='443')) ? '' : ':'.$port;
+	    $host = ($use_forwarded_host && isset($s['HTTP_X_FORWARDED_HOST'])) ? $s['HTTP_X_FORWARDED_HOST'] : (isset($s['HTTP_HOST']) ? $s['HTTP_HOST'] : null);
+	    $host = isset($host) ? $host : $s['SERVER_NAME'] . $port;
+	    return $protocol . '://' . $host;
+	}
+
+	public static function full_url($s, $use_forwarded_host=false)
+	{
+	    return LoadUtility::url_origin($s, $use_forwarded_host) . $s['REQUEST_URI'];
+	}
+
+
+
+
+
 
 
 	/**
@@ -514,7 +610,7 @@ class LoadUtility
 
 	//TODO needs optimizing as its called for EVERY data point!
 
-	public static function cleanDataPoint (array &$data, $depth = 3 ) 
+	public static function cleanDataPoint (array &$data, $depth = 3, $noneg = true ) 
 	{
 		//now clean data item for bad data meaning missing a depth value
 		//we can put other rules in here...
@@ -529,7 +625,7 @@ class LoadUtility
 			}
 
 			// now check for missing data and if missing data zero out missing data...
-			else if ( ($data[$x] == null) || ($data[$x] == "") ) {
+			else if ( ($data[$x] == null) || ($data[$x] == "") || ($data[$x] < 0  ) ) {
 				
 				$data[$x]=0.0;	
 			}
@@ -603,6 +699,25 @@ class LoadUtility
 	}
 
 
+/**    Returns the offset from the origin timezone to the remote timezone, in seconds.
+*    @param $remote_tz;
+*    @param $origin_tz; If null the servers current timezone is used as the origin.
+*    @return int;
+*/
+	public static function get_timezone_offset($remote_tz, $origin_tz = null) {
+    if($origin_tz === null) {
+        if(!is_string($origin_tz = date_default_timezone_get())) {
+            return false; // A UTC timestamp was returned -- bail out!
+        }
+    }
+    $origin_dtz = new DateTimeZone($origin_tz);
+    $remote_dtz = new DateTimeZone($remote_tz);
+    $origin_dt = new DateTime("now", $origin_dtz);
+    $remote_dt = new DateTime("now", $remote_dtz);
+    $offset = $origin_dtz->getOffset($origin_dt) - $remote_dtz->getOffset($remote_dt);
+    return $offset;
+}
+
 
 	/**
 	 * getDelimiter
@@ -627,6 +742,50 @@ class LoadUtility
 		}
 
 		return $delimiter;
+
+	}
+
+
+	/**
+	 * getTimezones
+	 *
+	 * Get the list of all possible timezones
+	 *
+	 */
+
+	public static function getTimezones()
+	{
+
+		$_timezones = array();
+
+		$regions = array(
+		    'Africa' => DateTimeZone::AFRICA,
+		    'America' => DateTimeZone::AMERICA,
+		    'Antarctica' => DateTimeZone::ANTARCTICA,
+		    'Aisa' => DateTimeZone::ASIA,
+		    'Atlantic' => DateTimeZone::ATLANTIC,
+		    'Europe' => DateTimeZone::EUROPE,
+		    'Indian' => DateTimeZone::INDIAN,
+		    'Pacific' => DateTimeZone::PACIFIC
+		);
+
+		foreach ($regions as $name => $mask)
+		{
+		    $zones = DateTimeZone::listIdentifiers($mask);
+		    foreach($zones as $timezone)
+		    {
+				// Lets sample the time there right now
+				$time = new DateTime(NULL, new DateTimeZone($timezone));
+
+				// Us dumb Americans can't handle millitary time
+				$ampm = $time->format('H') > 12 ? ' ('. $time->format('g:i a'). ')' : '';
+
+				// Remove region name and add a sample time
+				$_timezones[$name][$timezone] = substr($timezone, strlen($name) + 1) . ' - ' . $time->format('H:i') . $ampm;
+			}
+		}
+
+		return $_timezones;
 
 	}
 

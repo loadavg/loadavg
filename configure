@@ -18,15 +18,15 @@
 if [ "$(id -u)" != "0" ]; then
         echo "ALERT:"
         echo "You need to be root to run the configure script."
-        echo "Sorry, you are not root you can try the following:"
+        echo "If you are not root you can try the following:"
         echo ""
         echo "> sudo ./configure"
         echo ""
         exit 1
 else
-        echo -e "\n\n\n\n[*] Welcome to the LoadAvg Configuration Tool"
+        echo -e "\n\n\n\n[*] Welcome to the LoadAvg 2.2 Configuration Tool"
         echo "====================================================================="
-        echo "Copyright (C) 2014 Sputnik7"
+        echo "Copyright (C) 2015 Sputnik7"
         echo "This program comes with ABSOLUTELY NO WARRANTY"
         echo "This is free software, and you are welcome to redistribute it"
         echo "under certain conditions. See COPYRIGHT for more information."

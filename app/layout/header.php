@@ -83,6 +83,13 @@ if (isset($_POST['login'])  ) {
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-1.11.1.min.js"></script>
 
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery.cookie.js"></script>
+
+	
+	<!-- JQueryUI v1.11.1 -->
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.js"></script>
+
+
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/timezoneJS/date.js"></script>
 	
 	<!-- Modernizr -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/modernizr.custom.09032.js"></script>
@@ -96,8 +103,19 @@ if (isset($_POST['login'])  ) {
 
 	<!--[if IE]><script type="text/javascript" src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/other/excanvas/excanvas.js"></script><![endif]-->
 
+
+	<script type="text/javascript">
+		timezoneJS.timezone.zoneFileBasePath = "tz";
+		timezoneJS.timezone.defaultZoneFile = [];
+		timezoneJS.timezone.init({async: false});
+	</script>
+
+
 	<script type="text/javascript">
 	<?php 
+	
+	//date_default_timezone_set(LoadAvg::$_settings->general['settings']['clienttimezone']);
+
 	$min = date('Y-m-d');
 	$max = date('Y-m-d');
 	if (isset($_GET['logdate']) && !empty($_GET['logdate']) && $_GET['logdate'] !== date('Y-m-d'))
@@ -112,17 +130,35 @@ if (isset($_POST['login'])  ) {
 		$max = $_GET['maxDate'];
 	}
 
-	$min = strtotime($min);
-	$max = strtotime($max);
+	$min = strtotime($min) ;
+	$max = strtotime($max) ;
+
+	//timezone is taken from the server and UTC offset is recorded for normalization
+	//client timezone is used to offset browser via javascript only...
+    $phptimezone = date_default_timezone_get();
+
+    //normalize all server time to UTC
+	$timeoffset = LoadUtility::get_timezone_offset($phptimezone,'UTC');	
+	
+	if ($timeoffset > 0)
+		$timeoffset = $timeoffset / ( 60 * 60 );
+	else
+		$timeoffset = 1;
+
 	?>
 
-	var today_min = <?php echo mktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;
-	var today_max = <?php echo mktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
+	///////////////////////////////////////////////////
+
+	var today_min_php = <?php echo gmmktime(0, 0, 0, date("n", $min), date("j", $min), date("Y", $min))*1000; ?>;	
+	var today_max_php = <?php echo gmmktime(24, 0, 0, date("n", $max), date("j", $max), date("Y", $max))*1000; ?>;
+	
+	today_min_php = today_min_php + ( <?php echo $timeoffset ?> * ( 60 * 60 * 1000 ) );
+	today_max_php = today_max_php + ( <?php echo $timeoffset ?> * ( 60 * 60 * 1000 ) );
+
+	var today_min = today_min_php;
+	var today_max = today_max_php;
 
 	//fix for min range only (to current)
-
-	//fix for 6 and 12 hours need to grab data from log file before
-
 	//$nextWeek = time() + ( 24 * 60 * 60);
     // 24 hours; 60 mins; 60 secs
 
@@ -155,67 +191,108 @@ if (isset($_POST['login'])  ) {
 	
 
 </head>
-<body>
+
 
 <?php
 
-		if ( LoadAvg::$period ) { echo 'PERIOD'; die; }
+//check if we are running on mobile or not 
+//and set things up accordingly - need tom ove all this over to CSS and Bootstrap 3 !!!
+//but there is a tie-in with chart width that needs to be understood
 
+if ( LoadAvg::$isMobile == true ) {
+	?>
+	<body style="padding-right: 5px; padding-left: 5px;">
+		<div class="container-fluid">
+	<?php
+} else {
+	?>
+	<body>
+		<div class="container fixed">
+	<?php
+}
 ?>
 
-	<!-- Start Content -->
-	<div class="container fixed">
-		
 		<div class="navbar main hidden-print">
 			
-			<a href="index.php" class="appbrand"><img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;"><span>LoadAvg<span>Advanced Server Analytics</span></span></a>
+			<?php
 			
+			if (LoadAvg::$isMobile != true)
+			{ ?>
+				<a href="index.php" class="appbrand">
+				<img src="<?php echo SCRIPT_ROOT ?>public/assets/theme/images/loadavg_logo.png" style="float: left; margin-right: 5px;">
+				<span>LoadAvg<span>Advanced Server Analytics</span></span>
+				</a>
+			<?php }
+			else
+			{ ?>
+				<a href="index.php" style="width:120px;" class="appbrand">
+				<span style="width:120px;">LoadAvg<span>Analytics</span></span>
+				</a>				
+			<?php } ?>
+
 			<?php if ($loadavg->isLoggedIn() || (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true")) { ?>
 
 			<ul class="topnav pull-right">
 				<li<?php if (isset($_GET['page']) && $_GET['page'] == '') : ?> class="active"<?php endif; ?>><a href="index.php"><i class="fa fa-bar-chart-o"></i> Charts</a></li>
 
 
-				<?php if ( $loadavg->isLoggedIn() ) { ?>
-
-
 				<?php 
+				if ( $loadavg->isLoggedIn()  ) 
+				{ 
 
-				foreach ( $plugins as $module => $value ) { // looping through all the modules in the settings.ini file
-	            	if ( $value === "true" ) {
+					//plugin modules only show on desktop
+					if (LoadAvg::$isMobile != true) {
+						//echo 'its desktop';
 
-						$class = LoadPlugins::$_classes[$module];
-						$pluginData =  $class->getPluginData();
+						foreach ( $plugins as $module => $value ) { // looping through all the modules in the settings.ini file
+			            	if ( $value === "true" ) {
 
-						?>
-						<li <?php if (isset($_GET['page']) && $_GET['page'] == $pluginData[0]) : ?> class="active"<?php endif; ?>><a href="?page=<?php echo $pluginData[0]?>"><i class="fa <?php echo $pluginData[1]?>"></i> <?php echo $pluginData[0]?></a></li>
-						<?php
-					}
-				}
-				?>
+								$class = LoadPlugins::$_classes[$module];
+								$pluginData =  $class->getPluginData();
+
+								?>
+								<li <?php if (isset($_GET['page']) && $_GET['page'] == $pluginData[0]) : ?> class="active"<?php endif; ?>><a href="?page=<?php echo $pluginData[0]?>"><i class="fa <?php echo $pluginData[1]?>"></i> <?php echo $pluginData[0]?></a></li>
+								<?php
+							}
+						}
+					} //else
+						//echo 'its mobile';
+					?>
+
+					<?php if (LoadAvg::$isMobile == true) { ?>
+
+						<li><a href="?page=logout"><i class="fa fa-cog"></i> Logout</a></li>
+
+					<?php }  else { ?>
+
+					<li class="account <?php if (isset($_GET['page']) && $_GET['page'] == 'settings') : ?> active<?php endif; ?>">
+						<a data-toggle="dropdown" href="" class="logout"><span class="hidden-phone text">
+
+						<?php echo (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true" ) ? 'Settings' : 'Settings' /* $settings['username']; */ ?></span> 
+							<i class="fa fa-unlock-alt"></i></a>
+						
+						<ul class="dropdown-menu pull-right">
 
 
-				<li class="account <?php if (isset($_GET['page']) && $_GET['page'] == 'settings') : ?> active<?php endif; ?>">
-					<a data-toggle="dropdown" href="" class="logout"><span class="hidden-phone text">
+							<li><a href="?page=settings">System <i class="fa fa-cog pull-right"></i></a></li>
+							<li><a href="?page=settingsmodules">Modules <i class="fa fa-cog pull-right"></i></a></li>
+							<li><a href="?page=settingsplugins">Plugins <i class="fa fa-cog pull-right"></i></a></li>
+							<li><a href="?page=settingsapi">API <i class="fa fa-cog pull-right"></i></a></li>
+							<li><a href="?page=settingslogger">Logger <i class="fa fa-cog pull-right"></i></a></li>
 
-					<?php echo (isset($settings['settings']['allow_anyone']) && $settings['settings']['allow_anyone'] == "true" ) ? 'Settings' : 'Settings' /* $settings['username']; */ ?></span> 
-						<i class="fa fa-unlock-alt"></i></a>
-					
-					<ul class="dropdown-menu pull-right">
-						<li><a href="?page=settings">System <i class="fa fa-cog pull-right"></i></a></li>
-						<li><a href="?page=settingsmodules">Modules <i class="fa fa-cog pull-right"></i></a></li>
-						<li><a href="?page=settingsplugins">Plugins <i class="fa fa-cog pull-right"></i></a></li>
-						<li><a href="?page=settingsapi">API <i class="fa fa-cog pull-right"></i></a></li>
-						<li><a href="?page=settingslogger">Logger <i class="fa fa-cog pull-right"></i></a></li>
-						<?php if ( $loadavg->isLoggedIn() ): ?>
-						<li>
-							<span>
-								<a href="?page=logout" class="btn btn-default btn-small pull-right" style="padding: 2px 10px; background: #fff;" href="">Sign Out</a>
-							</span>
-						</li>
-						<?php endif; ?>
-					</ul>
-				</li>
+
+							<?php if ( $loadavg->isLoggedIn() ): ?>
+							<li>
+								<span>
+									<a href="?page=logout" class="btn btn-default btn-small pull-right" style="padding: 2px 10px; background: #fff;" href="">Sign Out</a>
+								</span>
+							</li>
+							<?php endif; ?>
+
+						<?php }  ?>
+
+						</ul>
+					</li>
 
 				
 				<?php }
@@ -232,8 +309,8 @@ if (isset($_POST['login'])  ) {
 			<?php } ?>
 		</div>
 		
-		<div id="wrapper">
+		<div id="wrapper" >
 		
-		<div id="content">
+		<div id="content" >
 
 

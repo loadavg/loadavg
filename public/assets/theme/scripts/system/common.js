@@ -1,123 +1,62 @@
 
-
-//used to get status of accordions - collapsed or visable as well as postion
-//from the loadUI cookie
-
-
-$(function () {
-
- $( "#accordion" )
-
-     .accordion({
-         header: "> div > h3",
-
-         activate: function( event, ui){
-         }
-     })
-     
-     .sortable({
-
-        connectWith: ".accordion",
-        //items: ":not(.separator)",
-        cancel: ".separator",
-
-        start: function( event, ui ){
-        },
-
-        stop: function( event, ui ) {
-             //ui.item.children( "h3" ).triggerHandler( "focusout" );
-            $(this).sortable("refresh"); 
-            storeState();
-        }
-    });
+//$('#content').draggable();
 
 
 
-    $('div.accordion-body').on('shown', function () {
 
-        //console.log( $(this).parents().attr('data-collapse-closed') + ' open' );
-        $(this).parents().attr('cookie-closed', true);
+ /*
+  * time converter function - converts timestamps into hours and minutes
+  */
 
-        storeState();
-    });
+function timeConverter ( ts ){
 
-    $('div.accordion-body').on('hidden', function () {
+    //console.log ("data type : ", toType(ts));
+    //console.log ("data      : ", ts );
 
-         //console.log( $(this).parents().attr('data-collapse-closed') + ' close' );
-         $(this).parents().attr('cookie-closed', false);
-
-        storeState();
-    });
+    //var timestamp = parseInt(ts);
+    var timestamp = ts;
 
 
-});
+    var dt = new Date( timestamp );
+    data = (dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds() + ' -- ' + dt );
+    return data;
+};
 
 /*
-function current_order(el){
-    var order=[];
-    el.children().each( function(i){      
-              order[i]=this.id;
-    });
-    // silly test      
-    for(var i=0; i<order.length; i++){
-       console.log("got " + order[i]);
-   }
-}
-*/
+  * type converter function - where is this used ???
+  */
 
-function storeState() {
+function toType (obj) {
+    return ({}).toString.call(obj).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+};
 
 
-    var loadCookie = "loadUIcookie";
+/*
+ * get the time in hh:mm am/pm format for a date/time object sent over 
+ *
+ */
 
-    var myCookie = [];
-    var jsonObj = {}; 
+//get item time in hh : mm : am/pm 
+//needs to be updated to account for timezone overrides
 
-    //mine
-    var toggled_div = $('#accordion');
+function getItemTime ($itemTime)
+{
+    var hours = $itemTime.getHours()
+    var minutes = $itemTime.getMinutes()
+    var ampm = "";
 
-    $(toggled_div).children().each(function() {
+    if (minutes < 10) 
+        minutes = "0" + minutes
 
-        var id = $(this).attr('id');
-       if (id != 'separator' )
-       {
-            var moduleName = $(this).attr('data-collapse-closed');
+    if(hours > 12) { hours = hours - 12; ampm = "pm"; }
+        else ampm = "am";
 
-            //console.log("moduleName " + moduleName);
+    $itemTime = hours + ":" + minutes + " " + ampm;
 
-            //if (moduleName != 'undefined' && (moduleName) )
-            if ( (moduleName) )
-            {
-                var status = $(this).attr('cookie-closed');
+    //console.log(  $itemTime, "time set");
 
-                if ( status == null || !status )
-                    status = "open";
-
-                //for when nothinbg has been set its open
-                if ( status == "true" || status == "open" )
-                    status = "open";
-                else
-                    status = "closed";
-
-                jsonObj[moduleName] = status;
-
-            }
-        }
-
-    });
-
-    myCookie.push( jsonObj );
-
-    // then to get the JSON string
-    myCookie = JSON.stringify(myCookie);
-
-    //get rid of extra brackets on string
-    var newStr = myCookie.substring(1, myCookie .length-1);
-
-    $.cookie(loadCookie, newStr, {expires:365, path: '/'});
-
-   // console.log(check_open_divs);
-
+    return $itemTime;
 }
 
 
+    

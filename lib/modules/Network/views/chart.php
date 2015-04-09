@@ -22,7 +22,7 @@
 	$moduleCollapseStatus = "true";
 
 	if ($cookies) {
-		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+		$this->getUIaccordionCookie($moduleCollapse, $moduleCollapseStatus, $module); 
 	}
 		
 ?>
@@ -40,7 +40,7 @@
 
 		//we only have one cookie for all interfaces!!! need to fix this to have separate ones
 		//$moduleCollapse = $moduleCollapseStatus  = "";
-		//$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+		//$this->getUIaccordionCookie($moduleCollapse, $moduleCollapseStatus, $module); 
 
 ?>
 

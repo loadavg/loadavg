@@ -37,15 +37,119 @@ moving
 ssh mdule gives erros when less than 3 datasets in log files
 
 
+//echo '<pre>'; var_dump($charts); echo '</pre>';
+
 
 //install error
-
-
-Notice: Undefined variable: pageName in /var/www/loadavg/app/layout/footer.php on line 108
-
 disable login flooding when installing...
 
 
+	//javascript foreach loop
+	$.each(alertData, function(k, v) {
+
+	    //display the key and value pair
+	    //console.log(k + ' is now currently: ' + v); console.log(" ");
+	
+    	for (var i = 0; i < alertData[k].length; ++i) {
+
+			getTime = alertData[k][i][0];
+			console.log (getTime + ' ' + alertData[k][i][1] + ' ' + alertData[k][i][2] );
+		}
+	});
+
+	
+    //javascript key loop 
+    for (key in array) {
+
+        if (key=="module") {
+            
+            console.log("module: ", array[key]);
+            console.log("module : ", array['module']);
+
+            logIt = array['module']
+            console.log("module : ", logIt );
+
+            if (typeof logIt['Cpu'] != 'undefined') {
+                console.log("cpu : ", logIt['Cpu'] );
+            }
+            
+
+        }
+
+        if (array.hasOwnProperty(key)) size++;
+    }
+
+    //get date starting at 00:00 !!!
+    /*
+    var date = new Date();
+    date.setHours(0);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    console.log(date.getTime());
+    */
 
 
 
+    //if we are on a page we need to figure it out
+    if ( lastPart.indexOf("page=") > -1 ) {
+
+        //gives me plugin when no data is in header
+        var MyString1=lastPart.substr(lastPart.lastIndexOf('=') + 1);
+        console.log('1', MyString1);
+
+        //gives me plugin when data is in header
+        var mySubString=lastPart.substr(lastPart.lastIndexOf('page=') );
+        console.log('2', mySubString);
+
+        var MyString3=mySubString.substring(mySubString.indexOf("=")+1,mySubString.indexOf("&"));
+        console.log('3', MyString3);    
+
+    }
+
+
+//some mobile detectaion code for bootstrap
+
+    <script type="text/javascript">
+
+    function findBootstrapEnvironment() {
+        var envs = ['phone', 'tablet', 'desktop'];
+
+        $el = $('<div>');
+        $el.appendTo($('body'));
+
+        for (var i = envs.length - 1; i >= 0; i--) {
+            var env = envs[i];
+
+            $el.addClass('hidden-'+env);
+            if ($el.is(':hidden')) {
+                $el.remove();
+                return env
+            }
+        };
+    }
+
+    var theEnv = findBootstrapEnvironment();
+
+    if (theEnv == 'tablet')
+        theEnv = 'desktop';
+
+    console.log ("The env: ", theEnv);
+
+    //if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+    if( theEnv == 'phone' ) {
+     document.write ('<div class="<div class="container fixed">">');
+    } else
+    {
+     //document.write ('<div class="container-fluid">');
+     document.write ('<div class="container fixed">');
+    }
+
+    </script>
+
+
+
+
+
+    rewrite all mobile code to be properly dynamic via bootstrap when we move to bootstrap 3
+     - but at least we have a basic working implementation at the moment

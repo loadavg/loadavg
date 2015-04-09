@@ -21,12 +21,15 @@ class LoadAvg
 	public static $_settings; // storing standard settings and/or loaded modules settings
 	
 	public static $current_date; // current date
-	private static $_timezones; // Cache of timezones
+	//private static $_timezones; // Cache of timezones
 
 	// Periodas
 	public static $period;
 	public static $period_minDate;
 	public static $period_maxDate;
+
+	//hack for mobile
+	public static $isMobile;
 
 	/**
 	 * setSettings
@@ -51,45 +54,110 @@ class LoadAvg
 	public function __construct()
 	{
 
-
-		//set timezone and load in settings
-		date_default_timezone_set("UTC");
+		//load in settings.ini file
 		self::$settings_ini = "settings.ini.php";
 
 		$this->setSettings('general',
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
-		//check for old log files here....
+		//these updates really need to be moved into installer
+		//but are here for when people pull form git
+
+		//check for old 2.0 settings config here....
 		if ( !isset( self::$_settings->general['settings']) ) {
 
 			//for legacy 2.0 upgrade support
-			$this->upgradeSettings();
+			$this->upgradeSettings(true);
 		}
 
+		//check for upgrade for 2.1 here....
+		//we only do this if no install folder is present mate
+		if ( ($this->checkInstaller() == true) && (self::$_settings->general['settings']['version'] == "2.1") )
+			$this->upgradeSettings21to22();
+
 		//get the date and timezone
+
+		//date_default_timezone_set("UTC");
 		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
 
 		//if no log date is set then use todays date
 		self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
 
+		//mobile status
+		self::$isMobile = false;
 
-		//generate list of all plugins
-		//LoadUtility::generateExtensionList( 'plugins', self::$_plugins );
-
-
-		//load all charting modules that are enabled
-		//LoadUtility::loadExtensions( 'plugins', self::$_settings, self::$_classes);
 
 	}
 
 
+	/**
+	 * upgradeSettings
+	 *
+	 * upgrades 2.1 to 2.2 can be depreciated later on and moved into installer
+	 *
+	 * @param string $dir path to directory
+	 */
 
-	//needs to build array with menu items and have front end deraw it really...
+	//public is a security hole but needed for installer to call this file!
+	public function upgradeSettings21to22($reload = true) {
+
+		//echo 'update';
+		//die;
+		
+		$settings_file = HOME_PATH . '/app/config/' . LoadAvg::$settings_ini;
+
+		//get current settings
+		$settings = LoadAvg::$_settings->general;
+
+		//add new stuff here
+		$settings['settings']['version'] = '2.2';
+
+		//update core settings with new features
+
+		if ( !isset ( $settings['settings']['clienttimezone'] ) ) 
+	    	$settings['settings']['clienttimezone'] = "America/New_York";
+
+		if ( !isset ( $settings['settings']['timezone'] ) ) 
+	    	$settings['settings']['timezone'] = "America/New_York";
+
+		if ( !isset ( $settings['settings']['timezonemode'] ) ) 
+	    	$settings['settings']['timezonemode'] = "Browser";
+
+		if ( !isset ( $settings['settings']['logalerts'] ) ) 
+	    	$settings['settings']['logalerts'] = "true";
+
+		//update core modules with new modules
+
+		if ( !isset ( $settings['modules']['Miner'] ) ) 
+	    	$settings['modules']['Miner'] = "false";    
+
+		//update core plugins with new plugins
+
+		if ( !isset ( $settings['plugins']['Alerts'] ) ) 
+	    	$settings['plugins']['Alerts'] = "true";   
+
+		if ( !isset ( $settings['plugins']['Process'] ) ) 
+	    	$settings['plugins']['Process'] = "true";  
+
+		if ( !isset ( $settings['plugins']['Server'] ) ) 
+	    	$settings['plugins']['Server'] = "true";  
 
 
+		//echo '<pre>'; var_dump ($settings); echo '</pre>';
 
+		LoadUtility::write_php_ini($settings, $settings_file);
 
+		//clear update cookies
+		$this->checkForUpdate();
+
+		//relaod the app now
+        if ($reload) {
+        	header("Location: index.php");
+        }
+
+		//die;
+	}
 
 	/**
 	 * upgradeSettings
@@ -123,7 +191,7 @@ class LoadAvg
   				}
 			}
 
-			//delete blank line form end of file
+			//delete blank line from end of file
 			if ( end($settingsFile) == "" || end($settingsFile) == null )
 				array_pop($settingsFile);
 
@@ -145,6 +213,8 @@ class LoadAvg
 			);		    
 		}
 	}
+
+
 
 	public function memoryDebugData( $memory_usage) {
 
@@ -190,12 +260,12 @@ class LoadAvg
 	 *
 	 */
 
-/*
- * used when we turn modules on and off
- * this needs to only build the log file for modules that have no log file in /logs
- * also be great to pass the module over if we know 
- * what module has changed or been enabled
- */
+	/*
+	 * also used when we turn modules on and off
+	 * this needs to only build the log file for modules that have no log file in /logs
+	 * also be great to pass the module over if we know 
+	 * what module has changed or been enabled
+	 */
 
 	public function runLogger()
 	{
@@ -587,9 +657,29 @@ class LoadAvg
 						setcookie('loadpass', 0, $past);
 				}
 
+				$ip = $this->getUserIP ();
+				$this->logUpdateCheck( "User logged in " . date('l jS \of F Y h:i:s A') . ' from ' . $ip );
+
 			}
 
 		}
+	}
+
+
+
+
+	public function getUserIP () {
+
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+		    $ip = $_SERVER['HTTP_CLIENT_IP'];
+		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+		} else {
+		    $ip = $_SERVER['REMOTE_ADDR'];
+		}
+
+		return $ip;
+
 	}
 
 	/**
@@ -627,11 +717,81 @@ class LoadAvg
 		if(isset($_COOKIE['loadpass'])) 
 			setcookie('loadpass', 0, $past);
 
+		//$this->logUpdateCheck( "User logged out" . getdate() );
+
 		//clean up session
 		session_destroy(); 
 
 	}
 
+
+
+	public function checkForUpdate()
+	{
+
+		$linuxname = "";
+
+		//check that this works with get as its long...
+		/*
+		print_r(posix_uname());
+
+		Should print something like:
+
+		Array
+		(
+		    [sysname] => Linux
+		    [nodename] => vaio
+		    [release] => 2.6.15-1-686
+		    [version] => #2 Tue Jan 10 22:48:31 UTC 2006
+		    [machine] => i686
+		)
+		*/
+		
+		//foreach(posix_uname() AS $key=>$value) {
+    		//$linuxname .= $value ." ";
+		//}		
+
+		$linuxname = $this->getLinuxDistro();
+
+		if ( !isset($_SESSION['updateStatus'])) {
+			if ( ini_get("allow_url_fopen") == 1) {
+
+				//replace me with curl please!!!
+				$response = file_get_contents("http://updates.loadavg.com/version.php?"
+					. "ip=" . $_SERVER['SERVER_ADDR'] 
+					. "&version=" . self::$_settings->general['settings']['version'] 
+					. "&site_url=" . self::$_settings->general['settings']['title']  
+					. "&phpv=" . phpversion()  					 
+					. "&osv=" . $linuxname  					 
+					. "&key=1");
+
+				// $response = json_decode($response);
+
+				//log the action locally - need to use log for more things its great
+				if ($response != false) {
+
+					$this->logUpdateCheck( "Check for udpates returned " . $response );
+
+					$serverVersion = floatval($response);
+					$localVersion = floatval (self::$_settings->general['settings']['version']);
+
+
+					if ( $serverVersion > $localVersion ) {
+					 	$_SESSION['updateStatus'] = "outdated";
+					} else if ( $serverVersion < $localVersion ) {
+					 	$_SESSION['updateStatus'] = "developer";						
+					} else {
+					 	$_SESSION['updateStatus'] = "uptodate";						
+					}
+				} else {
+					$_SESSION['updateStatus'] = "offline";						
+				}
+
+
+			}
+		}
+
+	}
 
 	/**
 	 * checkCookies
@@ -819,107 +979,6 @@ public function getLinuxDistro()
 
 
 
-	public function checkForUpdate()
-	{
 
-		$linuxname = "";
-
-		//check that this works with get as its long...
-		/*
-		<?php
-		print_r(posix_uname());
-		?>
-
-		Should print something like:
-
-		Array
-		(
-		    [sysname] => Linux
-		    [nodename] => vaio
-		    [release] => 2.6.15-1-686
-		    [version] => #2 Tue Jan 10 22:48:31 UTC 2006
-		    [machine] => i686
-		)
-		*/
-		
-		//foreach(posix_uname() AS $key=>$value) {
-    		//$linuxname .= $value ." ";
-		//}		
-
-		$linuxname = $this->getLinuxDistro();
-
-		if ( !isset($_SESSION['download_url'])) {
-			if ( ini_get("allow_url_fopen") == 1) {
-
-				//replace me with curl please!!!
-				$response = file_get_contents("http://updates.loadavg.com/version.php?"
-					. "ip=" . $_SERVER['SERVER_ADDR'] 
-					. "&version=" . self::$_settings->general['settings']['version'] 
-					. "&site_url=" . self::$_settings->general['settings']['title']  
-					. "&phpv=" . phpversion()  					 
-					. "&osv=" . $linuxname  					 
-					. "&key=1");
-
-				// $response = json_decode($response);
-
-				//log the action locally
-				$this->logUpdateCheck( $response );
-
-				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
-
-				if ( $response > self::$_settings->general['settings']['version'] ) {
-				 	$_SESSION['download_url'] = "http://www.loadavg.com/download/";
-				}
-			}
-		}
-	}
-
-
-
-	/**
-	 * getTimezones
-	 *
-	 * Get the (cached) list of all possible timezones
-	 *
-	 */
-
-	public static function getTimezones()
-	{
-		if (is_array(LoadAvg::$_timezones)) {
-			return LoadAvg::$_timezones;
-		}
-
-		LoadAvg::$_timezones = array();
-
-		$regions = array(
-		    'Africa' => DateTimeZone::AFRICA,
-		    'America' => DateTimeZone::AMERICA,
-		    'Antarctica' => DateTimeZone::ANTARCTICA,
-		    'Aisa' => DateTimeZone::ASIA,
-		    'Atlantic' => DateTimeZone::ATLANTIC,
-		    'Europe' => DateTimeZone::EUROPE,
-		    'Indian' => DateTimeZone::INDIAN,
-		    'Pacific' => DateTimeZone::PACIFIC
-		);
-
-		foreach ($regions as $name => $mask)
-		{
-		    $zones = DateTimeZone::listIdentifiers($mask);
-		    foreach($zones as $timezone)
-		    {
-				// Lets sample the time there right now
-				$time = new DateTime(NULL, new DateTimeZone($timezone));
-
-				// Us dumb Americans can't handle millitary time
-				$ampm = $time->format('H') > 12 ? ' ('. $time->format('g:i a'). ')' : '';
-
-				// Remove region name and add a sample time
-				LoadAvg::$_timezones[$name][$timezone] = substr($timezone, strlen($name) + 1) . ' - ' . $time->format('H:i') . $ampm;
-			}
-		}
-
-		return LoadAvg::$_timezones;
-
-	}
 
 }

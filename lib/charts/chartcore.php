@@ -19,26 +19,52 @@
 
 <?php
 
-//hardcoded for now - used for div height at end of page
-$chartHeight = 160;
+	//hardcoded for now - used for div height at end of page
+	$chartHeight = 160;
+
+	//$width = 750;
+
+	//global timezone data - can be overriden per chart later on
+	$chartTimezoneMode = LoadAvg::$_settings->general['settings']['timezonemode'];
+	$chartTimezone = LoadAvg::$_settings->general['settings']['clienttimezone'];
 
 	//echo 'chartModules : ' . $chartModules;
 	//var_dump ($chartData['chart']);
 
-/*
- * $chartModules is passed over by calling function in module and is used to track multiple modules in chart
- * more than 1 in chartModules means multiple charts in the segment so we include js files just once
- * and make calls to functions that need to be loaded or already loaded here
- */
+	/*
+	 * $chartModules is passed over by calling function in module and is used to track multiple modules in chart
+	 * more than 1 in chartModules means multiple charts in the segment so we include js files just once
+	 * and make calls to functions that need to be loaded or already loaded here
+	 */
+
+
 ?>
 
+
+
 	<!--
-	Fist function here builds the chart data object to send over to be charted
+	First function here builds the chart data object to send over to be charted
 	-->
 
 	<script type="text/javascript">
 	(function () {
-	
+
+
+		//a dirty hack to resize the charts on mobile devices
+		//really chart should render in available space and resize accoringly
+		//so this is really very dirty
+
+		var tdWidth = document.getElementById('accordion'); //alert(tdWidth.clientWidth); 
+		var theChartWidth = tdWidth.clientWidth;
+		//console.log(tdWidth);
+		//console.log('accordion ',theChartWidth);
+
+		//offset for mobile devices from accordion width
+		//we do this as for some reason chartTable and chartTd in chartmodule.php
+		//jump around too much
+		theChartWidth = theChartWidth - 40;
+
+
 		//if greater than 1 then extend chart id with chart function
 		<?php if ( $chartModules > 1) { ?>
 		charts.<?php echo $chart->id; ?> = $.extend({}, charts.<?php echo $chart->chart_function; ?>);
@@ -54,9 +80,22 @@ $chartHeight = 160;
 				 chart_info = {
 
 					ymin: <?php echo $chartData['chart']['ymin']; ?>,
-					ymax: <?php echo $chartData['chart']['ymax']; ?>
-					<?php if ($width) echo ', chartwidth: ' . $width .',';  ?>
-					<?php if ($height) echo 'chartheight: ' . $height;  ?>
+					ymax: <?php echo $chartData['chart']['ymax']; ?>,
+
+					timezonemode: "<?php echo $chartTimezoneMode; ?>",
+					timezone: "<?php echo $chartTimezone; ?>"
+					
+					<?php 
+					if ( LoadAvg::$isMobile == true ) 
+					{
+					?>
+					, chartwidth: theChartWidth ,
+					<?php
+					}
+					else if ($width) 
+						echo ', chartwidth: ' . $width .',';  ?>
+
+					<?php if ($height) echo ' chartheight: ' . $height;  ?>
 					//defualts are chartwidth: 530, chartheight: 160
 				};
 			<?php } ?>
@@ -160,3 +199,46 @@ $chartHeight = 160;
 	<div id="<?php echo $chart->id; ?>_legend" class="pull-right innerLR" style="right: 22px;"></div>
 	<div class="clearfix"></div>
 	<div id="<?php echo $chart->id; ?>" style="height: <?php echo $chartHeight;?>px;" class="chart-holder"></div>
+
+
+	
+
+<?php
+	//enable on click events used to trigger chart callbacks for plugins
+	if ($chartCallback != false) {
+?>
+
+	<script>
+	
+	//OnClick Callback Code
+	//used to add a redirect to url on-click on chart!
+	//see if we can move into module.js code
+	
+	$("#<?php echo $chart->id; ?>").bind('plotclick', function ( event, pos, item ) {
+	 
+	 if(item) {
+
+	 	/*
+	 	console.log(item);
+	 	console.log(item.series.label);
+	 	console.log(item.dataIndex);
+	 	console.log(item.datapoint);
+	 	console.log(item.datapoint[0]);
+		*/
+
+	 	timeData = item.datapoint[0] / 1000;
+
+	 	callbackLocation = "<?php echo $chartCallback; ?>"  + timeData;
+
+	 	window.open(callbackLocation  ,"_self");
+	 }
+	 
+	 //http://www.benknowscode.com/2013/02/adding-interaction-to-flot-graphs_7028.html
+	 
+	});
+	
+	</script>
+
+<?php
+	}
+?>

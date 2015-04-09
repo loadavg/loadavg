@@ -14,10 +14,20 @@
 * later.
 */
 
+//for debug
+/*
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
-    
 defined('DEBUG') || define('DEBUG', false );
+defined('LOGDEBUG') || define('LOGDEBUG', false );
+*/
+
+//for release
+
+ini_set('display_errors', 'Off');
+error_reporting(0);
+defined('DEBUG') || define('DEBUG', false );
+defined('LOGDEBUG') || define('LOGDEBUG', false );
 
 
 /* Find out where are we on the server*/
@@ -35,7 +45,7 @@ if ( $ROOT_PATH != "/") $ROOT_PATH = $ROOT_PATH . "/";
 
 /* Set script version */
 
-$loadavg_version = "2.1";
+$loadavg_version = "2.2";
 
 defined('SCRIPT_VERSION') || define('SCRIPT_VERSION', $loadavg_version );
 
@@ -51,13 +61,14 @@ defined('APP_PATH') || define('APP_PATH', realpath(dirname(__FILE__) . '/app'));
 defined('PLUGIN_PATH') || define('PLUGIN_PATH',  HOME_PATH . '/lib/plugins/' );
 
 
-/* log PATH */
+/* for loadavg logger support in loadavg */
 defined('LOGGER') || define('LOGGER',  'loadavg' );
 defined('LOG_PATH') || define('LOG_PATH',  HOME_PATH . '/logs/' );
 
-/* for collectd support in loadavg */
+
+/* for BETA collectd support in loadavg */
 //defined('LOGGER') || define('LOGGER',  'collectd' );
-defined('COLLECTD_PATH') || define('COLLECTD_PATH',  '/var/lib/collectd/csv/localhost/' );
+//defined('COLLECTD_PATH') || define('COLLECTD_PATH',  '/var/lib/collectd/csv/localhost/' );
 
 
 // Add lib/ to include_path

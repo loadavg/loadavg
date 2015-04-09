@@ -21,11 +21,11 @@
 	$moduleCollapseStatus = "true";
 
 	if ($cookies) {
-		$this->getUIcookie($moduleCollapse, $moduleCollapseStatus, $module); 
+		$this->getUIaccordionCookie($moduleCollapse, $moduleCollapseStatus, $module); 
 	}
 ?>
 
-<div id="accordion-<?php echo $module;?>" class="accordion-group"   data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
+<div id="accordion-<?php echo $module;?>" width="100%" class="accordion-group" data-collapse-closed="<?php echo $module;?>" cookie-closed=<?php echo $moduleCollapseStatus; ?> >
 		<div class="accordion-heading"> 
 			<a class="accordion-toggle" data-toggle="collapse"  href="#category<?php echo $module; ?>" >
 				<?php echo $moduleSettings['module']['name']; //$chart->label; ?>				
@@ -52,6 +52,9 @@
 
 				//get the log file NAME or names when there is a range and sets it in array chart->logfile
 				//returns multiple files when multiple log files
+
+				//echo $chart->logfile;
+
 				$class->setLogFile($chart->logfile,  $dateRange, $module );
 
 				//get actual datasets needed to send to template to render chart

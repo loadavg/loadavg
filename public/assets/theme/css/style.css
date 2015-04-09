@@ -4,6 +4,23 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,800,700,600&subset=latin,latin-ext);
 */
 
+/* override bootstrap for alerts plugin dialog */
+
+
+.modal-header {
+    padding:9px 15px;
+    border-bottom:1px solid #eee;
+    background-color: #0480be;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+     border-top-left-radius: 5px;
+     border-top-right-radius: 5px;
+ }
+
+
+
 body {
 /* font-family: 'Open Sans', sans-serif; */
   font-family: arial;
@@ -251,6 +268,10 @@ hr.separator {
   .breadcrumb {
     display: none !important;
   }
+
+
+
+
   .table {
     border: none !important;
   }
@@ -270,7 +291,10 @@ hr.separator {
   .table img {
     float: left;
   }
+
 }
+
+
 .glyphicons.standard {
   width: 24px;
   height: 24px;
@@ -2376,6 +2400,10 @@ div.collapse.in {
 .chart-holder {
   width: 500px;
 }
+
+
+
+
 .table {
   margin: 0;
   position: relative;
@@ -2386,7 +2414,7 @@ div.collapse.in {
 }
 .table th,
 .table td {
-  border-top-color: #f8f8f8;
+  border-top-color: #f8f8f8; 
 }
 .table td.center,
 .table th.center {
@@ -2821,7 +2849,8 @@ input[type=password],
 select,
 textarea {
   border-color: #D8D9DA;
-  color: #A7A7A7;
+  /* color: #A7A7A7;  */
+  color: #787878;
   -webkit-border-radius: 0 0 0 0;
   -moz-border-radius: 0 0 0 0;
   border-radius: 0 0 0 0;

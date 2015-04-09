@@ -117,6 +117,37 @@ else {
 		        	</div>
 		    	</div>
 
+		<div class="row-fluid">
+			<div class="span3">
+				<strong>Select time-zone</strong>
+			</div>
+			<div class="span9 right">
+
+
+			<?php
+			$timezones = LoadUtility::getTimezones();
+			print '<select name="formsettings[settings][timezone]" id="timezone">';
+
+			foreach($timezones as $region => $list)
+			{
+				print '<optgroup label="' . $region . '">' . "\n";
+				foreach($list as $thetimezone => $name)
+				{
+					print '<option name="' . $thetimezone . '"';
+					$check = $settings['settings']['timezone'];
+					if (  $check == $thetimezone )  { print ' selected="selected"'; }
+					print '>' . $thetimezone . '</option>' . "\n";
+				}
+				print '<optgroup>' . "\n";
+			}
+			print '</select>';
+			?>
+
+
+			</div>
+		</div>
+
+
 				<div class="separator bottom"></div>
 
 			    <div class="panel">
@@ -149,6 +180,20 @@ else {
 			<br>
 			<span class="label label-info">*/<?php echo $settings['settings']['logger_interval'] ?> * * * * <?php echo $php_location; ?> -q <?php echo dirname(APP_PATH); ?>/logger.php /dev/null 2>1</span>
 			</p>
+
+
+<?php
+//date_default_timezone_set('America/Los_Angeles');
+
+$script_tz = date_default_timezone_get();
+
+if (strcmp($script_tz, ini_get('date.timezone'))){
+    echo 'Script timezone differs from ini-set timezone.';
+} else {
+    echo 'Script timezone and ini-set timezone match.';
+}
+?>
+
 
 		</div>
 

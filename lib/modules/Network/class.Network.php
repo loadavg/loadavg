@@ -92,14 +92,14 @@ class Network extends Charts
 
 		//display switch used to switch between view modes 
 		switch ( $mode) {
-			case 1: 	$threshold = $settings['settings']['threshold_transfer'];		
+			case 1: 	$threshold = $settings['settings']['overload_transfer'];		
 				        $limiting = $settings['settings']['transfer_limiting'];				
 				        $cutoff = $settings['settings']['transfer_cutoff'];			
 				        $dataArrayLabel[0] = "Transmit";
 				        $dataArrayLabel[1] = "Overload";
 						break;
 
-			case 2: 	$threshold = $settings['settings']['threshold_receive'];	
+			case 2: 	$threshold = $settings['settings']['overload_receive'];	
 				        $limiting = $settings['settings']['receive_limiting'];
 						$cutoff = $settings['settings']['receive_cutoff'];	
 				        $dataArrayLabel[0] = "Receive";

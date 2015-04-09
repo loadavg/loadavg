@@ -48,6 +48,8 @@ class Disk extends Logger
 		$class = __CLASS__;
 		$settings = Logger::$_settings->$class;
 				
+		$timestamp = time();
+
 		$drive = $settings['settings']['drive'];
 		
 		if (is_dir($drive)) {
@@ -61,10 +63,14 @@ class Disk extends Logger
 			//$percentBytes = $freeBytes ? round($freeBytes / $totalBytes, 2) * 100 : 0;
 		}
 
-	    $string = time() . '|' . $usedBytes  . '|' . $spaceBytes . "\n";
+	    $string = $timestamp . '|' . $usedBytes  . '|' . $spaceBytes . "\n";
 		
 		$filename = sprintf($this->logfile, date('Y-m-d'));
 		LoadUtility::safefilerewrite($filename,$string,"a",true);
+
+		//If alerts are enabled, check for alerts
+		if (Alert::$alertStatus) 
+			$this->checkAlerts($timestamp, $usedBytes, $spaceBytes, $settings);
 
 		if ( $type == "api")
 			return $string;
@@ -72,7 +78,51 @@ class Disk extends Logger
 			return true;		
 	}
 
+	/**
+	 * checkAlerts
+	 *
+	 * Check if we hit a alert and act on it here
+	 *
+	 * @param string $type type of logging default set to normal but it can be API too.
+	 * @return string $string if type is API returns data as string
+	 *
+	 */
 
+	public function checkAlerts( $timestamp, $data1, $data2, $settings )
+	{
+
+		//grab module name
+		$module = __CLASS__;
+
+		//for writing alert out
+		$alert = null;
+
+		//grab overloads
+		$overload[1] = $settings['settings']['overload_1'];
+
+
+		//check overloads against data using percentage for disk
+		$percentage = ( $data1 / $data2 ) *100;
+
+		//echo 'perc: ' . $percentage ;
+		//echo ' overload: ' . $overload[1] ;
+
+		if ( $percentage > $overload[1] )
+		{
+			$alert[0][0] = "storage";
+			$alert[0][1] = (float)$overload[1];
+			$alert[0][2] = $percentage;
+		}
+
+
+		if ( $alert != null )
+		{	
+			//need to build this out
+			$string = $timestamp . '|' . $module . "|" . json_encode($alert) . "\n";
+
+			Alert::addAlert($string);
+		}
+	}
 
 
 }

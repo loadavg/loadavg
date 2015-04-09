@@ -23,8 +23,6 @@ class loadModules
 	public static $_classes; // storing loaded modules classes
 	public static $_modules; // storing and managing modules
 
-	private static $_timezones; // Cache of timezones
-
 	public static $date_range; // range of data to be charted
 
 
@@ -53,7 +51,6 @@ class loadModules
 	{
 
 		//set timezone and load in settings
-		date_default_timezone_set("UTC");
 		self::$settings_ini = "settings.ini.php";
 
 		$this->setSettings('general',
@@ -61,21 +58,14 @@ class loadModules
 		);
 
 
-		//get the date and timezone
-		date_default_timezone_set(self::$_settings->general['settings']['timezone']);
-
-		//self::$current_date = (isset($_GET['logdate']) && !empty($_GET['logdate'])) ? $_GET['logdate'] : date("Y-m-d");
-
-
 		//generate list of all modules
-		//$this->generateModuleList('modules');
 		LoadUtility::generateExtensionList( 'modules', self::$_modules );
 
 		//load all charting modules that are enabled
-		//$this->loadModules('modules');
-		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes);
+		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes, self::$_modules);
 
 
+		//echo '<pre>'; var_dump(self::$_modules); echo '</pre>';
 
 	}
 
@@ -107,13 +97,11 @@ class loadModules
 			parse_ini_file(APP_PATH . '/config/' . self::$settings_ini, true)
 		);
 
-				//generate list of all modules
-		//$this->generateModuleList('modules');
+		//generate list of all modules
 		LoadUtility::generateExtensionList( 'modules', self::$_modules );
 
 		//load all charting modules that are enabled
-		//$this->loadModules('modules');
-		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes);
+		LoadUtility::loadExtensions( 'modules', self::$_settings, self::$_classes, self::$_modules);
 	}
 
 	/**
@@ -196,9 +184,11 @@ class loadModules
 	 * @param string $module is the module to draw
 	 * @param bool $drawAvg will draw the averages bar if true
 	 */
-	public function renderChart ( 	$module, $drawAvg = true, 
+	public function renderChart ( 	$module, 
+									$drawAvg = true, 
 									$drawLegend = true, 
 									$cookies = true,
+									$callback = false,
 									$width = false, $height = false )
 	{
 
@@ -217,6 +207,11 @@ class loadModules
         //get data for chart/s to be rendered
 		$charts = $moduleSettings['chart']; //contains args[] array from modules .ini file
 
+		//echo '<pre>'; var_dump($charts); echo '</pre>';
+		
+		//see if there is a callback - used to trigger onclick events in chart
+		$chartCallback = $callback;
+
 		//check if chart has dynamic functions
 		$functionSettings =( (isset($moduleSettings['module']['url_args']) 
 			&& isset($_GET[$moduleSettings['module']['url_args']])) 
@@ -226,42 +221,37 @@ class loadModules
 		/*
 		 * tabbed chart modules have multiple charts within them
 		 */
-	        if (isset($moduleSettings['module']['tabbed']) 
-	        	&& $moduleSettings['module']['tabbed'] == "true") 
-	        {
+        if (isset($moduleSettings['module']['tabbed']) 
+        	&& $moduleSettings['module']['tabbed'] == "true") 
+        {
+
+			$templateName = HOME_PATH 	. DIRECTORY_SEPARATOR . 'lib/modules' 
+										. DIRECTORY_SEPARATOR . $module 
+										. DIRECTORY_SEPARATOR . 'views/chart.php';
 
 
+            //uses the modules views/chart code
+            //move this code in here next
+           //$templateName = $class->getChartTemplate( $module );
 
-        //$moduleSettings = LoadModules::$_settings->$module; 
+       		//not sure if we need this as no template means it breaks
+			if ( file_exists( $templateName )) 
+				include $templateName;
+			else 
+				return false;
+			
 
-		//$charts = $moduleSettings['chart'];
+        } else {
 
-		$templateName = HOME_PATH . DIRECTORY_SEPARATOR . 'lib/modules' . DIRECTORY_SEPARATOR . $module . DIRECTORY_SEPARATOR . 'views/chart.php';
+        	//single level chart data only
+        	//should add this to chartData ?
+        	//$chart = $charts['args'][0];
+			//$chart = json_decode($chart);
 
+			//now call template to draw chart to screen
+			include HOME_PATH . '/lib/charts/chart.php';
 
-
-	            //uses the modules views/chart code
-	            //move this code in here next
-	           //$templateName = $class->getChartTemplate( $module );
-
-	       		//not sure if we need this as no template means it breaks
-				if ( file_exists( $templateName )) 
-					include $templateName;
-				else 
-					return false;
-				
-
-	        } else {
-
-	        	//single level chart data only
-	        	//should add this to chartData ?
-	        	//$chart = $charts['args'][0];
-				//$chart = json_decode($chart);
-
-				//now call template to draw chart to screen
-				include HOME_PATH . '/lib/charts/chart.php';
-
-	        }
+        }
 
         return true;
 
@@ -278,7 +268,7 @@ class loadModules
 	 *
 	 */
 
-	public function getUIcookie ( &$data1,  &$data2, $module) 
+	public function getUIaccordionCookie ( &$data1,  &$data2, $module) 
 	{
 
 		//these are the default values 
@@ -327,140 +317,67 @@ class loadModules
 	}
 
 		
-	public  function getUIcookieSorting (&$returnArray) 
+	public  function getUIcookieSorting () 
 	{
 
+		//first grab the cookie
 		$cookieArray = null;
-		$this->getModuleStatusCookie ($cookieArray);
+		$cookieArray = $this->getModuleChartUICookie();
 
-		if ($cookieArray == null)
+		//if no cookie then return
+		if ($cookieArray == false || $cookieArray == null || !$cookieArray  )
 			return false;
-		
-		//parse out as true so they can be shown
-		//as sorting just cares if modules are there
-		$returnArray = null;
-		foreach ($cookieArray as $key =>$value) {
-			$returnArray[$key]="true";
-		}
 
-        //checks for problems with cookies 
-        if (  array_keys($returnArray) == range(0, count($returnArray) - 1)  ) {
+        //checks if cookie is there but its empty ie no values
+        if (  array_keys($cookieArray) == range(0, count($cookieArray) - 1)  ) {
+
+        //echo '<pre>cookie issues </pre>';
+
+		/*
+        //code that tests cookies against whats active to look for errors
+		//do we need this ? if bad cookie maybe just delete it ?
+
+        $loadedModules = LoadModules::$_modules; 
+
+        if ($chartList != false) {
+
+            $cleanSettings = null;
+            foreach ($loadedModules as $key =>$value) {
+
+                if ($value=="true") {
+                    $cleanSettings[$key]="true";
+                }
+            }
+    
+            //echo '<pre> chartList  '; var_dump( $chartList); echo '</pre>';
+            //echo '<pre> cleanSettings  '; var_dump( $cleanSettings); echo '</pre>';
+
+            //sorts and then compares arrays
+            //these should match really but if not dont we need to do something ?
+
+            if (!LoadUtility::identical_values( $cleanSettings , $chartList )) {
+
+                $loadModules->updateUIcookieSorting($loadedModules);
+                $chartList = $loadedModules;
+
+            }
+
+        }
+	    */ 
+
             return false;
         } 
 
+		//all is good return cookie;
+		return $cookieArray;
 
-        //need to do a compare to this to see if things are not right
-		//$loadedModules = LoadModules::$_settings->general['modules']; 
-
-
-		return true;
 	}
 
+	//gets the loadUIcookie if its set 
+	//returns value in &$cookie
+	//if not returns false
 
-	//updates cookies according to new module settings
-	//for when modules are turned on or off
-
-	public function updateUIcookieSorting ($moduleSettings) 
-	{
-
-		//echo "reparsing cookies<br>";
-
-		//parse moduleSettings and drop all false values 
-		$cleanSettings = null;
-		foreach ($moduleSettings as $key =>$value) {
-
-			if ($value=="true") {
-				$cleanSettings[$key]="true";
-			}
-
-		}
-
-		//echo '<pre>cleanSettings'; var_dump( $cleanSettings); echo '</pre>';
-
-		//get current cookie values
-		$currentCookie = null;
-		$this->getModuleStatusCookie ($currentCookie);
-
-		//echo '<pre>CookieData'; var_dump( $currentCookie); echo '</pre>';
-
-		// now we need to update cookie to remove or add items from cleanSettings....
-		//if item crossess over ski[p it
-
-		$newCookie = null;
-		foreach ($cleanSettings as $key =>$value) {
-
-			//if value is in currentCookie
-			//grab from currentCookie
- 			$newvalue = false;
-			//check if key is already in cookies
-			foreach ($currentCookie as $cookiekey => $cookievalue) {
-			  if ( $key == $cookiekey ) {
-			    $newvalue = $cookievalue;
-			  }
-			}
-
-			if ($newvalue) {
-				$newCookie[$key]=$newvalue;
-			}
-
-			else
-				$newCookie[$key]="open";
-		}
-
-
-		//echo '<pre>newCookie'; var_dump( $newCookie); echo '</pre>';
-
-		//now we need to preserve the sorting!!!
-		//as sorting is in the cookie...!!
-
-		//easy way ? compare old coockie against new cookie...
-
-		//so clean out oldcookie
-		//then add missing data to old cookie
-
-		$finalCookie = null;
-
-		foreach ($currentCookie as $key =>$value) {
-
-			//check if key is already in cookies
-			foreach ($newCookie as $cookiekey => $cookievalue) {
-
-			  if ( $key == $cookiekey ) {
-			    $finalCookie[$key]= $cookievalue;
-			  }
-
-			}
-		}
-
-		//now go thorugh the new cookie and see if we left anything out
-		foreach ($newCookie as $key =>$value) {
-
-			//check if key is there
-			$foundit = false;
-			foreach ($finalCookie as $cookiekey => $cookievalue) {
-			  if ( $key == $cookiekey ) 
-			  		$foundit = true;
-			}
-
-			if (!$foundit)
-			    $finalCookie[$key]= $value;
-
-		}
-	
-
-
-		//echo '<pre>finalCookie'; var_dump( $finalCookie); echo '</pre>';
-
-		//here we need to rewrite the cookie
-		$cookietime = time() + (86400 * 365); // 1 year
-		$finalCookie = json_encode($finalCookie);
-
-		setcookie('loadUIcookie', $finalCookie, $cookietime, "/");
-
-		return true;
-	}
-
-	public function getModuleStatusCookie (&$cookie) 
+	public function getModuleChartUICookie () 
 	{
 		//if cookie exist greb it here
 		//if not we return default values above
@@ -472,9 +389,106 @@ class loadModules
 		$cookie = stripslashes($cookie);
 		$cookie = json_decode($cookie, true);
 
-		return true;
+		return $cookie;
 
 	}
+
+
+	//updates cookies according to new module settings
+	//for when modules are turned on or off in settings
+
+	public function updateUIcookieSorting ($moduleSettings) 
+	{
+
+
+		//first check if there is a cookie there if there is none 
+		//return to caller with false
+
+		$currentCookie = false;
+		$currentCookie = $this->getModuleChartUICookie ();
+
+		echo '<pre>CookieData '; var_dump( $currentCookie); echo '</pre>';
+
+		if ($currentCookie == false)
+		{
+			return false;
+		}
+
+
+		//echo '<pre>Updating Cookie</pre>';
+
+		//now parse moduleSettings sent over and drop all false values 
+		//then replace true values with open/close status
+		//as cookies only store active modules and status - gives us newCookie
+		$newCookie = null;
+		foreach ($moduleSettings as $key =>$value) {
+
+			if ($value=="true") {
+
+				if (isset($currentCookie[$key]))
+					$newCookie[$key]=$currentCookie[$key];
+				else
+					$newCookie[$key]="open";
+
+			}
+
+		}
+
+		//echo '<pre>newCookie'; var_dump( $newCookie); echo '</pre>';
+
+		/*
+		 * now we need to sort the new cookie based on original cookie
+		 */
+
+		//first compare old cookie against new cookie...
+		$sortedCookie = null;
+
+		foreach ($currentCookie as $key =>$value) {
+
+			//check if key is already in cookies
+			foreach ($newCookie as $cookiekey => $cookievalue) {
+
+			  if ( $key == $cookiekey ) {
+			    $sortedCookie[$key]= $cookievalue;
+			  }
+
+			}
+		}
+
+		//now go thorugh the new cookie and see if we left anything out after comparison
+		//(ie new modules) and add it to the end
+		foreach ($newCookie as $key =>$value) {
+
+			//check if key is there
+			$foundit = false;
+			foreach ($sortedCookie as $cookiekey => $cookievalue) {
+			  if ( $key == $cookiekey ) 
+			  		$foundit = true;
+			}
+
+			if (!$foundit)
+			    $sortedCookie[$key]= $value;
+
+		}
+
+		//echo '<pre>sortedCookie '; var_dump( $sortedCookie); echo '</pre>';
+
+		$this->saveUICookie($sortedCookie);
+
+		return true;
+	}
+
+
+	public static  function saveUICookie($cookie) {
+
+		//here we need to rewrite the cookie
+		$cookietime = time() + (86400 * 365); // 1 year
+		$finalCookie = json_encode($cookie);
+
+		setcookie('loadUIcookie', $finalCookie, $cookietime, "/");
+
+	}
+
 
 	public static  function sortArrayByArray(Array $array, Array $orderArray) {
     
@@ -521,53 +535,5 @@ class loadModules
 	}
 
 	
-
-
-
-	/**
-	 * getTimezones
-	 *
-	 * Get the (cached) list of all possible timezones
-	 *
-	 */
-
-	public static function getTimezones()
-	{
-		if (is_array(LoadModules::$_timezones)) {
-			return LoadModules::$_timezones;
-		}
-
-		LoadModules::$_timezones = array();
-
-		$regions = array(
-		    'Africa' => DateTimeZone::AFRICA,
-		    'America' => DateTimeZone::AMERICA,
-		    'Antarctica' => DateTimeZone::ANTARCTICA,
-		    'Aisa' => DateTimeZone::ASIA,
-		    'Atlantic' => DateTimeZone::ATLANTIC,
-		    'Europe' => DateTimeZone::EUROPE,
-		    'Indian' => DateTimeZone::INDIAN,
-		    'Pacific' => DateTimeZone::PACIFIC
-		);
-
-		foreach ($regions as $name => $mask)
-		{
-		    $zones = DateTimeZone::listIdentifiers($mask);
-		    foreach($zones as $timezone)
-		    {
-				// Lets sample the time there right now
-				$time = new DateTime(NULL, new DateTimeZone($timezone));
-
-				// Us dumb Americans can't handle millitary time
-				$ampm = $time->format('H') > 12 ? ' ('. $time->format('g:i a'). ')' : '';
-
-				// Remove region name and add a sample time
-				LoadModules::$_timezones[$name][$timezone] = substr($timezone, strlen($name) + 1) . ' - ' . $time->format('H:i') . $ampm;
-			}
-		}
-
-		return LoadModules::$_timezones;
-
-	}
 
 }

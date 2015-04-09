@@ -3,7 +3,7 @@
 * LoadAvg - Server Monitoring & Analytics
 * http://www.loadavg.com
 *
-* Server module interface
+* Server plugin interface
 * 
 * @link https://github.com/loadavg/loadavg
 * @author Karsten Becker
@@ -48,8 +48,8 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 	        $loadModules->setDateRange($range);
 
 	        //render chart
-	        $loadModules->renderChart("Uptime", false, false, false, 770 );
-
+	        $loadModules->renderChart("Uptime", false, false, false, false, 770 );
+	        
 	?>
 	</div>
 
@@ -68,7 +68,7 @@ http://demo.mosaicpro.biz/smashingadmin/php/index.php?lang=en&page=widgets
 						<div class="widget-body">
 							<ul class="unstyled row-fluid">
 								<li><strong  class="span4">Server:</strong><span class="span8"><?php echo $settings['settings']['title']; ?></span></li>
-								<li><strong  class="span4">Hostname:</strong><span class="span8"><?php echo $server->getData('hostname'); ?></span></li>
+								<li><strong  class="span4">Domainname:</strong><span class="span8"><?php echo $server->getData('hostname'); ?></span></li>
 								<li><strong  class="span4">Nodename:</strong><span class="span8"><?php echo $server->getData('nodename'); ?></span></li>
 							</ul>
 						</div>

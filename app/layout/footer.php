@@ -14,14 +14,21 @@
 */
 ?>	
 
+
+
 			<?php if ($loadavg->isLoggedIn()) { ?>
 
 			<div class="well lh70-style-top margin-none center footer">
 				<a href="http://www.loadavg.com/">LoadAVG v <?php echo LoadAvg::$_settings->general['settings']['version']; ?></a> &copy;  <?php echo date("Y"); ?> Sputnik7 Ltd<br />
+				
+				<?php 
+				if ( LoadAvg::$isMobile != true ) {
+				?>
 				For comments and suggestions please <a href="http://www.loadavg.com/forums/">visit our forums</a><br />
-
-
-				<?php if (!isset($_SESSION['support_loadavg'])) { ?>
+				<?php
+				}
+				?>
+				<?php if (!isset($_SESSION['support_loadavg']) &&   ( LoadAvg::$isMobile != true ) ) { ?>
 				<div class="left pull-left">
 					Like LoadAvg ? <a href="http://www.loadavg.com/donate/" title="Make a donation, support LoadAvg">Please donate</a>
 				</div>
@@ -31,17 +38,50 @@
 				//page is not deifned for index and index is currently charts so show time here
 				if (!isset($_GET['page']) ) { ?>
 					HTML graphs generated in <?php echo $page_load; ?> sec.		
-				<?php } ?>
+				<?php }  else {
+					//placeholder for now as html here is a bit messy
+					echo "Get ready for <a href='http://www.gridload.com/'>GridLoad</a>";
+				}
+				?>
 
-				<!-- only check if check for updates is on -->
-				<?php if ( ( LoadAvg::$_settings->general['settings']['checkforupdates'] == "true" ) && (isset($_SESSION['download_url'])) )  {  ?>
+				<!-- only check if checkforupdates is on -->
+				<?php if ( ( LoadAvg::$_settings->general['settings']['checkforupdates'] == "true" ) 
+				&& (isset($_SESSION['updateStatus'])) &&  ( LoadAvg::$isMobile != true ) )  
+				{  
+					
+					if ( $_SESSION['updateStatus'] == "offline" ) { ?>
+
+						<div class="right pull-right">
+							Unable to check for updates
+						</div>
+
+					<?php } else  if ( $_SESSION['updateStatus'] == "outdated" ) { ?>
+
+						<div class="right pull-right">
+							Update available <a href="http://www.loadavg.com/download/" title="Download the latest version of LoadAvg">click to download</a>
+						</div>
+
+					<?php } else  if ( $_SESSION['updateStatus'] == "uptodate" ) { ?>
+
+						<div class="right pull-right">
+							LoadAvg is Up-to date
+						</div>
+
+					<?php } else  if ( $_SESSION['updateStatus'] == "developer" ) { ?>
+
+						<div class="right pull-right">
+							LoadAvg Developer Rockstar
+						</div>
+
+					<?php }
+
+				} else { ?>
+
 					<div class="right pull-right">
-						<!--
-						Update available <a href="<?php echo $_SESSION['download_url']; ?>" title="Download the new version of LoadAvg">click to download</a>
-						-->
-						Update available <a href="http://www.loadavg.com/download/" title="Download the new version of LoadAvg">click to download</a>
+						<a href="http://www.loadavg.com/download/" title="Download the latest version of LoadAvg">Check for updates</a>
 					</div>
-				<?php } ?>
+				<?php }?>
+
 			</div>
 			<?php } 
 
@@ -63,20 +103,21 @@
 		<!-- End Wrapper -->
 		</div>
 		
-		
+
 	</div>
 	
-	
-	<!-- JQueryUI v1.11.1 -->
-	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-1.11.1.custom/jquery-ui.min.js"></script>
 
 	<!-- Javascript for Period -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/period.js"></script>
+
+
+	<!-- Javascript for TimezoneJS -->
 	
 	<!-- JQueryUI Touch Punch -->
-	<!-- small hack that enables the use of touch events on sites using the jQuery UI user interface library -->
+	<!-- small hack that enables the use of touch events on sites using the jQuery UI user interface library  -->
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/plugins/system/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
 	
+
 	<!-- Colors -->
 	<script>
 	var primaryColor = '#4a8bc2';
@@ -98,7 +139,15 @@
 	<script>$(function () { $('.toggle-button').toggleButtons(); })</script>
 	-->
 
+	<!-- Loadavg buttons utilities --> 
 	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/buttons.js"></script>
+
+    <!-- common javascript functions for the app -->
+    <script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/common.js"></script>
+
+	<!-- overthrow.js 
+	<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/overthrow/overthrow.js"></script>
+	-->
 
 	<!-- Common script 
 		 Only include for chart/index right now as conflicts with opther modules
@@ -106,29 +155,11 @@
 	-->
 	<?php 
 
-	if ( isset($_GET['page']) && ($_GET['page'] != "") ) 
-		$pageName = $_GET['page'];
-
-	if (!$pageName) 
-	{
-		//echo 'INDEX ';
-		?>
-		<script src="<?php echo SCRIPT_ROOT ?>public/assets/theme/scripts/system/common.js"></script>
-		<?php
-	}
-	else 
-	{
-		//echo 'PAGENAME ' . $pageName; 
-		?>
-		<?php
-	} 
-	?>
+//	if ( isset($_GET['page']) && ($_GET['page'] != "") ) 
+//		$pageName = $_GET['page'];
 
 
 
-
-
-<?php
 //if they are flooding the login screen we sleep here
 if ($flooding) {
  die;

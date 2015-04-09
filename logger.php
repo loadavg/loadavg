@@ -15,29 +15,62 @@
 
 // initialize LoadAvg and grab data
 
-//require_once './globals.php'; // including required globals
 require_once dirname(__FILE__) . '/globals.php'; // including required globals
 
 include 'class.Utility.php'; // for logger module
 
-include 'class.Logger.php'; // for logger module
+///////////////////////////////////////////////////////////////
+//
+
+//for testing the system timzeone info
+$timezone = false;
+if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'timezone'))   ) {
+	$timezone = true;
+}
+
+if ($timezone) {
+
+	$systemTimeZone = exec('date +%Z');
+	echo 'Server time : '.  $systemTimeZone ."\n";
+
+	//$timestamp = time();
+	//echo 'PHP time : ' . date("Y-m-d H:i:s", $timestamp ) . "\n";
+	echo 'PHP Core timezone : ' . date_default_timezone_get() . "\n";
+
+}
+//
+/////////////////////////////////////////////////////////////
+
+// include logger module
+include 'class.Logger.php'; 
 $logger = new Logger(); // Initializing Main Controller
 
-include 'class.Timer.php'; // for logger module
+if ($timezone) 
+	echo 'Logger time: ' . date_default_timezone_get() ."\n";
+
+// include timer module
+include 'class.Timer.php'; 
 $timer = new Timer(); // Initializing Timer
 
-$loadedModules = Logger::$_settings->general['modules']; // Loaded modules
+// include alerts module
+include 'class.Alert.php'; 
+$alert = new Alert(); // Initializing Alert
 
-//grab the log diretory
-$logdir = LOG_PATH;
+if (Logger::$_settings->general['settings']['logalerts'] == "true")
+	$alert->setStatus(true);
 
+
+// Get list of modules and thier status 
+$loadedModules = Logger::$_modules; 
+
+//grab the log directory properly
 //need to grab from system settings.ini instead
 //$logdir = LoadAvg::$_settings->general['logs_dir']; // Loaded modules
+$logdir = LOG_PATH;
 
 
 //for testing the system
 $testmode = false;
-
 if  ( (defined('STDIN') && isset($argv[1]) && ($argv[1] == 'status'))   ) {
 	$testmode = true;
 }
@@ -64,50 +97,89 @@ if (Logger::$_settings->general['settings']['apiserver'] == "true") {
 $response = array();
 
 ////////////////////////////////////////////////
-// Delete old log files
+// Delete/rotate out old log files
 
+//TODO: update for nested log folders!
 $logger->rotateLogFiles($logdir);
 
 
-//when sending api data we call data gathering 2x this is unnecssary
+//TODO when sending api data we call data gathering 2x this is unnecssary
 //we only need to call 1x and return data as string or true/false
+
+//we can add 3 different modes to caller
+//disk - log data to disk, default
+//apionly - send back for api only no logging
+//api - log to disk and send back for api
+$logMode = "disk";
+
+//set api mode flag
+if ( $api ) 
+	$logMode = "api";
+
 
 if (!$testmode) {
 
+	if (LOGDEBUG) echo "Start Main LOOP \n"; 
+
+	//check to see if alerts module is loaded and if so initialize alert object
+
+	
+
+	if ($alert->getStatus()) {
+		$alert->initializeAlerts();
+		if (LOGDEBUG) echo "ALERT LOGGING ON \n"; 
+	} else {
+		if (LOGDEBUG) echo "ALERT LOGGING OFF \n"; 
+	}
+
+
+
 	// Check for each module we have loaded
 	foreach ( $loadedModules as $module => $value ) {
-		if ( $value == "false" ) continue;
+
+		if (LOGDEBUG) echo 'Module : ' . $module . ' module status ' . $value . "\n";
+
+		if ( $value == "false" ) 
+			continue;
 
 		// Settings for each loaded modules
 		$moduleSettings = Logger::$_settings->$module;
 
+
 		// Check if loaded module needs loggable capabilities
 		if ( $moduleSettings['module']['logable'] == "true" ) {
-			foreach ( $moduleSettings['logging']['args'] as $args) { // loop trought module logging arguments
 
+			// load module information
+			$class = Logger::$_classes[$module]; 
+
+			// loop through module logging arguments
+			//multiple args mean multiple charts like mysql or network modules
+			foreach ( $moduleSettings['logging']['args'] as $args) { 
 
 				$args = json_decode($args); // decode arguments
-				$class = Logger::$_classes[$module]; // load module information
-
-				//the modules logging function is read from the args
-				$caller = $args->function;
 
 				$class->logfile = $logdir . $args->logfile; // the modules logfile si read from args
 
+				//check for logdir
+				if ( isset($moduleSettings['module']['hasownlogdir']) && 
+					$moduleSettings['module']['hasownlogdir'] == "true" ) {
+					$class->logdir =  $args->logdir; // the modules logdir as read from args
+				}
 
+				//see if we are timing, if so set start time
 				if  ( $timemode  ) 
 					$st = $timer->getTime();
 
-				//we can add 3 different modes to caller
-				//log - log data
-				//api - send back for api only no logging
-				//logapi - log and send back for api
-				$logMode = "api";
+				//
+				//run modules logger
+				$responseData = $class->logData($logMode);
 
-				// collect data for API server
+
+				// if API then collect data for API server
 				if ( $api ) {
-					$responseData = $class->$caller($logMode);
 
+					//TODO: nead a way to deal with modules that return more than one dataset for api
+					//this is for networking module
 					if (is_array($responseData))
 					{
 						$timestamp = "";
@@ -126,8 +198,7 @@ if (!$testmode) {
 						$response[$module] = array("data" => $responseData, "timestamp" => $timestamp); // Populating response array
 					}
 				}
-				else
-					$class->$caller(); 
+
 
 				if  ( $timemode  ) {
 					$et = $timer->getTime();
@@ -138,6 +209,10 @@ if (!$testmode) {
 		}
 	}
 
+	if ($alert->getStatus()) {
+		$alert->writeAlerts();
+	}
+
 	// Send data to API server
 	if ( $api ) {
 		//print_r($response) ;
@@ -146,37 +221,26 @@ if (!$testmode) {
 
 }
 
-/////////////////////////////////////////////////////////
-// testing section
-
-// used to test if logger is running
+/*
+ * testing section
+ * used to test if logger is running
+ *
+ * EXECUTE: php logger.php status
+ */
 if  ( $testmode  ) {
 
 	echo "Testing Logger \n";
 
-	$logger_status = $logger->testLogs();
+	$logger->testLoggerCore($api);
 
-	if ( $logger_status )
-		echo "The logger appears to be running \n";
-	else 
-		echo "The logger does not seem to be running \n"; 
-
-	// Sending data to API server
-	if ( $api ) {
-
-		echo "API Active, Testing API \n";
-
-		$apistatus = $logger->testApiConnection(true);
-
-		if ( $apistatus )
-			echo "The API appears to be running \n";
-		else 
-			echo "The API does not seem to be running \n"; 
-	 }
 }
 
-/////////////////////////////////////////////////////////
-// timing  section
+/*
+ * timing section
+ * used to time logger
+ *
+ * EXECUTE: php logger.php time
+ */
 if  ( $timemode ) {
 
 	$timer->setFinishTime(); // Setting page load finish time
@@ -186,11 +250,8 @@ if  ( $timemode ) {
 	$mytime = (float) $timer->timeFinish - (float) $timer->timeStart;
 
 	echo "End   Time : " . $timer->timeFinish . " \n"; 
-
 	echo "Total Time : " . $mytime . " \n"; 
-
 	echo "           : " . $page_load . " \n"; 
-
 }
 
 ?>

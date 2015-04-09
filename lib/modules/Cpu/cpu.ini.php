@@ -19,8 +19,8 @@ line[] = '{"format":"Low (%s): %s","args":"cpu_low_time|cpu_low"}'
 line[] = '{"format":"Mean: %s","args":"cpu_mean"}'
 line[] = '{"format":"Latest: %s","args":"cpu_latest"}'
 [settings]
-overload_1 = 0.2
-overload_2 = 0.3
+overload_1 = 0.1
+overload_2 = 0.2
 display_cutoff = 0.3
 display_limiting = "false"
 [collectd]

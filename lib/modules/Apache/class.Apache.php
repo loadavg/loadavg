@@ -51,6 +51,7 @@ class Apache extends Charts
 
 		//define datasets
 		$dataArrayLabel[0] = 'CPU Usage';
+		$dataArrayLabel[1] = 'Overload';
 
 		//display switch used to switch between view modes - data or percentage
 		// true - show MB
@@ -167,14 +168,14 @@ class Apache extends Charts
 
 				'ymin' => $ymin,
 				'ymax' => $ymax,
-				'xmin' => date("Y/m/d 00:00:01"),
-				'xmax' => date("Y/m/d 23:59:59"),
+				//'xmin' => date("Y/m/d 00:00:01"),
+				//'xmax' => date("Y/m/d 23:59:59"),
 				'mean' => $apache_mean,
 
 				'dataset'			=> $dataArray,
-				'dataset_labels'	=> $dataArrayLabel,
+				'dataset_labels'	=> $dataArrayLabel
 				
-				'overload' => $settings['settings']['overload']
+	//			'overload' => $settings['settings']['overload']
 			);
 
 			return $return;	

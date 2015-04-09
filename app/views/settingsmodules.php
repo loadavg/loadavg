@@ -44,7 +44,7 @@ if (isset($_POST['update_settings'])) {
 	//as form drops unchecked values when posted for some reason
 	$modules = LoadModules::$_modules;
 
-	foreach ($modules as $module => $moduleName) { 
+	foreach ($modules as $module => $moduleStatus) { 
 
 		$_POST['formsettings']['modules'][$module] = ( !isset($_POST['formsettings']['modules'][$module]) ) ? "false" : "true";
 
@@ -95,7 +95,7 @@ if (isset($_POST['update_settings'])) {
 
 	$modules = LoadModules::$_modules;
 
-    foreach ($modules as $module => $moduleName) {
+    foreach ($modules as $module => $moduleStatus) {
     
     //echo $moduleName;
 
@@ -292,6 +292,8 @@ header('Location: '.$_SERVER['REQUEST_URI']);
 		                        foreach ($moduleSettings['settings'] as $setting => $value) {
 
 		                        	//filter out ui settings but keep data for POST
+		                        	//limiting keywords are used for graph mode toggles
+		                        	
 									if ( LoadUtility::endswith ($setting, "limiting") ) { 
 
 										//ucwords(str_replace("_"," ",$setting));
