@@ -313,66 +313,38 @@ public static function deleteDir($dirPath) {
 
 	public function sendApiData( $data ) {
 
+		$data = json_encode($data);
 		// for debugging
 		//var_dump($data); //exit;
 		//echo 'DEBUG: ' .  json_encode($data);
 
+		$key = self::$_settings->general['api']['key'];
+		$token = self::$_settings->general['api']['server_token'];
+
+		//end header info
 		$url = self::$_settings->general['api']['url'];
+		//end url info
 
-		$user_url = $url . '/users/';
-		$server_url = $url . '/servers/';
-
-		//validate API access here
-		if ( self::$_settings->general['api']['server_token'] && self::$_settings->general['api']['key'] ) {		
-		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/' . self::$_settings->general['api']['key'] . '/v');
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL,$url);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); 
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data); 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$account_valid = curl_exec($ch);
-		} else
-			$account_valid = 'false';
 
-		//get server id from server token
-		if ( self::$_settings->general['api']['server_token'] ) {			
-		$ch =  curl_init($server_url . self::$_settings->general['api']['server_token'] . '/t');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$server_exists = curl_exec($ch);
-		} else
-			$server_exists = 'false';
+		$headers = array();
+		$headers[] = 'key: '.$key;
+		$headers[] = 'token: '.$token;
+		$headers[] = 'Content-Type: application/json; charset=utf-8';
+		$headers[] = 'Content-Length: ' . strlen($data);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-		//echo $server_url.json_decode($server_exists)->id.'/data';
+		// Send the request & save response to $resp
+		$resp = curl_exec($ch);
 
-		//validation needs to happen on the sever this is still insecure!
-		//need to pass api token and server token over in data push
+		// Close request to clear up some resources
+		curl_close($ch);
 
-		if( $server_exists != 'false' && $account_valid != 'false' ) 
-		{
-
-			//file_put_contents("file.txt", json_encode($data)); test data
-			$curl = curl_init();
-
-			// Set some options - we are passing in a useragent too here
-			curl_setopt_array($curl, array(
-		    CURLOPT_RETURNTRANSFER => 1,
-		    CURLOPT_URL => $server_url.json_decode($server_exists)->id.'/data',
-		    CURLOPT_USERAGENT => 'LoadAvg Client',
-		    CURLOPT_POST => 1,
-		    CURLOPT_POSTFIELDS => array(
-		      'data' => json_encode($data),
-		    )
-			));
-
-			// Send the request & save response to $resp
-			$resp = curl_exec($curl);
-
-			// Close request to clear up some resources
-			curl_close($curl);
-
-			//used for debugging to file
-			//file_put_contents("file.txt",$resp);
-			
-			return true;
-		}
-
-		return null;
+		return preg_match("/success/", $resp) ? true : null;
 	}
 	/**
 	 * getProcStats
