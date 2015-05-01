@@ -325,24 +325,27 @@ public static function deleteDir($dirPath) {
 		$url = self::$_settings->general['api']['url'];
 		//end url info
 
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL,$url);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST"); 
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data); 
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-		$headers = array();
-		$headers[] = 'key: '.$key;
-		$headers[] = 'token: '.$token;
-		$headers[] = 'Content-Type: application/json; charset=utf-8';
 		$headers[] = 'Content-Length: ' . strlen($data);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-		// Send the request & save response to $resp
-		$resp = curl_exec($ch);
+		$process = curl_init($url);
+		curl_setopt($process, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8', $headers));
+		curl_setopt($process, CURLOPT_HEADER, 0);
+		curl_setopt($process, CURLOPT_USERPWD, $key . ":" . $token);
+		curl_setopt($process, CURLOPT_TIMEOUT, 30);
+		curl_setopt($process, CURLOPT_POST, 1);
+		curl_setopt($process, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($process, CURLOPT_RETURNTRANSFER, TRUE);
+		$return = curl_exec($process);
 
-		// Close request to clear up some resources
-		curl_close($ch);
+		if(curl_errno($process))
+		{
+		echo 'error:' . curl_error($process);
+		}
+
+		curl_close($process);
+
+//some resources
+		
 
 		return preg_match("/success/", $resp) ? true : null;
 	}
