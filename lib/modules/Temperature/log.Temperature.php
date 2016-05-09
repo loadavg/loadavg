@@ -12,52 +12,42 @@
 * This file is licensed under the Affero General Public License version 3 or
 * later.
 */
-
-
-
-
 class Temperature extends Logger
 {
 
-	/**
-	 * __construct
-	 *
-	 * Class constructor, appends Module settings to default settings
-	 *
-	 */
+    /**
+     * __construct
+     *
+     * Class constructor, appends Module settings to default settings
+     *
+     */
+    public function __construct()
+    {
+        $this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
+    }
 
-	public function __construct()
-	{
-		$this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
-	}
+    /**
+     * logData
+     *
+     * Retrives temperture data and logs it to file
+     *
+     * @param string $type type of logging default set to normal but it can be API too.
+     * @return string $string if type is API returns data as string
+     *
+     */
+    public function logData( $type = false )
+    {
+        $class = __CLASS__;
+        $settings = Logger::$_settings->$class;
 
-	/**
-	 * logData
-	 *
-	 * Retrives uptime data and logs it to file
-	 *
-	 * @param string $type type of logging default set to normal but it can be API too.
-	 * @return string $string if type is API returns data as string
-	 *	 *
-	 */
+        $temperature = exec("awk '{ printf \"%.1f\", \$1/1000 }' ".$settings['settings']['temperature_device']);
 
-	public function logData( $type = false )
-	{
-		$class = __CLASS__;
-		$settings = Logger::$_settings->$class;
-				
+        $string = time() . '|' . $temperature . "\n";
+        
+        $filename = sprintf($this->logfile, date('Y-m-d'));
+        LoadUtility::safefilerewrite($filename, $string, 'a', true);
 
-		$temperature = exec("awk '{ printf \"%.1f\", \$1/1000 }' /sys/class/thermal/thermal_zone0/temp");
-
-	    $string = time() . '|' . $temperature . "\n";
-		
-		$filename = sprintf($this->logfile, date('Y-m-d'));
-		LoadUtility::safefilerewrite($filename,$string,"a",true);
-
-		if ( $type == "api")
-			return $string;
-		else
-			return true;		
-	}
+        return $type == 'api' ? $string : true;
+    }
 
 }

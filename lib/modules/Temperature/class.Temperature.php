@@ -1,21 +1,17 @@
 <?php
 /**
-* LoadAvg - Server Monitoring & Analytics
-* http://www.loadavg.com
-*
-* Temperature Module for LoadAvg
-*
-* @link https://github.com/loadavg/loadavg
-* @author Knut Kohl
-* @copyright 2016 Knut Kohl <github@knutkohl.de>
-*
-* This file is licensed under the Affero General Public License version 3 or
-* later.
-*/
-
-
-
-
+ * LoadAvg - Server Monitoring & Analytics
+ * http://www.loadavg.com
+ *
+ * Temperature Module for LoadAvg
+ *
+ * @link https://github.com/loadavg/loadavg
+ * @author Knut Kohl
+ * @copyright 2016 Knut Kohl <github@knutkohl.de>
+ *
+ * This file is licensed under the Affero General Public License version 3 or
+ * later.
+ */
 class Temperature extends Charts
 {
 
@@ -25,7 +21,6 @@ class Temperature extends Charts
      * Class constructor, appends Module settings to default settings
      *
      */
-
     public function __construct()
     {
         $this->setSettings(__CLASS__, parse_ini_file(strtolower(__CLASS__) . '.ini.php', true));
@@ -39,7 +34,6 @@ class Temperature extends Charts
      * @return array $return data retrived from logfile
      *
      */
-    
     public function getTemperatureData(  )
     {
         $class = __CLASS__;
@@ -48,11 +42,6 @@ class Temperature extends Charts
         //define some core variables here
         $dataArray = $dataArrayLabel = array();
         $dataRedline = $temperature = array();
-
-        //display switch used to switch between view modes - data or percentage
-        // true - show MB
-        // false - show percentage
-        $displayMode =    $settings['settings']['display_limiting'];    
 
         //define datasets
         $dataArrayLabel[0] = 'Temperature';
@@ -108,50 +97,47 @@ class Temperature extends Charts
             $temperature_low  = min($temperature); 
             $temperature_mean = array_sum($temperature) / count($temperature);
 
-            //to scale charts
-            $ymax = $temperature_high;
-            $ymin = $temperature_low;
+            $ymax = ceil($temperature_high);
+            $ymin = floor($temperature_low);
 
             $temperature_high_time = $time[max($temperature)];
             $temperature_low_time = $time[min($temperature)];
 
-            $temperature_latest = (($temperature[count($temperature)-1]));
+            $temperature_latest = $temperature[count($temperature)-1];
 
             $variables = array(
-                'temperature_high' => number_format($temperature_high, 1),
+                'temperature_high'      => number_format($temperature_high, 1),
                 'temperature_high_time' => $temperature_high_time,
-                'temperature_low' => number_format($temperature_low, 1),
-                'temperature_low_time' => $temperature_low_time,
-                'temperature_mean' => number_format($temperature_mean, 1),
-                'temperature_latest' => number_format($temperature_latest, 1),
+                'temperature_low'       => number_format($temperature_low, 1),
+                'temperature_low_time'  => $temperature_low_time,
+                'temperature_mean'      => number_format($temperature_mean, 1),
+                'temperature_latest'    => number_format($temperature_latest, 1),
             );
 
             /*
              * all data to be charted is now cooalated into $return
              * and is returned to be charted
-             * 
              */
-
             $return  = array();
 
             // get legend layout from ini file        
             $return = $this->parseInfo($settings['info']['line'], $variables, __CLASS__);
 
             //parse, clean and sort data
-            $depth=2; //number of datasets
-            $this->buildChartDataset($dataArray,$depth);
+            $depth = 1; //number of datasets
+            $this->buildChartDataset($dataArray, $depth);
 
             //build chart object            
             $return['chart'] = array(
-                'chart_format' => 'line',
-                'chart_avg' => 'avg',
-                
-                'ymin' => $ymin,
-                'ymax' => $ymax,
+                'chart_format'      => 'line',
+                'chart_avg'         => 'avg',
 
-                'mean' => $temperature_mean,
+                'ymin'              => $ymin,
+                'ymax'              => $ymax,
 
-                'dataset'            => $dataArray,
+                'mean'              => $temperature_mean,
+
+                'dataset'           => $dataArray,
                 'dataset_labels'    => $dataArrayLabel,
             );
 
@@ -162,7 +148,5 @@ class Temperature extends Charts
             return false;
         }
     }
-
-    
 
 }

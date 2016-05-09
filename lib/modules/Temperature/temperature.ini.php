@@ -18,4 +18,4 @@ line[] = '{"format":"Low (%s): %s °C","args":"temperature_low_time|temperature_
 line[] = '{"format":"Average: %s °C","args":"temperature_mean"}'
 line[] = '{"format":"Latest: %s °C","args":"temperature_latest"}'
 [settings]
-display_limiting = "false"
+temperature_device = "/sys/class/thermal/thermal_zone0/temp"
